@@ -53,20 +53,11 @@ float WALL[WALL_COUNT][WALL_VERTS] = {
 
 /** The number of platforms */
 #define PLATFORM_VERTS  8
-#define PLATFORM_COUNT  10
+#define PLATFORM_COUNT  1  // Only one ground platform
 
-/** The outlines of all of the platforms */
+/** The single large ground platform */
 float PLATFORMS[PLATFORM_COUNT][PLATFORM_VERTS] = {
-    { 1.0f, 3.0f, 1.0f, 2.5f, 6.0f, 2.5f, 6.0f, 3.0f},
-    { 6.0f, 4.0f, 6.0f, 2.5f, 9.0f, 2.5f, 9.0f, 4.0f},
-    {23.0f, 4.0f,23.0f, 2.5f,31.0f, 2.5f,31.0f, 4.0f},
-    {26.0f, 5.5f,26.0f, 5.0f,28.0f, 5.0f,28.0f, 5.5f},
-    {29.0f, 7.0f,29.0f, 6.5f,31.0f, 6.5f,31.0f, 7.0f},
-    {24.0f, 8.5f,24.0f, 8.0f,27.0f, 8.0f,27.0f, 8.5f},
-    {29.0f,10.0f,29.0f, 9.5f,31.0f, 9.5f,31.0f,10.0f},
-    {23.0f,11.5f,23.0f,11.0f,27.0f,11.0f,27.0f,11.5f},
-    {19.0f,12.5f,19.0f,12.0f,23.0f,12.0f,23.0f,12.5f},
-    { 1.0f,12.5f, 1.0f,12.0f, 7.0f,12.0f, 7.0f,12.5f}
+    { 0.0f, 1.0f, 0.0f, 0.0f, 32.0f, 0.0f, 32.0f, 1.0f }
 };
 
 /** The goal door position */
