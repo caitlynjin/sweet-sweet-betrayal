@@ -22,8 +22,10 @@ int main(int argc, char * argv[]) {
     // The unique application name
     app.setName("Sweet Sweet Betrayal");
     app.setOrganization("GDIAC");
+    
+    //app.setFullscreen(true);
+    app.setDisplaySize(1024, 576);
     app.setFPS(60.0f);
-    app.setHighDPI(true);
     
     /// DO NOT MODIFY ANYTHING BELOW THIS LINE
     if (!app.init()) {
