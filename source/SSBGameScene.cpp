@@ -41,33 +41,26 @@ using namespace cugl::audio;
 // In an actual game, this information would go in a data file.
 // IMPORTANT: Note that Box2D units do not equal drawing units
 /** The wall vertices */
-#define WALL_VERTS 12
-#define WALL_COUNT  2
+#define WALL_VERTS 8
+#define WALL_COUNT  1
 
 float WALL[WALL_COUNT][WALL_VERTS] = {
-    {16.0f, 18.0f,  0.0f, 18.0f,  0.0f,  0.0f,
-      1.0f,  0.0f,  1.0f, 17.0f, 16.0f, 17.0f },
-    {32.0f, 18.0f, 16.0f, 18.0f, 16.0f, 17.0f,
-     31.0f, 17.0f, 31.0f,  0.0f, 32.0f,  0.0f }
-};
-
-/** The number of platforms */
-#define PLATFORM_VERTS  8
-#define PLATFORM_COUNT  1  // Only one ground platform
-
-/** The single large ground platform */
-float PLATFORMS[PLATFORM_COUNT][PLATFORM_VERTS] = {
     { 0.0f, 1.0f, 0.0f, 0.0f, 32.0f, 0.0f, 32.0f, 1.0f }
 };
 
+///** The number of platforms */
+//#define PLATFORM_VERTS  8
+//#define PLATFORM_COUNT  1  // Only one ground platform
+//
+///** The single large ground platform */
+//float PLATFORMS[PLATFORM_COUNT][PLATFORM_VERTS] = {
+//    { 0.0f, 1.0f, 0.0f, 0.0f, 32.0f, 0.0f, 32.0f, 1.0f }
+//};
+
 /** The goal door position */
-float GOAL_POS[] = { 4.0f,14.0f};
-/** The position of the spinning barrier */
-float SPIN_POS[] = {13.0f,12.5f};
+float GOAL_POS[] = { 30.0f, 1.5f };
 /** The initial position of the dude */
 float DUDE_POS[] = { 2.5f, 5.0f};
-/** The position of the rope bridge */
-float BRIDGE_POS[] = {9.0f, 3.8f};
 
 #pragma mark -
 #pragma mark Physics Constants
@@ -81,12 +74,6 @@ float BRIDGE_POS[] = {9.0f, 3.8f};
 #define BASIC_FRICTION  0.4f
 /** The restitution for all physics objects */
 #define BASIC_RESTITUTION   0.1f
-/** The width of the rope bridge */
-#define BRIDGE_WIDTH    14.0f
-/** Offset for bullet when firing */
-#define BULLET_OFFSET   0.5f
-/** The speed of the bullet after firing */
-#define BULLET_SPEED   20.0f
 /** The number of frame to wait before reinitializing the game */
 #define EXIT_COUNT      240
 
@@ -97,10 +84,6 @@ float BRIDGE_POS[] = {9.0f, 3.8f};
 #define EARTH_TEXTURE   "earth"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
-/** The key for the win door texture in the asset manager */
-#define BULLET_TEXTURE  "bullet"
-/** The name of a bullet (for object identification) */
-#define BULLET_NAME     "bullet"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
 /** The name of a platform (for object identification) */
@@ -403,32 +386,32 @@ void GameScene::populate() {
         addObstacle(wallobj,sprite,1);  // All walls share the same texture
     }
 
-#pragma mark : Platforms
-    for (int ii = 0; ii < PLATFORM_COUNT; ii++) {
-        std::shared_ptr<physics2::PolygonObstacle> platobj;
-        Poly2 platform(reinterpret_cast<Vec2*>(PLATFORMS[ii]),4);
-
-        EarclipTriangulator triangulator;
-        triangulator.set(platform.vertices);
-        triangulator.calculate();
-        platform.setIndices(triangulator.getTriangulation());
-        triangulator.clear();
-
-        platobj = physics2::PolygonObstacle::allocWithAnchor(platform,Vec2::ANCHOR_CENTER);
-        // You cannot add constant "".  Must stringify
-        platobj->setName(std::string(PLATFORM_NAME)+strtool::to_string(ii));
-
-        // Set the physics attributes
-        platobj->setBodyType(b2_staticBody);
-        platobj->setDensity(BASIC_DENSITY);
-        platobj->setFriction(BASIC_FRICTION);
-        platobj->setRestitution(BASIC_RESTITUTION);
-        platobj->setDebugColor(DEBUG_COLOR);
-
-        platform *= _scale;
-        sprite = scene2::PolygonNode::allocWithTexture(image,platform);
-        addObstacle(platobj,sprite,1);
-    }
+//#pragma mark : Platforms
+//    for (int ii = 0; ii < PLATFORM_COUNT; ii++) {
+//        std::shared_ptr<physics2::PolygonObstacle> platobj;
+//        Poly2 platform(reinterpret_cast<Vec2*>(PLATFORMS[ii]),4);
+//
+//        EarclipTriangulator triangulator;
+//        triangulator.set(platform.vertices);
+//        triangulator.calculate();
+//        platform.setIndices(triangulator.getTriangulation());
+//        triangulator.clear();
+//
+//        platobj = physics2::PolygonObstacle::allocWithAnchor(platform,Vec2::ANCHOR_CENTER);
+//        // You cannot add constant "".  Must stringify
+//        platobj->setName(std::string(PLATFORM_NAME)+strtool::to_string(ii));
+//
+//        // Set the physics attributes
+//        platobj->setBodyType(b2_staticBody);
+//        platobj->setDensity(BASIC_DENSITY);
+//        platobj->setFriction(BASIC_FRICTION);
+//        platobj->setRestitution(BASIC_RESTITUTION);
+//        platobj->setDebugColor(DEBUG_COLOR);
+//
+//        platform *= _scale;
+//        sprite = scene2::PolygonNode::allocWithTexture(image,platform);
+//        addObstacle(platobj,sprite,1);
+//    }
 
 #pragma mark : Dude
     Vec2 dudePos = DUDE_POS;
