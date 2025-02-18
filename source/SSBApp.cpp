@@ -1,16 +1,13 @@
-
 #include "SSBApp.h"
-
-#include <cstdlib>
-#include <ctime>
 
 using namespace cugl;
 using namespace cugl::graphics;
 using namespace cugl::scene2;
+using namespace cugl::audio;
 
-// This is adjusted by screen aspect ratio to get the height
-#define GAME_WIDTH 1024
 
+#pragma mark -
+#pragma mark Application State
 /**
  * The method called after OpenGL is initialized, but before running the application.
  *
@@ -22,52 +19,31 @@ using namespace cugl::scene2;
  * causing the application to run.
  */
 void SSBApp::onStartup() {
-    // Create a scene graph the same size as the window
-    _scene = Scene2::allocWithHint(Size(GAME_WIDTH,0));
-    
-    // Create a sprite batch (and background color) to render the scene
-    _batch = SpriteBatch::alloc();
-    setClearColor(Color4(229,229,229,255));
-    _scene->setSpriteBatch(_batch);
-    
-    // Create an asset manager to load all assets
     _assets = AssetManager::alloc();
+    _batch  = SpriteBatch::alloc();
     
-    // You have to attach the individual loaders for each asset type
-    _assets->attach<Texture>(TextureLoader::alloc()->getHook());
-    _assets->attach<Font>(FontLoader::alloc()->getHook());
-    
-    // This reads the given JSON file and uses it to load all other assets
-    _assets->loadDirectory("json/assets.json");
-
-    // Activate mouse or touch screen input as appropriate
-    // We have to do this BEFORE the scene, because the scene has a button
-#if defined (CU_TOUCH_SCREEN)
+    // Start-up basic input
+#ifdef CU_TOUCH_SCREEN
     Input::activate<Touchscreen>();
 #else
     Input::activate<Mouse>();
 #endif
     
-    // Build the scene from these assets
-    buildScene();
-    Application::onStartup();
+    _assets->attach<Font>(FontLoader::alloc()->getHook());
+    _assets->attach<Texture>(TextureLoader::alloc()->getHook());
+    _assets->attach<Sound>(SoundLoader::alloc()->getHook());
+    _assets->attach<SceneNode>(Scene2Loader::alloc()->getHook());
+    _assets->loadDirectory("json/loading.json");
+
+    // Create a "loading" screen
+    _loaded = false;
+    _loading.init(_assets,"json/assets.json");
+    _loading.setSpriteBatch(_batch);
     
-    // Report the safe area
-    Rect bounds = Display::get()->getSafeBounds();
-    CULog("Safe Area %sx%s",bounds.origin.toString().c_str(),
-                            bounds.size.toString().c_str());
-
-    bounds = getSafeBounds();
-    CULog("Safe Area %sx%s",bounds.origin.toString().c_str(),
-                            bounds.size.toString().c_str());
-
-    bounds = getDisplayBounds();
-    CULog("Full Area %sx%s",bounds.origin.toString().c_str(),
-                            bounds.size.toString().c_str());
-
-    std::string root = cugl::Application::get()->getSaveDirectory();
-    std::string path = root+"save.json";
-    CULog("%s",path.c_str());
+    // Queue up the other assets
+    _loading.start();
+    AudioEngine::start();
+    Application::onStartup(); // YOU MUST END with call to parent
 }
 
 /**
@@ -82,19 +58,54 @@ void SSBApp::onStartup() {
  * causing the application to be deleted.
  */
 void SSBApp::onShutdown() {
-    // Delete all smart pointers
-    _scene = nullptr;
-    _batch = nullptr;
+    _loading.dispose();
+    _gameplay.dispose();
     _assets = nullptr;
+    _batch = nullptr;
     
-    // Deativate input
-#if defined CU_TOUCH_SCREEN
+    // Shutdown input
+#ifdef CU_TOUCH_SCREEN
     Input::deactivate<Touchscreen>();
 #else
     Input::deactivate<Mouse>();
 #endif
-    Application::onShutdown();
+    
+    AudioEngine::stop();
+    Application::onShutdown();  // YOU MUST END with call to parent
 }
+
+/**
+ * The method called when the application is suspended and put in the background.
+ *
+ * When this method is called, you should store any state that you do not
+ * want to be lost.  There is no guarantee that an application will return
+ * from the background; it may be terminated instead.
+ *
+ * If you are using audio, it is critical that you pause it on suspension.
+ * Otherwise, the audio thread may persist while the application is in
+ * the background.
+ */
+void SSBApp::onSuspend() {
+    AudioEngine::get()->pause();
+}
+
+/**
+ * The method called when the application resumes and put in the foreground.
+ *
+ * If you saved any state before going into the background, now is the time
+ * to restore it. This guarantees that the application looks the same as
+ * when it was suspended.
+ *
+ * If you are using audio, you should use this method to resume any audio
+ * paused before app suspension.
+ */
+void SSBApp::onResume() {
+    AudioEngine::get()->resume();
+}
+
+
+#pragma mark -
+#pragma mark Application Loop
 
 /**
  * The method called to update the application data.
@@ -105,10 +116,102 @@ void SSBApp::onShutdown() {
  * When overriding this method, you do not need to call the parent method
  * at all. The default implmentation does nothing.
  *
- * @param timestep  The amount of time (in seconds) since the last frame
+ * @param dt    The amount of time (in seconds) since the last frame
  */
-void SSBApp::update(float timestep) {
-    
+void SSBApp::update(float dt) {
+    if (!_loaded && _loading.isActive()) {
+        _loading.update(0.01f);
+    } else if (!_loaded) {
+        _loading.dispose(); // Disables the input listeners in this mode
+        _gameplay.init(_assets);
+        _gameplay.setSpriteBatch(_batch);
+        _loaded = true;
+        
+        // Switch to deterministic mode (UNCOMMENT TO COMPARE)
+        setDeterministic(true);
+    } else {
+        _gameplay.update(dt);
+    }
+}
+
+/**
+ * The method called to indicate the start of a deterministic loop.
+ *
+ * This method is used instead of {@link #update} if {@link #setDeterministic}
+ * is set to true. It marks the beginning of the core application loop,
+ * which is concluded with a call to {@link #postUpdate}.
+ *
+ * This method should be used to process any events that happen early in
+ * the application loop, such as user input or events created by the
+ * {@link schedule} method. In particular, no new user input will be
+ * recorded between the time this method is called and {@link #postUpdate}
+ * is invoked.
+ *
+ * Note that the time passed as a parameter is the time measured from the
+ * start of the previous frame to the start of the current frame. It is
+ * measured before any input or callbacks are processed. It agrees with
+ * the value sent to {@link #postUpdate} this animation frame.
+ *
+ * @param dt    The amount of time (in seconds) since the last frame
+ */
+void SSBApp::preUpdate(float dt) {
+    _gameplay.preUpdate(dt);
+}
+
+/**
+ * The method called to provide a deterministic application loop.
+ *
+ * This method provides an application loop that runs at a guaranteed fixed
+ * timestep. This method is (logically) invoked every {@link getFixedStep}
+ * microseconds. By that we mean if the method {@link draw} is called at
+ * time T, then this method is guaranteed to have been called exactly
+ * floor(T/s) times this session, where s is the fixed time step.
+ *
+ * This method is always invoked in-between a call to {@link #preUpdate}
+ * and {@link #postUpdate}. However, to guarantee determinism, it is
+ * possible that this method is called multiple times between those two
+ * calls. Depending on the value of {@link #getFixedStep}, it can also
+ * (periodically) be called zero times, particularly if {@link #getFPS}
+ * is much faster.
+ *
+ * As such, this method should only be used for portions of the application
+ * that must be deterministic, such as the physics simulation. It should
+ * not be used to process user input (as no user input is recorded between
+ * {@link #preUpdate} and {@link #postUpdate}) or to animate models.
+ */
+void SSBApp::fixedUpdate() {
+    // Compute time to report to game scene version of fixedUpdate
+    float time = getFixedStep()/1000000.0f;
+    _gameplay.fixedUpdate(time);
+}
+
+/**
+ * The method called to indicate the end of a deterministic loop.
+ *
+ * This method is used instead of {@link #update} if {@link #setDeterministic}
+ * is set to true. It marks the end of the core application loop, which was
+ * begun with a call to {@link #preUpdate}.
+ *
+ * This method is the final portion of the update loop called before any
+ * drawing occurs. As such, it should be used to implement any final
+ * animation in response to the simulation provided by {@link #fixedUpdate}.
+ * In particular, it should be used to interpolate any visual differences
+ * between the the simulation timestep and the FPS.
+ *
+ * This method should not be used to process user input, as no new input
+ * will have been recorded since {@link #preUpdate} was called.
+ *
+ * Note that the time passed as a parameter is the time measured from the
+ * start of the previous frame to the start of the current frame. It is
+ * measured before any input or callbacks are processed. It agrees with
+ * the value sent to {@link #preUpdate} this animation frame.
+ *
+ * @param dt    The amount of time (in seconds) since the last frame
+ */
+void SSBApp::postUpdate(float dt) {
+    // Compute time to report to game scene version of postUpdate
+    float time = getFixedRemainder()/1000000.0f;
+    _gameplay.postUpdate(time);
 }
 
 /**
@@ -121,17 +224,10 @@ void SSBApp::update(float timestep) {
  * at all. The default implmentation does nothing.
  */
 void SSBApp::draw() {
-    // This takes care of begin/end
-    _scene->render();
+    if (!_loaded) {
+        _loading.render();
+    } else {
+        _gameplay.render();
+    }
 }
 
-/**
- * Internal helper to build the scene graph.
- *
- * Scene graphs are not required.  You could manage all scenes just like
- * you do in 3152.  However, they greatly simplify scene management, and
- * have become standard in most game engines.
- */
-void SSBApp::buildScene() {
-    
-}
