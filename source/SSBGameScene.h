@@ -46,6 +46,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
+    /** Reference to build mode grid */
+    std::shared_ptr<scene2::SceneNode> _gridnode;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -178,7 +180,12 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect, const Vec2& gravity);
-    
+
+    /**
+     * Initializes the grid layout on the screen for build mode.
+     */
+    void initGrid();
+
     
 #pragma mark -
 #pragma mark State Access
