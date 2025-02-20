@@ -107,12 +107,16 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
         _isShooting = false;
         _isJumping  = false;
         _faceRight  = true;
+        _isgliding = false;
         
         _shootCooldown = 0;
         _jumpCooldown  = 0;
+        _glidedelay = 0.2;
+        _glidetimer = 0;
         return true;
     }
     return false;
+   
 }
 
 
@@ -226,17 +230,29 @@ void DudeModel::applyForce() {
             _body->SetLinearVelocity(vel);
         } else {
             // Damping factor in the air
-            b2Vec2 force(-getDamping()*getVX(),0);
-            _body->ApplyForce(force,_body->GetPosition(),true);
+            //b2Vec2 force(-getDamping()*getVX(),0);
+            
+            //_body->ApplyForce(force,_body->GetPosition(),true);
         }
     }
     
     // Velocity too high, clamp it
-    if (fabs(getVX()) >= getMaxSpeed()) {
+    if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
+        
         setVX(SIGNUM(getVX())*getMaxSpeed());
+        CULog("Hit limit!");
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
+        if (_isgliding) {
+            force.operator*=(0.01);
+            //_body->ApplyForce(force, _body->GetPosition(), true);
+            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        }
+        
+    }
+    if (_isgliding) {
+        
     }
     
     // Jump!
@@ -254,6 +270,7 @@ void DudeModel::applyForce() {
  * @param delta Number of seconds since last animation frame
  */
 void DudeModel::update(float dt) {
+    glideUpdate(dt);
     // Apply cooldowns
     if (isJumping()) {
         _jumpCooldown = JUMP_COOLDOWN;
@@ -274,6 +291,29 @@ void DudeModel::update(float dt) {
         _node->setPosition(getPosition()*_drawScale);
         _node->setAngle(getAngle());
     }
+
+    
+}
+//Maybe implement wind
+
+void DudeModel::glideUpdate(float dt) {
+    b2Vec2 motion = _body->GetLinearVelocity();
+
+    if (!_isgliding) {
+        if (motion.y < 0) {
+            _glidetimer += dt;
+        }
+        if (_glidetimer >= _glidedelay) {
+            _isgliding = true;
+            _body->SetLinearDamping(10);
+        }
+    }
+    if (isGrounded()) {
+            _isgliding = false;
+            _glidetimer = 0;
+            _body->SetLinearDamping(0);
+    }
+
 }
 
 

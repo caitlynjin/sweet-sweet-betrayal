@@ -94,6 +94,12 @@ protected:
 	bool _isGrounded;
 	/** Whether we are actively shooting */
 	bool _isShooting;
+
+    /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
+    float _glidedelay;
+
+    float _glidetimer;
+    bool _isgliding;
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
 	/** Reference to the sensor name (since a constant cannot have a pointer) */
@@ -428,6 +434,8 @@ public:
     bool isFacingRight() const { return _faceRight; }
 
     
+
+    
 #pragma mark -
 #pragma mark Physics Methods
     /**
@@ -463,6 +471,9 @@ public:
      * This method should be called after the force attribute is set.
      */
     void applyForce();
+
+    void glideUpdate(float dt);
+
 
 
 	
