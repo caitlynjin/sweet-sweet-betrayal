@@ -118,6 +118,8 @@ float DUDE_POS[] = { 2.5f, 5.0f};
 #define LEFT_IMAGE      "dpad_left"
 /** The image for the right dpad/joystick */
 #define RIGHT_IMAGE     "dpad_right"
+/** The image for the edit button */
+#define EDIT_BUTTON     "edit_button"
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
@@ -260,6 +262,12 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
+    _editnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EDIT_BUTTON));
+    _editnode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
+    _editnode->setPosition(_size.width*0.9f,_size.height*0.9f);
+    _editnode->setScale(0.35f);
+    _editnode->setVisible(true);
+
     _gridnode = scene2::SceneNode::alloc();
     _gridnode->setScale(_scale);
     _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -272,6 +280,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
+    addChild(_editnode);
     addChild(_gridnode);
 
     populate();
@@ -345,6 +354,8 @@ void GameScene::dispose() {
         _losenode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
+        _editnode = nullptr;
+        _gridnode = nullptr;
         _complete = false;
         _debug = false;
         Scene2::dispose();

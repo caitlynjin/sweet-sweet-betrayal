@@ -46,6 +46,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
+    /** Reference to the edit button */
+    std::shared_ptr<scene2::PolygonNode> _editnode;
     /** Reference to build mode grid */
     std::shared_ptr<scene2::SceneNode> _gridnode;
 
