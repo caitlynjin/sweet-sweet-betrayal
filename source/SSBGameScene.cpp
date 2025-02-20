@@ -6,6 +6,7 @@
 //
 
 #include "SSBGameScene.h"
+#include "Platform.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
@@ -273,6 +274,12 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_gridnode);
+    
+    // Add objects to _objects list here. Eventually sync up with JSON object loader
+    std::shared_ptr<Platform> platTest = std::make_shared<Platform>();
+    /*platTest
+    _objects.push_back(
+        Platform(Vec2(60, 60), Size(50, 50))*/
 
     populate();
     initGrid();
@@ -283,6 +290,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
+
     return true;
 }
 
@@ -383,9 +391,29 @@ void GameScene::reset() {
  * This method is really, really long.  In practice, you would replace this
  * with your serialization loader, which would process a level file.
  */
+
+void GameScene::createPlatform(Vec2 pos) {
+
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
+    Size size(image->getSize().width / _scale,
+        image->getSize().height / _scale);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos, size);
+
+    // Set the physics attributes
+    plat->getObstacle()->setBodyType(b2_staticBody);
+    plat->getObstacle()->setDensity(BASIC_DENSITY);
+    plat->getObstacle()->setFriction(BASIC_FRICTION);
+    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    plat->getObstacle()->setSensor(true);
+    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+
+
+    // Add the scene graph nodes to this object
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+    addObstacle(plat->getObstacle(), sprite);
+    _objects.push_back(plat);
+}
 void GameScene::populate() {
-    
-    
 #pragma mark : Goal door
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
@@ -478,6 +506,11 @@ void GameScene::populate() {
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
 
+    Vec2 platformTestPos = Vec2(100, 100);
+    //std::shared_ptr<scene2::SceneNode> node1 = scene2::SceneNode::alloc();
+    createPlatform(goalPos - Vec2(goalPos.x / 2, 0));
+
+
     // Play the background music on a loop.
     // TODO: Uncomment for music
 //    std::shared_ptr<Sound> source = _assets->get<Sound>(GAME_MUSIC);
@@ -568,8 +601,11 @@ void GameScene::update(float timestep) {
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
     }
     
+    
     // Turn the physics engine crank.
     _world->update(timestep);
+
+    //_platformTest->draw();
 }
 
 /**
@@ -629,6 +665,11 @@ void GameScene::preUpdate(float dt) {
     if (_avatar->isJumping() && _avatar->isGrounded()) {
         std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+    }
+
+    
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
     }
 
 }

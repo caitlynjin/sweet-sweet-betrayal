@@ -14,6 +14,7 @@
 #include <vector>
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
+#include "Platform.h"
 
 using namespace cugl;
 
@@ -28,6 +29,9 @@ class GameScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+
+    /** A list of all objects to be updated during each animation frame. */
+    std::vector<std::shared_ptr<Object>> _objects;
     
     // CONTROLLERS
     /** Controller for abstracting out input across multiple platforms */
@@ -60,6 +64,8 @@ protected:
     /** Reference to the player avatar */
     std::shared_ptr<DudeModel>              _avatar;
 
+    std::shared_ptr<Platform> _platformTest;
+
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */
@@ -73,6 +79,8 @@ protected:
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
 #pragma mark Internal Object Management
+
+    void createPlatform(Vec2 pos);
     /**
      * Lays out the game geography.
      *
