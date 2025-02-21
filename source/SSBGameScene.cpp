@@ -615,8 +615,6 @@ void GameScene::update(float timestep) {
     
     // Turn the physics engine crank.
     _world->update(timestep);
-
-    //_platformTest->draw();
 }
 
 /**
