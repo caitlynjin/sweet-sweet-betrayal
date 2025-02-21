@@ -14,6 +14,7 @@
 #include <vector>
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
+#include "Platform.h"
 
 using namespace cugl;
 
@@ -28,6 +29,9 @@ class GameScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+
+    /** A list of all objects to be updated during each animation frame. */
+    std::vector<std::shared_ptr<Object>> _objects;
     
     // CONTROLLERS
     /** Controller for abstracting out input across multiple platforms */
@@ -46,6 +50,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
+    /** Reference to build mode grid */
+    std::shared_ptr<scene2::SceneNode> _gridnode;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -57,6 +63,8 @@ protected:
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
     /** Reference to the player avatar */
     std::shared_ptr<DudeModel>              _avatar;
+
+    std::shared_ptr<Platform> _platformTest;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -71,6 +79,8 @@ protected:
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
 #pragma mark Internal Object Management
+
+    void createPlatform(Vec2 pos, Size size);
     /**
      * Lays out the game geography.
      *
@@ -178,7 +188,12 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect, const Vec2& gravity);
-    
+
+    /**
+     * Initializes the grid layout on the screen for build mode.
+     */
+    void initGrid();
+
     
 #pragma mark -
 #pragma mark State Access

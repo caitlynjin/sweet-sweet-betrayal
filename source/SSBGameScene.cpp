@@ -6,6 +6,7 @@
 //
 
 #include "SSBGameScene.h"
+#include "Platform.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
@@ -33,9 +34,9 @@ using namespace cugl::audio;
 #define SCENE_ASPECT 9.0/16.0
 
 /** Width of the game world in Box2d units */
-#define DEFAULT_WIDTH   32.0f
+#define DEFAULT_WIDTH   20.0f
 /** Height of the game world in Box2d units */
-#define DEFAULT_HEIGHT  18.0f
+#define DEFAULT_HEIGHT  12.0f
 
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
@@ -45,7 +46,7 @@ using namespace cugl::audio;
 #define WALL_COUNT  1
 
 float WALL[WALL_COUNT][WALL_VERTS] = {
-    { 0.0f, 1.0f, 0.0f, 0.0f, 32.0f, 0.0f, 32.0f, 1.0f }
+    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
 };
 
 ///** The number of platforms */
@@ -58,7 +59,7 @@ float WALL[WALL_COUNT][WALL_VERTS] = {
 //};
 
 /** The goal door position */
-float GOAL_POS[] = { 30.0f, 1.5f };
+float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
 float DUDE_POS[] = { 2.5f, 15.0f};
 
@@ -260,21 +261,77 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
+    _gridnode = scene2::SceneNode::alloc();
+    _gridnode->setScale(_scale);
+    _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _gridnode->setPosition(offset);
+    _gridnode->setVisible(true);
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
+    addChild(_gridnode);
 
     populate();
+    initGrid();
+
     _active = true;
     _complete = false;
     setDebug(false);
     
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
+
     return true;
+}
+
+/**
+ * Initializes the grid layout on the screen for build mode.
+ */
+void GameScene::initGrid() {
+    const int GRID_ROWS = DEFAULT_HEIGHT;
+    const int GRID_COLS = DEFAULT_WIDTH;
+    const float CELL_SIZE = 1.0f;
+    const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
+
+    _gridnode->removeAllChildren();
+
+    std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
+
+    for (int row = 0; row < GRID_ROWS; ++row) {
+        for (int col = 0; col < GRID_COLS; ++col) {
+            Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
+
+            std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
+            cellNode->setColor(Color4::WHITE);
+            cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+            cellNode->setPosition(cellPos);
+
+            std::shared_ptr<scene2::SpriteNode> spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
+            spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+            spriteNode->setPosition(cellPos);
+            spriteNode->setContentSize(Size(CELL_SIZE, CELL_SIZE));
+
+            std::shared_ptr<scene2::Button> cellButton = scene2::Button::alloc(cellNode);
+            cellButton->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+            cellButton->setPosition(cellPos);
+            cellButton->setName("grid" + std::to_string(row) + std::to_string(col));
+            cellButton->activate();
+
+            // TODO: Fix this
+            cellButton->addListener([this](const std::string& name, bool down) {
+                if (down) {
+                    auto button = _gridnode->getChildByName(name);
+                    button->setColor(Color4::RED);
+                }
+            });
+
+            _gridnode->addChild(cellButton);
+        }
+    }
 }
 
 /**
@@ -317,6 +374,38 @@ void GameScene::reset() {
     populate();
 }
 
+/** 
+* Creates a new platform.
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createPlatform(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
+    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(wall.vertices);
+    triangulator.calculate();
+    wall.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+
+    // Set the physics attributes
+    plat->getObstacle()->setBodyType(b2_staticBody);
+    plat->getObstacle()->setDensity(BASIC_DENSITY);
+    plat->getObstacle()->setFriction(BASIC_FRICTION);
+    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+
+    wall *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    addObstacle(plat->getObstacle(), sprite, 1);  // All walls share the same texture
+    _objects.push_back(plat);
+    
+}
+
 /**
  * Lays out the game geography.
  *
@@ -328,9 +417,8 @@ void GameScene::reset() {
  * This method is really, really long.  In practice, you would replace this
  * with your serialization loader, which would process a level file.
  */
+
 void GameScene::populate() {
-    
-    
 #pragma mark : Goal door
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
@@ -356,7 +444,7 @@ void GameScene::populate() {
 
 #pragma mark : Walls
     // All walls and platforms share the same texture
-    image  = _assets->get<Texture>(EARTH_TEXTURE);
+    image = _assets->get<Texture>(EARTH_TEXTURE);
     std::string wname = "wall";
     for (int ii = 0; ii < WALL_COUNT; ii++) {
         std::shared_ptr<physics2::PolygonObstacle> wallobj;
@@ -422,10 +510,16 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+    createPlatform(Vec2(4, 8), Size(3, 3));
+    createPlatform(Vec2(10, 8), Size(5, 1));
+    createPlatform(Vec2(11, 4), Size(7, 2));
+    createPlatform(Vec2(5, 2), Size(4, 1));
+
 
     // Play the background music on a loop.
-    std::shared_ptr<Sound> source = _assets->get<Sound>(GAME_MUSIC);
-    AudioEngine::get()->getMusicQueue()->play(source, true, MUSIC_VOLUME);
+    // TODO: Uncomment for music
+//    std::shared_ptr<Sound> source = _assets->get<Sound>(GAME_MUSIC);
+//    AudioEngine::get()->getMusicQueue()->play(source, true, MUSIC_VOLUME);
 }
 
 /**
@@ -512,6 +606,7 @@ void GameScene::update(float timestep) {
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
     }
     
+    
     // Turn the physics engine crank.
     _world->update(timestep);
 }
@@ -573,6 +668,11 @@ void GameScene::preUpdate(float dt) {
     if (_avatar->isJumping() && _avatar->isGrounded()) {
         std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+    }
+
+    
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
     }
 
 }
