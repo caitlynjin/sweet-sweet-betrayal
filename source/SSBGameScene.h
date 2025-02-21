@@ -81,6 +81,7 @@ protected:
 #pragma mark Internal Object Management
 
     void createPlatform(Vec2 pos, Size size);
+    void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
      *
@@ -91,6 +92,7 @@ protected:
      *
      * This method is really, really long.  In practice, you would replace this
      * with your serialization loader, which would process a level file.
+     *
      */
     void populate();
     
