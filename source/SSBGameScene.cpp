@@ -274,12 +274,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_gridnode);
-    
-    // Add objects to _objects list here. Eventually sync up with JSON object loader
-    std::shared_ptr<Platform> platTest = std::make_shared<Platform>();
-    /*platTest
-    _objects.push_back(
-        Platform(Vec2(60, 60), Size(50, 50))*/
 
     populate();
     initGrid();
@@ -465,15 +459,15 @@ void GameScene::populate() {
 
         wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
         // You cannot add constant "".  Must stringify
-        //wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
-        //wallobj->setName(wname);
+        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
+        wallobj->setName(wname);
 
         // Set the physics attributes
         wallobj->setBodyType(b2_staticBody);
-        //wallobj->setDensity(BASIC_DENSITY);
-        //wallobj->setFriction(BASIC_FRICTION);
-        //wallobj->setRestitution(BASIC_RESTITUTION);
-        //wallobj->setDebugColor(DEBUG_COLOR);
+        wallobj->setDensity(BASIC_DENSITY);
+        wallobj->setFriction(BASIC_FRICTION);
+        wallobj->setRestitution(BASIC_RESTITUTION);
+        wallobj->setDebugColor(DEBUG_COLOR);
 
         wall *= _scale;
         sprite = scene2::PolygonNode::allocWithTexture(image,wall);
@@ -615,8 +609,6 @@ void GameScene::update(float timestep) {
     
     // Turn the physics engine crank.
     _world->update(timestep);
-
-    //_platformTest->draw();
 }
 
 /**
