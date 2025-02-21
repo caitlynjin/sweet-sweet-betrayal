@@ -25,13 +25,13 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Platform::init(const Vec2& pos, const Size& size) {
+bool Platform::init(const Vec2 pos, const Size size) {
     Size nsize = size;
-    _box = std::make_shared<cugl::physics2::BoxObstacle>();
-    if (_box->init(pos, nsize)) {
+    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
+    /*if (_box->init(pos, nsize)) {
         return true;
-    }
-    return false;
+    }*/
+    return true;
 }
 
 

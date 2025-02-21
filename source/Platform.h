@@ -31,12 +31,12 @@ public:
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the Platform and link it to a physics object.
 	*/
-	static std::shared_ptr<Platform> alloc(const Vec2& position, const Size& size) {
+	static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size) {
 		std::shared_ptr<Platform> result = std::make_shared<Platform>();
 		return (result->init(position, size) ? result : nullptr);
 	}
 
-	bool init(const Vec2& pos, const Size& size);
+	bool init(const Vec2 pos, const Size size);
 };
 
 
