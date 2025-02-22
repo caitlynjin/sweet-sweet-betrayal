@@ -244,6 +244,7 @@ void DudeModel::applyForce() {
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
+        //Reduce friction in air.
         if (_isgliding) {
             force.operator*=(-0.5);
             _body->ApplyForce(force, _body->GetPosition(), true);
@@ -270,6 +271,7 @@ void DudeModel::applyForce() {
  * @param delta Number of seconds since last animation frame
  */
 void DudeModel::update(float dt) {
+    //Check whether we are in glid mode
     glideUpdate(dt);
     // Apply cooldowns
     if (isJumping()) {
@@ -294,7 +296,9 @@ void DudeModel::update(float dt) {
 
     
 }
-//Maybe implement wind
+//Based on the player motion, check if we are falling.
+//If the player is falling for more than the glidetimer, set player into glide mode
+//once player is grounded, turn off glidemode.
 
 void DudeModel::glideUpdate(float dt) {
     b2Vec2 motion = _body->GetLinearVelocity();
