@@ -226,7 +226,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width/rect.size.width : _size.height/rect.size.height;
-    Vec2 offset((_size.width-SCENE_WIDTH)/2.0f,(_size.height-SCENE_HEIGHT)/2.0f);
+    Vec2 offset = Vec2((_size.width-SCENE_WIDTH)/2.0f,(_size.height-SCENE_HEIGHT)/2.0f);
+    _offset = offset;
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -588,7 +589,12 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
+        if (_input.isTouchDown()) {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = (screenPos - _offset) / _scale;
 
+            _gridManager->setObject(gridPos);
+        }
     } else {
         // Process the toggled key commands
         if (_input.didDebug()) { setDebug(!isDebug()); }
@@ -653,7 +659,12 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
+        if (_input.isTouchDown()) {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToBox2D(screenPos, _scale, _offset);
 
+            _gridManager->setObject(gridPos);
+        }
     } else {
         // Process the toggled key commands
         if (_input.didDebug()) { setDebug(!isDebug()); }
@@ -890,4 +901,23 @@ void GameScene::endContact(b2Contact* contact) {
             _avatar->setGrounded(false);
         }
     }
+}
+
+#pragma mark -
+#pragma mark Helpers
+
+/**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @param screenPos    The screen position
+ * @param scale             The screen to world scale
+ * @param offset           The offset of the scene to the world
+ */
+Vec2 GameScene::convertScreenToBox2D(const Vec2& screenPos, float scale, const Vec2& offset) {
+    Vec2 adjusted = screenPos - offset;
+
+    float xBox2D = adjusted.x / scale;
+    float yBox2D = adjusted.y / scale;
+
+    return Vec2(int(xBox2D), int(yBox2D));
 }
