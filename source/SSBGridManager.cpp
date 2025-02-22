@@ -21,16 +21,16 @@ using namespace cugl::graphics;
 /**
  * Initializes the grid layout on the screen for build mode.
  */
-void GridManager::initGrid(int rows, int columns) {
+void GridManager::initGrid() {
     const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
 
     _grid->removeAllChildren();
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
-    gridLayout->setGridSize(columns, rows);
+    gridLayout->setGridSize(_columns, _rows);
 
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < columns; ++col) {
+    for (int row = 0; row < _rows; ++row) {
+        for (int col = 0; col < _columns; ++col) {
             Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
 
             std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));

@@ -423,7 +423,7 @@ public:
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
-    Vec2 convertScreenToBox2D(const Vec2& screenPos, float scale, const Vec2& offset);
+    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
 
   };
 
