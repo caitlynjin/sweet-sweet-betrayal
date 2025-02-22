@@ -22,7 +22,6 @@ using namespace cugl::graphics;
  * Initializes the grid layout on the screen for build mode.
  */
 void GridManager::initGrid(int rows, int columns) {
-    const float CELL_SIZE = 1.0f;
     const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
 
     _grid->removeAllChildren();
@@ -80,5 +79,18 @@ void GridManager::initGrid(int rows, int columns) {
  */
 void GridManager::setObject(int row, int col) {
     // TODO: In-progress
+    Vec2 cellPos(3 * 1, 3 * 1);
+
+    const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
+
+    float textureWidth = EARTH_IMAGE->getWidth();
+    float textureHeight = EARTH_IMAGE->getHeight();
+
+    std::shared_ptr<scene2::SpriteNode> spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
+    spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    spriteNode->setPosition(cellPos);
+    spriteNode->setScale(1 / textureWidth, 1 / textureHeight);
+
+    _grid->addChild(spriteNode);
 }
 

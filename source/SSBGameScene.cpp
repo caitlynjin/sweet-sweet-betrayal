@@ -533,41 +533,45 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
 void GameScene::update(float timestep) {
     _input.update(timestep);
 
-    // Process the toggled key commands
-    if (_input.didDebug()) { setDebug(!isDebug()); }
-    if (_input.didReset()) { reset(); }
-    if (_input.didExit())  {
-        Application::get()->quit();
-    }
+    if (_buildingMode) {
 
-    // Process the movement
-    if (_input.withJoystick()) {
-        if (_input.getHorizontal() < 0) {
-            _leftnode->setVisible(true);
-            _rightnode->setVisible(false);
-        } else if (_input.getHorizontal() > 0) {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(true);
+    } else {
+        // Process the toggled key commands
+        if (_input.didDebug()) { setDebug(!isDebug()); }
+        if (_input.didReset()) { reset(); }
+        if (_input.didExit())  {
+            Application::get()->quit();
+        }
+
+        // Process the movement
+        if (_input.withJoystick()) {
+            if (_input.getHorizontal() < 0) {
+                _leftnode->setVisible(true);
+                _rightnode->setVisible(false);
+            } else if (_input.getHorizontal() > 0) {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(true);
+            } else {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(false);
+            }
+            _leftnode->setPosition(_input.getJoystick());
+            _rightnode->setPosition(_input.getJoystick());
         } else {
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
-        _leftnode->setPosition(_input.getJoystick());
-        _rightnode->setPosition(_input.getJoystick());
-    } else {
-        _leftnode->setVisible(false);
-        _rightnode->setVisible(false);
-    }
-    
-    _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
-    _avatar->setJumping( _input.didJump());
-    _avatar->applyForce();
 
-    if (_avatar->isJumping() && _avatar->isGrounded()) {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-        AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
+        _avatar->setJumping( _input.didJump());
+        _avatar->applyForce();
+
+        if (_avatar->isJumping() && _avatar->isGrounded()) {
+            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+            AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
     }
-    
+
     // Turn the physics engine crank.
     _world->update(timestep);
 }
@@ -595,42 +599,45 @@ void GameScene::update(float timestep) {
 void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
-    // Process the toggled key commands
-    if (_input.didDebug()) { setDebug(!isDebug()); }
-    if (_input.didReset()) { reset(); }
-    if (_input.didExit())  {
-        CULog("Shutting down");
-        Application::get()->quit();
-    }
+    if (_buildingMode) {
 
-    // Process the movement
-    if (_input.withJoystick()) {
-        if (_input.getHorizontal() < 0) {
-            _leftnode->setVisible(true);
-            _rightnode->setVisible(false);
-        } else if (_input.getHorizontal() > 0) {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(true);
+    } else {
+        // Process the toggled key commands
+        if (_input.didDebug()) { setDebug(!isDebug()); }
+        if (_input.didReset()) { reset(); }
+        if (_input.didExit())  {
+            CULog("Shutting down");
+            Application::get()->quit();
+        }
+
+        // Process the movement
+        if (_input.withJoystick()) {
+            if (_input.getHorizontal() < 0) {
+                _leftnode->setVisible(true);
+                _rightnode->setVisible(false);
+            } else if (_input.getHorizontal() > 0) {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(true);
+            } else {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(false);
+            }
+            _leftnode->setPosition(_input.getJoystick());
+            _rightnode->setPosition(_input.getJoystick());
         } else {
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
-        _leftnode->setPosition(_input.getJoystick());
-        _rightnode->setPosition(_input.getJoystick());
-    } else {
-        _leftnode->setVisible(false);
-        _rightnode->setVisible(false);
-    }
-    
-    _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
-    _avatar->setJumping( _input.didJump());
-    _avatar->applyForce();
 
-    if (_avatar->isJumping() && _avatar->isGrounded()) {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-        AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
-    }
+        _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
+        _avatar->setJumping( _input.didJump());
+        _avatar->applyForce();
 
+        if (_avatar->isJumping() && _avatar->isGrounded()) {
+            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+            AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+    }
 }
 
 /**

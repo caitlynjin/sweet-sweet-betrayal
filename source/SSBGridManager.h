@@ -24,6 +24,8 @@ private:
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
+    /** The size of the cell in Box2d units */
+    const float CELL_SIZE = 1.0f;
 
 protected:
 
