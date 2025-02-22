@@ -299,6 +299,30 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
 }
 
 /**
+ * Disposes of all (non-static) resources allocated to this mode.
+ */
+void GameScene::dispose() {
+    if (_active) {
+        _input.dispose();
+        _world = nullptr;
+        _worldnode = nullptr;
+        _debugnode = nullptr;
+        _winnode = nullptr;
+        _losenode = nullptr;
+        _leftnode = nullptr;
+        _rightnode = nullptr;
+        _editbutton = nullptr;
+        _gridManager->getGridNode() = nullptr;
+        _complete = false;
+        _debug = false;
+        Scene2::dispose();
+    }
+}
+
+#pragma mark -
+#pragma mark Build Mode
+
+/**
  * Initializes the grid layout on the screen for build mode.
  */
 void GameScene::initInventory(){
@@ -329,25 +353,17 @@ void GameScene::initInventory(){
         
 }
 
-
 /**
- * Disposes of all (non-static) resources allocated to this mode.
+ * Creates an item of type item and places it at the grid position.
+ *
+ * @param gridPos   The grid position to place the item at
+ * @param item  The type of the item to be placed/created
  */
-void GameScene::dispose() {
-    if (_active) {
-        _input.dispose();
-        _world = nullptr;
-        _worldnode = nullptr;
-        _debugnode = nullptr;
-        _winnode = nullptr;
-        _losenode = nullptr;
-        _leftnode = nullptr;
-        _rightnode = nullptr;
-        _editbutton = nullptr;
-        _gridManager->getGridNode() = nullptr;
-        _complete = false;
-        _debug = false;
-        Scene2::dispose();
+void GameScene::placeItem(Vec2 gridPos, Item item){
+    switch (item){
+        case (PLATFORM):
+            // TO DO: create a platform at gridPos
+            break;
     }
 }
 

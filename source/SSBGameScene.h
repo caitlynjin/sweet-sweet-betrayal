@@ -27,6 +27,14 @@ using namespace cugl;
  */
 class GameScene : public scene2::Scene2 {
 protected:
+    /**
+     * The type of an item/obstacle.
+     */
+    enum Item {
+        /** A standard platform */
+        PLATFORM,
+    };
+    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
     
@@ -190,15 +198,21 @@ public:
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect, const Vec2& gravity);
 
-    /**
-     * Initializes the grid layout on the screen for build mode.
-     */
-    void initGrid();
-
+#pragma mark -
+#pragma mark Build Mode
+    
     /**
      * Initializes the inventory for build mode.
      */
     void initInventory();
+    
+    /**
+     * Creates an item of type item and places it at the grid position.
+     *
+     * @param gridPos   The grid position to place the item at
+     * @param item  The type of the item to be placed/created
+     */
+    void placeItem(Vec2 gridPos, Item item);
     
 #pragma mark -
 #pragma mark State Access
