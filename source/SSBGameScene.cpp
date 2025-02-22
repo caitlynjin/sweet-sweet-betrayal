@@ -279,6 +279,13 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _gridnode->setPosition(offset);
     _gridnode->setVisible(false);
+    
+//    _inventoryPanel = scene2::SceneNode::alloc();
+//    _inventoryPanel->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
+//    _inventoryPanel->setPosition(Vec2(_size.width - 100, _size.height - 50));
+//    _inventoryPanel->setVisible(true);
+    
+    initInventory();
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -288,6 +295,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_rightnode);
     addChild(_editbutton);
     addChild(_gridnode);
+//    addChild(_inventoryPanel);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        addChild(_inventoryButtons[i]);
+    }
 
     populate();
     initGrid();
@@ -348,6 +359,35 @@ void GameScene::initGrid() {
         }
     }
 }
+
+/**
+ * Initializes the grid layout on the screen for build mode.
+ */
+void GameScene::initInventory(){
+    std::vector<std::string> inventoryItems = {"platform"};
+    std::vector<std::string> assetNames = {EARTH_TEXTURE};
+    
+    float yOffset = 0;
+    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
+        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
+        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
+        itemButton->setAnchor(Vec2::ANCHOR_CENTER);
+        itemButton->setPosition(Vec2(0, -yOffset));
+        itemButton->setName(inventoryItems[itemNo]);
+        itemButton->activate();
+        itemButton->addListener([this, itemName = inventoryItems[itemNo]](const std::string& name, bool down) {
+            if (down) {
+                _selectedItem = itemName;
+                CULog("selected!!");
+            }
+        });
+        _inventoryButtons.push_back(itemButton);
+//        _inventoryPanel->addChild(itemButton);
+        yOffset += 60;
+    }
+        
+}
+
 
 /**
  * Disposes of all (non-static) resources allocated to this mode.

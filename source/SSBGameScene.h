@@ -50,6 +50,11 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _editbutton;
     /** Reference to build mode grid */
     std::shared_ptr<scene2::SceneNode> _gridnode;
+    /** Reference to build mode inventory panel */
+    std::shared_ptr<scene2::SceneNode> _inventoryPanel;
+    /** Reference to build mode inventory buttons */
+    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
+    std::shared_ptr<cugl::scene2::Button> _invButton;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -70,8 +75,10 @@ protected:
     bool _failed;
     /** Countdown active for winning or losing */
     int _countdown;
-    /** Whether we are in building mode */
+    /** Whether we are in build mode */
     bool _buildingMode;
+    /** The selected item in build mode*/
+    std::string _selectedItem;
     
       
     /** Mark set to handle more sophisticated collision callbacks */
@@ -191,6 +198,10 @@ public:
      */
     void initGrid();
 
+    /**
+     * Initializes the inventory for build mode.
+     */
+    void initInventory();
     
 #pragma mark -
 #pragma mark State Access
