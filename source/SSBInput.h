@@ -57,6 +57,8 @@ private:
     bool  _keyLeft;
     /** Whether the right arrow key is down */
     bool  _keyRight;
+    // If we are holding the 'glide' key down
+    bool _keyGlide;
   
 protected:
     // INPUT RESULTS
@@ -70,6 +72,8 @@ protected:
     bool _firePressed;
     /** Whether the jump action was chosen. */
     bool _jumpPressed;
+    //whether we are holding the glide button down
+    bool _glidePressed;
     /** How much did we move horizontally? */
     float _horizontal;
 
@@ -278,7 +282,12 @@ public:
      * @return true if the fire button was pressed.
      */
 	bool didFire() const { return _firePressed; }
-
+    /**
+    Reurns true if we are trying to intiate a glide
+    
+    */
+    bool didGlide() const {return _k}
+    
     /**
      * Returns true if the reset button was pressed.
      *

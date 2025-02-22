@@ -68,6 +68,11 @@
 #define DUDE_JUMP       2.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR     Color4::RED
+/**How much the player speed should be dampened during gliding*/
+#define GLIDE_DAMPING 20.0f
+/** Multipliers for wind speed when player is gliding and not gliding*/
+#define WIND_FACTOR 1.0f
+#define WIND_FACTOR_GLIDING 2.0f
 
 
 using namespace cugl;
@@ -113,6 +118,7 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
         _jumpCooldown  = 0;
         _glidedelay = 0.2;
         _glidetimer = 0;
+        _windvel = Vec2();
         return true;
     }
     return false;
@@ -231,14 +237,12 @@ void DudeModel::applyForce() {
         } else {
             // Damping factor in the air
             b2Vec2 force(-getDamping()*getVX(),0);
-            
             _body->ApplyForce(force,_body->GetPosition(),true);
         }
     }
     
     // Velocity too high, clamp it
     if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
-        
         setVX(SIGNUM(getVX())*getMaxSpeed());
         CULog("Hit limit!");
     } else {
@@ -250,17 +254,14 @@ void DudeModel::applyForce() {
             _body->ApplyForce(force, _body->GetPosition(), true);
             //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
-        
     }
-    if (_isgliding) {
-        
-    }
-    
     // Jump!
     if (isJumping() && isGrounded()) {
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force,_body->GetPosition(),true);
     }
+
+    
 }
 
 /**
@@ -286,6 +287,8 @@ void DudeModel::update(float dt) {
     } else {
         _shootCooldown = (_shootCooldown > 0 ? _shootCooldown-1 : 0);
     }
+
+    windUpdate(dt);
     
     CapsuleObstacle::update(dt);
     
@@ -293,8 +296,6 @@ void DudeModel::update(float dt) {
         _node->setPosition(getPosition()*_drawScale);
         _node->setAngle(getAngle());
     }
-
-    
 }
 //Based on the player motion, check if we are falling.
 //If the player is falling for more than the glidetimer, set player into glide mode
@@ -309,7 +310,7 @@ void DudeModel::glideUpdate(float dt) {
         }
         if (_glidetimer >= _glidedelay) {
             _isgliding = true;
-            _body->SetLinearDamping(15);
+            _body->SetLinearDamping(GLIDE_DAMPING);
         }
     }
     if (isGrounded()) {
@@ -318,6 +319,17 @@ void DudeModel::glideUpdate(float dt) {
             _body->SetLinearDamping(0);
     }
 
+}
+/**
+Inflicts an appropriate force to the player based on _windspeed
+*/
+void DudeModel::windUpdate(float dt) {
+    //Vec2 force = _windvel;
+    b2Vec2 vel = _body->GetLinearVelocity();
+    vel.x += _windvel.x;
+    vel.y += _windvel.y;
+    _body->SetLinearVelocity(vel);
+    _windvel = Vec2();
 }
 
 
