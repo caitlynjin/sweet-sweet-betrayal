@@ -328,7 +328,7 @@ void GameScene::dispose() {
  * Initializes the grid layout on the screen for build mode.
  */
 void GameScene::initInventory(){
-    std::vector<std::string> inventoryItems = {"platform"};
+    std::vector<Item> inventoryItems = {PLATFORM};
     std::vector<std::string> assetNames = {EARTH_TEXTURE};
     
     float yOffset = 0;
@@ -338,14 +338,14 @@ void GameScene::initInventory(){
         itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
         itemButton->setPosition(_size.width - 40, _size.height - 100);
         itemButton->setScale(2.0f);
-        itemButton->setName(inventoryItems[itemNo]);
+        itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(false);
         itemButton->activate();
-        itemButton->addListener([this, itemName = inventoryItems[itemNo]](const std::string& name, bool down) {
+        itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string& name, bool down) {
             if (down & _buildingMode) {
-                _selectedItem = itemName;
+                _selectedItem = itemToString(item);
                 _input.setPlacingItem(true);
-                CULog("placing: %s", itemName.c_str());
+                placeItem(Vec2(0,0), item);
             }
         });
         _inventoryButtons.push_back(itemButton);
@@ -364,7 +364,7 @@ void GameScene::initInventory(){
 void GameScene::placeItem(Vec2 gridPos, Item item){
     switch (item){
         case (PLATFORM):
-            // TO DO: create a platform at gridPos
+            createPlatform(Vec2(4,2), Size(1,1));
             break;
     }
 }
@@ -526,10 +526,10 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
-    createPlatform(Vec2(4, 8), Size(3, 3));
-    createPlatform(Vec2(10, 8), Size(5, 1));
-    createPlatform(Vec2(11, 4), Size(7, 2));
-    createPlatform(Vec2(5, 2), Size(4, 1));
+//    createPlatform(Vec2(4, 8), Size(3, 3));
+//    createPlatform(Vec2(10, 8), Size(5, 1));
+//    createPlatform(Vec2(11, 4), Size(7, 2));
+//    createPlatform(Vec2(5, 2), Size(4, 1));
 
 
     // Play the background music on a loop.

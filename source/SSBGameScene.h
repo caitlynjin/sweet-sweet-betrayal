@@ -36,6 +36,18 @@ protected:
         PLATFORM,
     };
     
+    /**
+     * Convert an Item enum to the corresponding string.
+     */
+    std::string itemToString(Item item) {
+        switch (item) {
+            case PLATFORM:
+                return "platform";
+            default:
+                return "unknown";
+        }
+    }
+    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 
