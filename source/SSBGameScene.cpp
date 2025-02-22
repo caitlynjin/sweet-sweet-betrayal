@@ -6,6 +6,7 @@
 //
 
 #include "SSBGameScene.h"
+#include "Platform.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
@@ -60,7 +61,7 @@ float WALL[WALL_COUNT][WALL_VERTS] = {
 /** The goal door position */
 float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
-float DUDE_POS[] = { 2.5f, 5.0f};
+float DUDE_POS[] = { 2.5f, 7.0f};
 
 #pragma mark -
 #pragma mark Physics Constants
@@ -295,6 +296,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
+
     return true;
 }
 
@@ -388,6 +390,38 @@ void GameScene::reset() {
     populate();
 }
 
+/** 
+* Creates a new platform.
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createPlatform(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
+    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(wall.vertices);
+    triangulator.calculate();
+    wall.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+
+    // Set the physics attributes
+    plat->getObstacle()->setBodyType(b2_staticBody);
+    plat->getObstacle()->setDensity(BASIC_DENSITY);
+    plat->getObstacle()->setFriction(BASIC_FRICTION);
+    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+
+    wall *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    addObstacle(plat->getObstacle(), sprite, 1);  // All walls share the same texture
+    _objects.push_back(plat);
+    
+}
+
 /**
  * Lays out the game geography.
  *
@@ -399,9 +433,8 @@ void GameScene::reset() {
  * This method is really, really long.  In practice, you would replace this
  * with your serialization loader, which would process a level file.
  */
+
 void GameScene::populate() {
-    
-    
 #pragma mark : Goal door
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
@@ -427,7 +460,7 @@ void GameScene::populate() {
 
 #pragma mark : Walls
     // All walls and platforms share the same texture
-    image  = _assets->get<Texture>(EARTH_TEXTURE);
+    image = _assets->get<Texture>(EARTH_TEXTURE);
     std::string wname = "wall";
     for (int ii = 0; ii < WALL_COUNT; ii++) {
         std::shared_ptr<physics2::PolygonObstacle> wallobj;
@@ -493,6 +526,11 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+    createPlatform(Vec2(4, 8), Size(3, 3));
+    createPlatform(Vec2(10, 8), Size(5, 1));
+    createPlatform(Vec2(11, 4), Size(7, 2));
+    createPlatform(Vec2(5, 2), Size(4, 1));
+
 
     // Play the background music on a loop.
     // TODO: Uncomment for music
@@ -587,7 +625,6 @@ void GameScene::update(float timestep) {
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
     }
-
     // Turn the physics engine crank.
     _world->update(timestep);
 }
@@ -653,6 +690,10 @@ void GameScene::preUpdate(float dt) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
+    }
+    
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
     }
 }
 
