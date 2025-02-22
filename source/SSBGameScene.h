@@ -50,11 +50,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _editbutton;
     /** Reference to build mode grid */
     std::shared_ptr<scene2::SceneNode> _gridnode;
-    /** Reference to build mode inventory panel */
-    std::shared_ptr<scene2::SceneNode> _inventoryPanel;
     /** Reference to build mode inventory buttons */
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
-    std::shared_ptr<cugl::scene2::Button> _invButton;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;

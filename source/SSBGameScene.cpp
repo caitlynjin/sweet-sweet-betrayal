@@ -265,7 +265,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     editNode->setScale(0.35f);
     _editbutton = scene2::Button::alloc(editNode);
     _editbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _editbutton->setPosition(_size.width*0.9f,_size.height*0.9f);
+    _editbutton->setPosition(_size.width*0.88f,_size.height*0.9f);
     _editbutton->activate();
     _editbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
@@ -280,11 +280,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _gridnode->setPosition(offset);
     _gridnode->setVisible(false);
     
-//    _inventoryPanel = scene2::SceneNode::alloc();
-//    _inventoryPanel->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-//    _inventoryPanel->setPosition(Vec2(_size.width - 100, _size.height - 50));
-//    _inventoryPanel->setVisible(true);
-    
     initInventory();
 
     addChild(_worldnode);
@@ -295,10 +290,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_rightnode);
     addChild(_editbutton);
     addChild(_gridnode);
-//    addChild(_inventoryPanel);
-    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
-        addChild(_inventoryButtons[i]);
-    }
 
     populate();
     initGrid();
@@ -371,8 +362,9 @@ void GameScene::initInventory(){
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_CENTER);
-        itemButton->setPosition(Vec2(0, -yOffset));
+        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
+        itemButton->setPosition(_size.width - 40, _size.height - 100);
+        itemButton->setScale(2.0f);
         itemButton->setName(inventoryItems[itemNo]);
         itemButton->activate();
         itemButton->addListener([this, itemName = inventoryItems[itemNo]](const std::string& name, bool down) {
@@ -382,7 +374,7 @@ void GameScene::initInventory(){
             }
         });
         _inventoryButtons.push_back(itemButton);
-//        _inventoryPanel->addChild(itemButton);
+        addChild(itemButton);
         yOffset += 60;
     }
         
