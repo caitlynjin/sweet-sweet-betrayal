@@ -24,6 +24,8 @@ private:
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
+    /** The offset of the grid. */
+    Vec2 _offset;
     /** The size of the cell in Box2d units */
     const float CELL_SIZE = 1.0f;
 
@@ -44,6 +46,7 @@ public:
 
         manager->_assets = assets;
         manager->_scale = scale;
+        manager->_offset = offset;
 
         manager->_grid = scene2::SceneNode::alloc();
         manager->_grid->setScale(scale);
@@ -75,5 +78,5 @@ public:
     /**
      * Adds an object to the corresponding cell at this row and column.
      */
-    void setObject(int row, int col);
+    void setObject(Vec2 cellPos);
 };

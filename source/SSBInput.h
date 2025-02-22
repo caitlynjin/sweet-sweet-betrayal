@@ -57,7 +57,9 @@ private:
     bool  _keyLeft;
     /** Whether the right arrow key is down */
     bool  _keyRight;
-  
+    /** Whether the touch is currently down */
+    bool _touchDown;
+
 protected:
     // INPUT RESULTS
     /** Whether the reset action was chosen. */
@@ -74,6 +76,8 @@ protected:
     float _horizontal;
     /** The position of the last click */
     cugl::Vec2 _lastClickPos;
+    /** Touch position on screen */
+    cugl::Vec2 _touchPosForDrag;
 
 #pragma mark Internal Touch Management   
 	// The screen is divided into four zones: Left, Bottom, Right and Main/
@@ -248,7 +252,14 @@ public:
      * @return the location of the last click
      */
     cugl::Vec2 getLastClickPosition(){ return _lastClickPos; }
-    
+
+    /**
+     * Returns the scene coordinate of the last position on drag
+     *
+     * @return the location of the last touch drag position
+     */
+    cugl::Vec2 getPosOnDrag(){ return _touchPosForDrag; }
+
     /**
      * Returns if a new click happened
      *
@@ -350,6 +361,13 @@ public:
      * @return the scene graph position of the virtual joystick
      */
     cugl::Vec2 getJoystick() const { return _joycenter; }
+
+    /**
+     * Returns true if touch is down
+     *
+     * @return true if touch is down
+     */
+    bool isTouchDown() const { return _touchDown; }
 
 #pragma mark -
 #pragma mark Touch and Mouse Callbacks

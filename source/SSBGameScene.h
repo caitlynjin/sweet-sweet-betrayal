@@ -58,6 +58,8 @@ protected:
     std::shared_ptr<physics2::ObstacleWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
+    /** The offset from the world */
+    Vec2 _offset;
 
     // Physics objects for the game
     /** Reference to the goalDoor (for collision detection) */
@@ -377,6 +379,18 @@ public:
      * Resets the status of the game so that we can play again.
      */
     void reset();
+
+#pragma mark -
+#pragma mark Helpers
+    /**
+     * Converts from screen to Box2D coordinates.
+     *
+     * @param screenPos    The screen position
+     * @param scale             The screen to world scale
+     * @param offset           The offset of the scene to the world
+     */
+    Vec2 convertScreenToBox2D(const Vec2& screenPos, float scale, const Vec2& offset);
+
   };
 
 #endif /* __PF_GAME_SCENE_H__ */

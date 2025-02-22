@@ -134,12 +134,20 @@ bool PlatformInput::init(const Rect bounds) {
     Touchscreen* touch = Input::get<Touchscreen>();
     touch->addBeginListener(LISTENER_KEY,[=](const TouchEvent& event, bool focus) {
         this->touchBeganCB(event,focus);
+
+        _touchDown = true;
+        _touchPosForDrag = touch2Screen(event.position);
     });
     touch->addEndListener(LISTENER_KEY,[=](const TouchEvent& event, bool focus) {
         this->touchEndedCB(event,focus);
+
+        _touchDown = false;
     });
     touch->addMotionListener(LISTENER_KEY,[=](const TouchEvent& event, const Vec2& previous, bool focus) {
         this->touchesMovedCB(event, previous, focus);
+        
+        _touchDown = true;
+        _touchPosForDrag = touch2Screen(event.position);
     });
 	
 #endif

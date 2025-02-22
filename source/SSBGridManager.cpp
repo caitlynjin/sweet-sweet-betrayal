@@ -77,9 +77,9 @@ void GridManager::initGrid(int rows, int columns) {
 /**
  * Adds an object to the corresponding cell at this row and column.
  */
-void GridManager::setObject(int row, int col) {
+void GridManager::setObject(Vec2 cellPos) {
     // TODO: In-progress
-    Vec2 cellPos(3 * 1, 3 * 1);
+    CULog("Setting Object");
 
     const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
 
