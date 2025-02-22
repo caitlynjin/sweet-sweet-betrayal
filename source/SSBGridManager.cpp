@@ -86,8 +86,10 @@ void GridManager::setObject(Vec2 cellPos) {
     float textureWidth = EARTH_IMAGE->getWidth();
     float textureHeight = EARTH_IMAGE->getHeight();
 
+    // Have this existing sprite node
     std::shared_ptr<scene2::SpriteNode> spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
     spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    // TODO: Use this to set the position - will move the sprite node around
     spriteNode->setPosition(cellPos);
     spriteNode->setScale(1 / textureWidth, 1 / textureHeight);
 
