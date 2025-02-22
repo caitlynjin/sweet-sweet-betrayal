@@ -47,7 +47,7 @@ protected:
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
     /** Reference to the edit button */
-    std::shared_ptr<scene2::PolygonNode> _editnode;
+    std::shared_ptr<cugl::scene2::Button> _editbutton;
     /** Reference to build mode grid */
     std::shared_ptr<scene2::SceneNode> _gridnode;
 
@@ -70,6 +70,9 @@ protected:
     bool _failed;
     /** Countdown active for winning or losing */
     int _countdown;
+    /** Whether we are in building mode */
+    bool _buildingMode;
+    
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;

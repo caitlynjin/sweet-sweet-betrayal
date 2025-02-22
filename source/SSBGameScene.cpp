@@ -126,6 +126,9 @@ float DUDE_POS[] = { 2.5f, 5.0f};
 /** Opacity of the physics outlines */
 #define DEBUG_OPACITY   192
 
+#pragma mark -
+#pragma mark Nodes
+std::shared_ptr<scene2::PolygonNode> _editnode;
 
 #pragma mark -
 #pragma mark Constructors
@@ -267,6 +270,13 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _editnode->setPosition(_size.width*0.9f,_size.height*0.9f);
     _editnode->setScale(0.35f);
     _editnode->setVisible(true);
+    _editbutton = std::dynamic_pointer_cast<scene2::Button>(_editnode);
+    _editbutton->addListener([this](const std::string& name, bool down) {
+        if (down) {
+            _buildingMode = true;
+            CULog("building: %b", _buildingMode);
+        }
+    });
 
     _gridnode = scene2::SceneNode::alloc();
     _gridnode->setScale(_scale);
@@ -329,12 +339,12 @@ void GameScene::initGrid() {
             cellButton->activate();
 
             // TODO: Fix this
-            cellButton->addListener([this](const std::string& name, bool down) {
-                if (down) {
-                    auto button = _gridnode->getChildByName(name);
-                    button->setColor(Color4::RED);
-                }
-            });
+//            cellButton->addListener([this](const std::string& name, bool down) {
+//                if (down) {
+//                    auto button = _gridnode->getChildByName(name);
+//                    button->setColor(Color4::RED);
+//                }
+//            });
 
             _gridnode->addChild(cellButton);
         }
