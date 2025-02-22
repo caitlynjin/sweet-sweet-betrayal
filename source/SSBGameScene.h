@@ -14,6 +14,7 @@
 #include <vector>
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
+#include "SSBGridManager.h"
 
 using namespace cugl;
 
@@ -48,10 +49,10 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _rightnode;
     /** Reference to the edit button */
     std::shared_ptr<cugl::scene2::Button> _editbutton;
-    /** Reference to build mode grid */
-    std::shared_ptr<scene2::SceneNode> _gridnode;
     /** Reference to build mode inventory buttons */
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
+    /** Reference to the grid manager */
+    std::shared_ptr<GridManager> _gridManager;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;

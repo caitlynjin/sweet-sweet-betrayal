@@ -274,12 +274,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
         }
     });
 
-    _gridnode = scene2::SceneNode::alloc();
-    _gridnode->setScale(_scale);
-    _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _gridnode->setPosition(offset);
-    _gridnode->setVisible(false);
-    
+    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
+
     initInventory();
 
     addChild(_worldnode);
@@ -289,10 +285,9 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_editbutton);
-    addChild(_gridnode);
+    addChild(_gridManager->getGridNode());
 
     populate();
-    initGrid();
 
     _active = true;
     _complete = false;
@@ -301,54 +296,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
     return true;
-}
-
-/**
- * Initializes the grid layout on the screen for build mode.
- */
-void GameScene::initGrid() {
-    const int GRID_ROWS = DEFAULT_HEIGHT;
-    const int GRID_COLS = DEFAULT_WIDTH;
-    const float CELL_SIZE = 1.0f;
-    const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
-
-    _gridnode->removeAllChildren();
-
-    std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
-
-    for (int row = 0; row < GRID_ROWS; ++row) {
-        for (int col = 0; col < GRID_COLS; ++col) {
-            Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
-
-            std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
-            cellNode->setColor(Color4::WHITE);
-            cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            cellNode->setPosition(cellPos);
-
-            std::shared_ptr<scene2::SpriteNode> spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
-            spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            spriteNode->setPosition(cellPos);
-            spriteNode->setContentSize(Size(CELL_SIZE, CELL_SIZE));
-
-            std::shared_ptr<scene2::Button> cellButton = scene2::Button::alloc(cellNode);
-            cellButton->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            cellButton->setPosition(cellPos);
-            cellButton->setName("grid" + std::to_string(row) + std::to_string(col));
-            cellButton->activate();
-
-            // TODO: Fix this
-//            cellButton->addListener([this](const std::string& name, bool down) {
-//                if (down) {
-//                    auto button = _gridnode->getChildByName(name);
-//                    button->setColor(Color4::RED);
-//                }
-//            });
-
-
-
-            _gridnode->addChild(cellButton);
-        }
-    }
 }
 
 /**
@@ -397,7 +344,7 @@ void GameScene::dispose() {
         _leftnode = nullptr;
         _rightnode = nullptr;
         _editbutton = nullptr;
-        _gridnode = nullptr;
+        _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
         Scene2::dispose();
@@ -806,7 +753,7 @@ void GameScene::setFailure(bool value) {
 void GameScene::setBuildingMode(bool value) {
     _buildingMode = value;
 
-    _gridnode->setVisible(value);
+    _gridManager->getGridNode()->setVisible(value);
     for (size_t i = 0; i < _inventoryButtons.size(); i++) {
         _inventoryButtons[i]->setVisible(value);
     }
