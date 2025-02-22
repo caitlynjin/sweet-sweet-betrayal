@@ -172,7 +172,6 @@ void PlatformInput::update(float dt) {
 
     _keyLeft = keys->keyDown(KeyCode::ARROW_LEFT);
     _keyRight = keys->keyDown(KeyCode::ARROW_RIGHT);
-    _keyGlide = keys->keyDown(KeyCode::ARROW_DOWN);
 #endif
 
     _resetPressed = _keyReset;
@@ -371,9 +370,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
                 _rtouch.timestamp.mark();
                 _rtouch.touchids.insert(event.touch);
                 _hasJumped = false;
-
             }
-            
             break;
         case Zone::MAIN:
             // Only check for double tap in Main if nothing else down
