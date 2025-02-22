@@ -127,10 +127,6 @@ float DUDE_POS[] = { 2.5f, 5.0f};
 #define DEBUG_OPACITY   192
 
 #pragma mark -
-#pragma mark Nodes
-std::shared_ptr<scene2::PolygonNode> _editnode;
-
-#pragma mark -
 #pragma mark Constructors
 /**
  * Creates a new game world with the default values.
@@ -265,16 +261,16 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
-    _editnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EDIT_BUTTON));
-    _editnode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
-    _editnode->setPosition(_size.width*0.9f,_size.height*0.9f);
-    _editnode->setScale(0.35f);
-    _editnode->setVisible(true);
-    _editbutton = std::dynamic_pointer_cast<scene2::Button>(_editnode);
+    std::shared_ptr<scene2::PolygonNode> editNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EDIT_BUTTON));
+    editNode->setScale(0.35f);
+    _editbutton = scene2::Button::alloc(editNode);
+    _editbutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _editbutton->setPosition(_size.width*0.9f,_size.height*0.9f);
+    _editbutton->activate();
     _editbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
-            _buildingMode = true;
-            CULog("building: %b", _buildingMode);
+            setBuildingMode(!_buildingMode);
+            CULog("building: %d", _buildingMode);
         }
     });
 
@@ -282,7 +278,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _gridnode->setScale(_scale);
     _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _gridnode->setPosition(offset);
-    _gridnode->setVisible(true);
+    _gridnode->setVisible(false);
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -290,7 +286,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
-    addChild(_editnode);
+    addChild(_editbutton);
     addChild(_gridnode);
 
     populate();
@@ -346,6 +342,8 @@ void GameScene::initGrid() {
 //                }
 //            });
 
+
+
             _gridnode->addChild(cellButton);
         }
     }
@@ -364,7 +362,7 @@ void GameScene::dispose() {
         _losenode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        _editnode = nullptr;
+        _editbutton = nullptr;
         _gridnode = nullptr;
         _complete = false;
         _debug = false;
@@ -764,6 +762,17 @@ void GameScene::setFailure(bool value) {
         _losenode->setVisible(false);
         _countdown = -1;
     }
+}
+
+/**
+ * Sets whether mode is in building or play mode.
+ *
+ * @param value whether the level is in building mode.
+ */
+void GameScene::setBuildingMode(bool value) {
+    _buildingMode = value;
+
+    _gridnode->setVisible(value);
 }
 
 

@@ -247,7 +247,14 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
-    
+
+     /**
+     * Sets whether mode is in building or play mode.
+     *
+     * @param value whether the level is in building mode.
+     */
+    void setBuildingMode(bool value);
+
 #pragma mark -
 #pragma mark Collision Handling
     /**
