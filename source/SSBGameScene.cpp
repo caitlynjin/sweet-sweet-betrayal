@@ -366,11 +366,13 @@ void GameScene::initInventory(){
         itemButton->setPosition(_size.width - 40, _size.height - 100);
         itemButton->setScale(2.0f);
         itemButton->setName(inventoryItems[itemNo]);
+        itemButton->setVisible(false);
         itemButton->activate();
         itemButton->addListener([this, itemName = inventoryItems[itemNo]](const std::string& name, bool down) {
-            if (down) {
+            if (down & _buildingMode) {
                 _selectedItem = itemName;
-                CULog("selected!!");
+                _input.setPlacingItem(true);
+                CULog("placing: %s", itemName.c_str());
             }
         });
         _inventoryButtons.push_back(itemButton);
@@ -805,6 +807,9 @@ void GameScene::setBuildingMode(bool value) {
     _buildingMode = value;
 
     _gridnode->setVisible(value);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        _inventoryButtons[i]->setVisible(value);
+    }
 }
 
 

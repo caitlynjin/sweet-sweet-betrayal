@@ -72,6 +72,8 @@ protected:
     bool _jumpPressed;
     /** How much did we move horizontally? */
     float _horizontal;
+    /** The position of the last click */
+    cugl::Vec2 _lastClickPos;
 
 #pragma mark Internal Touch Management   
 	// The screen is divided into four zones: Left, Bottom, Right and Main/
@@ -134,6 +136,11 @@ protected:
     cugl::Timestamp _rtime;
 	/** The timestamp for a double tap in the middle */
 	cugl::Timestamp _mtime;
+    
+    /** Whether the player is placing an item in build mode */
+    bool _placingItem;
+    /** Whether a new click happened */
+    bool _clickRegistered = false;
 
     /**
      * Defines the zone boundaries, so we can quickly categorize touches.
@@ -227,6 +234,36 @@ public:
      * @return true if the controller was initialized successfully
      */
     bool init(const cugl::Rect bounds);
+    
+    /**
+     * Sets whether the game is in build mode and waiting for a selected item to be placed or not
+     *
+     * @param value whether the game is waiting for an item to be placed
+     */
+    void setPlacingItem(bool value);
+    
+    /**
+     * Returns the game game coordinate of the last click
+     *
+     * @return the location of the last click
+     */
+    cugl::Vec2 getLastClickPosition(){ return _lastClickPos; }
+    
+    /**
+     * Returns if a new click happened
+     *
+     * @return true if a new unique click happened
+     */
+    bool didClick() { return _clickRegistered; }
+    
+//    /**
+//     * Sets clickRegistered to the value
+//     *
+//     * @param value whether there was a new unique click
+//     */
+//    bool didClick(int value) { _clickRegistered; }
+//    
+    
     
 #pragma mark -
 #pragma mark Input Detection

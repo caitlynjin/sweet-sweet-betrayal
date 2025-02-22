@@ -147,6 +147,14 @@ bool PlatformInput::init(const Rect bounds) {
     return success;
 }
 
+/**
+ * Sets whether the game is in build mode and waiting for a selected item to be placed or not
+ *
+ * @param value whether the game is waiting for an item to be placed
+ */
+void PlatformInput::setPlacingItem(bool value){
+    _placingItem = value;
+}
 
 /**
  * Processes the currently cached inputs.
@@ -344,6 +352,10 @@ int PlatformInput::processSwipe(const Vec2 start, const Vec2 stop, Timestamp cur
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
+    if (_placingItem){
+        
+    }
+    
     //CULog("Touch began %lld", event.touch);
     Vec2 pos = event.position;
     Zone zone = getZone(pos);

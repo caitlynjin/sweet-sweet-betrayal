@@ -74,9 +74,8 @@ protected:
     int _countdown;
     /** Whether we are in build mode */
     bool _buildingMode;
-    /** The selected item in build mode*/
+    /** The selected item in build mode */
     std::string _selectedItem;
-    
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
