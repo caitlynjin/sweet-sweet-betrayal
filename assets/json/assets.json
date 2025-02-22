@@ -1,10 +1,15 @@
 {
 	"textures": {
-		"earth": {
-			"file":     "textures/earthtile.png",
-            "wrapS":    "repeat",
-            "wrapT":    "repeat"
-		},
+        "earth": {
+            "file": "textures/earthtile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "spike": {
+            "file": "textures/spiketile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "dude": {
             "file":     "textures/dude.png"
         },
