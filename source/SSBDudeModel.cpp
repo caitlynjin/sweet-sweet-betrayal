@@ -65,7 +65,7 @@
 /** The density of the character */
 #define DUDE_DENSITY    1.0f
 /** The impulse for the character jump */
-#define DUDE_JUMP       5.5f
+#define DUDE_JUMP       2.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR     Color4::RED
 
@@ -230,9 +230,9 @@ void DudeModel::applyForce() {
             _body->SetLinearVelocity(vel);
         } else {
             // Damping factor in the air
-            //b2Vec2 force(-getDamping()*getVX(),0);
+            b2Vec2 force(-getDamping()*getVX(),0);
             
-            //_body->ApplyForce(force,_body->GetPosition(),true);
+            _body->ApplyForce(force,_body->GetPosition(),true);
         }
     }
     
@@ -245,9 +245,9 @@ void DudeModel::applyForce() {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
         if (_isgliding) {
-            force.operator*=(0.01);
-            //_body->ApplyForce(force, _body->GetPosition(), true);
-            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+            force.operator*=(-0.5);
+            _body->ApplyForce(force, _body->GetPosition(), true);
+            //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
         
     }
@@ -305,7 +305,7 @@ void DudeModel::glideUpdate(float dt) {
         }
         if (_glidetimer >= _glidedelay) {
             _isgliding = true;
-            _body->SetLinearDamping(10);
+            _body->SetLinearDamping(15);
         }
     }
     if (isGrounded()) {
