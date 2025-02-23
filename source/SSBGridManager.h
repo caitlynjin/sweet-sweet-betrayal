@@ -30,6 +30,8 @@ private:
     const float CELL_SIZE = 1.0f;
 
 protected:
+    /** The sprite node that moves between grid cells */
+    std::shared_ptr<scene2::SpriteNode> _spriteNode;
 
 public:
 #pragma mark -

@@ -589,7 +589,7 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown()) {
+        if (_input.isTouchDown() && _input.getPlacingItem()) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = (screenPos - _offset) / _scale;
 
@@ -659,7 +659,7 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
-        if (_input.isTouchDown()) {
+        if (_input.isTouchDown() && _input.getPlacingItem()) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToBox2D(screenPos, _scale, _offset);
 

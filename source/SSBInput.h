@@ -143,8 +143,6 @@ protected:
     
     /** Whether the player is placing an item in build mode */
     bool _placingItem;
-    /** Whether a new click happened */
-    bool _clickRegistered = false;
 
     /**
      * Defines the zone boundaries, so we can quickly categorize touches.
@@ -203,6 +201,13 @@ protected:
 	int processSwipe(const cugl::Vec2 start, const cugl::Vec2 stop, cugl::Timestamp current);
   
 public:
+    /**
+     * Returns whether we are currently in build mode and the player is placing an item.
+     *
+     *@return whether we are placing an item in build mode or not
+     */
+    bool getPlacingItem(){ return _placingItem; }
+    
 #pragma mark -
 #pragma mark Constructors
     /**
@@ -259,21 +264,6 @@ public:
      * @return the location of the last touch drag position
      */
     cugl::Vec2 getPosOnDrag(){ return _touchPosForDrag; }
-
-    /**
-     * Returns if a new click happened
-     *
-     * @return true if a new unique click happened
-     */
-    bool didClick() { return _clickRegistered; }
-    
-//    /**
-//     * Sets clickRegistered to the value
-//     *
-//     * @param value whether there was a new unique click
-//     */
-//    bool didClick(int value) { _clickRegistered; }
-//    
     
     
 #pragma mark -
