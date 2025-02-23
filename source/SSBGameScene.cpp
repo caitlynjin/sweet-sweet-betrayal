@@ -661,7 +661,7 @@ void GameScene::preUpdate(float dt) {
     if (_buildingMode) {
         if (_input.isTouchDown() && _input.getPlacingItem()) {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToBox2D(screenPos, _scale, _offset);
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos);
         }
@@ -913,11 +913,24 @@ void GameScene::endContact(b2Contact* contact) {
  * @param scale             The screen to world scale
  * @param offset           The offset of the scene to the world
  */
-Vec2 GameScene::convertScreenToBox2D(const Vec2& screenPos, float scale, const Vec2& offset) {
+Vec2 GameScene::convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset) {
     Vec2 adjusted = screenPos - offset;
 
     float xBox2D = adjusted.x / scale;
     float yBox2D = adjusted.y / scale;
 
-    return Vec2(int(xBox2D), int(yBox2D));
+    // Converts to the specific grid position
+    int xGrid = xBox2D;
+    int yGrid = yBox2D;
+
+    // Snaps the placement to inside the grid
+    int maxRows = _gridManager->getNumRows() - 1;
+    int maxCols = _gridManager->getNumColumns() - 1;
+
+    xGrid = xGrid < 0 ? 0 : xGrid;
+    yGrid = yGrid < 0 ? 0 : yGrid;
+    xGrid = xGrid > maxCols ? maxCols : xGrid;
+    yGrid = yGrid > maxRows ? maxRows : yGrid;
+
+    return Vec2(xGrid, yGrid);
 }

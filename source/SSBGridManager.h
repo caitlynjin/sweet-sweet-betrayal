@@ -26,6 +26,10 @@ private:
     float _scale;
     /** The offset of the grid. */
     Vec2 _offset;
+    /** The number of columns in the grid */
+    float _columns;
+    /** The number of rows in the grid */
+    float _rows;
     /** The size of the cell in Box2d units */
     const float CELL_SIZE = 1.0f;
 
@@ -49,6 +53,8 @@ public:
         manager->_assets = assets;
         manager->_scale = scale;
         manager->_offset = offset;
+        manager->_rows = rows;
+        manager->_columns = columns;
 
         manager->_grid = scene2::SceneNode::alloc();
         manager->_grid->setScale(scale);
@@ -56,7 +62,7 @@ public:
         manager->_grid->setPosition(offset);
         manager->_grid->setVisible(false);
 
-        manager->initGrid(rows, columns);
+        manager->initGrid();
 
         return manager;
     }
@@ -64,7 +70,7 @@ public:
     /**
      * Initializes the grid layout on the screen for build mode.
      */
-    void initGrid(int rows, int columns);
+    void initGrid();
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -75,6 +81,24 @@ public:
      */
     std::shared_ptr<scene2::SceneNode> getGridNode() {
         return _grid;
+    }
+
+    /**
+     * Returns the number of columns in the grid.
+     *
+     * @return the number of columns
+     */
+    float getNumColumns() {
+        return _columns;
+    }
+
+    /**
+     * Returns the number of rows in the grid.
+     *
+     * @return the number of rows
+     */
+    float getNumRows() {
+        return _rows;
     }
 
     /**
