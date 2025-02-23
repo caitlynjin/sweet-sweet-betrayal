@@ -436,6 +436,56 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
 }
+/**
+* Create the growing wall if not created. Otherwise, increase its width
+*
+* @param timestep  The elapsed time since the last frame.
+*/
+
+void GameScene::updateGrowingWall(float timestep) {
+    // Increase the width
+    _growingWallWidth += _growingWallGrowthRate * timestep;
+
+    // Remove the old wall if it exists
+    if (_growingWall) {
+        _world->removeObstacle(_growingWall);
+        _worldnode->removeChild(_growingWallNode);
+    }
+
+    // Create a new polygon for the wall
+    Poly2 wallPoly;
+    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT));
+    wallPoly.vertices.push_back(Vec2(0, 0));
+    wallPoly.vertices.push_back(Vec2(_growingWallWidth, 0));
+    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT));
+    CULog("Current Wall Width: %f", _growingWallWidth);
+
+
+    EarclipTriangulator triangulator;
+    triangulator.set(wallPoly.vertices);
+    triangulator.calculate();
+    wallPoly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    // Create the collision box
+    _growingWall = physics2::PolygonObstacle::allocWithAnchor(wallPoly, Vec2::ANCHOR_BOTTOM_LEFT);
+    _growingWall->setName("growingWall");
+    _growingWall->setBodyType(b2_staticBody);
+    _growingWall->setDensity(BASIC_DENSITY);
+    _growingWall->setFriction(BASIC_FRICTION);
+    _growingWall->setRestitution(BASIC_RESTITUTION);
+    _growingWall->setDebugColor(Color4::RED);
+
+    wallPoly *= _scale;
+    _growingWallNode = scene2::PolygonNode::allocWithPoly(wallPoly);
+    _growingWallNode->setColor(Color4::RED);
+    _growingWallNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+
+    // Add the updated wall to the physics world and scene graph.
+    addObstacle(_growingWall, _growingWallNode, true);
+}
+
+
 
 /**
  * Lays out the game geography.
@@ -541,12 +591,17 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+
+    //platforms
     createPlatform(Vec2(4, 8), Size(3, 3));
     createPlatform(Vec2(10, 8), Size(5, 1));
     createPlatform(Vec2(11, 4), Size(7, 2));
     createPlatform(Vec2(5, 2), Size(4, 1));
     
     createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
+
+    //growing wall
+    updateGrowingWall(0.0f);
 
 
 
@@ -644,8 +699,13 @@ void GameScene::update(float timestep) {
     }
     
     
+    // increase growing wall
+    updateGrowingWall(timestep);
+    
     // Turn the physics engine crank.
     _world->update(timestep);
+
+    
 }
 
 /**
