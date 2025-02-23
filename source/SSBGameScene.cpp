@@ -458,8 +458,6 @@ void GameScene::updateGrowingWall(float timestep) {
     wallPoly.vertices.push_back(Vec2(0, 0));
     wallPoly.vertices.push_back(Vec2(_growingWallWidth, 0));
     wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT));
-    CULog("Current Wall Width: %f", _growingWallWidth);
-
 
     EarclipTriangulator triangulator;
     triangulator.set(wallPoly.vertices);
@@ -481,7 +479,6 @@ void GameScene::updateGrowingWall(float timestep) {
     _growingWallNode->setColor(Color4::RED);
     _growingWallNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
 
-    // Add the updated wall to the physics world and scene graph.
     addObstacle(_growingWall, _growingWallNode, true);
 }
 
@@ -694,13 +691,6 @@ void GameScene::update(float timestep) {
         std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
     }
-    for (auto& obj : _objects) {
-        obj -> update(timestep);
-    }
-    
-    
-    // increase growing wall
-    updateGrowingWall(timestep);
     
     // Turn the physics engine crank.
     _world->update(timestep);
@@ -771,6 +761,8 @@ void GameScene::preUpdate(float dt) {
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
+    // increase growing wall
+    updateGrowingWall(dt);
 
 }
 
