@@ -105,4 +105,9 @@ public:
      * Adds an object to the corresponding cell at this row and column.
      */
     void setObject(Vec2 cellPos);
+    
+    /**
+     * Sets the sprite node's visibility to false
+     */
+    void setSpriteInvisible();
 };

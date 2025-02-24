@@ -39,6 +39,18 @@
  * in the constructor.
  */
 class PlatformInput {
+public:
+    /**
+     * The status of the inventory.
+     */
+    enum InventoryStatus {
+        /** Waiting for an item to be selected */
+        WAITING,
+        /** Dragging an item */
+        PLACING,
+        /** Placed an item in a grid */
+        PLACED
+    };
 private:
     /** Whether or not this input is active */
     bool _active;
@@ -74,10 +86,14 @@ protected:
     bool _jumpPressed;
     /** How much did we move horizontally? */
     float _horizontal;
-    /** The position of the last click */
-    cugl::Vec2 _lastClickPos;
     /** Touch position on screen */
     cugl::Vec2 _touchPosForDrag;
+    
+    // INVENTORY
+    /** Whether the player is placing an item in build mode */
+    InventoryStatus _inventoryStatus;
+    /** The screen position of the placed item */
+    cugl::Vec2 _placedPos;
 
 #pragma mark Internal Touch Management   
 	// The screen is divided into four zones: Left, Bottom, Right and Main/
@@ -140,9 +156,6 @@ protected:
     cugl::Timestamp _rtime;
 	/** The timestamp for a double tap in the middle */
 	cugl::Timestamp _mtime;
-    
-    /** Whether the player is placing an item in build mode */
-    bool _placingItem;
 
     /**
      * Defines the zone boundaries, so we can quickly categorize touches.
@@ -201,12 +214,25 @@ protected:
 	int processSwipe(const cugl::Vec2 start, const cugl::Vec2 stop, cugl::Timestamp current);
   
 public:
+    
     /**
-     * Returns whether we are currently in build mode and the player is placing an item.
+     * Returns the state of the inventory.
      *
-     *@return whether we are placing an item in build mode or not
+     * @return the state of the inventory
      */
-    bool getPlacingItem(){ return _placingItem; }
+    InventoryStatus getInventoryStatus() { return _inventoryStatus; }
+    
+    /**
+     *
+     */
+    void setInventoryStatus(InventoryStatus status) { _inventoryStatus = status; }
+    
+    /**
+     * Returns the screen position that the most recently selected item should be placed at.
+     *
+     * @return the screen position to place the selected item
+     */
+    cugl::Vec2 getPlacedPos() { return _placedPos; }
     
 #pragma mark -
 #pragma mark Constructors
@@ -243,20 +269,6 @@ public:
      * @return true if the controller was initialized successfully
      */
     bool init(const cugl::Rect bounds);
-    
-    /**
-     * Sets whether the game is in build mode and waiting for a selected item to be placed or not
-     *
-     * @param value whether the game is waiting for an item to be placed
-     */
-    void setPlacingItem(bool value);
-    
-    /**
-     * Returns the game game coordinate of the last click
-     *
-     * @return the location of the last click
-     */
-    cugl::Vec2 getLastClickPosition(){ return _lastClickPos; }
 
     /**
      * Returns the scene coordinate of the last position on drag

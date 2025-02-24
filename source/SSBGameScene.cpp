@@ -344,9 +344,8 @@ void GameScene::initInventory(){
         itemButton->activate();
         itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string& name, bool down) {
             if (down & _buildingMode) {
-                _selectedItem = itemToString(item);
-                _input.setPlacingItem(true);
-                placeItem(Vec2(0,0), item);
+                _selectedItem = item;
+                _input.setInventoryStatus(PlatformInput::PLACING);
             }
         });
         _inventoryButtons.push_back(itemButton);
@@ -365,7 +364,7 @@ void GameScene::initInventory(){
 void GameScene::placeItem(Vec2 gridPos, Item item){
     switch (item){
         case (PLATFORM):
-            createPlatform(Vec2(4,2), Size(1,1));
+            createPlatform(gridPos, Size(1,1));
             break;
     }
 }
@@ -589,11 +588,16 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && _input.getPlacingItem()) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = (screenPos - _offset) / _scale;
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos);
+        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+            _gridManager->setSpriteInvisible();
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
         // Process the toggled key commands
@@ -659,11 +663,16 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && _input.getPlacingItem()) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos);
+        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+            _gridManager->setSpriteInvisible();
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
         // Process the toggled key commands

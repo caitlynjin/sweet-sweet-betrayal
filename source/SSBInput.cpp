@@ -156,15 +156,6 @@ bool PlatformInput::init(const Rect bounds) {
 }
 
 /**
- * Sets whether the game is in build mode and waiting for a selected item to be placed or not
- *
- * @param value whether the game is waiting for an item to be placed
- */
-void PlatformInput::setPlacingItem(bool value){
-    _placingItem = value;
-}
-
-/**
  * Processes the currently cached inputs.
  *
  * This method is used to to poll the current input state.  This will poll the
@@ -360,9 +351,6 @@ int PlatformInput::processSwipe(const Vec2 start, const Vec2 stop, Timestamp cur
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
-    if (_placingItem){
-        
-    }
     
     //CULog("Touch began %lld", event.touch);
     Vec2 pos = event.position;
@@ -425,6 +413,12 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
 void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
     // Reset all keys that might have been set
     Vec2 pos = event.position;
+    
+    if (_inventoryStatus == PLACING) {
+        _inventoryStatus = PLACED;
+        _placedPos = touch2Screen(pos);
+    }
+    
     Zone zone = getZone(pos);
     if (_ltouch.touchids.find(event.touch) != _ltouch.touchids.end()) {
         _ltouch.touchids.clear();

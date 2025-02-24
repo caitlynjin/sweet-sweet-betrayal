@@ -70,3 +70,9 @@ void GridManager::setObject(Vec2 cellPos) {
     }
 }
 
+/**
+ * Sets the sprite node's visibility to false
+ */
+void GridManager::setSpriteInvisible(){
+    _spriteNode->setVisible(false);
+}
