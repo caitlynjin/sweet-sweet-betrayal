@@ -69,7 +69,7 @@
 /** Debug color for the sensor */
 #define DEBUG_COLOR     Color4::RED
 /**How much the player speed should be dampened during gliding*/
-#define GLIDE_DAMPING 20.0f
+#define GLIDE_DAMPING 15.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 1.0f
 #define WIND_FACTOR_GLIDING 2.0f
@@ -250,8 +250,8 @@ void DudeModel::applyForce() {
         _body->ApplyForce(force,_body->GetPosition(),true);
         //Reduce friction in air.
         if (_isgliding) {
-            force.operator*=(-0.5);
-            _body->ApplyForce(force, _body->GetPosition(), true);
+            //force.operator*=(-0.5);
+            //_body->ApplyForce(force, _body->GetPosition(), true);
             //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
     }

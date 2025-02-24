@@ -15,6 +15,7 @@
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
 #include "Platform.h"
+#include "WindObstacle.h"
 
 using namespace cugl;
 
@@ -81,6 +82,8 @@ protected:
 #pragma mark Internal Object Management
 
     void createPlatform(Vec2 pos, Size size);
+
+    void createWindObstacle(Vec2 pos, Size size);
     /**
      * Lays out the game geography.
      *

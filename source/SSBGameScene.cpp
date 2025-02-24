@@ -11,6 +11,7 @@
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
+#include "WindObstacle.h"
 
 #include <ctime>
 #include <string>
@@ -407,6 +408,32 @@ void GameScene::createPlatform(Vec2 pos, Size size) {
 }
 
 /**
+* Creates a new platform.
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createWindObstacle(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(RIGHT_IMAGE);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos + size / 2, size);
+    Poly2 WindObstacle(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+
+    // Call this on a polygon to get a solid shape
+    /*EarclipTriangulator triangulator;
+    triangulator.set(wall.vertices);
+    triangulator.calculate();
+    wall.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    wall *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);*/
+
+
+    addObstacle(wind->getObstacle(), sprite, 1);  // All walls share the same texture
+    _objects.push_back(wind);
+
+}
+
+/**
  * Lays out the game geography.
  *
  * Pay close attention to how we attach physics objects to a scene graph.
@@ -663,6 +690,7 @@ void GameScene::preUpdate(float dt) {
     
     _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
     _avatar->setJumping( _input.didJump());
+    _avatar->addWind(Vec2());
     _avatar->applyForce();
 
     if (_avatar->isJumping() && _avatar->isGrounded()) {
