@@ -275,7 +275,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _editbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
             setBuildingMode(!_buildingMode);
-            CULog("building: %d", _buildingMode);
         }
     });
 
@@ -332,15 +331,15 @@ void GameScene::dispose() {
  * Initializes the grid layout on the screen for build mode.
  */
 void GameScene::initInventory(){
-    std::vector<Item> inventoryItems = {PLATFORM};
-    std::vector<std::string> assetNames = {EARTH_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
+    std::vector<std::string> assetNames = {EARTH_TEXTURE, SPIKE_TEXTURE};
     
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
         itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 40, _size.height - 100);
+        itemButton->setPosition(_size.width - 40, _size.height - 100 - yOffset);
         itemButton->setScale(2.0f);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(false);
@@ -353,7 +352,7 @@ void GameScene::initInventory(){
         });
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
-        yOffset += 60;
+        yOffset += 80;
     }
         
 }
@@ -369,9 +368,26 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
         case (PLATFORM):
             createPlatform(gridPos, Size(1,1));
             break;
+        case (SPIKE):
+            createSpike(gridPos, Size(1,1));
+            break;
     }
 }
 
+/**
+ * Returns the corresponding asset name to the item.
+ *
+ * @param item The item
+ * @Return the item's asset name
+ */
+std::string GameScene::itemToAssetName(Item item){
+    switch (item){
+        case (PLATFORM):
+            return EARTH_TEXTURE;
+        case (SPIKE):
+            return SPIKE_TEXTURE;
+    }
+}
 
 #pragma mark -
 #pragma mark Level Layout
@@ -665,7 +681,7 @@ void GameScene::update(float timestep) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-            _gridManager->setObject(gridPos);
+            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
         } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
@@ -744,7 +760,7 @@ void GameScene::preUpdate(float dt) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-            _gridManager->setObject(gridPos);
+            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
         } else if(_input.getInventoryStatus() == PlatformInput::PLACED){

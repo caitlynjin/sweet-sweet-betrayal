@@ -9,6 +9,7 @@
 #include <cugl/cugl.h>
 
 using namespace cugl;
+using namespace cugl::graphics;
 
 #pragma mark -
 #pragma mark Grid Manager
@@ -103,8 +104,11 @@ public:
 
     /**
      * Adds an object to the corresponding cell at this row and column.
+     *
+     *@param cellPos the cell position to add it to
+     *@param texture the texture of the object
      */
-    void setObject(Vec2 cellPos);
+    void setObject(Vec2 cellPos, std::shared_ptr<Texture> texture);
     
     /**
      * Sets the sprite node's visibility to false

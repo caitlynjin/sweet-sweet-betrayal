@@ -63,9 +63,10 @@ void GridManager::initGrid() {
 /**
  * Adds an object to the corresponding cell at this row and column.
  */
-void GridManager::setObject(Vec2 cellPos) {
+void GridManager::setObject(Vec2 cellPos, std::shared_ptr<Texture> texture){
     if (_spriteNode) {
         _spriteNode->setPosition(cellPos);
+        _spriteNode->setTexture(texture);
         _spriteNode->setVisible(true);
     }
 }

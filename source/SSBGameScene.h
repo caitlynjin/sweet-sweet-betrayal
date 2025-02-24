@@ -34,6 +34,8 @@ protected:
     enum Item {
         /** A standard platform */
         PLATFORM,
+        /** A spike */
+        SPIKE
     };
     
     /**
@@ -249,6 +251,14 @@ public:
      * @param item  The type of the item to be placed/created
      */
     void placeItem(Vec2 gridPos, Item item);
+    
+    /**
+     * Returns the corresponding asset name to the item.
+     *
+     * @param item The item
+     * @Return the item's asset name
+     */
+    std::string itemToAssetName(Item item);
     
 #pragma mark -
 #pragma mark State Access

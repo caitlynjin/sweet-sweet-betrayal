@@ -128,6 +128,8 @@ bool PlatformInput::init(const Rect bounds) {
     clearTouchInstance(_rtouch);
     clearTouchInstance(_mtouch);
     
+    _inventoryStatus = WAITING;
+    
 #ifndef CU_TOUCH_SCREEN
     success = Input::activate<Keyboard>();
 #else
