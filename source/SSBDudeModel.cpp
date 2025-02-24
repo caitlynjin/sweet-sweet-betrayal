@@ -274,6 +274,12 @@ void DudeModel::update(float dt) {
         _node->setPosition(getPosition()*_drawScale);
         _node->setAngle(getAngle());
     }
+    
+    // If the player has a treasure, update the position of the treasure such that
+    // it follows the player
+    if (_treasure != nullptr){
+        _treasure->setPosition(getPosition());
+    }
 }
 
 

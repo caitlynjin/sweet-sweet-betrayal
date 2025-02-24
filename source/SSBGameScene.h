@@ -15,6 +15,7 @@
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
 #include "Platform.h"
+#include "Treasure.h"
 
 using namespace cugl;
 
@@ -65,6 +66,9 @@ protected:
     std::shared_ptr<DudeModel>              _avatar;
 
     std::shared_ptr<Platform> _platformTest;
+    
+    /** Reference to the treasure */
+    std::shared_ptr<Treasure> _treasure;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -86,6 +90,12 @@ protected:
     * @param size The size of the spike in Box2D coordinates.
     */
     void createSpike(Vec2 pos, Size size);
+    
+    /** Creates a treasure
+    * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
+    * @param size The size of the treasure in Box2D coordinates.
+    */
+    void createTreasure(Vec2 pos, Size size);
 
     /** Creates a platform.
     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
