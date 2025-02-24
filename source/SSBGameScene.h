@@ -81,9 +81,22 @@ protected:
 
 #pragma mark Internal Object Management
 
+
+    /** Creates a spike.
+    * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
+    * @param size The size of the spike in Box2D coordinates.
+    */
+    void createSpike(Vec2 pos, Size size);
+
+    /** Creates a platform.
+    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+    * @param size The size of the platform in Box2D coordinates.
+    */
+
     void createPlatform(Vec2 pos, Size size);
 
     void createWindObstacle(Vec2 pos, Size size);
+    void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
      *
@@ -94,6 +107,7 @@ protected:
      *
      * This method is really, really long.  In practice, you would replace this
      * with your serialization loader, which would process a level file.
+     *
      */
     void populate();
     
