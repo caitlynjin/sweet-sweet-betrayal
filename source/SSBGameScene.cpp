@@ -267,6 +267,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _gridnode->setPosition(offset);
     _gridnode->setVisible(true);
 
+    scroll_pane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
+    scroll_pane->setInterior(getBounds() / 2);
+    scroll_pane->setConstrained(false);
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
@@ -274,6 +278,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_gridnode);
+    addChild(scroll_pane);
+
 
     populate();
     initGrid();
@@ -606,7 +612,6 @@ void GameScene::update(float timestep) {
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
     }
     
-    
     // Turn the physics engine crank.
     _world->update(timestep);
 }
@@ -670,7 +675,9 @@ void GameScene::preUpdate(float dt) {
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
     }
 
-    
+    getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
+    getCamera()->update();
+
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }

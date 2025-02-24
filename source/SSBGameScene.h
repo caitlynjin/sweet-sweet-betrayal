@@ -52,6 +52,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _rightnode;
     /** Reference to build mode grid */
     std::shared_ptr<scene2::SceneNode> _gridnode;
+    /** The camera for this scene */
+    std::shared_ptr<scene2::ScrollPane> scroll_pane;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -113,6 +115,7 @@ protected:
 public:
 #pragma mark -
 #pragma mark Constructors
+
     /**
      * Creates a new game world with the default values.
      *
@@ -285,6 +288,7 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void update(float timestep);
+
      
     /**
      * The method called to indicate the start of a deterministic loop.
