@@ -7,6 +7,7 @@
 
 #include "SSBGameScene.h"
 #include "Platform.h"
+#include "Spike.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
@@ -83,6 +84,8 @@ float DUDE_POS[] = { 2.5f, 7.0f};
 #pragma mark Asset Constants
 /** The key for the earth texture in the asset manager */
 #define EARTH_TEXTURE   "earth"
+/** The key for the spike texture in the asset manager */
+#define SPIKE_TEXTURE   "spike"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The name of a wall (for object identification) */
@@ -382,13 +385,13 @@ void GameScene::reset() {
 void GameScene::createPlatform(Vec2 pos, Size size) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
     std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
-    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
     
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
-    triangulator.set(wall.vertices);
+    triangulator.set(poly.vertices);
     triangulator.calculate();
-    wall.setIndices(triangulator.getTriangulation());
+    poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
 
 
@@ -398,9 +401,10 @@ void GameScene::createPlatform(Vec2 pos, Size size) {
     plat->getObstacle()->setFriction(BASIC_FRICTION);
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+    plat->getObstacle()->setName("platform");
 
-    wall *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    poly *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     addObstacle(plat->getObstacle(), sprite, 1);  // All walls share the same texture
     _objects.push_back(plat);
     
@@ -435,6 +439,39 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
+}
+
+/**
+* Creates a new spike.
+* @param pos The position of the bottom left corner of the spike in Box2D coordinates.
+* @param size The dimensions (width, height) of the spike.
+*/
+void GameScene::createSpike(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
+    std::shared_ptr<Spike> spk = Spike::alloc(pos + size / 2, size);
+    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+
+    // Set the physics attributes
+    spk->getObstacle()->setBodyType(b2_staticBody);
+    spk->getObstacle()->setDensity(BASIC_DENSITY);
+    spk->getObstacle()->setFriction(BASIC_FRICTION);
+    spk->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    spk->getObstacle()->setDebugColor(DEBUG_COLOR);
+    spk->getObstacle()->setName("spike");
+
+    poly *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    addObstacle(spk->getObstacle(), sprite, 1);  // All walls share the same texture
+    _objects.push_back(spk);
+
 }
 
 /**
@@ -548,6 +585,8 @@ void GameScene::populate() {
     
     createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
 
+
+    createSpike(Vec2(3, 3), Size(1, 1));
 
 
     // Play the background music on a loop.
@@ -863,6 +902,11 @@ void GameScene::beginContact(b2Contact* contact) {
     if((bd1 == _avatar.get()   && bd2 == _goalDoor.get()) ||
         (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
         setComplete(true);
+    }
+    // If we hit a spike, we are DEAD
+    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        setFailure(true);
     }
 }
 
