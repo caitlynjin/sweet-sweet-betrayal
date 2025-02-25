@@ -37,8 +37,8 @@
                 "right": [128, 128, 255, 255]
             }
         },
-        "edit_button": {
-            "file":     "textures/edit_button.png"
+        "ready_button": {
+            "file":     "textures/ready_button.png"
         }
 	},
     "sounds": {

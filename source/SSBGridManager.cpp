@@ -37,10 +37,14 @@ void GridManager::initGrid() {
             cellNode->setColor(Color4::WHITE);
             cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
             cellNode->setPosition(cellPos);
+            cellNode->setVisible(true);
 
             _grid->addChild(cellNode);
         }
     }
+
+    // Set grid to be shown initially
+    _grid->setVisible(true);
 
     // TODO: Remove later, testing with adding a sprite node to a cell
     Vec2 cellPos(3 * 1, 3 * 1);
