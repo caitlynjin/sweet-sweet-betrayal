@@ -916,6 +916,11 @@ void GameScene::beginContact(b2Contact* contact) {
         (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
         setComplete(true);
     }
+    // If the player collides with the growing wall, game over
+    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
+        (bd1 == _growingWall.get() && bd2 == _avatar.get())) {
+        setFailure(true);
+    }
 }
 
 /**
