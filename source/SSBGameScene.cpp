@@ -447,7 +447,7 @@ void GameScene::updateGrowingWall(float timestep) {
     _growingWallWidth += _growingWallGrowthRate * timestep;
 
     // Remove the old wall if it exists
-    if (_growingWall) {
+    if (_growingWall && _world->getObstacles().count(_growingWall) > 0) {
         _world->removeObstacle(_growingWall);
         _worldnode->removeChild(_growingWallNode);
     }
