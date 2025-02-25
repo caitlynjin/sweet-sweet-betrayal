@@ -633,11 +633,8 @@ void GameScene::populate() {
     createPlatform(Vec2(17, 3), Size(2, 1));
     createPlatform(Vec2(1, 9), Size(18, 1));
     createPlatform(Vec2(3, 6), Size(2, 1));
-//    createPlatform(Vec2(10, 8), Size(5, 1));
-//    createPlatform(Vec2(11, 4), Size(7, 2));
-//    createPlatform(Vec2(5, 2), Size(4, 1));
     
-    
+    // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
 //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
     
