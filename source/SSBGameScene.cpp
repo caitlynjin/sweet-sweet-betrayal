@@ -292,6 +292,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     scroll_pane->setInterior(getBounds() / 2);
     scroll_pane->setConstrained(false);
 
+    camera_pos = getCamera()->getPosition();
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
@@ -838,7 +840,12 @@ void GameScene::preUpdate(float dt) {
         }
     }
 
-    getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
+    if (!_buildingMode){
+        getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
+    }
+    else {
+        getCamera()->setPosition(camera_pos);
+    }
     getCamera()->update();
     
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {

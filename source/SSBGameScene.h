@@ -114,6 +114,8 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
+    /** The initial camera position */
+    Vec2 camera_pos;
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
