@@ -288,12 +288,19 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
 
     initInventory();
 
+    _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
+    _scrollpane->setInterior(getBounds() / 2);
+    _scrollpane->setConstrained(false);
+
+    _camerapos = getCamera()->getPosition();
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
+    addChild(_scrollpane);
     addChild(_editbutton);
     addChild(_gridManager->getGridNode());
 
@@ -827,12 +834,19 @@ void GameScene::preUpdate(float dt) {
         _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
         _avatar->setJumping( _input.didJump());
         _avatar->applyForce();
-
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
     }
+
+    if (!_buildingMode){
+        getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
+    }
+    else {
+        getCamera()->setPosition(_camerapos);
+    }
+    getCamera()->update();
     
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
