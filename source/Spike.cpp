@@ -28,9 +28,8 @@ using namespace cugl;
 bool Spike::init(const Vec2 pos, const Size size, float scale, float angle) {
     _spikeTexture = "";
     _drawScale = scale;
-    Size nsize = size*.80;
+    Size nsize = size*.80; // FIX LATER
     
-    // HARD-CODED FOR NOW,  FIX LATER --> MAYBE STORE DESIRED DIM IN JSON
     Vec2 posA = Vec2(-nsize.width/2, -nsize.height/2);
     Vec2 posB = Vec2(nsize.width/2, -nsize.height/2);
     Vec2 posC = Vec2(0, nsize.height / 2);

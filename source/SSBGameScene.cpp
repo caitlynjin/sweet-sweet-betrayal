@@ -44,11 +44,12 @@ using namespace cugl::audio;
 // IMPORTANT: Note that Box2D units do not equal drawing units
 /** The wall vertices */
 #define WALL_VERTS 8
-#define WALL_COUNT  1
+#define WALL_COUNT  0
 
-float WALL[WALL_COUNT][WALL_VERTS] = {
-    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
-};
+//float WALL[WALL_COUNT][WALL_VERTS] = {
+//    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
+//};
+float WALL[WALL_COUNT][WALL_VERTS];
 
 ///** The number of platforms */
 //#define PLATFORM_VERTS  8
@@ -486,18 +487,7 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 */
 void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
-//    std::shared_ptr<Spike> spk = Spike::alloc(pos + size / 2, image->getSize()/_scale, _scale);
     std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize()/_scale, _scale, angle);
-    
-    
-//    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
-
-    // Call this on a polygon to get a solid shape
-//    EarclipTriangulator triangulator;
-//    triangulator.set(poly.vertices);
-//    triangulator.calculate();
-//    poly.setIndices(triangulator.getTriangulation());
-//    triangulator.clear();
 
 
     // Set the physics attributes
@@ -508,14 +498,10 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
     spk->getObstacle()->setDebugColor(DEBUG_COLOR);
     spk->getObstacle()->setName("spike");
 
-//    poly *= _scale;
-//    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
     spk->setSceneNode(sprite, angle);
     addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
-    
-
 }
 
 /**
@@ -622,18 +608,38 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+ 
+    
+    
+#pragma mark : Spikes
+    createSpike(Vec2(13, 1), Size(1, 1), _scale);
+    createSpike(Vec2(14, 1), Size(1, 1), _scale);
+    createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(10, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(17, 4), Size(1, 1), _scale);
+    createSpike(Vec2(18, 4), Size(1, 1), _scale);
+    createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
+    createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
     
 #pragma mark : Platforms
-    createPlatform(Vec2(4, 8), Size(3, 3));
-    createPlatform(Vec2(10, 8), Size(5, 1));
-    createPlatform(Vec2(11, 4), Size(7, 2));
-    createPlatform(Vec2(5, 2), Size(4, 1));
+    createPlatform(Vec2(0, 0), Size(6, 1));
+    createPlatform(Vec2(13, 0), Size(7, 1));
+    createPlatform(Vec2(19, 1), Size(1, 9));
+    createPlatform(Vec2(0, 1), Size(1, 9));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(17, 3), Size(2, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(3, 6), Size(2, 1));
+//    createPlatform(Vec2(10, 8), Size(5, 1));
+//    createPlatform(Vec2(11, 4), Size(7, 2));
+//    createPlatform(Vec2(5, 2), Size(4, 1));
     
     
-    createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
+//    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
-#pragma mark : Spikes
-    createSpike(Vec2(3, 1), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
