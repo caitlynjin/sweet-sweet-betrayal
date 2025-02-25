@@ -13,6 +13,9 @@
         "dude": {
             "file":     "textures/dude.png"
         },
+        "treasureGreen": {
+            "file":     "textures/treasureGreen2.png"
+        },
         "spinner": {
             "file":     "textures/barrier.png"
         },

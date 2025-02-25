@@ -64,6 +64,9 @@ float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
 float DUDE_POS[] = { 2.5f, 7.0f};
 
+/** The initial position of the treasure */
+float TREASURE_POS[] = { 5.5f, 1.5f};
+
 #pragma mark -
 #pragma mark Physics Constants
 /** The new heavier gravity for this world (so it is not so floaty) */
@@ -403,6 +406,7 @@ void GameScene::reset() {
     _debugnode->removeAllChildren();
     _avatar = nullptr;
     _goalDoor = nullptr;
+    _treasure = nullptr;
       
     setFailure(false);
     setComplete(false);
@@ -610,6 +614,8 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+    
+    
     createPlatform(Vec2(4, 8), Size(3, 3));
     createPlatform(Vec2(10, 8), Size(5, 1));
     createPlatform(Vec2(11, 4), Size(7, 2));
@@ -619,6 +625,16 @@ void GameScene::populate() {
 
 
     createSpike(Vec2(3, 3), Size(1, 1));
+    
+#pragma mark : Treasure
+    Vec2 treasurePos = TREASURE_POS;
+    image = _assets->get<Texture>("treasureGreen");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure->getObstacle(),sprite);
+    _treasure->getObstacle()->setName("treasure");
+    
 
 
     // Play the background music on a loop.
@@ -808,6 +824,10 @@ void GameScene::preUpdate(float dt) {
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
+
+    
+//    _treasure->update(dt);
+
 }
 
 /**
@@ -978,6 +998,13 @@ void GameScene::beginContact(b2Contact* contact) {
     if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _avatar.get())) {
         setFailure(true);
+    }
+    
+    // If we collide with a treasure, we pick it up
+    if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
+        (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
+        if (!_avatar->_hasTreasure)
+            _avatar->gainTreasure(_treasure);
     }
 }
 
