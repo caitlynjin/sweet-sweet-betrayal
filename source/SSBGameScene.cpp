@@ -62,7 +62,7 @@ float WALL[WALL_COUNT][WALL_VERTS] = {
 /** The goal door position */
 float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
-float DUDE_POS[] = { 2.5f, 5.0f};
+float DUDE_POS[] = { 2.5f, 7.0f};
 
 /** The initial position of the treasure */
 float TREASURE_POS[] = { 5.5f, 1.5f};
@@ -413,6 +413,37 @@ void GameScene::createPlatform(Vec2 pos, Size size) {
     _objects.push_back(plat);
     
 }
+/**
+ * Creates a moving platform.
+ * @param pos The bottom left position of the platform starting position
+ * @param size The dimensions of the platform.
+ * @param end The bottom left position of the platform's destination.
+ * @param speed The speed at which the platform moves.
+ */
+void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
+    
+    std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
+    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    
+    EarclipTriangulator triangulator;
+    triangulator.set(wall.vertices);
+    triangulator.calculate();
+    wall.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    
+    plat->getObstacle()->setDensity(BASIC_DENSITY);
+    plat->getObstacle()->setFriction(BASIC_FRICTION);
+    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+
+    wall *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+
+    addObstacle(plat->getObstacle(), sprite, 1);
+    _objects.push_back(plat);
+}
 
 /**
 * Creates a new spike.
@@ -557,6 +588,9 @@ void GameScene::populate() {
     createPlatform(Vec2(10, 8), Size(5, 1));
     createPlatform(Vec2(11, 4), Size(7, 2));
     createPlatform(Vec2(5, 2), Size(4, 1));
+    
+    createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
+
 
     createSpike(Vec2(3, 3), Size(1, 1));
     
@@ -603,7 +637,7 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
       _worldnode->addChild(node);
     
     // Dynamic objects need constant updating
-    if (obj->getBodyType() == b2_dynamicBody) {
+    if (obj->getBodyType() != b2_staticBody) {
         scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
         obj->setListener([=,this](physics2::Obstacle* obs){
             weak->setPosition(obs->getPosition()*_scale);
@@ -659,6 +693,9 @@ void GameScene::update(float timestep) {
     if (_avatar->isJumping() && _avatar->isGrounded()) {
         std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
         AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+    }
+    for (auto& obj : _objects) {
+        obj -> update(timestep);
     }
     
     
