@@ -76,7 +76,7 @@ protected:
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
     /** The camera for this scene */
-    std::shared_ptr<scene2::ScrollPane> scroll_pane;
+    std::shared_ptr<scene2::ScrollPane> _scrollpane;
     /** Reference to the edit button */
     std::shared_ptr<cugl::scene2::Button> _editbutton;
     /** Reference to build mode inventory buttons */
@@ -115,7 +115,7 @@ protected:
     /** The selected item in build mode */
     Item _selectedItem;
     /** The initial camera position */
-    Vec2 camera_pos;
+    Vec2 _camerapos;
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
