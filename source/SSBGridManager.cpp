@@ -37,7 +37,6 @@ void GridManager::initGrid() {
             cellNode->setColor(Color4::WHITE);
             cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
             cellNode->setPosition(cellPos);
-            cellNode->setVisible(true);
 
             _grid->addChild(cellNode);
         }
