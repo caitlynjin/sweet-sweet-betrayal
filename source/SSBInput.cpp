@@ -128,25 +128,34 @@ bool PlatformInput::init(const Rect bounds) {
     clearTouchInstance(_rtouch);
     clearTouchInstance(_mtouch);
     
+    _inventoryStatus = WAITING;
+    
 #ifndef CU_TOUCH_SCREEN
     success = Input::activate<Keyboard>();
 #else
     Touchscreen* touch = Input::get<Touchscreen>();
     touch->addBeginListener(LISTENER_KEY,[=](const TouchEvent& event, bool focus) {
         this->touchBeganCB(event,focus);
+
+        _touchDown = true;
+        _touchPosForDrag = touch2Screen(event.position);
     });
     touch->addEndListener(LISTENER_KEY,[=](const TouchEvent& event, bool focus) {
         this->touchEndedCB(event,focus);
+
+        _touchDown = false;
     });
     touch->addMotionListener(LISTENER_KEY,[=](const TouchEvent& event, const Vec2& previous, bool focus) {
         this->touchesMovedCB(event, previous, focus);
+        
+        _touchDown = true;
+        _touchPosForDrag = touch2Screen(event.position);
     });
 	
 #endif
     _active = success;
     return success;
 }
-
 
 /**
  * Processes the currently cached inputs.
@@ -344,6 +353,7 @@ int PlatformInput::processSwipe(const Vec2 start, const Vec2 stop, Timestamp cur
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
+    
     //CULog("Touch began %lld", event.touch);
     Vec2 pos = event.position;
     Zone zone = getZone(pos);
@@ -405,6 +415,12 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
 void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
     // Reset all keys that might have been set
     Vec2 pos = event.position;
+    
+    if (_inventoryStatus == PLACING) {
+        _inventoryStatus = PLACED;
+        _placedPos = touch2Screen(pos);
+    }
+    
     Zone zone = getZone(pos);
     if (_ltouch.touchids.find(event.touch) != _ltouch.touchids.end()) {
         _ltouch.touchids.clear();
