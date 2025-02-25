@@ -81,6 +81,8 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+    /** Reference to the label for counting rounds */
+    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
