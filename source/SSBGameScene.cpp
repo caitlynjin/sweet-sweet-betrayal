@@ -44,12 +44,13 @@ using namespace cugl::audio;
 // In an actual game, this information would go in a data file.
 // IMPORTANT: Note that Box2D units do not equal drawing units
 /** The wall vertices */
-#define WALL_VERTS 8
-#define WALL_COUNT  1
+//#define WALL_VERTS 8
+//#define WALL_COUNT  0
 
-float WALL[WALL_COUNT][WALL_VERTS] = {
-    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
-};
+//float WALL[WALL_COUNT][WALL_VERTS] = {
+//    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
+//};
+//float WALL[WALL_COUNT][WALL_VERTS];
 
 ///** The number of platforms */
 //#define PLATFORM_VERTS  8
@@ -67,6 +68,8 @@ float DUDE_POS[] = { 2.5f, 7.0f};
 
 /** The initial position of the treasure */
 float TREASURE_POS[] = { 5.5f, 1.5f};
+
+float SPIKE_POS[] = { 5.5f, 1.5f};
 
 #pragma mark -
 #pragma mark Physics Constants
@@ -373,7 +376,7 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
             createPlatform(gridPos, Size(1,1));
             break;
         case (SPIKE):
-            createSpike(gridPos, Size(1,1));
+            createSpike(gridPos, Size(1,1), _scale);
             break;
     }
 }
@@ -483,17 +486,9 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
 * @param size The dimensions (width, height) of the spike.
 */
-void GameScene::createSpike(Vec2 pos, Size size) {
+void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
-    std::shared_ptr<Spike> spk = Spike::alloc(pos + size / 2, size);
-    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize()/_scale, _scale, angle);
 
 
     // Set the physics attributes
@@ -504,11 +499,10 @@ void GameScene::createSpike(Vec2 pos, Size size) {
     spk->getObstacle()->setDebugColor(DEBUG_COLOR);
     spk->getObstacle()->setName("spike");
 
-    poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-    addObstacle(spk->getObstacle(), sprite, 1);  // All walls share the same texture
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+    spk->setSceneNode(sprite, angle);
+    addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
-
 }
 
 /**
@@ -566,35 +560,35 @@ void GameScene::populate() {
 
 #pragma mark : Walls
     // All walls and platforms share the same texture
-    image = _assets->get<Texture>(EARTH_TEXTURE);
-    std::string wname = "wall";
-    for (int ii = 0; ii < WALL_COUNT; ii++) {
-        std::shared_ptr<physics2::PolygonObstacle> wallobj;
-
-        Poly2 wall(reinterpret_cast<Vec2*>(WALL[ii]),WALL_VERTS/2);
-        // Call this on a polygon to get a solid shape
-        EarclipTriangulator triangulator;
-        triangulator.set(wall.vertices);
-        triangulator.calculate();
-        wall.setIndices(triangulator.getTriangulation());
-        triangulator.clear();
-
-        wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
-        // You cannot add constant "".  Must stringify
-        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
-        wallobj->setName(wname);
-
-        // Set the physics attributes
-        wallobj->setBodyType(b2_staticBody);
-        wallobj->setDensity(BASIC_DENSITY);
-        wallobj->setFriction(BASIC_FRICTION);
-        wallobj->setRestitution(BASIC_RESTITUTION);
-        wallobj->setDebugColor(DEBUG_COLOR);
-
-        wall *= _scale;
-        sprite = scene2::PolygonNode::allocWithTexture(image,wall);
-        addObstacle(wallobj,sprite,1);  // All walls share the same texture
-    }
+//    image = _assets->get<Texture>(EARTH_TEXTURE);
+//    std::string wname = "wall";
+//    for (int ii = 0; ii < WALL_COUNT; ii++) {
+//        std::shared_ptr<physics2::PolygonObstacle> wallobj;
+//
+//        Poly2 wall(reinterpret_cast<Vec2*>(WALL[ii]),WALL_VERTS/2);
+//        // Call this on a polygon to get a solid shape
+//        EarclipTriangulator triangulator;
+//        triangulator.set(wall.vertices);
+//        triangulator.calculate();
+//        wall.setIndices(triangulator.getTriangulation());
+//        triangulator.clear();
+//
+//        wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
+//        // You cannot add constant "".  Must stringify
+//        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
+//        wallobj->setName(wname);
+//
+//        // Set the physics attributes
+//        wallobj->setBodyType(b2_staticBody);
+//        wallobj->setDensity(BASIC_DENSITY);
+//        wallobj->setFriction(BASIC_FRICTION);
+//        wallobj->setRestitution(BASIC_RESTITUTION);
+//        wallobj->setDebugColor(DEBUG_COLOR);
+//
+//        wall *= _scale;
+//        sprite = scene2::PolygonNode::allocWithTexture(image,wall);
+//        addObstacle(wallobj,sprite,1);  // All walls share the same texture
+//    }
 
 //#pragma mark : Platforms
 //    for (int ii = 0; ii < PLATFORM_COUNT; ii++) {
@@ -632,17 +626,35 @@ void GameScene::populate() {
     _avatar->setSceneNode(sprite);
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
+ 
     
     
-    createPlatform(Vec2(4, 8), Size(3, 3));
-    createPlatform(Vec2(10, 8), Size(5, 1));
-    createPlatform(Vec2(11, 4), Size(7, 2));
-    createPlatform(Vec2(5, 2), Size(4, 1));
+#pragma mark : Spikes
+    createSpike(Vec2(13, 1), Size(1, 1), _scale);
+    createSpike(Vec2(14, 1), Size(1, 1), _scale);
+    createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(10, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(17, 4), Size(1, 1), _scale);
+    createSpike(Vec2(18, 4), Size(1, 1), _scale);
+    createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
+    createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
     
-    createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
+#pragma mark : Platforms
+    createPlatform(Vec2(0, 0), Size(6, 1));
+    createPlatform(Vec2(13, 0), Size(7, 1));
+    createPlatform(Vec2(19, 1), Size(1, 9));
+    createPlatform(Vec2(0, 1), Size(1, 9));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(17, 3), Size(2, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(3, 6), Size(2, 1));
+    
+    // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
+//    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
-
-    createSpike(Vec2(3, 3), Size(1, 1));
     
     createWindObstacle(Vec2(2, 1.5), Size(1, 1), Vec2(0,10));
 #pragma mark : Treasure
@@ -653,6 +665,7 @@ void GameScene::populate() {
     _treasure->setSceneNode(sprite);
     addObstacle(_treasure->getObstacle(),sprite);
     _treasure->getObstacle()->setName("treasure");
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
     
 
 
@@ -1016,6 +1029,7 @@ void GameScene::beginContact(b2Contact* contact) {
     // If we hit a spike, we are DEAD
     if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        CULog("HIT SPIKE");
         setFailure(true);
     }
 
@@ -1036,8 +1050,9 @@ void GameScene::beginContact(b2Contact* contact) {
     // If we collide with a treasure, we pick it up
     if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
         (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
-        if (!_avatar->_hasTreasure)
+        if (!_avatar->_hasTreasure){
             _avatar->gainTreasure(_treasure);
+        }
     }
 }
 
