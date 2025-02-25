@@ -95,7 +95,7 @@ protected:
 
     void createPlatform(Vec2 pos, Size size);
 
-    void createWindObstacle(Vec2 pos, Size size);
+    void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
