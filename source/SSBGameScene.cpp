@@ -368,6 +368,13 @@ void GameScene::reset() {
     _debugnode->removeAllChildren();
     _avatar = nullptr;
     _goalDoor = nullptr;
+    if (_growingWall && _world->getObstacles().count(_growingWall) > 0) {
+        _world->removeObstacle(_growingWall);
+        _worldnode->removeChild(_growingWallNode);
+    }
+    _growingWall = nullptr;
+    _growingWallNode = nullptr;
+    _growingWallWidth = 1.0f;
       
     setFailure(false);
     setComplete(false);
