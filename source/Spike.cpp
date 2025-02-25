@@ -25,9 +25,24 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Spike::init(const Vec2 pos, const Size size) {
-    Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
+bool Spike::init(const Vec2 pos, const Size size, float scale, float angle) {
+    _spikeTexture = "";
+    _drawScale = scale;
+    Size nsize = size*.80;
+    
+    // HARD-CODED FOR NOW,  FIX LATER --> MAYBE STORE DESIRED DIM IN JSON
+    Vec2 posA = Vec2(-nsize.width/2, -nsize.height/2);
+    Vec2 posB = Vec2(nsize.width/2, -nsize.height/2);
+    Vec2 posC = Vec2(0, nsize.height / 2);
+    
+    PolyFactory factory;
+    Poly2 triangle = factory.makeTriangle(posA, posB, posC);
+    _hitbox = physics2::PolygonObstacle::alloc(triangle);
+    _hitbox->setDebugColor(Color4::YELLOW);
+    _hitbox->setPosition(pos + size / 2);
+    _hitbox->setAngle(angle);
+    
+    
     return true;
 }
 

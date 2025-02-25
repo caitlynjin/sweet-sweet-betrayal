@@ -71,6 +71,7 @@ public:
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
     }
+    
 };
 
 

@@ -67,6 +67,8 @@ float DUDE_POS[] = { 2.5f, 7.0f};
 /** The initial position of the treasure */
 float TREASURE_POS[] = { 5.5f, 1.5f};
 
+float SPIKE_POS[] = { 5.5f, 1.5f};
+
 #pragma mark -
 #pragma mark Physics Constants
 /** The new heavier gravity for this world (so it is not so floaty) */
@@ -372,7 +374,7 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
             createPlatform(gridPos, Size(1,1));
             break;
         case (SPIKE):
-            createSpike(gridPos, Size(1,1));
+            createSpike(gridPos, Size(1,1), _scale);
             break;
     }
 }
@@ -482,17 +484,20 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
 * @param size The dimensions (width, height) of the spike.
 */
-void GameScene::createSpike(Vec2 pos, Size size) {
+void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
-    std::shared_ptr<Spike> spk = Spike::alloc(pos + size / 2, size);
-    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+//    std::shared_ptr<Spike> spk = Spike::alloc(pos + size / 2, image->getSize()/_scale, _scale);
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize()/_scale, _scale, angle);
+    
+    
+//    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
 
     // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
+//    EarclipTriangulator triangulator;
+//    triangulator.set(poly.vertices);
+//    triangulator.calculate();
+//    poly.setIndices(triangulator.getTriangulation());
+//    triangulator.clear();
 
 
     // Set the physics attributes
@@ -503,10 +508,13 @@ void GameScene::createSpike(Vec2 pos, Size size) {
     spk->getObstacle()->setDebugColor(DEBUG_COLOR);
     spk->getObstacle()->setName("spike");
 
-    poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-    addObstacle(spk->getObstacle(), sprite, 1);  // All walls share the same texture
+//    poly *= _scale;
+//    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+    spk->setSceneNode(sprite, angle);
+    addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
+    
 
 }
 
@@ -615,16 +623,17 @@ void GameScene::populate() {
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
     
-    
+#pragma mark : Platforms
     createPlatform(Vec2(4, 8), Size(3, 3));
     createPlatform(Vec2(10, 8), Size(5, 1));
     createPlatform(Vec2(11, 4), Size(7, 2));
     createPlatform(Vec2(5, 2), Size(4, 1));
     
+    
     createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
 
-
-    createSpike(Vec2(3, 3), Size(1, 1));
+#pragma mark : Spikes
+    createSpike(Vec2(3, 1), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
@@ -634,6 +643,7 @@ void GameScene::populate() {
     _treasure->setSceneNode(sprite);
     addObstacle(_treasure->getObstacle(),sprite);
     _treasure->getObstacle()->setName("treasure");
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
     
 
 
@@ -997,14 +1007,16 @@ void GameScene::beginContact(b2Contact* contact) {
     // If we hit a spike, we are DEAD
     if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        CULog("HIT SPIKE");
         setFailure(true);
     }
     
     // If we collide with a treasure, we pick it up
     if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
         (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
-        if (!_avatar->_hasTreasure)
+        if (!_avatar->_hasTreasure){
             _avatar->gainTreasure(_treasure);
+        }
     }
 }
 

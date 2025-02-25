@@ -49,3 +49,5 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale) {
     _box->setSensor(true);
     return true;
 }
+
+

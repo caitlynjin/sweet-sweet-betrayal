@@ -6,9 +6,7 @@
             "wrapT": "repeat"
         },
         "spike": {
-            "file": "textures/spiketile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/Spike2.png"
         },
         "dude": {
             "file":     "textures/dude.png"
