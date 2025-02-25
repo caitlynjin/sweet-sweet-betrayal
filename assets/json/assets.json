@@ -35,6 +35,9 @@
                 "left" : [0,   128, 127, 255],
                 "right": [128, 128, 255, 255]
             }
+        },
+        "edit_button": {
+            "file":     "textures/edit_button.png"
         }
 	},
     "sounds": {

@@ -14,6 +14,7 @@
 #include <vector>
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
+#include "SSBGridManager.h"
 #include "Platform.h"
 #include "WindObstacle.h"
 
@@ -28,6 +29,28 @@ using namespace cugl;
  */
 class GameScene : public scene2::Scene2 {
 protected:
+    /**
+     * The type of an item/obstacle.
+     */
+    enum Item {
+        /** A standard platform */
+        PLATFORM,
+        /** A spike */
+        SPIKE
+    };
+    
+    /**
+     * Convert an Item enum to the corresponding string.
+     */
+    std::string itemToString(Item item) {
+        switch (item) {
+            case PLATFORM:
+                return "platform";
+            default:
+                return "unknown";
+        }
+    }
+    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 
@@ -51,13 +74,19 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
-    /** Reference to build mode grid */
-    std::shared_ptr<scene2::SceneNode> _gridnode;
+    /** Reference to the edit button */
+    std::shared_ptr<cugl::scene2::Button> _editbutton;
+    /** Reference to build mode inventory buttons */
+    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
+    /** Reference to the grid manager */
+    std::shared_ptr<GridManager> _gridManager;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
+    /** The offset from the world */
+    Vec2 _offset;
 
     // Physics objects for the game
     /** Reference to the goalDoor (for collision detection) */
@@ -75,6 +104,10 @@ protected:
     bool _failed;
     /** Countdown active for winning or losing */
     int _countdown;
+    /** Whether we are in build mode */
+    bool _buildingMode;
+    /** The selected item in build mode */
+    Item _selectedItem;
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
@@ -206,11 +239,29 @@ public:
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect, const Vec2& gravity);
 
+#pragma mark -
+#pragma mark Build Mode
+    
     /**
-     * Initializes the grid layout on the screen for build mode.
+     * Initializes the inventory for build mode.
      */
-    void initGrid();
-
+    void initInventory();
+    
+    /**
+     * Creates an item of type item and places it at the grid position.
+     *
+     * @param gridPos   The grid position to place the item at
+     * @param item  The type of the item to be placed/created
+     */
+    void placeItem(Vec2 gridPos, Item item);
+    
+    /**
+     * Returns the corresponding asset name to the item.
+     *
+     * @param item The item
+     * @Return the item's asset name
+     */
+    std::string itemToAssetName(Item item);
     
 #pragma mark -
 #pragma mark State Access
@@ -267,7 +318,14 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
-    
+
+     /**
+     * Sets whether mode is in building or play mode.
+     *
+     * @param value whether the level is in building mode.
+     */
+    void setBuildingMode(bool value);
+
 #pragma mark -
 #pragma mark Collision Handling
     /**
@@ -382,6 +440,18 @@ public:
      * Resets the status of the game so that we can play again.
      */
     void reset();
+
+#pragma mark -
+#pragma mark Helpers
+    /**
+     * Converts from screen to Box2D coordinates.
+     *
+     * @param screenPos    The screen position
+     * @param scale             The screen to world scale
+     * @param offset           The offset of the scene to the world
+     */
+    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
+
   };
 
 #endif /* __PF_GAME_SCENE_H__ */
