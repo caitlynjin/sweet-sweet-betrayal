@@ -17,6 +17,7 @@
 #include "SSBGridManager.h"
 #include "Platform.h"
 #include "Treasure.h"
+//#include <cmath>
 
 using namespace cugl;
 
@@ -122,7 +123,7 @@ protected:
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
     */
-    void createSpike(Vec2 pos, Size size);
+    void createSpike(Vec2 pos, Size size, float scale, float angle = 0);
     
     /** Creates a treasure
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
@@ -460,5 +461,14 @@ public:
     Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
 
   };
+
+/**
+ * Converts from degrees to radians for angle rotations.
+ *
+ * @param degrees    The degree of an angle.
+ */
+//float degToRad(const float& degrees){
+//    return degrees * (M_PI / 180);
+//}
 
 #endif /* __PF_GAME_SCENE_H__ */
