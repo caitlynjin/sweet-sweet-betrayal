@@ -37,8 +37,10 @@ protected:
     enum Item {
         /** A standard platform */
         PLATFORM,
-        /** A spike */
-        SPIKE
+        /** A moving platform */
+        MOVING_PLATFORM,
+        /** A wind object */
+        WIND
     };
     
     /**
