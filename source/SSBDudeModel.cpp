@@ -290,7 +290,7 @@ void DudeModel::applyForce()
 void DudeModel::update(float dt)
 {
     // Check whether we are in glid mode
-    glideUpdate(dt);
+    //glideUpdate(dt);
     // Apply cooldowns
     if (isJumping())
     {
@@ -316,7 +316,7 @@ void DudeModel::update(float dt)
         setPosition(getPosition() + platformVel * dt);
     }
 
-    windUpdate(dt);
+    //windUpdate(dt);
 
     CapsuleObstacle::update(dt);
 
