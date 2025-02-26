@@ -102,6 +102,10 @@ protected:
 	bool _isGrounded;
 	/** Whether we are actively shooting */
 	bool _isShooting;
+    /** if standing on moving platform */
+    bool _onMovingPlat;
+    /** points to moving platform standing on*/
+    physics2::Obstacle* MovingPlat;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
@@ -471,6 +475,25 @@ public:
      * @return true if this character is facing right
      */
     bool isFacingRight() const { return _faceRight; }
+    
+    /** Returns whether the character is standing on a moving platform */
+    bool isOnMovingPlatform() const { return _onMovingPlat; }
+
+    /** Returns a pointer to the moving platform the character is standing on */
+    physics2::Obstacle* getMovingPlatform() const { return MovingPlat; }
+
+
+    /** 
+    * set if on movingplatform
+    * @param on set is on movingplatform
+    */
+    void setOnMovingPlat(bool on) {_onMovingPlat = on;}
+
+    /** 
+    * set moving platform moving on
+    * @param plot pltform standing on
+    */
+    void setMovingPlat(physics2::Obstacle* plat) {MovingPlat = plat;}
 
     /**Sets whether we are trying to glide or not.*/
     void setGlide(bool value) { _isGliding = value; }
