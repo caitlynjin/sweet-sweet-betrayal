@@ -66,6 +66,16 @@ protected:
 
     std::shared_ptr<Platform> _platformTest;
 
+    /** Whether the player is currently in the middle of a sling */
+    bool _slingInProgress;
+
+    cugl::Path2 _trajectoryPath;
+
+    cugl::Poly2 _trajectoryPoly;
+
+    std::shared_ptr<cugl::scene2::SceneNode>  _pathNode;
+
+    std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */

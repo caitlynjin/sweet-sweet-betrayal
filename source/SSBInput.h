@@ -57,6 +57,15 @@ private:
     bool  _keyLeft;
     /** Whether the right arrow key is down */
     bool  _keyRight;
+    /** Whether the touch is currently down */
+    bool _currDown;
+    /** Whether the touch was down one frame ago */
+    bool _prevDown;
+
+    bool _prev2Down;
+public: 
+    cugl::Vec2 originalPosition;
+    cugl::Vec2 finalPosition;
   
 protected:
     // INPUT RESULTS
@@ -115,6 +124,8 @@ protected:
 	cugl::Rect _lzone;
 	/** The bounds of the right touch zone */
 	cugl::Rect _rzone;
+
+    cugl::Vec2 _touchReleasePos;
 
 	// Each zone can have only one touch
 	/** The current touch location for the left zone */
@@ -247,7 +258,18 @@ public:
      * the OS, we may see multiple updates of the same touch in a single animation
      * frame, so we need to accumulate all of the data together.
      */
-    void  update(float dt);
+    void update(float dt);
+
+    /** Returns the position of the current touch in the middle/bottom zone. 
+    */
+
+    cugl::Vec2 getMTouchPosition() const {
+        return _mtouch.position;
+    }
+
+    cugl::Vec2 getTouchReleasePosition() const {
+        return _touchReleasePos;
+    }
 
     /**
      * Clears any buffered inputs so that we may start fresh.
@@ -285,6 +307,20 @@ public:
      * @return true if the reset button was pressed.
      */
 	bool didReset() const { return _resetPressed; }
+
+    /**
+     * Returns true if the screen was just touched.
+     *
+     * @return true if the screen was just touched.
+     */
+    bool didPressFinger() const { return _currDown && !_prev2Down; }
+
+    /**
+     * Returns true if the touch was just released.
+     *
+     * @return true if the touch was just released.
+     */
+    bool didReleaseFinger() const { return _prev2Down && !_currDown; }
 
     /**
      * Returns true if the player wants to go toggle the debug mode.
