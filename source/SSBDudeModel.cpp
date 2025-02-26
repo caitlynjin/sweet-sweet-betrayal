@@ -336,15 +336,15 @@ void DudeModel::windUpdate(float dt) {
     if (!isGrounded()) {
         int mult = 1;
         if (!_isGliding) {
-            mult = 0.1;
+            mult = 0.2;
         }
 
         b2Vec2 vel = _body->GetLinearVelocity();
-        vel.x += _windvel.x;
-        vel.y += _windvel.y;
+        vel.x += _windvel.x*mult;
+        vel.y += _windvel.y*mult;
         _body->SetLinearVelocity(vel);
-        _windvel = Vec2();
     }
+    _windvel = Vec2();
 }
 
 

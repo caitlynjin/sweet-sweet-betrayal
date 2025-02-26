@@ -1055,7 +1055,7 @@ void GameScene::beginContact(b2Contact* contact) {
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _avatar.get())) {
         //CULog("WIND");
-        _avatar->addWind(Vec2(0,8));
+        _avatar->addWind(Vec2(0,6));
     }
     
     
@@ -1095,6 +1095,8 @@ void GameScene::endContact(b2Contact* contact) {
             _avatar->setGrounded(false);
         }
     }
+
+    
 }
 
 #pragma mark -
