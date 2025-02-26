@@ -134,9 +134,10 @@ protected:
     /** Creates a platform.
     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
     * @param size The size of the platform in Box2D coordinates.
+    * @param wall Whether this is a wall or not (if not it is a user placed platform)
     */
 
-    void createPlatform(Vec2 pos, Size size);
+    void createPlatform(Vec2 pos, Size size, bool wall);
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.

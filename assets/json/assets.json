@@ -5,6 +5,16 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "gray": {
+            "file": "textures/graytile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "platform": {
+            "file": "textures/platformtile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "spike": {
             "file": "textures/Spike2.png"
         },

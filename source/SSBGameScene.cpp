@@ -89,7 +89,9 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #pragma mark -
 #pragma mark Asset Constants
 /** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "earth"
+#define EARTH_TEXTURE   "gray"
+/** The key for the platform texture in the asset manager*/
+#define PLATFORM_TEXTURE   "platform"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TEXTURE   "spike"
 /** The key for the win door texture in the asset manager */
@@ -342,7 +344,7 @@ void GameScene::dispose() {
  */
 void GameScene::initInventory(){
     std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
-    std::vector<std::string> assetNames = {EARTH_TEXTURE, SPIKE_TEXTURE};
+    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, SPIKE_TEXTURE};
     
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
@@ -376,7 +378,7 @@ void GameScene::initInventory(){
 void GameScene::placeItem(Vec2 gridPos, Item item){
     switch (item){
         case (PLATFORM):
-            createPlatform(gridPos, Size(1,1));
+            createPlatform(gridPos, Size(1,1), false);
             break;
         case (SPIKE):
             createSpike(gridPos, Size(1,1), _scale);
@@ -393,7 +395,7 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
 std::string GameScene::itemToAssetName(Item item){
     switch (item){
         case (PLATFORM):
-            return EARTH_TEXTURE;
+            return PLATFORM_TEXTURE;
         case (SPIKE):
             return SPIKE_TEXTURE;
     }
@@ -428,8 +430,13 @@ void GameScene::reset() {
 * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
 * @param size The dimensions (width, height) of the platform.
 */
-void GameScene::createPlatform(Vec2 pos, Size size) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
+void GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+    std::shared_ptr<Texture> image;
+    if (wall){
+        image = _assets->get<Texture>(EARTH_TEXTURE);
+    } else {
+        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    }
     std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
     Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
     
@@ -547,7 +554,7 @@ void GameScene::populate() {
     _goalDoor->setDebugColor(DEBUG_COLOR);
     addObstacle(_goalDoor, sprite);
 
-#pragma mark : Walls
+//#pragma mark : Walls
     // All walls and platforms share the same texture
 //    image = _assets->get<Texture>(EARTH_TEXTURE);
 //    std::string wname = "wall";
@@ -630,16 +637,16 @@ void GameScene::populate() {
     createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
     
-#pragma mark : Platforms
-    createPlatform(Vec2(0, 0), Size(6, 1));
-    createPlatform(Vec2(13, 0), Size(7, 1));
-    createPlatform(Vec2(19, 1), Size(1, 9));
-    createPlatform(Vec2(0, 1), Size(1, 9));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(17, 3), Size(2, 1));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(3, 6), Size(2, 1));
+#pragma mark : Walls
+    createPlatform(Vec2(0, 0), Size(6, 1), true);
+    createPlatform(Vec2(13, 0), Size(7, 1), true);
+    createPlatform(Vec2(19, 1), Size(1, 9), true);
+    createPlatform(Vec2(0, 1), Size(1, 9), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(17, 3), Size(2, 1), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(3, 6), Size(2, 1), true);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
 //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
