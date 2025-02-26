@@ -51,6 +51,9 @@ public:
         /** Placed an item in a grid */
         PLACED
     };
+
+    bool canGlide() { return _canGlide; }
+    void setGlide(bool v) { _canGlide = v; }
 private:
     /** Whether or not this input is active */
     bool _active;
@@ -89,6 +92,11 @@ protected:
     float _horizontal;
     /** Touch position on screen */
     cugl::Vec2 _touchPosForDrag;
+
+    //GLIDING CONTROLS
+    /**Whether or not we can glide*/
+    bool _canGlide;
+    
     
     // INVENTORY
     /** Whether the player is placing an item in build mode */
