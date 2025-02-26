@@ -375,7 +375,7 @@ void GameScene::initInventory(){
     _inventoryBackground = scene2::PolygonNode::alloc();
     _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
     _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
-    _inventoryBackground->setColor(Color4::PAPYRUS);
+    _inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
