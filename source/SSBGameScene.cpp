@@ -98,6 +98,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
+/** The key for the treasure texture in the asset manager */
+#define TREASURE_TEXTURE    "treasure"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
 /** The name of a platform (for object identification) */
@@ -663,7 +665,7 @@ void GameScene::populate() {
     
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
-    image = _assets->get<Texture>("treasureGreen");
+    image = _assets->get<Texture>(TREASURE_TEXTURE);
     _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
