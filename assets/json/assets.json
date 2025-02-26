@@ -5,6 +5,21 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "gray": {
+            "file": "textures/graytile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "platform": {
+            "file": "textures/platformtile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "moving": {
+            "file": "textures/movingplatformtile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "spike": {
             "file": "textures/Spike2.png"
         },
@@ -17,8 +32,8 @@
         "dude": {
             "file":     "textures/dude.png"
         },
-        "treasureGreen": {
-            "file":     "textures/treasureGreen2.png"
+        "treasure": {
+            "file":     "textures/treasure.png"
         },
         "spinner": {
             "file":     "textures/barrier.png"
@@ -31,6 +46,9 @@
         },
         "goal": {
             "file":      "textures/goaldoor.png"
+        },
+        "up": {
+            "file":      "textures/up.png"
         },
         "dpad": {
             "file":     "textures/dpad.png",
@@ -45,6 +63,9 @@
         },
         "ready_button": {
             "file":     "textures/ready_button.png"
+        },
+        "background": {
+            "file":     "textures/background.png"
         }
 	},
     "sounds": {

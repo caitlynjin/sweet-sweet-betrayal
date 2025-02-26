@@ -46,29 +46,33 @@
 #include <cugl/scene2/CUTexturedNode.h>
 #include <cugl/core/assets/CUAssetManager.h>
 
-#define SIGNUM(x)  ((x > 0) - (x < 0))
+#define SIGNUM(x) ((x > 0) - (x < 0))
 
 #pragma mark -
 #pragma mark Physics Constants
 /** Cooldown (in animation frames) for jumping */
-#define JUMP_COOLDOWN   5
+#define JUMP_COOLDOWN 5
 /** Cooldown (in animation frames) for shooting */
-#define SHOOT_COOLDOWN  20
+#define SHOOT_COOLDOWN 20
 /** The amount to shrink the body fixture (vertically) relative to the image */
-#define DUDE_VSHRINK  0.95f
+#define DUDE_VSHRINK 0.95f
 /** The amount to shrink the body fixture (horizontally) relative to the image */
-#define DUDE_HSHRINK  0.7f
+#define DUDE_HSHRINK 0.7f
 /** The amount to shrink the sensor fixture (horizontally) relative to the image */
-#define DUDE_SSHRINK  0.6f
+#define DUDE_SSHRINK 0.6f
 /** Height of the sensor attached to the player's feet */
-#define SENSOR_HEIGHT   0.1f
+#define SENSOR_HEIGHT 0.1f
 /** The density of the character */
-#define DUDE_DENSITY    1.0f
+#define DUDE_DENSITY 1.0f
 /** The impulse for the character jump */
-#define DUDE_JUMP       2.25f
+#define DUDE_JUMP 8.25f
 /** Debug color for the sensor */
-#define DEBUG_COLOR     Color4::RED
-
+#define DEBUG_COLOR Color4::RED
+/**How much the player speed should be dampened during gliding*/
+#define GLIDE_DAMPING 15.0f
+/** Multipliers for wind speed when player is gliding and not gliding*/
+#define WIND_FACTOR 1.0f
+#define WIND_FACTOR_GLIDING 2.0f
 
 using namespace cugl;
 
@@ -91,34 +95,35 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
+bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
+{
     Size nsize = size;
-    nsize.width  *= DUDE_HSHRINK;
+    nsize.width *= DUDE_HSHRINK;
     nsize.height *= DUDE_VSHRINK;
     _drawScale = scale;
-    
-    if (CapsuleObstacle::init(pos,nsize)) {
+
+    if (CapsuleObstacle::init(pos, nsize))
+    {
         setDensity(DUDE_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
-        
+
         // Gameplay attributes
         _isGrounded = false;
         _isShooting = false;
-        _isJumping  = false;
-        _faceRight  = true;
-        _isgliding = false;
-        
+        _isJumping = false;
+        _faceRight = true;
+        _isGliding = false;
+
         _shootCooldown = 0;
-        _jumpCooldown  = 0;
-        _glidedelay = 0.2;
-        _glidetimer = 0;
+        _jumpCooldown = 0;
+        _glideDelay = 0.2;
+        _glideTimer = 0;
+        _windvel = Vec2();
         return true;
     }
     return false;
-   
 }
-
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -130,21 +135,23 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
  *
  * @param value left/right movement of this character.
  */
-void DudeModel::setMovement(float value) {
+void DudeModel::setMovement(float value)
+{
     _movement = value;
     bool face = _movement > 0;
-    if (_movement == 0 || _faceRight == face) {
+    if (_movement == 0 || _faceRight == face)
+    {
         return;
     }
-    
+
     // Change facing
-    scene2::TexturedNode* image = dynamic_cast<scene2::TexturedNode*>(_node.get());
-    if (image != nullptr) {
+    scene2::TexturedNode *image = dynamic_cast<scene2::TexturedNode *>(_node.get());
+    if (image != nullptr)
+    {
         image->flipHorizontal(!image->isFlipHorizontal());
     }
     _faceRight = face;
 }
-
 
 #pragma mark -
 #pragma mark Physics Methods
@@ -153,30 +160,32 @@ void DudeModel::setMovement(float value) {
  *
  * This is the primary method to override for custom physics objects
  */
-void DudeModel::createFixtures() {
-    if (_body == nullptr) {
+void DudeModel::createFixtures()
+{
+    if (_body == nullptr)
+    {
         return;
     }
-    
+
     CapsuleObstacle::createFixtures();
     b2FixtureDef sensorDef;
     sensorDef.density = DUDE_DENSITY;
     sensorDef.isSensor = true;
-    
+
     // Sensor dimensions
     b2Vec2 corners[4];
-    corners[0].x = -DUDE_SSHRINK*getWidth()/2.0f;
-    corners[0].y = (-getHeight()+SENSOR_HEIGHT)/2.0f;
-    corners[1].x = -DUDE_SSHRINK*getWidth()/2.0f;
-    corners[1].y = (-getHeight()-SENSOR_HEIGHT)/2.0f;
-    corners[2].x =  DUDE_SSHRINK*getWidth()/2.0f;
-    corners[2].y = (-getHeight()-SENSOR_HEIGHT)/2.0f;
-    corners[3].x =  DUDE_SSHRINK*getWidth()/2.0f;
-    corners[3].y = (-getHeight()+SENSOR_HEIGHT)/2.0f;
-    
+    corners[0].x = -DUDE_SSHRINK * getWidth() / 2.0f;
+    corners[0].y = (-getHeight() + SENSOR_HEIGHT) / 2.0f;
+    corners[1].x = -DUDE_SSHRINK * getWidth() / 2.0f;
+    corners[1].y = (-getHeight() - SENSOR_HEIGHT) / 2.0f;
+    corners[2].x = DUDE_SSHRINK * getWidth() / 2.0f;
+    corners[2].y = (-getHeight() - SENSOR_HEIGHT) / 2.0f;
+    corners[3].x = DUDE_SSHRINK * getWidth() / 2.0f;
+    corners[3].y = (-getHeight() + SENSOR_HEIGHT) / 2.0f;
+
     b2PolygonShape sensorShape;
-    sensorShape.Set(corners,4);
-    
+    sensorShape.Set(corners, 4);
+
     sensorDef.shape = &sensorShape;
     sensorDef.userData.pointer = reinterpret_cast<uintptr_t>(getSensorName());
     _sensorFixture = _body->CreateFixture(&sensorDef);
@@ -187,13 +196,16 @@ void DudeModel::createFixtures() {
  *
  * This is the primary method to override for custom physics objects.
  */
-void DudeModel::releaseFixtures() {
-    if (_body != nullptr) {
+void DudeModel::releaseFixtures()
+{
+    if (_body != nullptr)
+    {
         return;
     }
-    
+
     CapsuleObstacle::releaseFixtures();
-    if (_sensorFixture != nullptr) {
+    if (_sensorFixture != nullptr)
+    {
         _body->DestroyFixture(_sensorFixture);
         _sensorFixture = nullptr;
     }
@@ -205,7 +217,8 @@ void DudeModel::releaseFixtures() {
  * Any assets owned by this object will be immediately released.  Once
  * disposed, a DudeModel may not be used until it is initialized again.
  */
-void DudeModel::dispose() {
+void DudeModel::dispose()
+{
     _core = nullptr;
     _node = nullptr;
     _sensorNode = nullptr;
@@ -216,50 +229,54 @@ void DudeModel::dispose() {
  *
  * This method should be called after the force attribute is set.
  */
-void DudeModel::applyForce() {
-    if (!isEnabled()) {
+void DudeModel::applyForce()
+{
+    if (!isEnabled())
+    {
         return;
     }
-    
+
     // Don't want to be moving. Damp out player motion
-    if (getMovement() == 0.0f) {
-        if (isGrounded()) {
+    if (getMovement() == 0.0f)
+    {
+        if (isGrounded())
+        {
             // Instant friction on the ground
             b2Vec2 vel = _body->GetLinearVelocity();
             vel.x = 0; // If you set y, you will stop a jump in place
             _body->SetLinearVelocity(vel);
-        } else {
+        }
+        else
+        {
             // Damping factor in the air
-            b2Vec2 force(-getDamping()*getVX(),0);
-            
-            _body->ApplyForce(force,_body->GetPosition(),true);
+            b2Vec2 force(-getDamping() * getVX(), 0);
+            _body->ApplyForce(force, _body->GetPosition(), true);
         }
     }
-    
+
     // Velocity too high, clamp it
-    if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
-        
-        setVX(SIGNUM(getVX())*getMaxSpeed());
-//        CULog("Hit limit!");
-    } else {
-        b2Vec2 force(getMovement(),0);
-        _body->ApplyForce(force,_body->GetPosition(),true);
-        //Reduce friction in air.
-        if (_isgliding) {
-            force.operator*=(-0.5);
-            _body->ApplyForce(force, _body->GetPosition(), true);
+    if (fabs(getVX()) >= getMaxSpeed() && !_isGliding)
+    {
+        setVX(SIGNUM(getVX()) * getMaxSpeed());
+        // CULog("Hit limit!");
+    }
+    else
+    {
+        b2Vec2 force(getMovement(), 0);
+        _body->ApplyForce(force, _body->GetPosition(), true);
+        // Reduce friction in air.
+        if (_isGliding)
+        {
+            // force.operator*=(-0.5);
+            //_body->ApplyForce(force, _body->GetPosition(), true);
             //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
-        
     }
-    if (_isgliding) {
-        
-    }
-    
     // Jump!
-    if (isJumping() && isGrounded()) {
+    if (isJumping() && isGrounded())
+    {
         b2Vec2 force(0, DUDE_JUMP);
-        _body->ApplyLinearImpulse(force,_body->GetPosition(),true);
+        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
     }
 }
 
@@ -270,64 +287,98 @@ void DudeModel::applyForce() {
  *
  * @param delta Number of seconds since last animation frame
  */
-void DudeModel::update(float dt) {
-    //Check whether we are in glid mode
+void DudeModel::update(float dt)
+{
+    // Check whether we are in glid mode
     glideUpdate(dt);
     // Apply cooldowns
-    if (isJumping()) {
+    if (isJumping())
+    {
         _jumpCooldown = JUMP_COOLDOWN;
-    } else {
+    }
+    else
+    {
         // Only cooldown while grounded
-        _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown-1 : 0);
+        _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
     }
-    
-    if (isShooting()) {
+
+    if (isShooting())
+    {
         _shootCooldown = SHOOT_COOLDOWN;
-    } else {
-        _shootCooldown = (_shootCooldown > 0 ? _shootCooldown-1 : 0);
     }
-    
+    else
+    {
+        _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
+    }
+    if (_onMovingPlat && MovingPlat != nullptr)
+    {
+        Vec2 platformVel = MovingPlat->getLinearVelocity();
+        setPosition(getPosition() + platformVel * dt);
+    }
+
+    windUpdate(dt);
+
     CapsuleObstacle::update(dt);
-    
-    if (_node != nullptr) {
-        _node->setPosition(getPosition()*_drawScale);
+
+    if (_node != nullptr)
+    {
+        _node->setPosition(getPosition() * _drawScale);
         _node->setAngle(getAngle());
     }
 
-    
     // If the player has a treasure, update the position of the treasure such that
     // it follows the player
-    if (_treasure != nullptr){
+    if (_treasure != nullptr)
+    {
         _treasure->setPosition(getPosition());
     }
-
-
-    
 }
-//Based on the player motion, check if we are falling.
-//If the player is falling for more than the glidetimer, set player into glide mode
-//once player is grounded, turn off glidemode.
+// Based on the player motion, check if we are falling.
+// If the player is falling for more than the glidetimer, set player into glide mode
+// once player is grounded, turn off glidemode.
 
-void DudeModel::glideUpdate(float dt) {
+void DudeModel::glideUpdate(float dt)
+{
     b2Vec2 motion = _body->GetLinearVelocity();
 
-    if (!_isgliding) {
-        if (motion.y < 0) {
-            _glidetimer += dt;
-        }
-        if (_glidetimer >= _glidedelay) {
-            _isgliding = true;
-            _body->SetLinearDamping(15);
-        }
+    if (_isGliding && !isGrounded())
+    {
+        // if (motion.y < 0) {
+        //     _glideTimer += dt;
+        // }
+        // if (_glideTimer >= _glideDelay) {
+        //     _isGliding = true;
+        //
+        // } \
+        // GLIDIND DISABLED FOR NOW
+        //_body->SetLinearDamping(GLIDE_DAMPING);
     }
-    if (isGrounded()) {
-            _isgliding = false;
-            _glidetimer = 0;
-            _body->SetLinearDamping(0);
+    else
+    {
+        _body->SetLinearDamping(0);
     }
-
 }
+/**
+Inflicts an appropriate force to the player based on _windspeed
+*/
+void DudeModel::windUpdate(float dt)
+{
+    // Vec2 force = _windvel;
+    if (!isGrounded())
+    {
+        int mult = 1;
+        if (!_isGliding)
+        {
+            mult = 0.2;
+        }
 
+        b2Vec2 vel = _body->GetLinearVelocity();
+        vel.x += _windvel.x * mult;
+        vel.y += _windvel.y * mult;
+        _body->SetLinearVelocity(vel);
+    }
+    _windvel = Vec2();
+}
 
 #pragma mark -
 #pragma mark Scene Graph Methods
@@ -338,18 +389,15 @@ void DudeModel::glideUpdate(float dt) {
  * This is very useful when the fixtures have a very different shape than
  * the texture (e.g. a circular shape attached to a square texture).
  */
-void DudeModel::resetDebug() {
+void DudeModel::resetDebug()
+{
     CapsuleObstacle::resetDebug();
-    float w = DUDE_SSHRINK*_dimension.width;
+    float w = DUDE_SSHRINK * _dimension.width;
     float h = SENSOR_HEIGHT;
-    Poly2 poly(Rect(-w/2.0f,-h/2.0f,w,h));
+    Poly2 poly(Rect(-w / 2.0f, -h / 2.0f, w, h));
 
     _sensorNode = scene2::WireNode::allocWithTraversal(poly, poly2::Traversal::INTERIOR);
     _sensorNode->setColor(DEBUG_COLOR);
-    _sensorNode->setPosition(Vec2(_debug->getContentSize().width/2.0f, 0.0f));
+    _sensorNode->setPosition(Vec2(_debug->getContentSize().width / 2.0f, 0.0f));
     _debug->addChild(_sensorNode);
 }
-
-
-
-

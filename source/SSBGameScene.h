@@ -16,6 +16,7 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
+#include "WindObstacle.h"
 #include "Treasure.h"
 //#include <cmath>
 
@@ -36,8 +37,10 @@ protected:
     enum Item {
         /** A standard platform */
         PLATFORM,
-        /** A spike */
-        SPIKE
+        /** A moving platform */
+        MOVING_PLATFORM,
+        /** A wind object */
+        WIND
     };
     
     /**
@@ -85,10 +88,19 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+
     /** Reference to the label for counting rounds */
     std::shared_ptr<cugl::scene2::Label> _roundsLabel;
     
     std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
+
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
+    /** Reference to the background of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
+    /** Reference to the overlay of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
+
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -124,6 +136,7 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
+
     /** The total amount of rounds */
     int const TOTAL_ROUNDS = 5;
     /** The total amount of gems */
@@ -133,8 +146,26 @@ protected:
     /** How many gems the player collected and won */
     int _currGems = 0;
       
+
+    /** The number of items currently placed */
+    int _itemsPlaced = 0;
+
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
+private:
+    /** Initial width */
+    float _growingWallWidth = 1.0f;
+    /** Growth rate per second  */        
+    float _growingWallGrowthRate = 0.2f;      
+    std::shared_ptr<physics2::PolygonObstacle> _growingWall;
+    std::shared_ptr<scene2::PolygonNode> _growingWallNode;
+    /**
+    * Create the growing wall if not created. Otherwise, increase its width
+    *
+    * @param timestep  The elapsed time since the last frame.
+    */
+    void updateGrowingWall(float timestep);
 
 #pragma mark Internal Object Management
 
@@ -154,9 +185,13 @@ protected:
     /** Creates a platform.
     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
     * @param size The size of the platform in Box2D coordinates.
+    * @param wall Whether this is a wall or not (if not it is a user placed platform)
     */
 
-    void createPlatform(Vec2 pos, Size size);
+    void createPlatform(Vec2 pos, Size size, bool wall);
+    
+    void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
