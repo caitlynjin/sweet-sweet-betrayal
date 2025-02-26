@@ -1051,16 +1051,16 @@ void GameScene::setBuildingMode(bool value) {
 void GameScene::beginContact(b2Contact* contact) {
     b2Fixture* fix1 = contact->GetFixtureA();
     b2Fixture* fix2 = contact->GetFixtureB();
-
+    
     b2Body* body1 = fix1->GetBody();
     b2Body* body2 = fix2->GetBody();
-
+    
     std::string* fd1 = reinterpret_cast<std::string*>(fix1->GetUserData().pointer);
     std::string* fd2 = reinterpret_cast<std::string*>(fix2->GetUserData().pointer);
-
+    
     physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
     physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
-
+    
     // See if we have landed on the ground.
     if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
         (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) {
@@ -1068,105 +1068,106 @@ void GameScene::beginContact(b2Contact* contact) {
         // Could have more than one ground
         _sensorFixtures.emplace(_avatar.get() == bd1 ? fix2 : fix1);
     }
-
+    
     // If we hit the "win" door, we are done
     if((bd1 == _avatar.get()   && bd2 == _goalDoor.get()) ||
-        (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
+       (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
         setComplete(true);
     }
-
+    
     // If the player collides with the growing wall, game over
     if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
         (bd1 == _growingWall.get() && bd2 == _avatar.get())) {
         setFailure(true);
     }
-
+    
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
         (bd2 == _avatar.get() && bd1->getName() == "movingPlatform"&& _avatar->isGrounded())) {
         CULog("moving platform");
         _avatar->setOnMovingPlat(true);
         _avatar->setMovingPlat(bd1 == _avatar.get() ? bd2 : bd1);
-
-    // If we hit a spike, we are DEAD
-    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
-        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
-        CULog("HIT SPIKE");
-        setFailure(true);
-    }
-    
-    // If we collide with a treasure, we pick it up
-    if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
-        (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
-        if (!_avatar->_hasTreasure){
-            _avatar->gainTreasure(_treasure);
+        
+        // If we hit a spike, we are DEAD
+        if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+            (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+            CULog("HIT SPIKE");
+            setFailure(true);
+        }
+        
+        // If we collide with a treasure, we pick it up
+        if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
+            (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
+            if (!_avatar->_hasTreasure){
+                _avatar->gainTreasure(_treasure);
+            }
         }
     }
 }
-
-/**
- * Callback method for the start of a collision
- *
- * This method is called when two objects cease to touch.  The main use of this method
- * is to determine when the characer is NOT on the ground.  This is how we prevent
- * double jumping.
- */
-void GameScene::endContact(b2Contact* contact) {
-    b2Fixture* fix1 = contact->GetFixtureA();
-    b2Fixture* fix2 = contact->GetFixtureB();
-
-    b2Body* body1 = fix1->GetBody();
-    b2Body* body2 = fix2->GetBody();
-
-    std::string* fd1 = reinterpret_cast<std::string*>(fix1->GetUserData().pointer);
-    std::string* fd2 = reinterpret_cast<std::string*>(fix2->GetUserData().pointer);
-
-    physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
-    physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
-
-    if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
-        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) {
-        _sensorFixtures.erase(_avatar.get() == bd1 ? fix2 : fix1);
-        if (_sensorFixtures.empty()) {
-            _avatar->setGrounded(false);
+    
+    /**
+     * Callback method for the start of a collision
+     *
+     * This method is called when two objects cease to touch.  The main use of this method
+     * is to determine when the characer is NOT on the ground.  This is how we prevent
+     * double jumping.
+     */
+    void GameScene::endContact(b2Contact* contact) {
+        b2Fixture* fix1 = contact->GetFixtureA();
+        b2Fixture* fix2 = contact->GetFixtureB();
+        
+        b2Body* body1 = fix1->GetBody();
+        b2Body* body2 = fix2->GetBody();
+        
+        std::string* fd1 = reinterpret_cast<std::string*>(fix1->GetUserData().pointer);
+        std::string* fd2 = reinterpret_cast<std::string*>(fix2->GetUserData().pointer);
+        
+        physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
+        physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
+        
+        if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
+            (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) {
+            _sensorFixtures.erase(_avatar.get() == bd1 ? fix2 : fix1);
+            if (_sensorFixtures.empty()) {
+                _avatar->setGrounded(false);
+            }
+        }
+        
+        if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform") ||
+            (bd2 == _avatar.get() && bd1->getName() == "movingPlatform")) {
+            CULog("disable movement platform");
+            _avatar->setOnMovingPlat(false);
+            _avatar->setMovingPlat(nullptr);
         }
     }
     
-    if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform") ||
-        (bd2 == _avatar.get() && bd1->getName() == "movingPlatform")) {
-        CULog("disable movement platform");
-        _avatar->setOnMovingPlat(false);
-        _avatar->setMovingPlat(nullptr);
-    }
-}
-
 #pragma mark -
 #pragma mark Helpers
-
-/**
- * Converts from screen to Box2D coordinates.
- *
- * @param screenPos    The screen position
- * @param scale             The screen to world scale
- * @param offset           The offset of the scene to the world
- */
-Vec2 GameScene::convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset) {
-    Vec2 adjusted = screenPos - offset;
-
-    float xBox2D = adjusted.x / scale;
-    float yBox2D = adjusted.y / scale;
-
-    // Converts to the specific grid position
-    int xGrid = xBox2D;
-    int yGrid = yBox2D;
-
-    // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
-
-    xGrid = xGrid < 0 ? 0 : xGrid;
-    yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid > maxCols ? maxCols : xGrid;
-    yGrid = yGrid > maxRows ? maxRows : yGrid;
-
-    return Vec2(xGrid, yGrid);
-}
+    
+    /**
+     * Converts from screen to Box2D coordinates.
+     *
+     * @param screenPos    The screen position
+     * @param scale             The screen to world scale
+     * @param offset           The offset of the scene to the world
+     */
+    Vec2 GameScene::convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset) {
+        Vec2 adjusted = screenPos - offset;
+        
+        float xBox2D = adjusted.x / scale;
+        float yBox2D = adjusted.y / scale;
+        
+        // Converts to the specific grid position
+        int xGrid = xBox2D;
+        int yGrid = yBox2D;
+        
+        // Snaps the placement to inside the grid
+        int maxRows = _gridManager->getNumRows() - 1;
+        int maxCols = _gridManager->getNumColumns() - 1;
+        
+        xGrid = xGrid < 0 ? 0 : xGrid;
+        yGrid = yGrid < 0 ? 0 : yGrid;
+        xGrid = xGrid > maxCols ? maxCols : xGrid;
+        yGrid = yGrid > maxRows ? maxRows : yGrid;
+        
+        return Vec2(xGrid, yGrid);
+    }
