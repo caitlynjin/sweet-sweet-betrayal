@@ -64,6 +64,11 @@ using namespace cugl;
 #define DUDE_DAMPING    10.0f
 /** The maximum character speed */
 #define DUDE_MAXSPEED   5.0f
+/**How much the player speed should be dampened during gliding*/
+#define GLIDE_DAMPING 20.0f
+/** Multipliers for wind speed when player is gliding and not gliding*/
+#define WIND_FACTOR 1.0f
+#define WIND_FACTOR_GLIDING 2.0f
 
 
 #pragma mark -
@@ -103,10 +108,14 @@ protected:
     physics2::Obstacle* MovingPlat;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
-    float _glidedelay;
+    float _glideDelay;
+    float _glideTimer;
+    bool _isGliding;
+    /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
+    as well as how much motion is being applied at any given time*/
+    Vec2 _windvel;
 
-    float _glidetimer;
-    bool _isgliding;
+
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
 	/** Reference to the sensor name (since a constant cannot have a pointer) */
@@ -379,7 +388,11 @@ public:
      * @param value left/right movement of this character.
      */
     void setMovement(float value);
-    
+
+    /**
+    Applies a certain amount of wind velocity to the player
+    */
+    void addWind(Vec2 wind) { _windvel.operator+=(wind); };
     /**
      * Returns true if the dude is actively firing.
      *
@@ -482,6 +495,8 @@ public:
     */
     void setMovingPlat(physics2::Obstacle* plat) {MovingPlat = plat;}
 
+    /**Sets whether we are trying to glide or not.*/
+    void setGlide(bool value) { _isGliding = value; }
     
 
     
@@ -520,10 +535,14 @@ public:
      * This method should be called after the force attribute is set.
      */
     void applyForce();
-
+    /**
+    Checks whether or not we should be in glide mode, and updates accordingly.
+    */
     void glideUpdate(float dt);
-
-
+    /**
+    Processes the wind motion applied to the player.
+    */
+    void windUpdate(float dt);
 
 	
 };
