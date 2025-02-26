@@ -778,16 +778,7 @@ void GameScene::update(float timestep) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
-        if (_avatar->isGrounded()) {
-            _input.setGlide(false);
-        }
-        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        if (_input.isRightDown() && _input.canGlide()) {
-            _avatar->setGlide(true);
-        }
-        else {
-            _avatar->setGlide(false);
-        }
+        
     }
     for (auto& obj : _objects) {
         obj -> update(timestep);
@@ -867,6 +858,18 @@ void GameScene::preUpdate(float dt) {
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+
+        if (_avatar->isGrounded()) {
+            _input.setGlide(false);
+        }
+        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
+        if (_input.isRightDown() && _input.canGlide()) {
+
+            _avatar->setGlide(true);
+        }
+        else {
+            _avatar->setGlide(false);
         }
     }
     

@@ -321,8 +321,9 @@ void DudeModel::glideUpdate(float dt) {
         //if (_glideTimer >= _glideDelay) {
         //    _isGliding = true;
         //    
-        //}
-        _body->SetLinearDamping(GLIDE_DAMPING);
+        //}\
+        // GLIDIND DISABLED FOR NOW
+        //_body->SetLinearDamping(GLIDE_DAMPING);
     }
     else {
         _body->SetLinearDamping(0);
