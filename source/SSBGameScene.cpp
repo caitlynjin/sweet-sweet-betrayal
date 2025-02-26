@@ -628,7 +628,7 @@ void GameScene::populate() {
 //        addObstacle(platobj,sprite,1);
 //    }
 #pragma mark: Wind
-    createWindObstacle(Vec2(2, 1), Size(1, 1), Vec2(0, 10));
+    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
 
