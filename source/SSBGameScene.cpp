@@ -128,8 +128,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define LEFT_IMAGE      "dpad_left"
 /** The image for the right dpad/joystick */
 #define RIGHT_IMAGE     "dpad_right"
-/** The image for the edit button */
-#define EDIT_BUTTON     "edit_button"
+/** The image for the ready button */
+#define READY_BUTTON    "ready_button"
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
@@ -216,7 +216,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     } else if (!Scene2::initWithHint(Size(SCENE_WIDTH,SCENE_HEIGHT))) {
         return false;
     }
-    
+
+    // Start in building mode
+    _buildingMode = true;
+
     // Start up the input handler
     _assets = assets;
     _input.init(getBounds());
@@ -272,15 +275,16 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
-    std::shared_ptr<scene2::PolygonNode> editNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EDIT_BUTTON));
-    editNode->setScale(0.35f);
-    _editbutton = scene2::Button::alloc(editNode);
-    _editbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _editbutton->setPosition(_size.width*0.88f,_size.height*0.9f);
-    _editbutton->activate();
-    _editbutton->addListener([this](const std::string& name, bool down) {
+    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    readyNode->setScale(0.8f);
+    _readyButton = scene2::Button::alloc(readyNode);
+    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _readyButton->setPosition(_size.width*0.91f,_size.height*0.1f);
+    _readyButton->activate();
+    _readyButton->addListener([this](const std::string& name, bool down) {
         if (down) {
             setBuildingMode(!_buildingMode);
+            _readyButton->setVisible(false);
         }
     });
 
@@ -294,7 +298,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
-    addChild(_editbutton);
+    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
 
     populate();
@@ -322,7 +326,7 @@ void GameScene::dispose() {
         _losenode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        _editbutton = nullptr;
+        _readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
@@ -348,7 +352,7 @@ void GameScene::initInventory(){
         itemButton->setPosition(_size.width - 40, _size.height - 100 - yOffset);
         itemButton->setScale(2.0f);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
-        itemButton->setVisible(false);
+        itemButton->setVisible(true);
         itemButton->activate();
         itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string& name, bool down) {
             if (down & _buildingMode) {
@@ -413,6 +417,8 @@ void GameScene::reset() {
       
     setFailure(false);
     setComplete(false);
+    setBuildingMode(true);
+
     populate();
 }
 
