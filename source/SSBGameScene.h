@@ -157,7 +157,7 @@ private:
     /** Initial width */
     float _growingWallWidth = 1.0f;
     /** Growth rate per second  */        
-    float _growingWallGrowthRate = 0.2f;      
+    float _growingWallGrowthRate = 0.6f;      
     std::shared_ptr<physics2::PolygonObstacle> _growingWall;
     std::shared_ptr<scene2::PolygonNode> _growingWallNode;
     /**

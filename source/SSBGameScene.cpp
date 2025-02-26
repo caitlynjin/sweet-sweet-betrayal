@@ -62,10 +62,10 @@ using namespace cugl::audio;
 // };
 
 /** The goal door position */
-float GOAL_POS[] = {18.0f, 1.5f};
+float GOAL_POS[] = {18.0f, 2.0f};
 /** The initial position of the dude */
 
-float DUDE_POS[] = { 2.5f, 1.0f};
+float DUDE_POS[] = { 2.5f, 2.0f};
 
 /** The initial position of the treasure */
 float TREASURE_POS[3][2] = { {9.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
@@ -515,6 +515,7 @@ void GameScene::reset()
         _world->removeObstacle(_growingWall);
         _worldnode->removeChild(_growingWallNode);
     }
+    
     _growingWall = nullptr;
     _growingWallNode = nullptr;
     _growingWallWidth = 0.1f;
@@ -625,10 +626,10 @@ void GameScene::updateGrowingWall(float timestep)
 
     // Create a new polygon for the wall
     Poly2 wallPoly;
-    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT));
+    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT*.80));
     wallPoly.vertices.push_back(Vec2(0, 0));
     wallPoly.vertices.push_back(Vec2(_growingWallWidth, 0));
-    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT));
+    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT*.80));
 
     EarclipTriangulator triangulator;
     triangulator.set(wallPoly.vertices);
@@ -681,7 +682,7 @@ void GameScene::createTreasure(Vec2 pos, Size size){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
-    image = _assets->get<Texture>("treasureGreen");
+    image = _assets->get<Texture>("treasure");
     _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
@@ -804,7 +805,7 @@ void GameScene::populate()
 //         addObstacle(platobj,sprite,1);
 //     }
 #pragma mark : Wind
-    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
+//    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
 
@@ -827,7 +828,7 @@ void GameScene::populate()
     createSpike(Vec2(18, 4), Size(1, 1), _scale);
     createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
     createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
+    createSpike(Vec2(5, 5), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
     
 #pragma mark : Walls
     createPlatform(Vec2(0, 0), Size(6, 1), true);
@@ -838,7 +839,7 @@ void GameScene::populate()
     createPlatform(Vec2(1, 9), Size(18, 1), true);
     createPlatform(Vec2(17, 3), Size(2, 1), true);
     createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(3, 6), Size(2, 1), true);
+    createPlatform(Vec2(3, 5), Size(2, 1), true);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
@@ -1022,6 +1023,14 @@ void GameScene::preUpdate(float dt)
 
     if (_buildingMode)
     {
+        if (_itemsPlaced == 0){
+            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+            {
+                _inventoryButtons[i]->activate();
+                _inventoryOverlay->setVisible(false);
+            }
+        }
+        
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0)
         {
             Vec2 screenPos = _input.getPosOnDrag();
@@ -1311,7 +1320,7 @@ void GameScene::nextRound(bool reachedGoal) {
     }
     
     // Check if player lost
-    if (_currRound == TOTAL_ROUNDS){
+    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
         setFailure(true);
         return;
     }
@@ -1332,14 +1341,23 @@ void GameScene::nextRound(bool reachedGoal) {
     
     setFailure(false);
     
-    // Return to building mode
-    setBuildingMode(true);
-    
     // Reset player properties
     _avatar->setPosition(Vec2(DUDE_POS));
     _avatar->removeTreasure();
     _died = false;
     _reachedGoal = false;
+    
+    // Reset growing wall
+    _growingWallWidth = 0.1f;
+    _growingWallNode->setVisible(false);
+
+    
+    // Return to building mode
+    _readyButton->setVisible(true);
+    _itemsPlaced = 0;
+    setBuildingMode(true);
+    
+    
     
 }
 
