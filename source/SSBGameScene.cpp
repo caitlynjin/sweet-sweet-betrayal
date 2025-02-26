@@ -903,7 +903,7 @@ void GameScene::preUpdate(float dt) {
         (*it)->update(dt);
     }
     // increase growing wall
-    updateGrowingWall(dt);
+    if (!_buildingMode) {updateGrowingWall(dt);}
 
     
 //    _treasure->update(dt);
