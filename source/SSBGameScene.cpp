@@ -100,6 +100,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define PLATFORM_NAME   "platform"
 /** The font for victory/failure messages */
 #define MESSAGE_FONT    "retro"
+/** The font for Round and Gem info */
+#define INFO_FONT    "marker"
 /** The message for winning the game */
 #define WIN_MESSAGE     "VICTORY!"
 /** The color of the win message */
@@ -108,6 +110,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define LOSE_MESSAGE    "FAILURE!"
 /** The color of the lose message */
 #define LOSE_COLOR      Color4::RED
+/** The color of the info labels */
+#define INFO_COLOR      Color4::WHITE
 /** The key the basic game music */
 #define GAME_MUSIC      "game"
 /** The key the victory game music */
@@ -126,6 +130,10 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define EFFECT_VOLUME   0.8f
 /** The image for the left dpad/joystick */
 #define LEFT_IMAGE      "dpad_left"
+/** The image for the empty gem */
+#define EMPTY_IMAGE      "gemEmpty"
+/** The image for the full gem */
+#define FULL_IMAGE      "gemFull"
 /** The image for the right dpad/joystick */
 #define RIGHT_IMAGE     "dpad_right"
 /** The image for the ready button */
@@ -265,6 +273,23 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _losenode->setPosition(_size.width/2.0f,_size.height/2.0f);
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
+    
+    
+    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+    _roundsnode->setForeground(INFO_COLOR);
+    _roundsnode->setVisible(true);
+    
+    float distance = _size.width * .05;
+    for (int i = 0; i < TOTAL_GEMS; i++){
+        std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
+        scoreNode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
+        scoreNode->setPosition(_size.width * .15 + (i*distance),_size.height * .9);
+        scoreNode->setScale(0.1f);
+        scoreNode->setVisible(true);
+        _scoreImages.push_back(scoreNode);
+    }
 
     
     _leftnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_IMAGE));
@@ -302,10 +327,15 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
+    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_readyButton);
     addChild(_gridManager->getGridNode());
+    
+    for (auto score : _scoreImages){
+        addChild(score);
+    }
 
     populate();
 
@@ -330,12 +360,17 @@ void GameScene::dispose() {
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
+        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
         _readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
+        for (auto score : _scoreImages){
+            score = nullptr;
+        }
+        
         Scene2::dispose();
     }
 }
@@ -1026,6 +1061,8 @@ void GameScene::nextRound(bool reachedGoal) {
             _avatar->removeTreasure();
             // Increment total treasure collected
             _currGems += 1;
+            // Update score image
+            _scoreImages.at(_currGems-1)->setTexture(_assets->get<Texture>(FULL_IMAGE));
             
             // Check if player won
             if (_currGems == TOTAL_GEMS){
@@ -1048,6 +1085,18 @@ void GameScene::nextRound(bool reachedGoal) {
     
     // Increment round
     _currRound += 1;
+    // Update text
+//    _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+
+    // FIND BETTER SOLUTION LATER
+    removeChild(_roundsnode);
+    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+    _roundsnode->setForeground(INFO_COLOR);
+    _roundsnode->setVisible(true);
+    addChild(_roundsnode);
+    
     setFailure(false);
     
     // Return to building mode

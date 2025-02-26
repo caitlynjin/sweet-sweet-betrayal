@@ -71,6 +71,10 @@ protected:
     std::shared_ptr<scene2::Label> _winnode;
     /** Reference to the lose message label */
     std::shared_ptr<scene2::Label> _losenode;
+    /** Reference to the rounds message label */
+    std::shared_ptr<scene2::Label> _roundsnode;
+    /** Reference to the gems message label */
+    std::shared_ptr<scene2::Label> _gemsnode;
     /** Reference to the left joystick image */
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
@@ -83,6 +87,8 @@ protected:
     std::shared_ptr<GridManager> _gridManager;
     /** Reference to the label for counting rounds */
     std::shared_ptr<cugl::scene2::Label> _roundsLabel;
+    
+    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -484,14 +490,5 @@ public:
     Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
 
   };
-
-/**
- * Converts from degrees to radians for angle rotations.
- *
- * @param degrees    The degree of an angle.
- */
-//float degToRad(const float& degrees){
-//    return degrees * (M_PI / 180);
-//}
 
 #endif /* __PF_GAME_SCENE_H__ */
