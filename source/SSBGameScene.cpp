@@ -355,8 +355,8 @@ void GameScene::dispose() {
  * Initializes the grid layout on the screen for build mode.
  */
 void GameScene::initInventory(){
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM};
-    std::vector<std::string> assetNames = {EARTH_TEXTURE, EARTH_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
+    std::vector<std::string> assetNames = {EARTH_TEXTURE, EARTH_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -402,6 +402,9 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
         case (MOVING_PLATFORM):
             createMovingPlatform(gridPos, Size(1,1), gridPos + Vec2(3.5, 0.5), 1);
             break;
+        case(WIND):
+            createWindObstacle(gridPos, Size(1,1), Vec2(0,3));
+            break;
     }
 }
 
@@ -417,6 +420,8 @@ std::string GameScene::itemToAssetName(Item item){
             return EARTH_TEXTURE;
         case (MOVING_PLATFORM):
             return EARTH_TEXTURE;
+        case (WIND):
+            return WIND_TEXTURE;
     }
 }
 
@@ -544,8 +549,10 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
 */
 void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, image->getSize() / _scale , gust);
+    // TODO: Fix this
+    Vec2 adjustedPos = pos + Vec2(size.width / 2, size.height / 2);
 
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(adjustedPos, size, gust);
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
     addObstacle(wind->getObstacle(), sprite);  // All walls share the same texture

@@ -38,7 +38,9 @@ protected:
         /** A standard platform */
         PLATFORM,
         /** A moving platform */
-        MOVING_PLATFORM
+        MOVING_PLATFORM,
+        /** A wind object */
+        WIND
     };
     
     /**
