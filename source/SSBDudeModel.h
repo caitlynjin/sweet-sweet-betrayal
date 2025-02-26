@@ -44,6 +44,7 @@
 #ifndef __PF_DUDE_MODEL_H__
 #define __PF_DUDE_MODEL_H__
 #include <cugl/cugl.h>
+#include "Treasure.h"
 
 using namespace cugl;
 
@@ -78,6 +79,8 @@ class DudeModel : public physics2::CapsuleObstacle {
 private:
 	/** This macro disables the copy constructor (not allowed on physics objects) */
 	CU_DISALLOW_COPY_AND_ASSIGN(DudeModel);
+    
+    std::shared_ptr<Treasure> _treasure;
 
 protected:
 	/** The current horizontal movement of the character */
@@ -126,6 +129,8 @@ protected:
 	virtual void resetDebug() override;
 
 public:
+    
+    bool _hasTreasure = false;
     
 #pragma mark Hidden Constructors
     /**
@@ -332,6 +337,27 @@ public:
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
     }
+    
+    /**
+     * Called when the player obtains a treasure.
+     *
+     * Puts the treasure in this player's posession such that they now have ownership over it.
+     */
+    void gainTreasure(const std::shared_ptr<Treasure>& treasure){
+        CULog("Treasure gained");
+        _hasTreasure = true;
+        _treasure = treasure;
+    };
+    
+    /**
+     * Called when the player loses a treasure.
+     *
+     * Removes the treasure from this player's posession.
+     */
+    void removeTreasure(const std::shared_ptr<Treasure>& treasure){
+        _hasTreasure = false;
+        _treasure = nullptr;
+    };
 
     
 #pragma mark -

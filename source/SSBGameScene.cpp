@@ -7,6 +7,7 @@
 
 #include "SSBGameScene.h"
 #include "Platform.h"
+#include "Spike.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
@@ -42,12 +43,13 @@ using namespace cugl::audio;
 // In an actual game, this information would go in a data file.
 // IMPORTANT: Note that Box2D units do not equal drawing units
 /** The wall vertices */
-#define WALL_VERTS 8
-#define WALL_COUNT  1
+//#define WALL_VERTS 8
+//#define WALL_COUNT  0
 
-float WALL[WALL_COUNT][WALL_VERTS] = {
-    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
-};
+//float WALL[WALL_COUNT][WALL_VERTS] = {
+//    { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
+//};
+//float WALL[WALL_COUNT][WALL_VERTS];
 
 ///** The number of platforms */
 //#define PLATFORM_VERTS  8
@@ -62,6 +64,11 @@ float WALL[WALL_COUNT][WALL_VERTS] = {
 float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
 float DUDE_POS[] = { 2.5f, 7.0f};
+
+/** The initial position of the treasure */
+float TREASURE_POS[] = { 5.5f, 1.5f};
+
+float SPIKE_POS[] = { 5.5f, 1.5f};
 
 #pragma mark -
 #pragma mark Physics Constants
@@ -83,6 +90,8 @@ float DUDE_POS[] = { 2.5f, 7.0f};
 #pragma mark Asset Constants
 /** The key for the earth texture in the asset manager */
 #define EARTH_TEXTURE   "earth"
+/** The key for the spike texture in the asset manager */
+#define SPIKE_TEXTURE   "spike"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The name of a wall (for object identification) */
@@ -119,12 +128,13 @@ float DUDE_POS[] = { 2.5f, 7.0f};
 #define LEFT_IMAGE      "dpad_left"
 /** The image for the right dpad/joystick */
 #define RIGHT_IMAGE     "dpad_right"
+/** The image for the ready button */
+#define READY_BUTTON    "ready_button"
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
 /** Opacity of the physics outlines */
 #define DEBUG_OPACITY   192
-
 
 #pragma mark -
 #pragma mark Constructors
@@ -206,7 +216,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     } else if (!Scene2::initWithHint(Size(SCENE_WIDTH,SCENE_HEIGHT))) {
         return false;
     }
-    
+
+    // Start in building mode
+    _buildingMode = true;
+
     // Start up the input handler
     _assets = assets;
     _input.init(getBounds());
@@ -225,7 +238,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width/rect.size.width : _size.height/rect.size.height;
-    Vec2 offset((_size.width-SCENE_WIDTH)/2.0f,(_size.height-SCENE_HEIGHT)/2.0f);
+    Vec2 offset = Vec2((_size.width-SCENE_WIDTH)/2.0f,(_size.height-SCENE_HEIGHT)/2.0f);
+    _offset = offset;
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -261,11 +275,22 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
-    _gridnode = scene2::SceneNode::alloc();
-    _gridnode->setScale(_scale);
-    _gridnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _gridnode->setPosition(offset);
-    _gridnode->setVisible(true);
+    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    readyNode->setScale(0.8f);
+    _readyButton = scene2::Button::alloc(readyNode);
+    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _readyButton->setPosition(_size.width*0.91f,_size.height*0.1f);
+    _readyButton->activate();
+    _readyButton->addListener([this](const std::string& name, bool down) {
+        if (down) {
+            setBuildingMode(!_buildingMode);
+            _readyButton->setVisible(false);
+        }
+    });
+
+    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
+
+    initInventory();
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -273,10 +298,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     addChild(_losenode);
     addChild(_leftnode);
     addChild(_rightnode);
-    addChild(_gridnode);
+    addChild(_readyButton);
+    addChild(_gridManager->getGridNode());
 
     populate();
-    initGrid();
 
     _active = true;
     _complete = false;
@@ -286,52 +311,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     Application::get()->setClearColor(Color4f::CORNFLOWER);
 
     return true;
-}
-
-/**
- * Initializes the grid layout on the screen for build mode.
- */
-void GameScene::initGrid() {
-    const int GRID_ROWS = DEFAULT_HEIGHT;
-    const int GRID_COLS = DEFAULT_WIDTH;
-    const float CELL_SIZE = 1.0f;
-    const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
-
-    _gridnode->removeAllChildren();
-
-    std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
-
-    for (int row = 0; row < GRID_ROWS; ++row) {
-        for (int col = 0; col < GRID_COLS; ++col) {
-            Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
-
-            std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
-            cellNode->setColor(Color4::WHITE);
-            cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            cellNode->setPosition(cellPos);
-
-            std::shared_ptr<scene2::SpriteNode> spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
-            spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            spriteNode->setPosition(cellPos);
-            spriteNode->setContentSize(Size(CELL_SIZE, CELL_SIZE));
-
-            std::shared_ptr<scene2::Button> cellButton = scene2::Button::alloc(cellNode);
-            cellButton->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-            cellButton->setPosition(cellPos);
-            cellButton->setName("grid" + std::to_string(row) + std::to_string(col));
-            cellButton->activate();
-
-            // TODO: Fix this
-            cellButton->addListener([this](const std::string& name, bool down) {
-                if (down) {
-                    auto button = _gridnode->getChildByName(name);
-                    button->setColor(Color4::RED);
-                }
-            });
-
-            _gridnode->addChild(cellButton);
-        }
-    }
 }
 
 /**
@@ -347,12 +326,78 @@ void GameScene::dispose() {
         _losenode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
+        _readyButton = nullptr;
+        _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
         Scene2::dispose();
     }
 }
 
+#pragma mark -
+#pragma mark Build Mode
+
+/**
+ * Initializes the grid layout on the screen for build mode.
+ */
+void GameScene::initInventory(){
+    std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
+    std::vector<std::string> assetNames = {EARTH_TEXTURE, SPIKE_TEXTURE};
+    
+    float yOffset = 0;
+    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
+        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
+        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
+        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
+        itemButton->setPosition(_size.width - 40, _size.height - 100 - yOffset);
+        itemButton->setScale(2.0f);
+        itemButton->setName(itemToString(inventoryItems[itemNo]));
+        itemButton->setVisible(true);
+        itemButton->activate();
+        itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string& name, bool down) {
+            if (down & _buildingMode) {
+                _selectedItem = item;
+                _input.setInventoryStatus(PlatformInput::PLACING);
+            }
+        });
+        _inventoryButtons.push_back(itemButton);
+        addChild(itemButton);
+        yOffset += 80;
+    }
+        
+}
+
+/**
+ * Creates an item of type item and places it at the grid position.
+ *
+ * @param gridPos   The grid position to place the item at
+ * @param item  The type of the item to be placed/created
+ */
+void GameScene::placeItem(Vec2 gridPos, Item item){
+    switch (item){
+        case (PLATFORM):
+            createPlatform(gridPos, Size(1,1));
+            break;
+        case (SPIKE):
+            createSpike(gridPos, Size(1,1), _scale);
+            break;
+    }
+}
+
+/**
+ * Returns the corresponding asset name to the item.
+ *
+ * @param item The item
+ * @Return the item's asset name
+ */
+std::string GameScene::itemToAssetName(Item item){
+    switch (item){
+        case (PLATFORM):
+            return EARTH_TEXTURE;
+        case (SPIKE):
+            return SPIKE_TEXTURE;
+    }
+}
 
 #pragma mark -
 #pragma mark Level Layout
@@ -375,9 +420,12 @@ void GameScene::reset() {
     _growingWall = nullptr;
     _growingWallNode = nullptr;
     _growingWallWidth = 1.0f;
+    _treasure = nullptr;
       
     setFailure(false);
     setComplete(false);
+    setBuildingMode(true);
+
     populate();
 }
 
@@ -389,13 +437,13 @@ void GameScene::reset() {
 void GameScene::createPlatform(Vec2 pos, Size size) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
     std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
-    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
     
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
-    triangulator.set(wall.vertices);
+    triangulator.set(poly.vertices);
     triangulator.calculate();
-    wall.setIndices(triangulator.getTriangulation());
+    poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
 
 
@@ -405,9 +453,10 @@ void GameScene::createPlatform(Vec2 pos, Size size) {
     plat->getObstacle()->setFriction(BASIC_FRICTION);
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
+    plat->getObstacle()->setName("platform");
 
-    wall *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    poly *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     addObstacle(plat->getObstacle(), sprite, 1);  // All walls share the same texture
     _objects.push_back(plat);
     
@@ -494,6 +543,30 @@ void GameScene::updateGrowingWall(float timestep) {
 
 
 /**
+* Creates a new spike.
+* @param pos The position of the bottom left corner of the spike in Box2D coordinates.
+* @param size The dimensions (width, height) of the spike.
+*/
+void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize()/_scale, _scale, angle);
+
+
+    // Set the physics attributes
+    spk->getObstacle()->setBodyType(b2_staticBody);
+    spk->getObstacle()->setDensity(BASIC_DENSITY);
+    spk->getObstacle()->setFriction(BASIC_FRICTION);
+    spk->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    spk->getObstacle()->setDebugColor(DEBUG_COLOR);
+    spk->getObstacle()->setName("spike");
+
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+    spk->setSceneNode(sprite, angle);
+    addObstacle(spk->getObstacle(), sprite);
+    _objects.push_back(spk);
+}
+
+/**
  * Lays out the game geography.
  *
  * Pay close attention to how we attach physics objects to a scene graph.
@@ -531,35 +604,35 @@ void GameScene::populate() {
 
 #pragma mark : Walls
     // All walls and platforms share the same texture
-    image = _assets->get<Texture>(EARTH_TEXTURE);
-    std::string wname = "wall";
-    for (int ii = 0; ii < WALL_COUNT; ii++) {
-        std::shared_ptr<physics2::PolygonObstacle> wallobj;
-
-        Poly2 wall(reinterpret_cast<Vec2*>(WALL[ii]),WALL_VERTS/2);
-        // Call this on a polygon to get a solid shape
-        EarclipTriangulator triangulator;
-        triangulator.set(wall.vertices);
-        triangulator.calculate();
-        wall.setIndices(triangulator.getTriangulation());
-        triangulator.clear();
-
-        wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
-        // You cannot add constant "".  Must stringify
-        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
-        wallobj->setName(wname);
-
-        // Set the physics attributes
-        wallobj->setBodyType(b2_staticBody);
-        wallobj->setDensity(BASIC_DENSITY);
-        wallobj->setFriction(BASIC_FRICTION);
-        wallobj->setRestitution(BASIC_RESTITUTION);
-        wallobj->setDebugColor(DEBUG_COLOR);
-
-        wall *= _scale;
-        sprite = scene2::PolygonNode::allocWithTexture(image,wall);
-        addObstacle(wallobj,sprite,1);  // All walls share the same texture
-    }
+//    image = _assets->get<Texture>(EARTH_TEXTURE);
+//    std::string wname = "wall";
+//    for (int ii = 0; ii < WALL_COUNT; ii++) {
+//        std::shared_ptr<physics2::PolygonObstacle> wallobj;
+//
+//        Poly2 wall(reinterpret_cast<Vec2*>(WALL[ii]),WALL_VERTS/2);
+//        // Call this on a polygon to get a solid shape
+//        EarclipTriangulator triangulator;
+//        triangulator.set(wall.vertices);
+//        triangulator.calculate();
+//        wall.setIndices(triangulator.getTriangulation());
+//        triangulator.clear();
+//
+//        wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
+//        // You cannot add constant "".  Must stringify
+//        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
+//        wallobj->setName(wname);
+//
+//        // Set the physics attributes
+//        wallobj->setBodyType(b2_staticBody);
+//        wallobj->setDensity(BASIC_DENSITY);
+//        wallobj->setFriction(BASIC_FRICTION);
+//        wallobj->setRestitution(BASIC_RESTITUTION);
+//        wallobj->setDebugColor(DEBUG_COLOR);
+//
+//        wall *= _scale;
+//        sprite = scene2::PolygonNode::allocWithTexture(image,wall);
+//        addObstacle(wallobj,sprite,1);  // All walls share the same texture
+//    }
 
 //#pragma mark : Platforms
 //    for (int ii = 0; ii < PLATFORM_COUNT; ii++) {
@@ -598,17 +671,44 @@ void GameScene::populate() {
     _avatar->setDebugColor(DEBUG_COLOR);
     addObstacle(_avatar,sprite); // Put this at the very front
 
-    //platforms
-    createPlatform(Vec2(4, 8), Size(3, 3));
-    createPlatform(Vec2(10, 8), Size(5, 1));
-    createPlatform(Vec2(11, 4), Size(7, 2));
-    createPlatform(Vec2(5, 2), Size(4, 1));
     
-    createMovingPlatform(Vec2(3, 4), Size(2, 1), Vec2(8, 4), 1.0f);
+#pragma mark : Spikes
+    createSpike(Vec2(13, 1), Size(1, 1), _scale);
+    createSpike(Vec2(14, 1), Size(1, 1), _scale);
+    createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(10, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(17, 4), Size(1, 1), _scale);
+    createSpike(Vec2(18, 4), Size(1, 1), _scale);
+    createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
+    createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
+    createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
+    
+#pragma mark : Platforms
+    createPlatform(Vec2(0, 0), Size(6, 1));
+    createPlatform(Vec2(13, 0), Size(7, 1));
+    createPlatform(Vec2(19, 1), Size(1, 9));
+    createPlatform(Vec2(0, 1), Size(1, 9));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(17, 3), Size(2, 1));
+    createPlatform(Vec2(1, 9), Size(18, 1));
+    createPlatform(Vec2(3, 6), Size(2, 1));
+    
+    // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
+//    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
-    //growing wall
-    updateGrowingWall(0.0f);
-
+    
+#pragma mark : Treasure
+    Vec2 treasurePos = TREASURE_POS;
+    image = _assets->get<Texture>("treasureGreen");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure->getObstacle(),sprite);
+    _treasure->getObstacle()->setName("treasure");
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    
 
 
     // Play the background music on a loop.
@@ -666,40 +766,59 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
 void GameScene::update(float timestep) {
     _input.update(timestep);
 
-    // Process the toggled key commands
-    if (_input.didDebug()) { setDebug(!isDebug()); }
-    if (_input.didReset()) { reset(); }
-    if (_input.didExit())  {
-        Application::get()->quit();
-    }
+    if (_buildingMode) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-    // Process the movement
-    if (_input.withJoystick()) {
-        if (_input.getHorizontal() < 0) {
-            _leftnode->setVisible(true);
-            _rightnode->setVisible(false);
-        } else if (_input.getHorizontal() > 0) {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(true);
+            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+            _gridManager->setSpriteInvisible();
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _input.setInventoryStatus(PlatformInput::WAITING);
+        }
+    } else {
+        // Process the toggled key commands
+        if (_input.didDebug()) { setDebug(!isDebug()); }
+        if (_input.didReset()) { reset(); }
+        if (_input.didExit())  {
+            Application::get()->quit();
+        }
+
+        // Process the movement
+        if (_input.withJoystick()) {
+            if (_input.getHorizontal() < 0) {
+                _leftnode->setVisible(true);
+                _rightnode->setVisible(false);
+            } else if (_input.getHorizontal() > 0) {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(true);
+            } else {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(false);
+            }
+            _leftnode->setPosition(_input.getJoystick());
+            _rightnode->setPosition(_input.getJoystick());
         } else {
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
-        _leftnode->setPosition(_input.getJoystick());
-        _rightnode->setPosition(_input.getJoystick());
-    } else {
-        _leftnode->setVisible(false);
-        _rightnode->setVisible(false);
-    }
-    
-    _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
-    _avatar->setJumping( _input.didJump());
-    _avatar->applyForce();
 
-    if (_avatar->isJumping() && _avatar->isGrounded()) {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-        AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
+        _avatar->setJumping( _input.didJump());
+        _avatar->applyForce();
+
+        if (_avatar->isJumping() && _avatar->isGrounded()) {
+            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+            AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
     }
+
+    for (auto& obj : _objects) {
+        obj -> update(timestep);
+    }
+
     
     // Turn the physics engine crank.
     _world->update(timestep);
@@ -730,48 +849,64 @@ void GameScene::update(float timestep) {
 void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
-    // Process the toggled key commands
-    if (_input.didDebug()) { setDebug(!isDebug()); }
-    if (_input.didReset()) { reset(); }
-    if (_input.didExit())  {
-        CULog("Shutting down");
-        Application::get()->quit();
-    }
+    if (_buildingMode) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-    // Process the movement
-    if (_input.withJoystick()) {
-        if (_input.getHorizontal() < 0) {
-            _leftnode->setVisible(true);
-            _rightnode->setVisible(false);
-        } else if (_input.getHorizontal() > 0) {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(true);
+            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+            _gridManager->setSpriteInvisible();
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _input.setInventoryStatus(PlatformInput::WAITING);
+        }
+    } else {
+        // Process the toggled key commands
+        if (_input.didDebug()) { setDebug(!isDebug()); }
+        if (_input.didReset()) { reset(); }
+        if (_input.didExit())  {
+            CULog("Shutting down");
+            Application::get()->quit();
+        }
+
+        // Process the movement
+        if (_input.withJoystick()) {
+            if (_input.getHorizontal() < 0) {
+                _leftnode->setVisible(true);
+                _rightnode->setVisible(false);
+            } else if (_input.getHorizontal() > 0) {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(true);
+            } else {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(false);
+            }
+            _leftnode->setPosition(_input.getJoystick());
+            _rightnode->setPosition(_input.getJoystick());
         } else {
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
-        _leftnode->setPosition(_input.getJoystick());
-        _rightnode->setPosition(_input.getJoystick());
-    } else {
-        _leftnode->setVisible(false);
-        _rightnode->setVisible(false);
-    }
-    
-    _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
-    _avatar->setJumping( _input.didJump());
-    _avatar->applyForce();
 
-    if (_avatar->isJumping() && _avatar->isGrounded()) {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-        AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
-    }
+        _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
+        _avatar->setJumping( _input.didJump());
+        _avatar->applyForce();
 
+        if (_avatar->isJumping() && _avatar->isGrounded()) {
+            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+            AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+    }
     
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
     // increase growing wall
     updateGrowingWall(dt);
+
+    
+//    _treasure->update(dt);
 
 }
 
@@ -887,6 +1022,20 @@ void GameScene::setFailure(bool value) {
     }
 }
 
+/**
+ * Sets whether mode is in building or play mode.
+ *
+ * @param value whether the level is in building mode.
+ */
+void GameScene::setBuildingMode(bool value) {
+    _buildingMode = value;
+
+    _gridManager->getGridNode()->setVisible(value);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        _inventoryButtons[i]->setVisible(value);
+    }
+}
+
 
 #pragma mark -
 #pragma mark Collision Handling
@@ -925,6 +1074,7 @@ void GameScene::beginContact(b2Contact* contact) {
         (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
         setComplete(true);
     }
+
     // If the player collides with the growing wall, game over
     if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
         (bd1 == _growingWall.get() && bd2 == _avatar.get())) {
@@ -936,6 +1086,20 @@ void GameScene::beginContact(b2Contact* contact) {
         CULog("moving platform");
         _avatar->setOnMovingPlat(true);
         _avatar->setMovingPlat(bd1 == _avatar.get() ? bd2 : bd1);
+
+    // If we hit a spike, we are DEAD
+    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        CULog("HIT SPIKE");
+        setFailure(true);
+    }
+    
+    // If we collide with a treasure, we pick it up
+    if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
+        (bd1->getName() == "treasure" && bd2 == _avatar.get())) {
+        if (!_avatar->_hasTreasure){
+            _avatar->gainTreasure(_treasure);
+        }
     }
 }
 
@@ -973,4 +1137,36 @@ void GameScene::endContact(b2Contact* contact) {
         _avatar->setOnMovingPlat(false);
         _avatar->setMovingPlat(nullptr);
     }
+}
+
+#pragma mark -
+#pragma mark Helpers
+
+/**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @param screenPos    The screen position
+ * @param scale             The screen to world scale
+ * @param offset           The offset of the scene to the world
+ */
+Vec2 GameScene::convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset) {
+    Vec2 adjusted = screenPos - offset;
+
+    float xBox2D = adjusted.x / scale;
+    float yBox2D = adjusted.y / scale;
+
+    // Converts to the specific grid position
+    int xGrid = xBox2D;
+    int yGrid = yBox2D;
+
+    // Snaps the placement to inside the grid
+    int maxRows = _gridManager->getNumRows() - 1;
+    int maxCols = _gridManager->getNumColumns() - 1;
+
+    xGrid = xGrid < 0 ? 0 : xGrid;
+    yGrid = yGrid < 0 ? 0 : yGrid;
+    xGrid = xGrid > maxCols ? maxCols : xGrid;
+    yGrid = yGrid > maxRows ? maxRows : yGrid;
+
+    return Vec2(xGrid, yGrid);
 }

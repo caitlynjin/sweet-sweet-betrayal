@@ -298,6 +298,14 @@ void DudeModel::update(float dt) {
     }
 
     
+    // If the player has a treasure, update the position of the treasure such that
+    // it follows the player
+    if (_treasure != nullptr){
+        _treasure->setPosition(getPosition());
+    }
+
+
+    
 }
 //Based on the player motion, check if we are falling.
 //If the player is falling for more than the glidetimer, set player into glide mode
