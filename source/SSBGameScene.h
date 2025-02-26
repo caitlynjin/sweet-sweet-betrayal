@@ -16,6 +16,7 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
+#include "WindObstacle.h"
 #include "Treasure.h"
 //#include <cmath>
 
@@ -36,8 +37,10 @@ protected:
     enum Item {
         /** A standard platform */
         PLATFORM,
-        /** A spike */
-        SPIKE
+        /** A moving platform */
+        MOVING_PLATFORM,
+        /** A wind object */
+        WIND
     };
     
     /**
@@ -71,6 +74,10 @@ protected:
     std::shared_ptr<scene2::Label> _winnode;
     /** Reference to the lose message label */
     std::shared_ptr<scene2::Label> _losenode;
+    /** Reference to the rounds message label */
+    std::shared_ptr<scene2::Label> _roundsnode;
+    /** Reference to the gems message label */
+    std::shared_ptr<scene2::Label> _gemsnode;
     /** Reference to the left joystick image */
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
@@ -81,6 +88,19 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+
+    /** Reference to the label for counting rounds */
+    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
+    
+    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
+
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
+    /** Reference to the background of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
+    /** Reference to the overlay of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
+
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -116,15 +136,46 @@ protected:
     bool _debug;
     /** Whether we have failed at this world (and need a reset) */
     bool _failed;
+    /** Whether the player has died */
+    bool _died = false;
+    /** Whether the player has reached the goal */
+    bool _reachedGoal = false;
     /** Countdown active for winning or losing */
     int _countdown;
     /** Whether we are in build mode */
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
+
+    /** The total amount of rounds */
+    int const TOTAL_ROUNDS = 5;
+    /** The total amount of gems */
+    int const TOTAL_GEMS = 3;
+    /** The current round the player is on */
+    int _currRound = 1;
+    /** How many gems the player collected and won */
+    int _currGems = 0;
       
+
+    /** The number of items currently placed */
+    int _itemsPlaced = 0;
+
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
+private:
+    /** Initial width */
+    float _growingWallWidth = 1.0f;
+    /** Growth rate per second  */        
+    float _growingWallGrowthRate = 0.6f;      
+    std::shared_ptr<physics2::PolygonObstacle> _growingWall;
+    std::shared_ptr<scene2::PolygonNode> _growingWallNode;
+    /**
+    * Create the growing wall if not created. Otherwise, increase its width
+    *
+    * @param timestep  The elapsed time since the last frame.
+    */
+    void updateGrowingWall(float timestep);
 
 #pragma mark Internal Object Management
 
@@ -144,9 +195,13 @@ protected:
     /** Creates a platform.
     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
     * @param size The size of the platform in Box2D coordinates.
+    * @param wall Whether this is a wall or not (if not it is a user placed platform)
     */
 
-    void createPlatform(Vec2 pos, Size size);
+    void createPlatform(Vec2 pos, Size size, bool wall);
+    
+    void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
@@ -336,6 +391,15 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
+    
+    /**
+    * Sets the level up for the next round.
+    *
+    * When called, the level will reset after a countdown.
+     
+     @param reachedGoal whether the player has reached the goal.
+    */
+    void nextRound(bool reachedGoal = false);
 
      /**
      * Sets whether mode is in building or play mode.
@@ -471,14 +535,5 @@ public:
     Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
 
   };
-
-/**
- * Converts from degrees to radians for angle rotations.
- *
- * @param degrees    The degree of an angle.
- */
-//float degToRad(const float& degrees){
-//    return degrees * (M_PI / 180);
-//}
 
 #endif /* __PF_GAME_SCENE_H__ */

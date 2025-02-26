@@ -86,9 +86,13 @@ _keyRight(false),
 _horizontal(0.0f),
 _joystick(false),
 _hasJumped(false),
+
 _currDown(false),
 _prevDown(false),
-_prev2Down(false){
+_prev2Down(false),
+
+_holdRight(false),
+_canGlide(false){
 }
 
 /**
@@ -360,7 +364,8 @@ int PlatformInput::processSwipe(const Vec2 start, const Vec2 stop, Timestamp cur
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
-    
+    //Update Glide mode-If we are grounded, make sure we can't glide anymore.
+
     //CULog("Touch began %lld", event.touch);
     Vec2 pos = event.position;
     Zone zone = getZone(pos);
@@ -391,6 +396,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
                 _rtouch.timestamp.mark();
                 _rtouch.touchids.insert(event.touch);
                 _hasJumped = false;
+                _holdRight = true;
             }
             break;
         case Zone::MAIN:
@@ -442,6 +448,8 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
         _joystick = false;
     } else if (_rtouch.touchids.find(event.touch) != _rtouch.touchids.end()) {
         _hasJumped = false;
+        _holdRight = false;
+        _canGlide = true;
         _rtime = event.timestamp;
         _rtouch.touchids.clear();
     } else if (zone == Zone::MAIN) {
@@ -450,6 +458,7 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
         }
         _mtime = event.timestamp;
     }
+    
 }
 
 
