@@ -93,6 +93,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define EARTH_TEXTURE   "gray"
 /** The key for the platform texture in the asset manager*/
 #define PLATFORM_TEXTURE   "platform"
+/** The key for the moving platform texture in the asset manager*/
+#define MOVING_TEXTURE   "moving"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TEXTURE   "spike"
 /** The key for the win door texture in the asset manager */
@@ -369,7 +371,7 @@ void GameScene::dispose() {
  */
 void GameScene::initInventory(){
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, PLATFORM_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -432,7 +434,7 @@ std::string GameScene::itemToAssetName(Item item){
         case (PLATFORM):
             return PLATFORM_TEXTURE;
         case (MOVING_PLATFORM):
-            return EARTH_TEXTURE;
+            return MOVING_TEXTURE;
         case (WIND):
             return WIND_TEXTURE;
     }
@@ -512,7 +514,7 @@ void GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
  * @param speed The speed at which the platform moves.
  */
 void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
     
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
     Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
