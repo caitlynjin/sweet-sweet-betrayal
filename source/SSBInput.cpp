@@ -85,7 +85,8 @@ _keyLeft(false),
 _keyRight(false),
 _horizontal(0.0f),
 _joystick(false),
-_hasJumped(false) {
+_hasJumped(false),
+_holdRight(false){
 }
 
 /**
@@ -380,6 +381,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
                 _rtouch.timestamp.mark();
                 _rtouch.touchids.insert(event.touch);
                 _hasJumped = false;
+                _holdRight = true;
             }
             break;
         case Zone::MAIN:
@@ -436,6 +438,9 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
             _mtouch.touchids.erase(event.touch);
         }
         _mtime = event.timestamp;
+    }
+    if (zone == Zone::RIGHT) {
+        _holdRight = false;
     }
 }
 

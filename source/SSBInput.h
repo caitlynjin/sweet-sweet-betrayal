@@ -71,6 +71,7 @@ private:
     bool  _keyRight;
     /** Whether the touch is currently down */
     bool _touchDown;
+    
 
 protected:
     // INPUT RESULTS
@@ -152,6 +153,8 @@ protected:
     cugl::Vec2 _joycenter;
     /** Whether or not we have processed a jump for this swipe yet */
     bool _hasJumped;
+    /**Whether or not we are holding the right side of the screen*/
+    bool _holdRight;
     /** The timestamp for a double tap on the right */
     cugl::Timestamp _rtime;
 	/** The timestamp for a double tap in the middle */
@@ -370,6 +373,10 @@ public:
      * @return true if touch is down
      */
     bool isTouchDown() const { return _touchDown; }
+
+    /**Returns true if touch is down on the right*/
+    bool isRightDown() const { return _holdRight; }
+    
 
 #pragma mark -
 #pragma mark Touch and Mouse Callbacks

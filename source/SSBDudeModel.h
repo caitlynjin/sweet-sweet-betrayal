@@ -104,9 +104,9 @@ protected:
 	bool _isShooting;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
-    float _glidedelay;
-    float _glidetimer;
-    bool _isgliding;
+    float _glideDelay;
+    float _glideTimer;
+    bool _isGliding;
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
@@ -472,6 +472,8 @@ public:
      */
     bool isFacingRight() const { return _faceRight; }
 
+    /**Sets whether we are trying to glide or not.*/
+    void setGlide(bool value) { _isGliding = value; }
     
 
     

@@ -112,12 +112,12 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
         _isShooting = false;
         _isJumping  = false;
         _faceRight  = true;
-        _isgliding = false;
+        _isGliding = false;
         
         _shootCooldown = 0;
         _jumpCooldown  = 0;
-        _glidedelay = 0.2;
-        _glidetimer = 0;
+        _glideDelay = 0.2;
+        _glideTimer = 0;
         _windvel = Vec2();
         return true;
     }
@@ -242,14 +242,14 @@ void DudeModel::applyForce() {
     }
     
     // Velocity too high, clamp it
-    if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
+    if (fabs(getVX()) >= getMaxSpeed() && !_isGliding) {
         setVX(SIGNUM(getVX())*getMaxSpeed());
         CULog("Hit limit!");
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
         //Reduce friction in air.
-        if (_isgliding) {
+        if (_isGliding) {
             //force.operator*=(-0.5);
             //_body->ApplyForce(force, _body->GetPosition(), true);
             //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
@@ -314,32 +314,37 @@ void DudeModel::update(float dt) {
 void DudeModel::glideUpdate(float dt) {
     b2Vec2 motion = _body->GetLinearVelocity();
 
-    if (!_isgliding) {
-        if (motion.y < 0) {
-            _glidetimer += dt;
-        }
-        if (_glidetimer >= _glidedelay) {
-            _isgliding = true;
-            _body->SetLinearDamping(GLIDE_DAMPING);
-        }
+    if (_isGliding && !isGrounded()) {
+        //if (motion.y < 0) {
+        //    _glideTimer += dt;
+        //}
+        //if (_glideTimer >= _glideDelay) {
+        //    _isGliding = true;
+        //    
+        //}
+        _body->SetLinearDamping(GLIDE_DAMPING);
     }
-    if (isGrounded()) {
-            _isgliding = false;
-            _glidetimer = 0;
-            _body->SetLinearDamping(0);
+    else {
+        _body->SetLinearDamping(0);
     }
-
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed
 */
 void DudeModel::windUpdate(float dt) {
     //Vec2 force = _windvel;
-    b2Vec2 vel = _body->GetLinearVelocity();
-    vel.x += _windvel.x;
-    vel.y += _windvel.y;
-    _body->SetLinearVelocity(vel);
-    _windvel = Vec2();
+    if (!isGrounded()) {
+        int mult = 1;
+        if (!_isGliding) {
+            mult = 0.1;
+        }
+
+        b2Vec2 vel = _body->GetLinearVelocity();
+        vel.x += _windvel.x;
+        vel.y += _windvel.y;
+        _body->SetLinearVelocity(vel);
+        _windvel = Vec2();
+    }
 }
 
 

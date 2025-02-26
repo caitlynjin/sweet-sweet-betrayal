@@ -97,6 +97,10 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define GOAL_TEXTURE    "goal"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+/** Name of the wind object(for identification)*/
+#define WIND_NAME "gust"
 /** The name of a platform (for object identification) */
 #define PLATFORM_NAME   "platform"
 /** The font for victory/failure messages */
@@ -131,6 +135,7 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define RIGHT_IMAGE     "dpad_right"
 /** The image for the edit button */
 #define EDIT_BUTTON     "edit_button"
+
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
@@ -511,8 +516,8 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
 * @param size The dimensions (width, height) of the platform.
 */
 void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos + size / 2, size, gust);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, image->getSize() / _scale , gust);
     Poly2 WindObstacle(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
@@ -616,8 +621,11 @@ void GameScene::populate() {
 //        sprite = scene2::PolygonNode::allocWithTexture(image,platform);
 //        addObstacle(platobj,sprite,1);
 //    }
+#pragma mark: Wind
+    createWindObstacle(Vec2(2, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
+
     Vec2 dudePos = DUDE_POS;
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     image = _assets->get<Texture>(DUDE_TEXTURE);
@@ -654,9 +662,8 @@ void GameScene::populate() {
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
 //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
-
     
-    createWindObstacle(Vec2(2, 1.5), Size(1, 1), Vec2(0,10));
+    
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
     image = _assets->get<Texture>("treasureGreen");
@@ -770,6 +777,13 @@ void GameScene::update(float timestep) {
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+        /**Checks if we are gliding*/
+        if (!_avatar->isJumping() && _input.isRightDown() && !_input.didJump()) {
+            _avatar->setGlide(true);
+        }
+        else {
+            _avatar->setGlide(false);
         }
     }
     for (auto& obj : _objects) {
@@ -1039,10 +1053,8 @@ void GameScene::beginContact(b2Contact* contact) {
     }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
-        //Object::WindObstacle* w = reinterpret_cast<Object::WindObstacle*>(body2->GetUserData().pointer);
-        //WindObstacle* w = dynamic_cast<WindObstacle*>(bd2);
-
+        (bd1->getName() == "gust" && bd2 == _avatar.get())) {
+        //CULog("WIND");
         _avatar->addWind(Vec2(0,8));
     }
     
