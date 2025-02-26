@@ -286,7 +286,10 @@ void DudeModel::update(float dt) {
     } else {
         _shootCooldown = (_shootCooldown > 0 ? _shootCooldown-1 : 0);
     }
-    
+    if (_onMovingPlat && MovingPlat != nullptr) {
+        Vec2 platformVel = MovingPlat->getLinearVelocity();
+        setPosition(getPosition() + platformVel * dt);
+    }
     CapsuleObstacle::update(dt);
     
     if (_node != nullptr) {

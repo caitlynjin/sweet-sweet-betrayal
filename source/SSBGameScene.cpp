@@ -437,6 +437,8 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
 
+    plat->getObstacle()->setName("movingPlatform");
+
     wall *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
 
@@ -928,6 +930,13 @@ void GameScene::beginContact(b2Contact* contact) {
         (bd1 == _growingWall.get() && bd2 == _avatar.get())) {
         setFailure(true);
     }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
+        (bd2 == _avatar.get() && bd1->getName() == "movingPlatform"&& _avatar->isGrounded())) {
+        CULog("moving platform");
+        _avatar->setOnMovingPlat(true);
+        _avatar->setMovingPlat(bd1 == _avatar.get() ? bd2 : bd1);
+    }
 }
 
 /**
@@ -956,5 +965,12 @@ void GameScene::endContact(b2Contact* contact) {
         if (_sensorFixtures.empty()) {
             _avatar->setGrounded(false);
         }
+    }
+    
+    if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform") ||
+        (bd2 == _avatar.get() && bd1->getName() == "movingPlatform")) {
+        CULog("disable movement platform");
+        _avatar->setOnMovingPlat(false);
+        _avatar->setMovingPlat(nullptr);
     }
 }
