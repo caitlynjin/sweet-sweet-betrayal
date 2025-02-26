@@ -89,11 +89,19 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #pragma mark -
 #pragma mark Asset Constants
 /** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE "earth"
+#define EARTH_TEXTURE   "gray"
+/** The key for the platform texture in the asset manager*/
+#define PLATFORM_TEXTURE   "platform"
+/** The key for the moving platform texture in the asset manager*/
+#define MOVING_TEXTURE   "moving"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TEXTURE "spike"
 /** The key for the win door texture in the asset manager */
-#define GOAL_TEXTURE "goal"
+#define GOAL_TEXTURE    "goal"
+/** The key for the background texture in the asset manager */
+#define BACKGROUND_TEXTURE    "background"
+/** The key for the treasure texture in the asset manager */
+#define TREASURE_TEXTURE    "treasure"
 /** The name of a wall (for object identification) */
 #define WALL_NAME "wall"
 /** Name of the wind texture*/
@@ -253,6 +261,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
+    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
+    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _background->setPosition(Vec2(0,0));
+    _background->setScale(1.0f);
+    
     // Create the scene graph
     std::shared_ptr<Texture> image;
     _worldnode = scene2::SceneNode::alloc();
@@ -301,6 +314,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
+    addChild(_background);
+    
     initInventory();
 
     // Set the darkened overlay
@@ -364,13 +379,13 @@ void GameScene::dispose()
 void GameScene::initInventory()
 {
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {EARTH_TEXTURE, EARTH_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
-    _inventoryBackground->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryBackground->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryBackground->setColor(Color4::PAPYRUS);
+    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
+    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
+    _inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
@@ -408,7 +423,7 @@ void GameScene::placeItem(Vec2 gridPos, Item item)
     switch (item)
     {
     case (PLATFORM):
-        createPlatform(gridPos, Size(1, 1));
+        createPlatform(gridPos, Size(1, 1), false);
         break;
     case (MOVING_PLATFORM):
         createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
@@ -425,16 +440,14 @@ void GameScene::placeItem(Vec2 gridPos, Item item)
  * @param item The item
  * @Return the item's asset name
  */
-std::string GameScene::itemToAssetName(Item item)
-{
-    switch (item)
-    {
-    case (PLATFORM):
-        return EARTH_TEXTURE;
-    case (MOVING_PLATFORM):
-        return EARTH_TEXTURE;
-    case (WIND):
-        return WIND_TEXTURE;
+std::string GameScene::itemToAssetName(Item item){
+    switch (item){
+        case (PLATFORM):
+            return PLATFORM_TEXTURE;
+        case (MOVING_PLATFORM):
+            return MOVING_TEXTURE;
+        case (WIND):
+            return WIND_TEXTURE;
     }
 }
 
@@ -477,15 +490,19 @@ void GameScene::reset()
     populate();
 }
 
-/**
- * Creates a new platform.
- * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
- * @param size The dimensions (width, height) of the platform.
- */
-void GameScene::createPlatform(Vec2 pos, Size size)
-{
-    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size / 2, size);
+/** 
+* Creates a new platform.
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+    std::shared_ptr<Texture> image;
+    if (wall){
+        image = _assets->get<Texture>(EARTH_TEXTURE);
+    } else {
+        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    }
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
     Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
 
     // Call this on a polygon to get a solid shape
@@ -515,11 +532,10 @@ void GameScene::createPlatform(Vec2 pos, Size size)
  * @param end The bottom left position of the platform's destination.
  * @param speed The speed at which the platform moves.
  */
-void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
-{
-    std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
-
-    std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size / 2, size, pos + size / 2, end, speed);
+void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
+    
+    std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
     Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
 
     EarclipTriangulator triangulator;
@@ -668,7 +684,7 @@ void GameScene::populate()
     _goalDoor->setDebugColor(DEBUG_COLOR);
     addObstacle(_goalDoor, sprite);
 
-#pragma mark : Walls
+//#pragma mark : Walls
     // All walls and platforms share the same texture
 //    image = _assets->get<Texture>(EARTH_TEXTURE);
 //    std::string wname = "wall";
@@ -751,25 +767,25 @@ void GameScene::populate()
     createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
     createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
-
-#pragma mark : Platforms
-    createPlatform(Vec2(0, 0), Size(6, 1));
-    createPlatform(Vec2(13, 0), Size(7, 1));
-    createPlatform(Vec2(19, 1), Size(1, 9));
-    createPlatform(Vec2(0, 1), Size(1, 9));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(17, 3), Size(2, 1));
-    createPlatform(Vec2(1, 9), Size(18, 1));
-    createPlatform(Vec2(3, 6), Size(2, 1));
-
+    
+#pragma mark : Walls
+    createPlatform(Vec2(0, 0), Size(6, 1), true);
+    createPlatform(Vec2(13, 0), Size(7, 1), true);
+    createPlatform(Vec2(19, 1), Size(1, 9), true);
+    createPlatform(Vec2(0, 1), Size(1, 9), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(17, 3), Size(2, 1), true);
+    createPlatform(Vec2(1, 9), Size(18, 1), true);
+    createPlatform(Vec2(3, 6), Size(2, 1), true);
+    
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
-    image = _assets->get<Texture>("treasureGreen");
-    _treasure = Treasure::alloc(treasurePos, image->getSize() / _scale, _scale);
+    image = _assets->get<Texture>(TREASURE_TEXTURE);
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
     addObstacle(_treasure->getObstacle(), sprite);

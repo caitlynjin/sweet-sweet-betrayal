@@ -84,6 +84,8 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
     /** Reference to the background of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
     /** Reference to the overlay of the inventory */
@@ -156,11 +158,13 @@ private:
     /** Creates a platform.
     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
     * @param size The size of the platform in Box2D coordinates.
+    * @param wall Whether this is a wall or not (if not it is a user placed platform)
     */
 
-    void createPlatform(Vec2 pos, Size size);
-
+    void createPlatform(Vec2 pos, Size size, bool wall);
+    
     void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
