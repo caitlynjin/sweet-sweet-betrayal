@@ -289,8 +289,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     });
     
 #pragma mark : UI
-    _roundsLabel  = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("labels.roundLabel"));
-    _roundsLabel->setText("Round: 1/5");
+//    _roundsLabel  = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("labels.roundLabel"));
+//    _roundsLabel->setText("Round: 1/5");
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
