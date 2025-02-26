@@ -108,6 +108,10 @@ protected:
     bool _debug;
     /** Whether we have failed at this world (and need a reset) */
     bool _failed;
+    /** Whether the player has died */
+    bool _died = false;
+    /** Whether the player has reached the goal */
+    bool _reachedGoal = false;
     /** Countdown active for winning or losing */
     int _countdown;
     /** Whether we are in build mode */
@@ -120,6 +124,8 @@ protected:
     int const TOTAL_GEMS = 3;
     /** The current round the player is on */
     int _currRound = 1;
+    /** How many gems the player collected and won */
+    int _currGems = 0;
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
@@ -339,8 +345,10 @@ public:
     * Sets the level up for the next round.
     *
     * When called, the level will reset after a countdown.
+     
+     @param reachedGoal whether the player has reached the goal.
     */
-    void nextRound();
+    void nextRound(bool reachedGoal = false);
 
      /**
      * Sets whether mode is in building or play mode.

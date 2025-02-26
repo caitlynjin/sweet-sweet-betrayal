@@ -66,7 +66,7 @@ float GOAL_POS[] = { 18.0f, 1.5f };
 float DUDE_POS[] = { 2.5f, 1.0f};
 
 /** The initial position of the treasure */
-float TREASURE_POS[] = { 5.5f, 1.5f};
+float TREASURE_POS[3][2] = { {9.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
 float SPIKE_POS[] = { 5.5f, 1.5f};
 
@@ -149,6 +149,7 @@ GameScene::GameScene() : Scene2(),
     _debugnode(nullptr),
     _world(nullptr),
     _avatar(nullptr),
+_treasure(nullptr),
     _complete(false),
     _debug(false)
 {
@@ -257,6 +258,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _winnode->setPosition(_size.width/2.0f,_size.height/2.0f);
     _winnode->setForeground(WIN_COLOR);
     setComplete(false);
+
 
     _losenode = scene2::Label::allocWithText(LOSE_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _losenode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -418,6 +420,9 @@ void GameScene::reset() {
     _avatar = nullptr;
     _goalDoor = nullptr;
     _treasure = nullptr;
+    _currRound = 1;
+    _died = false;
+    _reachedGoal = false;
       
     setFailure(false);
     setComplete(false);
@@ -512,6 +517,19 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
     spk->setSceneNode(sprite, angle);
     addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
+}
+
+void GameScene::createTreasure(Vec2 pos, Size size){
+    std::shared_ptr<Texture> image;
+    std::shared_ptr<scene2::PolygonNode> sprite;
+    Vec2 treasurePos = pos;
+    image = _assets->get<Texture>("treasureGreen");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure->getObstacle(),sprite);
+    _treasure->getObstacle()->setName("treasure");
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
 }
 
 /**
@@ -649,14 +667,9 @@ void GameScene::populate() {
 
     
 #pragma mark : Treasure
-    Vec2 treasurePos = TREASURE_POS;
-    image = _assets->get<Texture>("treasureGreen");
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(),sprite);
-    _treasure->getObstacle()->setName("treasure");
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    CULog("x: %f, y: %f", TREASURE_POS[2][0], TREASURE_POS[2][1]);
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1,1));
+    
     
 
 
@@ -753,22 +766,32 @@ void GameScene::update(float timestep) {
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
+        
 
         _avatar->setMovement(_input.getHorizontal()*_avatar->getForce());
         _avatar->setJumping( _input.didJump());
         _avatar->applyForce();
+    
+        
 
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
     }
+    
+
     for (auto& obj : _objects) {
         obj -> update(timestep);
     }
     
+    
+    
     // Turn the physics engine crank.
+
     _world->update(timestep);
+    
+    
 }
 
 /**
@@ -842,17 +865,18 @@ void GameScene::preUpdate(float dt) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
+        
+        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+            (*it)->update(dt);
+        }
     }
     
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(dt);
+//    }
 
     
 //    _treasure->update(dt);
-    
-    // REMOVE ONCE UI IS IN
-    CULog("Round: %d / 5", _currRound);
 
 }
 
@@ -884,7 +908,10 @@ void GameScene::preUpdate(float dt) {
  */
 void GameScene::fixedUpdate(float step) {
     // Turn the physics engine crank.
-    _world->update(step);
+    if (!_buildingMode){
+        _world->update(step);
+    }
+    
 }
     
 /**
@@ -916,6 +943,14 @@ void GameScene::postUpdate(float remain) {
     // Record failure if necessary.
     if (!_failed && _avatar->getY() < 0) {
         setFailure(true);
+    }
+    
+    if (!_failed && _died){
+        setFailure(true);
+    }
+    
+    if(_reachedGoal){
+        nextRound(true);
     }
 
     // Reset the game if we win or lose.
@@ -956,10 +991,13 @@ void GameScene::setComplete(bool value) {
  * @param value whether the level is failed.
  */
 void GameScene::setFailure(bool value) {
-    _failed = value;
     if (value) {
         // If next round available, do not fail
         if (_currRound < TOTAL_ROUNDS){
+            if (_avatar->_hasTreasure){
+                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
+            }
+            
             nextRound();
             return;
         }
@@ -972,6 +1010,7 @@ void GameScene::setFailure(bool value) {
         _losenode->setVisible(false);
         _countdown = -1;
     }
+    _failed = value;
 }
 
 /**
@@ -980,18 +1019,46 @@ void GameScene::setFailure(bool value) {
 * When called, the level will reset after a countdown.
 *
 */
-void GameScene::nextRound() {
+void GameScene::nextRound(bool reachedGoal) {
+    // Check if player won before going to next round
+    if (reachedGoal){
+        if(_avatar->_hasTreasure){
+            _avatar->removeTreasure();
+            // Increment total treasure collected
+            _currGems += 1;
+            
+            // Check if player won
+            if (_currGems == TOTAL_GEMS){
+                setComplete(true);
+                return;
+            }
+            else{
+                // Set up next treasure if collected in prev round
+                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
+            }
+
+        }
+    }
+    
+    // Check if player lost
+    if (_currRound == TOTAL_ROUNDS){
+        setFailure(true);
+        return;
+    }
+    
     // Increment round
     _currRound += 1;
+    setFailure(false);
     
     // Return to building mode
     setBuildingMode(true);
     
     // Reset player properties
-    _avatar->setPosition(DUDE_POS);
+    _avatar->setPosition(Vec2(DUDE_POS));
     _avatar->removeTreasure();
+    _died = false;
+    _reachedGoal = false;
     
-    // Set up next treasure if collected in prev round
 }
 
 /**
@@ -1044,12 +1111,14 @@ void GameScene::beginContact(b2Contact* contact) {
     // If we hit the "win" door, we are done
     if((bd1 == _avatar.get()   && bd2 == _goalDoor.get()) ||
         (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
-        setComplete(true);
+        _reachedGoal = true;
+        
     }
     // If we hit a spike, we are DEAD
     if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _avatar.get())) {
-        setFailure(true);
+//        setFailure(true);
+        _died = true;
     }
     
     // If we collide with a treasure, we pick it up
