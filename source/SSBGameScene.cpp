@@ -1272,15 +1272,15 @@ void GameScene::beginContact(b2Contact *contact)
             CULog("HIT SPIKE");
             setFailure(true);
         }
+    }
 
-        // If we collide with a treasure, we pick it up
-        if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
-            (bd1->getName() == "treasure" && bd2 == _avatar.get()))
+    // If we collide with a treasure, we pick it up
+    if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
+        (bd1->getName() == "treasure" && bd2 == _avatar.get()))
+    {
+        if (!_avatar->_hasTreasure)
         {
-            if (!_avatar->_hasTreasure)
-            {
-                _avatar->gainTreasure(_treasure);
-            }
+            _avatar->gainTreasure(_treasure);
         }
     }
 }
