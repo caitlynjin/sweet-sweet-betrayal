@@ -418,7 +418,11 @@ void GameScene::reset() {
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        _inventoryButtons[i]->activate();
+    }
     _readyButton->setVisible(true);
+    _itemsPlaced = 0;
 
     populate();
 }
@@ -713,7 +717,7 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
@@ -722,6 +726,7 @@ void GameScene::update(float timestep) {
             _gridManager->setSpriteInvisible();
         } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
@@ -792,15 +797,23 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
-        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED && _itemsPlaced == 0){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
+
+            if (_itemsPlaced >= 1) {
+                for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+                    _inventoryButtons[i]->deactivate();
+                }
+            }
+
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {

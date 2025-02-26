@@ -112,7 +112,9 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
-      
+    /** The number of items currently placed */
+    int _itemsPlaced = 0;
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
