@@ -63,7 +63,7 @@ using namespace cugl::audio;
 /** The goal door position */
 float GOAL_POS[] = { 18.0f, 1.5f };
 /** The initial position of the dude */
-float DUDE_POS[] = { 2.5f, 7.0f};
+float DUDE_POS[] = { 2.5f, 1.0f};
 
 /** The initial position of the treasure */
 float TREASURE_POS[] = { 5.5f, 1.5f};
