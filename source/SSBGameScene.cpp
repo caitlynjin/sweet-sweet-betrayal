@@ -1146,7 +1146,7 @@ void GameScene::preUpdate(float dt)
             addChild(_pathNode2);
             _slingInProgress = false;
             Vec2 origPos(screenToWorldCoords(_input.originalPosition).x * 20 / 1024, screenToWorldCoords(_input.originalPosition).y * 12 / 576);
-            _avatar->getBody()->ApplyLinearImpulseToCenter(b2Vec2((origPos - coords).x, (origPos - coords).y), true);
+            _avatar->getBody()->ApplyLinearImpulseToCenter(b2Vec2((origPos - coords).x * 2.5f, (origPos - coords).y * 2.5f), true);
             // This causes a sliding issue if you launch horizontally.
             // But if you remove it, the damping code (vel.x = 0) will take effect immediately.
             // That breaks the sling.
@@ -1184,11 +1184,11 @@ void GameScene::preUpdate(float dt)
         addChild(_pathNode);
 
         _pathNode2 = cugl::scene2::PathNode::allocWithPath(_trajectoryPath, 5);
-        removeChild(getChildByName("trajectory2"));
+        //removeChild(getChildByName("trajectory2"));
         _pathNode2->setAnchor(Vec2::ANCHOR_CENTER);
         _pathNode2->setPosition(origPos + (origPos - finalPos) / 2.0f);
         _pathNode2->setName("trajectory2");
-        addChild(_pathNode2);
+        //addChild(_pathNode2);
         
         /*PolygonObstacle polyOb;
         std::shared_ptr<cugl::physics2::PolygonObstacle> _center = polyOb.alloc(copy);
