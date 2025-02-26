@@ -12,6 +12,7 @@
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
+#include "WindObstacle.h"
 
 #include <ctime>
 #include <string>
@@ -96,6 +97,10 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define GOAL_TEXTURE    "goal"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+/** Name of the wind object(for identification)*/
+#define WIND_NAME "gust"
 /** The name of a platform (for object identification) */
 #define PLATFORM_NAME   "platform"
 /** The font for victory/failure messages */
@@ -130,6 +135,7 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define RIGHT_IMAGE     "dpad_right"
 /** The image for the ready button */
 #define READY_BUTTON    "ready_button"
+
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
@@ -512,6 +518,22 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
 }
 
 /**
+* Creates a new windobstacle
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, image->getSize() / _scale , gust);
+
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+
+    addObstacle(wind->getObstacle(), sprite);  // All walls share the same texture
+    _objects.push_back(wind);
+
+}
+
+/**
  * Lays out the game geography.
  *
  * Pay close attention to how we attach physics objects to a scene graph.
@@ -605,8 +627,11 @@ void GameScene::populate() {
 //        sprite = scene2::PolygonNode::allocWithTexture(image,platform);
 //        addObstacle(platobj,sprite,1);
 //    }
+#pragma mark: Wind
+    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
+
     Vec2 dudePos = DUDE_POS;
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     image = _assets->get<Texture>(DUDE_TEXTURE);
@@ -643,7 +668,7 @@ void GameScene::populate() {
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
 //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
-
+    
     
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
@@ -759,6 +784,7 @@ void GameScene::update(float timestep) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
+        
     }
     for (auto& obj : _objects) {
         obj -> update(timestep);
@@ -838,6 +864,18 @@ void GameScene::preUpdate(float dt) {
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+
+        if (_avatar->isGrounded()) {
+            _input.setGlide(false);
+        }
+        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
+        if (_input.isRightDown() && _input.canGlide()) {
+
+            _avatar->setGlide(true);
+        }
+        else {
+            _avatar->setGlide(false);
         }
     }
     
@@ -1020,6 +1058,18 @@ void GameScene::beginContact(b2Contact* contact) {
         CULog("HIT SPIKE");
         setFailure(true);
     }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        setFailure(true);
+    }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _avatar.get())) {
+        //CULog("WIND");
+        _avatar->addWind(Vec2(0,6));
+    }
+    
     
     // If we collide with a treasure, we pick it up
     if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
@@ -1057,6 +1107,8 @@ void GameScene::endContact(b2Contact* contact) {
             _avatar->setGrounded(false);
         }
     }
+
+    
 }
 
 #pragma mark -
