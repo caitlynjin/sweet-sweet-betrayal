@@ -246,12 +246,11 @@ void DudeModel::applyForce()
             b2Vec2 vel = _body->GetLinearVelocity();
             vel.x = 0; // If you set y, you will stop a jump in place
             _body->SetLinearVelocity(vel);
-        }
-        else
-        {
-            // Damping factor in the air
-            b2Vec2 force(-getDamping() * getVX(), 0);
-            _body->ApplyForce(force, _body->GetPosition(), true);
+        } else {
+            // Damping factor in the air 
+            // I REMOVED THIS to make slinging functional.
+            //b2Vec2 force(-getDamping()*getVX(),0);
+            //_body->ApplyForce(force,_body->GetPosition(),true);
         }
     }
 
