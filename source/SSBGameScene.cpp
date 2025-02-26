@@ -417,6 +417,8 @@ void GameScene::reset() {
       
     setFailure(false);
     setComplete(false);
+    setBuildingMode(true);
+
     populate();
 }
 
