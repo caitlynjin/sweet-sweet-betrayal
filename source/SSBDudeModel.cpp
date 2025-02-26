@@ -65,7 +65,7 @@
 /** The density of the character */
 #define DUDE_DENSITY    1.0f
 /** The impulse for the character jump */
-#define DUDE_JUMP       5.5f
+#define DUDE_JUMP       2.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR     Color4::RED
 
@@ -107,12 +107,16 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
         _isShooting = false;
         _isJumping  = false;
         _faceRight  = true;
+        _isgliding = false;
         
         _shootCooldown = 0;
         _jumpCooldown  = 0;
+        _glidedelay = 0.2;
+        _glidetimer = 0;
         return true;
     }
     return false;
+   
 }
 
 
@@ -233,11 +237,23 @@ void DudeModel::applyForce() {
     }
     
     // Velocity too high, clamp it
-    if (fabs(getVX()) >= getMaxSpeed()) {
+    if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
+        
         setVX(SIGNUM(getVX())*getMaxSpeed());
+        CULog("Hit limit!");
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
+        //Reduce friction in air.
+        if (_isgliding) {
+            force.operator*=(-0.5);
+            _body->ApplyForce(force, _body->GetPosition(), true);
+            //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        }
+        
+    }
+    if (_isgliding) {
+        
     }
     
     // Jump!
@@ -255,6 +271,8 @@ void DudeModel::applyForce() {
  * @param delta Number of seconds since last animation frame
  */
 void DudeModel::update(float dt) {
+    //Check whether we are in glid mode
+    glideUpdate(dt);
     // Apply cooldowns
     if (isJumping()) {
         _jumpCooldown = JUMP_COOLDOWN;
@@ -275,6 +293,39 @@ void DudeModel::update(float dt) {
         _node->setPosition(getPosition()*_drawScale);
         _node->setAngle(getAngle());
     }
+
+    
+    // If the player has a treasure, update the position of the treasure such that
+    // it follows the player
+    if (_treasure != nullptr){
+        _treasure->setPosition(getPosition());
+    }
+
+
+    
+}
+//Based on the player motion, check if we are falling.
+//If the player is falling for more than the glidetimer, set player into glide mode
+//once player is grounded, turn off glidemode.
+
+void DudeModel::glideUpdate(float dt) {
+    b2Vec2 motion = _body->GetLinearVelocity();
+
+    if (!_isgliding) {
+        if (motion.y < 0) {
+            _glidetimer += dt;
+        }
+        if (_glidetimer >= _glidedelay) {
+            _isgliding = true;
+            _body->SetLinearDamping(15);
+        }
+    }
+    if (isGrounded()) {
+            _isgliding = false;
+            _glidetimer = 0;
+            _body->SetLinearDamping(0);
+    }
+
 }
 
 

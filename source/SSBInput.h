@@ -39,6 +39,18 @@
  * in the constructor.
  */
 class PlatformInput {
+public:
+    /**
+     * The status of the inventory.
+     */
+    enum InventoryStatus {
+        /** Waiting for an item to be selected */
+        WAITING,
+        /** Dragging an item */
+        PLACING,
+        /** Placed an item in a grid */
+        PLACED
+    };
 private:
     /** Whether or not this input is active */
     bool _active;
@@ -66,7 +78,9 @@ private:
 public: 
     cugl::Vec2 originalPosition;
     cugl::Vec2 finalPosition;
-  
+    bool _touchDown;
+
+
 protected:
     // INPUT RESULTS
     /** Whether the reset action was chosen. */
@@ -81,6 +95,14 @@ protected:
     bool _jumpPressed;
     /** How much did we move horizontally? */
     float _horizontal;
+    /** Touch position on screen */
+    cugl::Vec2 _touchPosForDrag;
+    
+    // INVENTORY
+    /** Whether the player is placing an item in build mode */
+    InventoryStatus _inventoryStatus;
+    /** The screen position of the placed item */
+    cugl::Vec2 _placedPos;
 
 #pragma mark Internal Touch Management   
 	// The screen is divided into four zones: Left, Bottom, Right and Main/
@@ -203,6 +225,26 @@ protected:
 	int processSwipe(const cugl::Vec2 start, const cugl::Vec2 stop, cugl::Timestamp current);
   
 public:
+    
+    /**
+     * Returns the state of the inventory.
+     *
+     * @return the state of the inventory
+     */
+    InventoryStatus getInventoryStatus() { return _inventoryStatus; }
+    
+    /**
+     *
+     */
+    void setInventoryStatus(InventoryStatus status) { _inventoryStatus = status; }
+    
+    /**
+     * Returns the screen position that the most recently selected item should be placed at.
+     *
+     * @return the screen position to place the selected item
+     */
+    cugl::Vec2 getPlacedPos() { return _placedPos; }
+    
 #pragma mark -
 #pragma mark Constructors
     /**
@@ -238,6 +280,14 @@ public:
      * @return true if the controller was initialized successfully
      */
     bool init(const cugl::Rect bounds);
+
+    /**
+     * Returns the scene coordinate of the last position on drag
+     *
+     * @return the location of the last touch drag position
+     */
+    cugl::Vec2 getPosOnDrag(){ return _touchPosForDrag; }
+    
     
 #pragma mark -
 #pragma mark Input Detection
@@ -349,6 +399,13 @@ public:
      * @return the scene graph position of the virtual joystick
      */
     cugl::Vec2 getJoystick() const { return _joycenter; }
+
+    /**
+     * Returns true if touch is down
+     *
+     * @return true if touch is down
+     */
+    bool isTouchDown() const { return _touchDown; }
 
 #pragma mark -
 #pragma mark Touch and Mouse Callbacks

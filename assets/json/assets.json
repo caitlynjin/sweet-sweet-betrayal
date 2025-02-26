@@ -6,12 +6,13 @@
             "wrapT": "repeat"
         },
         "spike": {
-            "file": "textures/spiketile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/Spike2.png"
         },
         "dude": {
             "file":     "textures/dude.png"
+        },
+        "treasureGreen": {
+            "file":     "textures/treasureGreen2.png"
         },
         "spinner": {
             "file":     "textures/barrier.png"
@@ -35,6 +36,9 @@
                 "left" : [0,   128, 127, 255],
                 "right": [128, 128, 255, 255]
             }
+        },
+        "ready_button": {
+            "file":     "textures/ready_button.png"
         }
 	},
     "sounds": {
