@@ -114,6 +114,12 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
+    /** The total amount of rounds */
+    int const TOTAL_ROUNDS = 5;
+    /** The total amount of gems */
+    int const TOTAL_GEMS = 3;
+    /** The current round the player is on */
+    int _currRound = 1;
       
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
@@ -328,6 +334,13 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
+    
+    /**
+    * Sets the level up for the next round.
+    *
+    * When called, the level will reset after a countdown.
+    */
+    void nextRound();
 
      /**
      * Sets whether mode is in building or play mode.

@@ -240,7 +240,7 @@ void DudeModel::applyForce() {
     if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
         
         setVX(SIGNUM(getVX())*getMaxSpeed());
-        CULog("Hit limit!");
+//        CULog("Hit limit!");
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);

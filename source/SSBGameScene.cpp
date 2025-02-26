@@ -850,6 +850,9 @@ void GameScene::preUpdate(float dt) {
 
     
 //    _treasure->update(dt);
+    
+    // REMOVE ONCE UI IS IN
+    CULog("Round: %d / 5", _currRound);
 
 }
 
@@ -955,6 +958,12 @@ void GameScene::setComplete(bool value) {
 void GameScene::setFailure(bool value) {
     _failed = value;
     if (value) {
+        // If next round available, do not fail
+        if (_currRound < TOTAL_ROUNDS){
+            nextRound();
+            return;
+        }
+        
         std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
         AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
         _losenode->setVisible(true);
@@ -963,6 +972,26 @@ void GameScene::setFailure(bool value) {
         _losenode->setVisible(false);
         _countdown = -1;
     }
+}
+
+/**
+* Sets the level up for the next round.
+*
+* When called, the level will reset after a countdown.
+*
+*/
+void GameScene::nextRound() {
+    // Increment round
+    _currRound += 1;
+    
+    // Return to building mode
+    setBuildingMode(true);
+    
+    // Reset player properties
+    _avatar->setPosition(DUDE_POS);
+    _avatar->removeTreasure();
+    
+    // Set up next treasure if collected in prev round
 }
 
 /**
@@ -1020,7 +1049,6 @@ void GameScene::beginContact(b2Contact* contact) {
     // If we hit a spike, we are DEAD
     if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _avatar.get())) {
-        CULog("HIT SPIKE");
         setFailure(true);
     }
     

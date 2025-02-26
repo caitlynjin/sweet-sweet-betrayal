@@ -340,7 +340,6 @@ public:
      * Puts the treasure in this player's posession such that they now have ownership over it.
      */
     void gainTreasure(const std::shared_ptr<Treasure>& treasure){
-        CULog("Treasure gained");
         _hasTreasure = true;
         _treasure = treasure;
     };
@@ -350,7 +349,7 @@ public:
      *
      * Removes the treasure from this player's posession.
      */
-    void removeTreasure(const std::shared_ptr<Treasure>& treasure){
+    void removeTreasure(){
         _hasTreasure = false;
         _treasure = nullptr;
     };
