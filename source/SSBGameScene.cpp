@@ -298,6 +298,14 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
 
     initInventory();
 
+    // Set the darkened overlay
+    _inventoryOverlay = scene2::PolygonNode::alloc();
+    _inventoryOverlay->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
+    _inventoryOverlay->setContentSize(Size(_size.width*0.18, _size.height*0.8));
+    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay->setVisible(false);
+    addChild(_inventoryOverlay);
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
@@ -349,7 +357,15 @@ void GameScene::dispose() {
 void GameScene::initInventory(){
     std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
     std::vector<std::string> assetNames = {EARTH_TEXTURE, SPIKE_TEXTURE};
-    
+
+    // Set the background
+    _inventoryBackground = scene2::PolygonNode::alloc();
+    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
+    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
+    _inventoryBackground->setColor(Color4::PAPYRUS);
+    _inventoryBackground->setVisible(true);
+    addChild(_inventoryBackground);
+
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
@@ -370,7 +386,6 @@ void GameScene::initInventory(){
         addChild(itemButton);
         yOffset += 80;
     }
-        
 }
 
 /**
@@ -424,7 +439,12 @@ void GameScene::reset() {
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        _inventoryButtons[i]->activate();
+    }
+    _inventoryOverlay->setVisible(false);
     _readyButton->setVisible(true);
+    _itemsPlaced = 0;
 
     populate();
 }
@@ -738,7 +758,7 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
@@ -747,6 +767,7 @@ void GameScene::update(float timestep) {
             _gridManager->setSpriteInvisible();
         } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
@@ -818,15 +839,24 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
-        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED && _itemsPlaced == 0){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
+
+            if (_itemsPlaced >= 1) {
+                for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+                    _inventoryButtons[i]->deactivate();
+                }
+            }
+
+            _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
@@ -1012,6 +1042,8 @@ void GameScene::setBuildingMode(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++) {
         _inventoryButtons[i]->setVisible(value);
     }
+    _inventoryOverlay->setVisible(value);
+    _inventoryBackground->setVisible(value);
 }
 
 

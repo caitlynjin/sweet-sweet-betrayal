@@ -82,6 +82,10 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+    /** Reference to the background of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
+    /** Reference to the overlay of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -113,7 +117,9 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
-      
+    /** The number of items currently placed */
+    int _itemsPlaced = 0;
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
