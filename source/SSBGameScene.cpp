@@ -282,7 +282,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     _readyButton->setPosition(_size.width*0.91f,_size.height*0.1f);
     _readyButton->activate();
     _readyButton->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (down && _buildingMode) {
             setBuildingMode(!_buildingMode);
             _readyButton->setVisible(false);
         }
@@ -418,6 +418,7 @@ void GameScene::reset() {
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    _readyButton->setVisible(true);
 
     populate();
 }
