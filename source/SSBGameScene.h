@@ -75,8 +75,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
-    /** Reference to the edit button */
-    std::shared_ptr<cugl::scene2::Button> _editbutton;
+    /** Reference to the ready button */
+    std::shared_ptr<cugl::scene2::Button> _readyButton;
     /** Reference to build mode inventory buttons */
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */

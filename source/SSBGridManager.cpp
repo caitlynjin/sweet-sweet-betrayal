@@ -42,6 +42,9 @@ void GridManager::initGrid() {
         }
     }
 
+    // Set grid to be shown initially
+    _grid->setVisible(true);
+
     // TODO: Remove later, testing with adding a sprite node to a cell
     Vec2 cellPos(3 * 1, 3 * 1);
 
