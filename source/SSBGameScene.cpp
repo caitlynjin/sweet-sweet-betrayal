@@ -525,11 +525,10 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
 void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, image->getSize() / _scale , gust);
-    Poly2 WindObstacle(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    addObstacle(wind->getObstacle(), sprite, 1);  // All walls share the same texture
+    addObstacle(wind->getObstacle(), sprite);  // All walls share the same texture
     _objects.push_back(wind);
 
 }
@@ -629,7 +628,7 @@ void GameScene::populate() {
 //        addObstacle(platobj,sprite,1);
 //    }
 #pragma mark: Wind
-    createWindObstacle(Vec2(2, 1.5), Size(1, 1), Vec2(0, 10));
+    createWindObstacle(Vec2(2, 1), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
 
