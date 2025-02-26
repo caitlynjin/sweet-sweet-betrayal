@@ -110,9 +110,11 @@ protected:
     int _countdown;
     /** Whether we are in build mode */
     bool _buildingMode;
-    /** The selected item in build mode */
+    /** The selected item in build mode (new object) */
     Item _selectedItem;
-      
+    /** The selected object in build mode (object being moved) */
+    std::shared_ptr<Object> _selectedObject;
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
@@ -131,12 +133,16 @@ protected:
     */
     void createTreasure(Vec2 pos, Size size);
 
-    /** Creates a platform.
-    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
-    * @param size The size of the platform in Box2D coordinates.
-    */
-
-    void createPlatform(Vec2 pos, Size size);
+    /**
+     * Creates a new platform.
+     *
+     * @return the platform being created
+     *
+     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+     * @param size The dimensions (width, height) of the platform.
+     */
+    std::shared_ptr<Object> createPlatform(Vec2 pos, Size size);
+    
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
@@ -258,11 +264,13 @@ public:
     /**
      * Creates an item of type item and places it at the grid position.
      *
+     * @return the object being placed
+     *
      * @param gridPos   The grid position to place the item at
      * @param item  The type of the item to be placed/created
      */
-    void placeItem(Vec2 gridPos, Item item);
-    
+    std::shared_ptr<Object> placeItem(Vec2 gridPos, Item item);
+
     /**
      * Returns the corresponding asset name to the item.
      *

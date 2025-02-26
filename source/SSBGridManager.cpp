@@ -80,3 +80,41 @@ void GridManager::setObject(Vec2 cellPos, std::shared_ptr<Texture> texture){
 void GridManager::setSpriteInvisible(){
     _spriteNode->setVisible(false);
 }
+
+#pragma mark -
+#pragma mark Object Handling
+
+/**
+ * Adds the object to the object map to this location.
+ *
+ *@param cellPos    the cell position
+ *@param obj    the object
+ */
+void GridManager::addObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
+    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+    objectMap[posPair] = obj;
+};
+
+/**
+ * Removes the object from the object map, if it exists.
+ *
+ *@return   the object removed, or `nullptr` if it does not exist.
+ *
+ *@param cellPos    the cell position
+ *@param col    the cell column to add the object to
+ */
+std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
+    // Find object in object map
+    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+
+    auto it = objectMap.find(posPair);
+    if (it == objectMap.end()) {
+//        CULog("Unable to find object");
+        return nullptr;
+    }
+
+//    CULog("Returned object");
+    std::shared_ptr<Object> obj = it->second;
+    objectMap.erase(it);
+    return obj;
+};

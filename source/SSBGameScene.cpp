@@ -370,16 +370,20 @@ void GameScene::initInventory(){
 /**
  * Creates an item of type item and places it at the grid position.
  *
+ *@return the object being placed and created
+ *
  * @param gridPos   The grid position to place the item at
  * @param item  The type of the item to be placed/created
  */
-void GameScene::placeItem(Vec2 gridPos, Item item){
+std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item){
     switch (item){
         case (PLATFORM):
-            createPlatform(gridPos, Size(1,1));
+            return createPlatform(gridPos, Size(1,1));
             break;
         case (SPIKE):
             createSpike(gridPos, Size(1,1), _scale);
+            // TODO: Fix this
+            return nullptr;
             break;
     }
 }
@@ -424,11 +428,14 @@ void GameScene::reset() {
 }
 
 /** 
-* Creates a new platform.
-* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
-* @param size The dimensions (width, height) of the platform.
-*/
-void GameScene::createPlatform(Vec2 pos, Size size) {
+ * Creates a new platform.
+ *
+ * @return the platform being created
+ *
+ * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+ * @param size The dimensions (width, height) of the platform.
+ */
+std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(EARTH_TEXTURE);
     std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
     Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
@@ -453,7 +460,8 @@ void GameScene::createPlatform(Vec2 pos, Size size) {
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     addObstacle(plat->getObstacle(), sprite, 1);  // All walls share the same texture
     _objects.push_back(plat);
-    
+
+    return plat;
 }
 /**
  * Creates a moving platform.
@@ -713,17 +721,17 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
-            _gridManager->setSpriteInvisible();
-        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
-            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
-            _input.setInventoryStatus(PlatformInput::WAITING);
-        }
+//        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+//            Vec2 screenPos = _input.getPosOnDrag();
+//            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+//
+//            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+//        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+//            _gridManager->setSpriteInvisible();
+//        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+//            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+//            _input.setInventoryStatus(PlatformInput::WAITING);
+//        }
     } else {
         // Process the toggled key commands
         if (_input.didDebug()) { setDebug(!isDebug()); }
@@ -796,11 +804,42 @@ void GameScene::preUpdate(float dt) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-        } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
+            if (_selectedObject) {
+                _selectedObject->setPosition(gridPos);
+            } else {
+                _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+            }
+        } else if (_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
-        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
-            placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+
+            // Attempt to move object that exists on the grid
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+
+            std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+
+            // If object exists
+            if (obj) {
+                // Delete the old object
+//                obj->dispose();
+//                obj.reset();
+//                obj = nullptr;
+//                CULog("pointers on object: %d", obj.use_count());
+
+                _selectedObject = obj;
+                _input.setInventoryStatus(PlatformInput::PLACING);
+            }
+        } else if (_input.getInventoryStatus() == PlatformInput::PLACED) {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+
+            if (_selectedObject) {
+//                _selectedObject = nullptr;
+            } else {
+                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+                _gridManager->addObject(gridPos, obj);
+            }
+
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
