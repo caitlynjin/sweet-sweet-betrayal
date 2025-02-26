@@ -23,6 +23,12 @@
         "spike": {
             "file": "textures/Spike2.png"
         },
+        "gemEmpty": {
+            "file": "textures/strawberryTransparent.png"
+        },
+        "gemFull": {
+            "file": "textures/strawberry.png"
+        },
         "dude": {
             "file":     "textures/dude.png"
         },
@@ -101,7 +107,14 @@
 		"retro": {
 			"file":     "fonts/RetroGame.ttf",
 			"size":     64
-		}
+		},
+        "marker": {
+            "file":     "fonts/MarkerFelt.ttf",
+            "size":     64
+        }
 
 	}
+ 
+    
+    
 }

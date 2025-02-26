@@ -65,7 +65,7 @@
 /** The density of the character */
 #define DUDE_DENSITY 1.0f
 /** The impulse for the character jump */
-#define DUDE_JUMP 8.25f
+#define DUDE_JUMP 11.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /**How much the player speed should be dampened during gliding*/
@@ -101,6 +101,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
     nsize.width *= DUDE_HSHRINK;
     nsize.height *= DUDE_VSHRINK;
     _drawScale = scale;
+
 
     if (CapsuleObstacle::init(pos, nsize))
     {

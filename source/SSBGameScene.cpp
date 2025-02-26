@@ -62,12 +62,15 @@ using namespace cugl::audio;
 // };
 
 /** The goal door position */
-float GOAL_POS[] = {18.0f, 1.5f};
+float GOAL_POS[] = {18.0f, 2.0f};
 /** The initial position of the dude */
-float DUDE_POS[] = {2.5f, 7.0f};
+
+float DUDE_POS[] = { 2.5f, 2.0f};
 
 /** The initial position of the treasure */
-float TREASURE_POS[] = {5.5f, 1.5f};
+float TREASURE_POS[3][2] = { {9.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
+
+
 
 float SPIKE_POS[] = {5.5f, 1.5f};
 
@@ -111,7 +114,10 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** The name of a platform (for object identification) */
 #define PLATFORM_NAME "platform"
 /** The font for victory/failure messages */
-#define MESSAGE_FONT "retro"
+#define MESSAGE_FONT    "retro"
+/** The font for Round and Gem info */
+#define INFO_FONT    "marker"
+
 /** The message for winning the game */
 #define WIN_MESSAGE "VICTORY!"
 /** The color of the win message */
@@ -119,7 +125,9 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** The message for losing the game */
 #define LOSE_MESSAGE "FAILURE!"
 /** The color of the lose message */
-#define LOSE_COLOR Color4::RED
+#define LOSE_COLOR      Color4::RED
+/** The color of the info labels */
+#define INFO_COLOR      Color4::WHITE
 /** The key the basic game music */
 #define GAME_MUSIC "game"
 /** The key the victory game music */
@@ -137,7 +145,11 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** The volume for sound effects */
 #define EFFECT_VOLUME 0.8f
 /** The image for the left dpad/joystick */
-#define LEFT_IMAGE "dpad_left"
+#define LEFT_IMAGE      "dpad_left"
+/** The image for the empty gem */
+#define EMPTY_IMAGE      "gemEmpty"
+/** The image for the full gem */
+#define FULL_IMAGE      "gemFull"
 /** The image for the right dpad/joystick */
 #define RIGHT_IMAGE "dpad_right"
 /** The image for the ready button */
@@ -157,12 +169,14 @@ float SPIKE_POS[] = {5.5f, 1.5f};
  * This allows us to use a controller without a heap pointer.
  */
 GameScene::GameScene() : Scene2(),
-                         _worldnode(nullptr),
-                         _debugnode(nullptr),
-                         _world(nullptr),
-                         _avatar(nullptr),
-                         _complete(false),
-                         _debug(false)
+    _worldnode(nullptr),
+    _debugnode(nullptr),
+    _world(nullptr),
+    _avatar(nullptr),
+_treasure(nullptr),
+    _complete(false),
+    _debug(false)
+
 {
 }
 
@@ -283,11 +297,29 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _winnode->setForeground(WIN_COLOR);
     setComplete(false);
 
+
     _losenode = scene2::Label::allocWithText(LOSE_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _losenode->setAnchor(Vec2::ANCHOR_CENTER);
     _losenode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
+    
+    
+    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+    _roundsnode->setForeground(INFO_COLOR);
+    _roundsnode->setVisible(true);
+    
+    float distance = _size.width * .05;
+    for (int i = 0; i < TOTAL_GEMS; i++){
+        std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
+        scoreNode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
+        scoreNode->setPosition(_size.width * .15 + (i*distance),_size.height * .9);
+        scoreNode->setScale(0.1f);
+        scoreNode->setVisible(true);
+        _scoreImages.push_back(scoreNode);
+    }
 
     _leftnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_IMAGE));
     _leftnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_RIGHT);
@@ -310,7 +342,9 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         if (down && _buildingMode) {
             setBuildingMode(!_buildingMode);
             _readyButton->setVisible(false);
-        } });
+        }
+    });
+
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
@@ -330,10 +364,15 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
+    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_readyButton);
     addChild(_gridManager->getGridNode());
+    
+    for (auto score : _scoreImages){
+        addChild(score);
+    }
 
     populate();
 
@@ -360,12 +399,17 @@ void GameScene::dispose()
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
+        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
         _readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
+        for (auto score : _scoreImages){
+            score = nullptr;
+        }
+        
         Scene2::dispose();
     }
 }
@@ -471,10 +515,15 @@ void GameScene::reset()
         _world->removeObstacle(_growingWall);
         _worldnode->removeChild(_growingWallNode);
     }
+    
     _growingWall = nullptr;
     _growingWallNode = nullptr;
     _growingWallWidth = 0.1f;
     _treasure = nullptr;
+
+    _currRound = 1;
+    _died = false;
+    _reachedGoal = false;
 
     setFailure(false);
     setComplete(false);
@@ -577,10 +626,10 @@ void GameScene::updateGrowingWall(float timestep)
 
     // Create a new polygon for the wall
     Poly2 wallPoly;
-    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT));
+    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT*.80));
     wallPoly.vertices.push_back(Vec2(0, 0));
     wallPoly.vertices.push_back(Vec2(_growingWallWidth, 0));
-    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT));
+    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT*.80));
 
     EarclipTriangulator triangulator;
     triangulator.set(wallPoly.vertices);
@@ -627,6 +676,19 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
     spk->setSceneNode(sprite, angle);
     addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
+}
+
+void GameScene::createTreasure(Vec2 pos, Size size){
+    std::shared_ptr<Texture> image;
+    std::shared_ptr<scene2::PolygonNode> sprite;
+    Vec2 treasurePos = pos;
+    image = _assets->get<Texture>("treasure");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure->getObstacle(),sprite);
+    _treasure->getObstacle()->setName("treasure");
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
 }
 
 /**
@@ -743,7 +805,7 @@ void GameScene::populate()
 //         addObstacle(platobj,sprite,1);
 //     }
 #pragma mark : Wind
-    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
+//    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
 
@@ -766,7 +828,7 @@ void GameScene::populate()
     createSpike(Vec2(18, 4), Size(1, 1), _scale);
     createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
     createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(5, 6), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
+    createSpike(Vec2(5, 5), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
     
 #pragma mark : Walls
     createPlatform(Vec2(0, 0), Size(6, 1), true);
@@ -777,20 +839,15 @@ void GameScene::populate()
     createPlatform(Vec2(1, 9), Size(18, 1), true);
     createPlatform(Vec2(17, 3), Size(2, 1), true);
     createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(3, 6), Size(2, 1), true);
+    createPlatform(Vec2(3, 5), Size(2, 1), true);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
 #pragma mark : Treasure
-    Vec2 treasurePos = TREASURE_POS;
-    image = _assets->get<Texture>(TREASURE_TEXTURE);
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(), sprite);
-    _treasure->getObstacle()->setName("treasure");
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1,1));
+
 
     // Play the background music on a loop.
     // TODO: Uncomment for music
@@ -912,10 +969,13 @@ void GameScene::update(float timestep)
             _leftnode->setVisible(false);
             _rightnode->setVisible(false);
         }
+        
 
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
         _avatar->setJumping(_input.didJump());
         _avatar->applyForce();
+    
+        
 
         if (_avatar->isJumping() && _avatar->isGrounded())
         {
@@ -929,8 +989,12 @@ void GameScene::update(float timestep)
         obj->update(timestep);
     }
 
+
     // Turn the physics engine crank.
+
     _world->update(timestep);
+    
+    
 }
 
 /**
@@ -959,6 +1023,14 @@ void GameScene::preUpdate(float dt)
 
     if (_buildingMode)
     {
+        if (_itemsPlaced == 0){
+            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+            {
+                _inventoryButtons[i]->activate();
+                _inventoryOverlay->setVisible(false);
+            }
+        }
+        
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0)
         {
             Vec2 screenPos = _input.getPosOnDrag();
@@ -1055,7 +1127,12 @@ void GameScene::preUpdate(float dt)
         {
             _avatar->setGlide(false);
         }
+        
+        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+            (*it)->update(dt);
+        }
     }
+
 
     for (auto it = _objects.begin(); it != _objects.end(); ++it)
     {
@@ -1067,7 +1144,6 @@ void GameScene::preUpdate(float dt)
         updateGrowingWall(dt);
     }
 
-    //    _treasure->update(dt);
 }
 
 /**
@@ -1099,7 +1175,10 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    _world->update(step);
+    if (!_buildingMode){
+        _world->update(step);
+    }
+    
 }
 
 /**
@@ -1133,6 +1212,14 @@ void GameScene::postUpdate(float remain)
     if (!_failed && _avatar->getY() < 0)
     {
         setFailure(true);
+    }
+    
+    if (!_failed && _died){
+        setFailure(true);
+    }
+    
+    if(_reachedGoal){
+        nextRound(true);
     }
 
     // Reset the game if we win or lose.
@@ -1178,11 +1265,18 @@ void GameScene::setComplete(bool value)
  *
  * @param value whether the level is failed.
  */
-void GameScene::setFailure(bool value)
-{
-    _failed = value;
-    if (value)
-    {
+void GameScene::setFailure(bool value) {
+    if (value) {
+        // If next round available, do not fail
+        if (_currRound < TOTAL_ROUNDS){
+            if (_avatar->_hasTreasure){
+                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
+            }
+            
+            nextRound();
+            return;
+        }
+        
         std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
         AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
         _losenode->setVisible(true);
@@ -1193,6 +1287,78 @@ void GameScene::setFailure(bool value)
         _losenode->setVisible(false);
         _countdown = -1;
     }
+    _failed = value;
+}
+
+/**
+* Sets the level up for the next round.
+*
+* When called, the level will reset after a countdown.
+*
+*/
+void GameScene::nextRound(bool reachedGoal) {
+    // Check if player won before going to next round
+    if (reachedGoal){
+        if(_avatar->_hasTreasure){
+            _avatar->removeTreasure();
+            // Increment total treasure collected
+            _currGems += 1;
+            // Update score image
+            _scoreImages.at(_currGems-1)->setTexture(_assets->get<Texture>(FULL_IMAGE));
+            
+            // Check if player won
+            if (_currGems == TOTAL_GEMS){
+                setComplete(true);
+                return;
+            }
+            else{
+                // Set up next treasure if collected in prev round
+                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
+            }
+
+        }
+    }
+    
+    // Check if player lost
+    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
+        setFailure(true);
+        return;
+    }
+    
+    // Increment round
+    _currRound += 1;
+    // Update text
+//    _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+
+    // FIND BETTER SOLUTION LATER
+    removeChild(_roundsnode);
+    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+    _roundsnode->setForeground(INFO_COLOR);
+    _roundsnode->setVisible(true);
+    addChild(_roundsnode);
+    
+    setFailure(false);
+    
+    // Reset player properties
+    _avatar->setPosition(Vec2(DUDE_POS));
+    _avatar->removeTreasure();
+    _died = false;
+    _reachedGoal = false;
+    
+    // Reset growing wall
+    _growingWallWidth = 0.1f;
+    _growingWallNode->setVisible(false);
+
+    
+    // Return to building mode
+    _readyButton->setVisible(true);
+    _itemsPlaced = 0;
+    setBuildingMode(true);
+    
+    
+    
 }
 
 /**
@@ -1248,23 +1414,25 @@ void GameScene::beginContact(b2Contact *contact)
     }
 
     // If we hit the "win" door, we are done
-    if ((bd1 == _avatar.get() && bd2 == _goalDoor.get()) ||
-        (bd1 == _goalDoor.get() && bd2 == _avatar.get()))
-    {
-        setComplete(true);
+    if((bd1 == _avatar.get()   && bd2 == _goalDoor.get()) ||
+        (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
+        _reachedGoal = true;
+        
     }
+    // If we hit a spike, we are DEAD
+    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        //        setFailure(true);
+        _died = true;
+    }
+
 
     // If the player collides with the growing wall, game over
     if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
         (bd1 == _growingWall.get() && bd2 == _avatar.get()))
     {
-        setFailure(true);
-    }
+        _died = true;
 
-    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
-        (bd1->getName() == "spike" && bd2 == _avatar.get()))
-    {
-        setFailure(true);
     }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
@@ -1285,8 +1453,7 @@ void GameScene::beginContact(b2Contact *contact)
         if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
             (bd1->getName() == "spike" && bd2 == _avatar.get()))
         {
-            CULog("HIT SPIKE");
-            setFailure(true);
+            _died = true;
         }
     }
 
