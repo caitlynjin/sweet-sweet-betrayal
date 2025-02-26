@@ -16,6 +16,7 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
+#include "WindObstacle.h"
 #include "Treasure.h"
 //#include <cmath>
 
@@ -83,7 +84,10 @@ protected:
     std::shared_ptr<GridManager> _gridManager;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
-    
+    /** Reference to the background of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
+    /** Reference to the overlay of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
@@ -115,7 +119,9 @@ protected:
     bool _buildingMode;
     /** The selected item in build mode */
     Item _selectedItem;
-      
+    /** The number of items currently placed */
+    int _itemsPlaced = 0;
+
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
 
@@ -141,6 +147,9 @@ protected:
     */
 
     void createPlatform(Vec2 pos, Size size, bool wall);
+    
+    void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.

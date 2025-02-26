@@ -36,6 +36,9 @@
         "goal": {
             "file":      "textures/goaldoor.png"
         },
+        "up": {
+            "file":      "textures/up.png"
+        },
         "dpad": {
             "file":     "textures/dpad.png",
             "wrapS":     "clamp",

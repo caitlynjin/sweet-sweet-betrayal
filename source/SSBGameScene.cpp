@@ -12,6 +12,7 @@
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
+#include "WindObstacle.h"
 
 #include <ctime>
 #include <string>
@@ -102,6 +103,10 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define TREASURE_TEXTURE    "treasure"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+/** Name of the wind object(for identification)*/
+#define WIND_NAME "gust"
 /** The name of a platform (for object identification) */
 #define PLATFORM_NAME   "platform"
 /** The font for victory/failure messages */
@@ -136,6 +141,7 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define RIGHT_IMAGE     "dpad_right"
 /** The image for the ready button */
 #define READY_BUTTON    "ready_button"
+
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR     Color4::YELLOW
@@ -305,6 +311,14 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     
     initInventory();
 
+    // Set the darkened overlay
+    _inventoryOverlay = scene2::PolygonNode::alloc();
+    _inventoryOverlay->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
+    _inventoryOverlay->setContentSize(Size(_size.width*0.18, _size.height*0.8));
+    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay->setVisible(false);
+    addChild(_inventoryOverlay);
+
     addChild(_worldnode);
     addChild(_debugnode);
     addChild(_winnode);
@@ -356,7 +370,15 @@ void GameScene::dispose() {
 void GameScene::initInventory(){
     std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
     std::vector<std::string> assetNames = {PLATFORM_TEXTURE, SPIKE_TEXTURE};
-    
+
+    // Set the background
+    _inventoryBackground = scene2::PolygonNode::alloc();
+    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
+    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
+    _inventoryBackground->setColor(Color4::PAPYRUS);
+    _inventoryBackground->setVisible(true);
+    addChild(_inventoryBackground);
+
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++) {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
@@ -377,7 +399,6 @@ void GameScene::initInventory(){
         addChild(itemButton);
         yOffset += 80;
     }
-        
 }
 
 /**
@@ -431,7 +452,12 @@ void GameScene::reset() {
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+        _inventoryButtons[i]->activate();
+    }
+    _inventoryOverlay->setVisible(false);
     _readyButton->setVisible(true);
+    _itemsPlaced = 0;
 
     populate();
 }
@@ -530,6 +556,22 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle) {
 }
 
 /**
+* Creates a new windobstacle
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, image->getSize() / _scale , gust);
+
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+
+    addObstacle(wind->getObstacle(), sprite);  // All walls share the same texture
+    _objects.push_back(wind);
+
+}
+
+/**
  * Lays out the game geography.
  *
  * Pay close attention to how we attach physics objects to a scene graph.
@@ -623,8 +665,11 @@ void GameScene::populate() {
 //        sprite = scene2::PolygonNode::allocWithTexture(image,platform);
 //        addObstacle(platobj,sprite,1);
 //    }
+#pragma mark: Wind
+    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
 #pragma mark : Dude
+
     Vec2 dudePos = DUDE_POS;
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     image = _assets->get<Texture>(DUDE_TEXTURE);
@@ -661,7 +706,7 @@ void GameScene::populate() {
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
 //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
-
+    
     
 #pragma mark : Treasure
     Vec2 treasurePos = TREASURE_POS;
@@ -731,7 +776,7 @@ void GameScene::update(float timestep) {
     _input.update(timestep);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
@@ -740,6 +785,7 @@ void GameScene::update(float timestep) {
             _gridManager->setSpriteInvisible();
         } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
@@ -777,6 +823,7 @@ void GameScene::update(float timestep) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
         }
+        
     }
     for (auto& obj : _objects) {
         obj -> update(timestep);
@@ -810,15 +857,24 @@ void GameScene::preUpdate(float dt) {
     _input.update(dt);
 
     if (_buildingMode) {
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING)) {
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING) && _itemsPlaced == 0) {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         } else if(_input.getInventoryStatus() == PlatformInput::WAITING){
             _gridManager->setSpriteInvisible();
-        } else if(_input.getInventoryStatus() == PlatformInput::PLACED){
+        } else if(_input.getInventoryStatus() == PlatformInput::PLACED && _itemsPlaced == 0){
             placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+            _itemsPlaced += 1;
+
+            if (_itemsPlaced >= 1) {
+                for (size_t i = 0; i < _inventoryButtons.size(); i++) {
+                    _inventoryButtons[i]->deactivate();
+                }
+            }
+
+            _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
     } else {
@@ -856,6 +912,18 @@ void GameScene::preUpdate(float dt) {
         if (_avatar->isJumping() && _avatar->isGrounded()) {
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT,source,false,EFFECT_VOLUME);
+        }
+
+        if (_avatar->isGrounded()) {
+            _input.setGlide(false);
+        }
+        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
+        if (_input.isRightDown() && _input.canGlide()) {
+
+            _avatar->setGlide(true);
+        }
+        else {
+            _avatar->setGlide(false);
         }
     }
     
@@ -992,6 +1060,8 @@ void GameScene::setBuildingMode(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++) {
         _inventoryButtons[i]->setVisible(value);
     }
+    _inventoryOverlay->setVisible(value);
+    _inventoryBackground->setVisible(value);
 }
 
 
@@ -1038,6 +1108,18 @@ void GameScene::beginContact(b2Contact* contact) {
         CULog("HIT SPIKE");
         setFailure(true);
     }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+        setFailure(true);
+    }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _avatar.get())) {
+        //CULog("WIND");
+        _avatar->addWind(Vec2(0,6));
+    }
+    
     
     // If we collide with a treasure, we pick it up
     if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
@@ -1075,6 +1157,7 @@ void GameScene::endContact(b2Contact* contact) {
             _avatar->setGrounded(false);
         }
     }
+
 }
 
 #pragma mark -

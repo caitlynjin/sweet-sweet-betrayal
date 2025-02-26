@@ -68,6 +68,11 @@
 #define DUDE_JUMP       8.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR     Color4::RED
+/**How much the player speed should be dampened during gliding*/
+#define GLIDE_DAMPING 15.0f
+/** Multipliers for wind speed when player is gliding and not gliding*/
+#define WIND_FACTOR 1.0f
+#define WIND_FACTOR_GLIDING 2.0f
 
 
 using namespace cugl;
@@ -107,12 +112,13 @@ bool DudeModel::init(const Vec2& pos, const Size& size, float scale) {
         _isShooting = false;
         _isJumping  = false;
         _faceRight  = true;
-        _isgliding = false;
+        _isGliding = false;
         
         _shootCooldown = 0;
         _jumpCooldown  = 0;
-        _glidedelay = 0.2;
-        _glidetimer = 0;
+        _glideDelay = 0.2;
+        _glideTimer = 0;
+        _windvel = Vec2();
         return true;
     }
     return false;
@@ -231,36 +237,31 @@ void DudeModel::applyForce() {
         } else {
             // Damping factor in the air
             b2Vec2 force(-getDamping()*getVX(),0);
-            
             _body->ApplyForce(force,_body->GetPosition(),true);
         }
     }
     
     // Velocity too high, clamp it
-    if (fabs(getVX()) >= getMaxSpeed() && !_isgliding) {
-        
+    if (fabs(getVX()) >= getMaxSpeed() && !_isGliding) {
         setVX(SIGNUM(getVX())*getMaxSpeed());
         CULog("Hit limit!");
     } else {
         b2Vec2 force(getMovement(),0);
         _body->ApplyForce(force,_body->GetPosition(),true);
         //Reduce friction in air.
-        if (_isgliding) {
-            force.operator*=(-0.5);
-            _body->ApplyForce(force, _body->GetPosition(), true);
+        if (_isGliding) {
+            //force.operator*=(-0.5);
+            //_body->ApplyForce(force, _body->GetPosition(), true);
             //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
-        
     }
-    if (_isgliding) {
-        
-    }
-    
     // Jump!
     if (isJumping() && isGrounded()) {
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force,_body->GetPosition(),true);
     }
+
+    
 }
 
 /**
@@ -286,6 +287,8 @@ void DudeModel::update(float dt) {
     } else {
         _shootCooldown = (_shootCooldown > 0 ? _shootCooldown-1 : 0);
     }
+
+    windUpdate(dt);
     
     CapsuleObstacle::update(dt);
     
@@ -311,21 +314,38 @@ void DudeModel::update(float dt) {
 void DudeModel::glideUpdate(float dt) {
     b2Vec2 motion = _body->GetLinearVelocity();
 
-    if (!_isgliding) {
-        if (motion.y < 0) {
-            _glidetimer += dt;
-        }
-        if (_glidetimer >= _glidedelay) {
-            _isgliding = true;
-            _body->SetLinearDamping(15);
-        }
+    if (_isGliding && !isGrounded()) {
+        //if (motion.y < 0) {
+        //    _glideTimer += dt;
+        //}
+        //if (_glideTimer >= _glideDelay) {
+        //    _isGliding = true;
+        //    
+        //}\
+        // GLIDIND DISABLED FOR NOW
+        //_body->SetLinearDamping(GLIDE_DAMPING);
     }
-    if (isGrounded()) {
-            _isgliding = false;
-            _glidetimer = 0;
-            _body->SetLinearDamping(0);
+    else {
+        _body->SetLinearDamping(0);
     }
+}
+/**
+Inflicts an appropriate force to the player based on _windspeed
+*/
+void DudeModel::windUpdate(float dt) {
+    //Vec2 force = _windvel;
+    if (!isGrounded()) {
+        int mult = 1;
+        if (!_isGliding) {
+            mult = 0.2;
+        }
 
+        b2Vec2 vel = _body->GetLinearVelocity();
+        vel.x += _windvel.x*mult;
+        vel.y += _windvel.y*mult;
+        _body->SetLinearVelocity(vel);
+    }
+    _windvel = Vec2();
 }
 
 
