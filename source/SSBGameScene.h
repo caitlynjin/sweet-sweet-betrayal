@@ -126,6 +126,19 @@ protected:
 
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
+private:
+    /** Initial width */
+    float _growingWallWidth = 1.0f;
+    /** Growth rate per second  */        
+    float _growingWallGrowthRate = 0.2f;      
+    std::shared_ptr<physics2::PolygonObstacle> _growingWall;
+    std::shared_ptr<scene2::PolygonNode> _growingWallNode;
+    /**
+    * Create the growing wall if not created. Otherwise, increase its width
+    *
+    * @param timestep  The elapsed time since the last frame.
+    */
+    void updateGrowingWall(float timestep);
 
 #pragma mark Internal Object Management
 

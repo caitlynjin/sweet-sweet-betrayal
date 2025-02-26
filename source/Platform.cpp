@@ -9,11 +9,9 @@ void Platform::update(float timestep) {
     if (!_moving) return;
     
     Vec2 pos = _box->getPosition();
-//    CULog("Platform Update: Current Position: (%.2f, %.2f)", pos.x, pos.y);
     Vec2 target = _forward ? _endPos : _startPos;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
-//    CULog("Platform Target: (%.2f, %.2f) | Distance to target: %.2f", target.x, target.y, distance);
 
     
     //if next step will move over the end_pos
@@ -26,7 +24,6 @@ void Platform::update(float timestep) {
         direction.normalize();         
         Vec2 velocity = direction * _speed;
         _box->setLinearVelocity(velocity);
-//        CULog("Platform Reached Target, Reversing: New Target (%.2f, %.2f), New Velocity (%.2f, %.2f)", newTarget.x, newTarget.y, velocity.x, velocity.y);
     }
 
 }
@@ -57,7 +54,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     if (!init(pos, size)) return false;
     _moving = true;
     _startPos = start;
-    _endPos   = end;
+    _endPos   = end+ Vec2(size.width/2, size.height/2);
     _speed    = speed;
     _forward  = true;
     //enable moving
