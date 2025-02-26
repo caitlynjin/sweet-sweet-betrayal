@@ -96,6 +96,8 @@ float SPIKE_POS[] = { 5.5f, 1.5f};
 #define SPIKE_TEXTURE   "spike"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
+/** The key for the background texture in the asset manager */
+#define BACKGROUND_TEXTURE    "background"
 /** The name of a wall (for object identification) */
 #define WALL_NAME       "wall"
 /** The name of a platform (for object identification) */
@@ -243,6 +245,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
     Vec2 offset = Vec2((_size.width-SCENE_WIDTH)/2.0f,(_size.height-SCENE_HEIGHT)/2.0f);
     _offset = offset;
 
+    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
+    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _background->setPosition(Vec2(0,0));
+    _background->setScale(1.0f);
+    
     // Create the scene graph
     std::shared_ptr<Texture> image;
     _worldnode = scene2::SceneNode::alloc();
@@ -292,6 +299,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager>& assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
+    addChild(_background);
+    
     initInventory();
 
     addChild(_worldnode);
