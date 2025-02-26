@@ -355,8 +355,8 @@ void GameScene::dispose() {
  * Initializes the grid layout on the screen for build mode.
  */
 void GameScene::initInventory(){
-    std::vector<Item> inventoryItems = {PLATFORM, SPIKE};
-    std::vector<std::string> assetNames = {EARTH_TEXTURE, SPIKE_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM};
+    std::vector<std::string> assetNames = {EARTH_TEXTURE, EARTH_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -399,8 +399,8 @@ void GameScene::placeItem(Vec2 gridPos, Item item){
         case (PLATFORM):
             createPlatform(gridPos, Size(1,1));
             break;
-        case (SPIKE):
-            createSpike(gridPos, Size(1,1), _scale);
+        case (MOVING_PLATFORM):
+            createMovingPlatform(gridPos, Size(1,1), gridPos + Vec2(3.5, 0.5), 1);
             break;
     }
 }
@@ -415,8 +415,8 @@ std::string GameScene::itemToAssetName(Item item){
     switch (item){
         case (PLATFORM):
             return EARTH_TEXTURE;
-        case (SPIKE):
-            return SPIKE_TEXTURE;
+        case (MOVING_PLATFORM):
+            return EARTH_TEXTURE;
     }
 }
 
