@@ -419,7 +419,7 @@ void GameScene::reset() {
     }
     _growingWall = nullptr;
     _growingWallNode = nullptr;
-    _growingWallWidth = 1.0f;
+    _growingWallWidth = 0.1f;
     _treasure = nullptr;
       
     setFailure(false);
