@@ -81,6 +81,10 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+    /** Reference to the background of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
+    /** Reference to the overlay of the inventory */
+    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
