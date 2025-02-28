@@ -381,14 +381,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     setDebug(false);
 
 
-    // Initializing _pathNode - this will get removed and replaced as soon as trajectory is drawn
-    _pathNode = cugl::scene2::PathNode::allocWithPath(std::vector<Vec2>{Vec2(0, 0), Vec2(1, 1)}, 1);
-    _pathNode->setName("trajectory");
-    addChild(_pathNode);
-
-    _pathNode2 = cugl::scene2::PathNode::allocWithPath(std::vector<Vec2>{Vec2(0, 0), Vec2(1, 1)}, 1);
-    _pathNode2->setName("trajectory2");
-    addChild(_pathNode2);
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
 
@@ -1115,100 +1107,6 @@ void GameScene::preUpdate(float dt)
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
         _avatar->setJumping(_input.didJump());
         _avatar->applyForce();
-
-
-    if (_input.didReleaseFinger()) {
-        Vec2 coords = screenToWorldCoords(_input.finalPosition);
-        coords = Vec2(coords.x * 20 / 1024, coords.y * 12 / 576);
-        // using two values, calculate force in opposite direction and apply linear impulse
-        if (_slingInProgress) {
-            // Some placeholder code to get the job done - eventually refactor
-            std::vector<Vec2> vertices{
-            Vec2(0, 0), Vec2(-1, -1)
-            };
-            _trajectoryPath = Path2(vertices);
-            SimpleExtruder extruder;
-            extruder.set(_trajectoryPath);
-            extruder.calculate(5);
-            _trajectoryPoly = extruder.getPolygon();
-
-            Poly2 copy = _trajectoryPoly;
-            copy /= 50;
-            removeChild(getChildByName("trajectory"));
-            removeChild(getChildByName("trajectory2"));
-            _pathNode->setAnchor(Vec2::ANCHOR_CENTER);
-            _pathNode->setPosition(-100, -100);
-            _pathNode->setName("trajectory");
-            addChild(_pathNode);
-            _pathNode2->setAnchor(Vec2::ANCHOR_CENTER);
-            _pathNode2->setPosition(-100, -100);
-            _pathNode2->setName("trajectory2");
-            addChild(_pathNode2);
-            _slingInProgress = false;
-            Vec2 origPos(screenToWorldCoords(_input.originalPosition).x * 20 / 1024, screenToWorldCoords(_input.originalPosition).y * 12 / 576);
-            _avatar->getBody()->ApplyLinearImpulseToCenter(b2Vec2((origPos - coords).x * 2.5f, (origPos - coords).y * 2.5f), true);
-            // This causes a sliding issue if you launch horizontally.
-            // But if you remove it, the damping code (vel.x = 0) will take effect immediately.
-            // That breaks the sling.
-            _avatar->setGrounded(false);
-        }
-        
-    }
-
-    if (_slingInProgress) {
-        // TODO: Recalculate the trajectory line
-        SimpleExtruder extruder;
-        Vec2 origPos(screenToWorldCoords(_input.originalPosition).x, screenToWorldCoords(_input.originalPosition).y);
-        Vec2 finalPos(screenToWorldCoords(_input.finalPosition).x, screenToWorldCoords(_input.finalPosition).y);
-        std::vector<Vec2> vertices{
-            origPos,
-            -(origPos - finalPos) + origPos
-                };
-        _trajectoryPath = Path2(vertices);
-        extruder.set(_trajectoryPath);
-        extruder.calculate(5);
-        _trajectoryPoly = extruder.getPolygon();
-
-        Poly2 copy = _trajectoryPoly;
-        copy /= 50;
-        CULog("%f %f %f %f", _input.originalPosition.x, _input.originalPosition.y,
-            _input.finalPosition.x, _input.finalPosition.y
-        );
-
-        _pathNode = cugl::scene2::PathNode::allocWithPath(_trajectoryPath, 5);
-        removeChild(getChildByName("trajectory"));
-        _pathNode->setAnchor(Vec2::ANCHOR_CENTER);
-        _pathNode->setPosition(_avatar->getPosition().x / 20 * 1024 + (origPos - finalPos).x / 2.0f + 128,
-                                _avatar->getPosition().y / 12 * 576 + (origPos - finalPos).y / 2.0f);
-        _pathNode->setName("trajectory");
-        addChild(_pathNode);
-
-        _pathNode2 = cugl::scene2::PathNode::allocWithPath(_trajectoryPath, 5);
-        //removeChild(getChildByName("trajectory2"));
-        _pathNode2->setAnchor(Vec2::ANCHOR_CENTER);
-        _pathNode2->setPosition(origPos + (origPos - finalPos) / 2.0f);
-        _pathNode2->setName("trajectory2");
-        //addChild(_pathNode2);
-        
-        /*PolygonObstacle polyOb;
-        std::shared_ptr<cugl::physics2::PolygonObstacle> _center = polyOb.alloc(copy);
-        _center->setBodyType(b2_staticBody);
-        _center->setPosition(Vec2(getSize() / (100)));
-
-        _world->addObstacle(_center);*/
-
-    }
-
-    if (_input.didPressFinger()) {
-        Vec2 coords = screenToWorldCoords(_input.getMTouchPosition());
-        coords = Vec2(coords.x * 20 / 1024, coords.y * 12 / 576);
-        Vec2 pos = _avatar->getPosition();
-        // If statement will eventually be < some threshold to make sure slinging swipe starts near player
-        // Here right now as a filler
-        if ((coords - pos).length() > 0) {
-            _slingInProgress = true;
-        }
-    }
 
         if (_avatar->isJumping() && _avatar->isGrounded())
         {
