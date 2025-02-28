@@ -2,6 +2,8 @@
 
 This is a game created during Cornell's class, CS 4152: Advanced Topics in Computer Game Architecture.
 
+Contributers: Angelica Borowy, Alanna Cooney, Shihan Gao, Benjamin Isaacson, Jessie Jia, Caitlyn Jin, Zulin Luo, Grace Sawatyanon, Charles Velez, Eric Yang
+
 ## Set Up Instructions
 
 You must run the following command in the directory outside the `sweet-sweet-betrayal` directory (similar to programming labs) in order to create the build folder:
