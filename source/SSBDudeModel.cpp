@@ -248,7 +248,6 @@ void DudeModel::applyForce()
             _body->SetLinearVelocity(vel);
         } else {
             // Damping factor in the air 
-            // I REMOVED THIS to make slinging functional.
             b2Vec2 force(-getDamping()*getVX(),0);
             _body->ApplyForce(force,_body->GetPosition(),true);
         }
