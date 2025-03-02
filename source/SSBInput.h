@@ -51,6 +51,9 @@ public:
         /** Placed an item in a grid */
         PLACED
     };
+
+    bool canGlide() { return _canGlide; }
+    void setGlide(bool v) { _canGlide = v; }
 private:
     /** Whether or not this input is active */
     bool _active;
@@ -70,7 +73,17 @@ private:
     /** Whether the right arrow key is down */
     bool  _keyRight;
     /** Whether the touch is currently down */
+    bool _currDown;
+    /** Whether the touch was down one frame ago */
+    bool _prevDown;
+
+    bool _prev2Down;
+public: 
+    cugl::Vec2 originalPosition;
+    cugl::Vec2 finalPosition;
     bool _touchDown;
+    
+
 
 protected:
     // INPUT RESULTS
@@ -88,6 +101,11 @@ protected:
     float _horizontal;
     /** Touch position on screen */
     cugl::Vec2 _touchPosForDrag;
+
+    //GLIDING CONTROLS
+    /**Whether or not we can glide*/
+    bool _canGlide;
+    
     
     // INVENTORY
     /** Whether the player is placing an item in build mode */
@@ -138,6 +156,8 @@ protected:
 	/** The bounds of the right touch zone */
 	cugl::Rect _rzone;
 
+    cugl::Vec2 _touchReleasePos;
+
 	// Each zone can have only one touch
 	/** The current touch location for the left zone */
 	TouchInstance _ltouch;
@@ -152,6 +172,8 @@ protected:
     cugl::Vec2 _joycenter;
     /** Whether or not we have processed a jump for this swipe yet */
     bool _hasJumped;
+    /**Whether or not we are holding the right side of the screen*/
+    bool _holdRight;
     /** The timestamp for a double tap on the right */
     cugl::Timestamp _rtime;
 	/** The timestamp for a double tap in the middle */
@@ -297,7 +319,18 @@ public:
      * the OS, we may see multiple updates of the same touch in a single animation
      * frame, so we need to accumulate all of the data together.
      */
-    void  update(float dt);
+    void update(float dt);
+
+    /** Returns the position of the current touch in the middle/bottom zone. 
+    */
+
+    cugl::Vec2 getMTouchPosition() const {
+        return _mtouch.position;
+    }
+
+    cugl::Vec2 getTouchReleasePosition() const {
+        return _touchReleasePos;
+    }
 
     /**
      * Clears any buffered inputs so that we may start fresh.
@@ -337,6 +370,20 @@ public:
 	bool didReset() const { return _resetPressed; }
 
     /**
+     * Returns true if the screen was just touched.
+     *
+     * @return true if the screen was just touched.
+     */
+    bool didPressFinger() const { return _currDown && !_prev2Down; }
+
+    /**
+     * Returns true if the touch was just released.
+     *
+     * @return true if the touch was just released.
+     */
+    bool didReleaseFinger() const { return _prev2Down && !_currDown; }
+
+    /**
      * Returns true if the player wants to go toggle the debug mode.
      *
      * @return true if the player wants to go toggle the debug mode.
@@ -370,6 +417,10 @@ public:
      * @return true if touch is down
      */
     bool isTouchDown() const { return _touchDown; }
+
+    /**Returns true if touch is down on the right*/
+    bool isRightDown() const { return _holdRight; }
+    
 
 #pragma mark -
 #pragma mark Touch and Mouse Callbacks

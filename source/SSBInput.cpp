@@ -85,7 +85,14 @@ _keyLeft(false),
 _keyRight(false),
 _horizontal(0.0f),
 _joystick(false),
-_hasJumped(false) {
+_hasJumped(false),
+
+_currDown(false),
+_prevDown(false),
+_prev2Down(false),
+
+_holdRight(false),
+_canGlide(false){
 }
 
 /**
@@ -123,6 +130,7 @@ bool PlatformInput::init(const Rect bounds) {
     _sbounds = bounds;
     _tbounds = Application::get()->getDisplayBounds();
     
+    originalPosition = Vec2(0, 0);
     createZones();
     clearTouchInstance(_ltouch);
     clearTouchInstance(_rtouch);
@@ -188,6 +196,8 @@ void PlatformInput::update(float dt) {
     _exitPressed  = _keyExit;
 	_firePressed  = _keyFire;
 	_jumpPressed  = _keyJump;
+    _prev2Down = _prevDown;
+    _prevDown = _currDown;
 
 	// Directional controls
 	_horizontal = 0.0f;
@@ -217,6 +227,7 @@ void PlatformInput::clear() {
     _exitPressed  = false;
     _jumpPressed = false;
     _firePressed = false;
+    _currDown = false;
     
 }
 
@@ -353,10 +364,15 @@ int PlatformInput::processSwipe(const Vec2 start, const Vec2 stop, Timestamp cur
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
-    
+    //Update Glide mode-If we are grounded, make sure we can't glide anymore.
+
     //CULog("Touch began %lld", event.touch);
     Vec2 pos = event.position;
     Zone zone = getZone(pos);
+    if (zone == Zone::MAIN) {
+        _currDown = true;
+        originalPosition = pos;
+    }
     switch (zone) {
         case Zone::LEFT:
             // Only process if no touch in zone
@@ -380,6 +396,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
                 _rtouch.timestamp.mark();
                 _rtouch.touchids.insert(event.touch);
                 _hasJumped = false;
+                _holdRight = true;
             }
             break;
         case Zone::MAIN:
@@ -413,6 +430,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
  * @param focus	Whether the listener currently has focus
  */
 void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
+    _currDown = false;
     // Reset all keys that might have been set
     Vec2 pos = event.position;
     
@@ -422,6 +440,7 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
     }
     
     Zone zone = getZone(pos);
+    finalPosition = pos;
     if (_ltouch.touchids.find(event.touch) != _ltouch.touchids.end()) {
         _ltouch.touchids.clear();
         _keyLeft = false;
@@ -429,6 +448,8 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
         _joystick = false;
     } else if (_rtouch.touchids.find(event.touch) != _rtouch.touchids.end()) {
         _hasJumped = false;
+        _holdRight = false;
+        _canGlide = true;
         _rtime = event.timestamp;
         _rtouch.touchids.clear();
     } else if (zone == Zone::MAIN) {
@@ -437,6 +458,7 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
         }
         _mtime = event.timestamp;
     }
+    
 }
 
 
@@ -449,6 +471,15 @@ void PlatformInput::touchEndedCB(const TouchEvent& event, bool focus) {
  */
 void PlatformInput::touchesMovedCB(const TouchEvent& event, const Vec2& previous, bool focus) {
     Vec2 pos = event.position;
+
+    // THIS WILL NOT WORK WITH MULTIPLE TOUCHES
+    // Just a placeholder for now. TODO: make this compatible with multiple touches in main zone???
+    if (getZone(pos) == Zone::MAIN) {
+        if ((pos - originalPosition).length() < 500) {
+            finalPosition = pos;
+        }
+        
+    }
     // Only check for swipes in the main zone if there is more than one finger.
     if (_ltouch.touchids.find(event.touch) != _ltouch.touchids.end()) {
         processJoystick(pos);
@@ -469,5 +500,6 @@ void PlatformInput::touchesMovedCB(const TouchEvent& event, const Vec2& previous
         }
     }
 }
+
 
 

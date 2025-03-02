@@ -64,6 +64,11 @@ using namespace cugl;
 #define DUDE_DAMPING    10.0f
 /** The maximum character speed */
 #define DUDE_MAXSPEED   5.0f
+/**How much the player speed should be dampened during gliding*/
+#define GLIDE_DAMPING 20.0f
+/** Multipliers for wind speed when player is gliding and not gliding*/
+#define WIND_FACTOR 1.0f
+#define WIND_FACTOR_GLIDING 2.0f
 
 
 #pragma mark -
@@ -97,12 +102,20 @@ protected:
 	bool _isGrounded;
 	/** Whether we are actively shooting */
 	bool _isShooting;
+    /** if standing on moving platform */
+    bool _onMovingPlat;
+    /** points to moving platform standing on*/
+    physics2::Obstacle* MovingPlat;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
-    float _glidedelay;
+    float _glideDelay;
+    float _glideTimer;
+    bool _isGliding;
+    /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
+    as well as how much motion is being applied at any given time*/
+    Vec2 _windvel;
 
-    float _glidetimer;
-    bool _isgliding;
+
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
 	/** Reference to the sensor name (since a constant cannot have a pointer) */
@@ -340,7 +353,6 @@ public:
      * Puts the treasure in this player's posession such that they now have ownership over it.
      */
     void gainTreasure(const std::shared_ptr<Treasure>& treasure){
-        CULog("Treasure gained");
         _hasTreasure = true;
         _treasure = treasure;
     };
@@ -350,7 +362,7 @@ public:
      *
      * Removes the treasure from this player's posession.
      */
-    void removeTreasure(const std::shared_ptr<Treasure>& treasure){
+    void removeTreasure(){
         _hasTreasure = false;
         _treasure = nullptr;
     };
@@ -375,7 +387,11 @@ public:
      * @param value left/right movement of this character.
      */
     void setMovement(float value);
-    
+
+    /**
+    Applies a certain amount of wind velocity to the player
+    */
+    void addWind(Vec2 wind) { _windvel.operator+=(wind); };
     /**
      * Returns true if the dude is actively firing.
      *
@@ -458,7 +474,28 @@ public:
      * @return true if this character is facing right
      */
     bool isFacingRight() const { return _faceRight; }
+    
+    /** Returns whether the character is standing on a moving platform */
+    bool isOnMovingPlatform() const { return _onMovingPlat; }
 
+    /** Returns a pointer to the moving platform the character is standing on */
+    physics2::Obstacle* getMovingPlatform() const { return MovingPlat; }
+
+
+    /** 
+    * set if on movingplatform
+    * @param on set is on movingplatform
+    */
+    void setOnMovingPlat(bool on) {_onMovingPlat = on;}
+
+    /** 
+    * set moving platform moving on
+    * @param plot pltform standing on
+    */
+    void setMovingPlat(physics2::Obstacle* plat) {MovingPlat = plat;}
+
+    /**Sets whether we are trying to glide or not.*/
+    void setGlide(bool value) { _isGliding = value; }
     
 
     
@@ -497,10 +534,14 @@ public:
      * This method should be called after the force attribute is set.
      */
     void applyForce();
-
+    /**
+    Checks whether or not we should be in glide mode, and updates accordingly.
+    */
     void glideUpdate(float dt);
-
-
+    /**
+    Processes the wind motion applied to the player.
+    */
+    void windUpdate(float dt);
 
 	
 };
