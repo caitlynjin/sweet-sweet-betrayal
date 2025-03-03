@@ -36,10 +36,7 @@ public:
      *
      * @param position   The position
      */
-    void setPosition(const cugl::Vec2& position) override {
-        _position = position;
-        _box->setPosition(position);
-    }
+    void setPosition(const cugl::Vec2& position) override;
 
     std::shared_ptr<cugl::physics2::BoxObstacle> getObstacle() {
         return _box;

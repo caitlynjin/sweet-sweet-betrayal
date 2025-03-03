@@ -5,6 +5,16 @@
 using namespace cugl;
 using namespace cugl::graphics;
 
+/**
+ * Sets the position
+ *
+ * @param position   The position
+ */
+void Platform::setPosition(const cugl::Vec2& position) {
+    _position = position;
+    _box->setPosition(position);
+}
+
 void Platform::update(float timestep) {
     if (!_moving) return;
     

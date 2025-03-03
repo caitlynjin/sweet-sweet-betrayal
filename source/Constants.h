@@ -6,6 +6,7 @@
 //
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
+#include "string"
 
 namespace Constants {
 
@@ -23,14 +24,7 @@ enum Item {
 /**
  * Convert an Item enum to the corresponding string.
  */
-std::string itemToString(Item item) {
-    switch (item) {
-        case PLATFORM:
-            return "platform";
-        default:
-            return "unknown";
-    }
-}
+std::string itemToString(Item item);
 
 }
 

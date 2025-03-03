@@ -55,7 +55,7 @@ public:
     /**
      * Get the item type of the object.
      */
-    Item getItemType() {
+    const Item getItemType() const {
         return _itemType;
     }
 
