@@ -16,6 +16,10 @@ std::string itemToString(Item item) {
     switch (item) {
         case PLATFORM:
             return "platform";
+        case MOVING_PLATFORM:
+            return "moving platform";
+        case WIND:
+            return "wind";
         default:
             return "unknown";
     }

@@ -5,6 +5,7 @@
 
 using namespace cugl;
 using namespace std;
+using namespace Constants;
 
 class Platform : public Object {
 
@@ -20,9 +21,7 @@ private:
 public:
 	Platform() : Object() {}
 
-	Platform(Vec2 pos) : Object(pos) {}
-
-    Platform(Vec2 pos, Item itemType) : Object(pos, itemType) {}
+    Platform(Vec2 pos) : Object(pos, Item::PLATFORM) {}
 
 	/** The update method for the platform */
 	void update(float timestep) override;

@@ -58,6 +58,7 @@ using namespace cugl;
 bool Platform::init(const Vec2 pos, const Size size) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
+    _itemType = Item::PLATFORM;
     return true;
 }
 

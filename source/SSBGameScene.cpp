@@ -1034,6 +1034,7 @@ void GameScene::preUpdate(float dt)
 
     if (_buildingMode)
     {
+        // Deactivate inventory buttons once all traps are placed
         if (_itemsPlaced == 0){
             for (size_t i = 0; i < _inventoryButtons.size(); i++)
             {
@@ -1044,7 +1045,9 @@ void GameScene::preUpdate(float dt)
         
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
-            if (_selectedObject && _selectedItem != NONE) {
+            // Show placing object indicator when dragging object
+            if (_selectedItem != NONE) {
+                CULog("Placing object");
                 Vec2 screenPos = _input.getPosOnDrag();
                 Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
@@ -1055,36 +1058,48 @@ void GameScene::preUpdate(float dt)
         {
             _gridManager->setSpriteInvisible();
 
-            // Attempt to move object that exists on the grid
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+            if (_input.isTouchDown()) {
+                // Attempt to move object that exists on the grid
+                Vec2 screenPos = _input.getPosOnDrag();
+                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+                
+                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+                
+                // If object exists
+                if (obj) {
+                    CULog("Selected existing object");
+                    _selectedObject = obj;
+                    _selectedItem = obj->getItemType();
+                    CULog("Selected item %s", Constants::itemToString(obj->getItemType()).c_str());
 
-            std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-
-            // If object exists
-            if (obj) {
-                _selectedObject = obj;
-                _selectedItem = obj->getItemType();
-                _gridManager->removeObject(gridPos);
-                _input.setInventoryStatus(PlatformInput::PLACING);
+                    _gridManager->removeObject(gridPos);
+                    _input.setInventoryStatus(PlatformInput::PLACING);
+                }
             }
         }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED && _selectedItem != NONE)
+        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             if (_selectedObject) {
+                // Move the existing object to new position
                 _selectedObject->setPosition(gridPos);
                 _gridManager->addObject(gridPos, _selectedObject);
+
                 CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
                 CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
+
+                // Reset selected object
                 _selectedObject = nullptr;
             } else {
+                // Place new object on grid
                 std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+                _gridManager->addObject(gridPos, obj);
 
                 _itemsPlaced += 1;
 
+                // Update inventory UI
                 if (_itemsPlaced >= 1)
                 {
                     for (size_t i = 0; i < _inventoryButtons.size(); i++)
@@ -1092,12 +1107,12 @@ void GameScene::preUpdate(float dt)
                         _inventoryButtons[i]->deactivate();
                     }
                 }
-
-                _gridManager->addObject(gridPos, obj);
             }
 
+            // Reset selected item
             _selectedItem = NONE;
 
+            // Darken inventory UI
             _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
