@@ -53,6 +53,11 @@ public:
 	void setTexture(const std::shared_ptr<graphics::Texture>& texture);
 
     /**
+     * Gets the obstacle of this object.
+     */
+    virtual std::shared_ptr<cugl::physics2::Obstacle> getObstacle() { return nullptr; };
+
+    /**
      * Get the item type of the object.
      */
     const Item getItemType() const {

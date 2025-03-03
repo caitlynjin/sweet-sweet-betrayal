@@ -76,7 +76,3 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _box->setLinearVelocity(direction * _speed);
     return true;
 }
-
-
-
-

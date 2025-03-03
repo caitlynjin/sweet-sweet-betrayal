@@ -1069,10 +1069,13 @@ void GameScene::preUpdate(float dt)
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
+                    
                     _selectedItem = obj->getItemType();
                     CULog("Selected item %s", Constants::itemToString(obj->getItemType()).c_str());
 
                     _gridManager->removeObject(gridPos);
+                    // TODO: Figure out how to remove obstacles from the world and readd them (for replacement)
+                    _world->removeObstacle(obj->getObstacle());
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
