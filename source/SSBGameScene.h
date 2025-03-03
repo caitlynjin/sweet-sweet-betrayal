@@ -12,6 +12,7 @@
 #include <box2d/b2_fixture.h>
 #include <unordered_set>
 #include <vector>
+#include "Constants.h"
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
@@ -21,6 +22,7 @@
 //#include <cmath>
 
 using namespace cugl;
+using namespace Constants;
 
 /**
  * This class is the primary gameplay constroller for the demo.
@@ -31,30 +33,6 @@ using namespace cugl;
  */
 class GameScene : public scene2::Scene2 {
 protected:
-    /**
-     * The type of an item/obstacle.
-     */
-    enum Item {
-        /** A standard platform */
-        PLATFORM,
-        /** A moving platform */
-        MOVING_PLATFORM,
-        /** A wind object */
-        WIND
-    };
-    
-    /**
-     * Convert an Item enum to the corresponding string.
-     */
-    std::string itemToString(Item item) {
-        switch (item) {
-            case PLATFORM:
-                return "platform";
-            default:
-                return "unknown";
-        }
-    }
-    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 

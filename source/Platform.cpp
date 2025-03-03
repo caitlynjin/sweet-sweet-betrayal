@@ -50,6 +50,7 @@ bool Platform::init(const Vec2 pos, const Size size) {
     _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
     return true;
 }
+
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
     if (!init(pos, size)) return false;
     _moving = true;

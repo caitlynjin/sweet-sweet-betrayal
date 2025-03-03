@@ -6,6 +6,7 @@
 //
 
 #include "SSBGameScene.h"
+#include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
@@ -24,6 +25,7 @@ using namespace cugl;
 using namespace cugl::graphics;
 using namespace cugl::physics2;
 using namespace cugl::audio;
+using namespace Constants;
 
 #pragma mark -
 #pragma mark Level Geography
@@ -335,8 +337,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
     _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
     _readyButton->activate();
-    _readyButton->addListener([this](const std::string &name, bool down)
-                              {
+    _readyButton->addListener([this](const std::string &name, bool down) {
         if (down && _buildingMode) {
             setBuildingMode(!_buildingMode);
             _readyButton->setVisible(false);
@@ -443,12 +444,12 @@ void GameScene::initInventory()
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
-        itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string &name, bool down)
-                                {
+        itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string &name, bool down) {
             if (down & _buildingMode) {
                 _selectedItem = item;
                 _input.setInventoryStatus(PlatformInput::PLACING);
-            } });
+            }
+        });
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
         yOffset += 80;
@@ -465,19 +466,21 @@ void GameScene::initInventory()
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
-    case (PLATFORM):
-        return createPlatform(gridPos, Size(1, 1), false);
-        break;
-    case (MOVING_PLATFORM):
-        createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
-        // TODO: Fix this
-        return nullptr;
-        break;
-    case (WIND):
-        createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
-        // TODO: Fix this
-        return nullptr;
-        break;
+        case (PLATFORM):
+            return createPlatform(gridPos, Size(1, 1), false);
+            break;
+        case (MOVING_PLATFORM):
+            createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
+            // TODO: Fix this
+            return nullptr;
+            break;
+        case (WIND):
+            createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
+            // TODO: Fix this
+            return nullptr;
+            break;
+        case (NONE):
+            return nullptr;
     }
 }
 
@@ -495,6 +498,8 @@ std::string GameScene::itemToAssetName(Item item){
             return MOVING_TEXTURE;
         case (WIND):
             return WIND_TEXTURE;
+        case (NONE):
+            return nullptr;
     }
 }
 
@@ -917,75 +922,7 @@ void GameScene::update(float timestep)
 
     if (_buildingMode)
     {
-        if (_itemsPlaced == 0){
-            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-            {
-                _inventoryButtons[i]->activate();
-                _inventoryOverlay->setVisible(false);
-            }
-        }
-
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            if (_selectedObject) {
-                _selectedObject->setPosition(gridPos);
-            } else {
-                _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-            }
-
-            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-        {
-            _gridManager->setSpriteInvisible();
-
-            // Attempt to move object that exists on the grid
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-
-            // If object exists
-            if (obj) {
-                // Delete the old object
-//                obj->dispose();
-//                obj.reset();
-//                obj = nullptr;
-//                CULog("pointers on object: %d", obj.use_count());
-
-                _selectedObject = obj;
-                _input.setInventoryStatus(PlatformInput::PLACING);
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            if (_selectedObject) {
-//                _selectedObject = nullptr;
-            } else {
-                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
-
-                _itemsPlaced += 1;
-
-                if (_itemsPlaced >= 1)
-                {
-                    for (size_t i = 0; i < _inventoryButtons.size(); i++)
-                    {
-                        _inventoryButtons[i]->deactivate();
-                    }
-                }
-
-                _gridManager->addObject(gridPos, obj);
-            }
-
-            _inventoryOverlay->setVisible(true);
-            _input.setInventoryStatus(PlatformInput::WAITING);
-        }
+        // Removed because duplicate code in preupdate causes issues
     }
     else
     {
@@ -1107,16 +1044,12 @@ void GameScene::preUpdate(float dt)
         
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+            if (_selectedObject && _selectedItem != NONE) {
+                Vec2 screenPos = _input.getPosOnDrag();
+                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-            if (_selectedObject) {
-                _selectedObject->setPosition(gridPos);
-            } else {
                 _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
             }
-
-            _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
         }
         else if (_input.getInventoryStatus() == PlatformInput::WAITING)
         {
@@ -1130,23 +1063,23 @@ void GameScene::preUpdate(float dt)
 
             // If object exists
             if (obj) {
-                // Delete the old object
-//                obj->dispose();
-//                obj.reset();
-//                obj = nullptr;
-//                CULog("pointers on object: %d", obj.use_count());
-
                 _selectedObject = obj;
+                _selectedItem = obj->getItemType();
+                _gridManager->removeObject(gridPos);
                 _input.setInventoryStatus(PlatformInput::PLACING);
             }
         }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
+        else if (_input.getInventoryStatus() == PlatformInput::PLACED && _selectedItem != NONE)
         {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
             if (_selectedObject) {
-//                _selectedObject = nullptr;
+                _selectedObject->setPosition(gridPos);
+                _gridManager->addObject(gridPos, _selectedObject);
+                CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
+                CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
+                _selectedObject = nullptr;
             } else {
                 std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
 
@@ -1162,6 +1095,8 @@ void GameScene::preUpdate(float dt)
 
                 _gridManager->addObject(gridPos, obj);
             }
+
+            _selectedItem = NONE;
 
             _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
