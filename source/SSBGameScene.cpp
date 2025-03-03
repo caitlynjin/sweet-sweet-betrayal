@@ -573,7 +573,7 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
     triangulator.clear();
 
     // Set the physics attributes
-    plat->getObstacle()->setBodyType(b2_staticBody);
+    plat->getObstacle()->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     plat->getObstacle()->setDensity(BASIC_DENSITY);
     plat->getObstacle()->setFriction(BASIC_FRICTION);
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
@@ -899,8 +899,7 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
     if (obj->getBodyType() != b2_staticBody)
     {
         scene2::SceneNode *weak = node.get(); // No need for smart pointer in callback
-        obj->setListener([=, this](physics2::Obstacle *obs)
-                         {
+        obj->setListener([=, this](physics2::Obstacle *obs) {
             weak->setPosition(obs->getPosition()*_scale);
             weak->setAngle(obs->getAngle()); });
     }
@@ -1045,13 +1044,24 @@ void GameScene::preUpdate(float dt)
         
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
                 CULog("Placing object");
-                Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
 
-                _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+                if (_selectedObject) {
+                    // Move the existing object to new position
+                    _selectedObject->setPosition(gridPos);
+
+                    // Trigger obstacle update listener
+                    if (_selectedObject->getObstacle()->getListener()) {
+                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                    }
+                } else {
+                    _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+                }
             }
         }
         else if (_input.getInventoryStatus() == PlatformInput::WAITING)
@@ -1069,13 +1079,9 @@ void GameScene::preUpdate(float dt)
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
-                    
                     _selectedItem = obj->getItemType();
-                    CULog("Selected item %s", Constants::itemToString(obj->getItemType()).c_str());
 
                     _gridManager->removeObject(gridPos);
-                    // TODO: Figure out how to remove obstacles from the world and readd them (for replacement)
-                    _world->removeObstacle(obj->getObstacle());
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -1088,6 +1094,12 @@ void GameScene::preUpdate(float dt)
             if (_selectedObject) {
                 // Move the existing object to new position
                 _selectedObject->setPosition(gridPos);
+
+                // Trigger listener
+                if (_selectedObject->getObstacle()->getListener()) {
+                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                }
+
                 _gridManager->addObject(gridPos, _selectedObject);
 
                 CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);

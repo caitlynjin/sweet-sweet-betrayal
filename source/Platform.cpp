@@ -12,7 +12,7 @@ using namespace cugl::graphics;
  */
 void Platform::setPosition(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position);
+    _box->setPosition(position + Vec2(0.5, 0.5));
 }
 
 void Platform::update(float timestep) {
