@@ -109,11 +109,10 @@ std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
 
     auto it = objectMap.find(posPair);
     if (it == objectMap.end()) {
-//        CULog("Unable to find object");
+        // If unable to find object
         return nullptr;
     }
 
-//    CULog("Returned object");
     std::shared_ptr<Object> obj = it->second;
     objectMap.erase(it);
     return obj;
