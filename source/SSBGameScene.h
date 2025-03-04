@@ -60,6 +60,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
+    /** The camera for this scene */
+    std::shared_ptr<scene2::ScrollPane> _scrollpane;
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
     /** Reference to build mode inventory buttons */
@@ -126,6 +128,8 @@ protected:
     Item _selectedItem;
     /** The selected object in build mode (object being moved) */
     std::shared_ptr<Object> _selectedObject;
+    /** The initial camera position */
+    Vec2 _camerapos;
 
     /** The total amount of rounds */
     int const TOTAL_ROUNDS = 5;
@@ -216,6 +220,7 @@ private:
 public:
 #pragma mark -
 #pragma mark Constructors
+
     /**
      * Creates a new game world with the default values.
      *
@@ -424,6 +429,7 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void update(float timestep);
+
      
     /**
      * The method called to indicate the start of a deterministic loop.
