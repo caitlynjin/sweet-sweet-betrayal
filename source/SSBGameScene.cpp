@@ -352,6 +352,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     
     initInventory();
 
+    _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
+    _scrollpane->setInterior(getBounds() / 2);
+    _scrollpane->setConstrained(false);
+
+    _camerapos = getCamera()->getPosition();
     // Set the darkened overlay
     _inventoryOverlay = scene2::PolygonNode::alloc();
     _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
@@ -367,6 +372,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
+    addChild(_scrollpane);
     addChild(_readyButton);
     addChild(_gridManager->getGridNode());
     
@@ -1135,9 +1141,15 @@ void GameScene::preUpdate(float dt)
         }
     }
 
-
-    for (auto it = _objects.begin(); it != _objects.end(); ++it)
-    {
+    // if (!_buildingMode){
+    //     getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
+    // }
+    // else {
+    //     getCamera()->setPosition(_camerapos);
+    // }
+    // getCamera()->update();
+    
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
     // increase growing wall
