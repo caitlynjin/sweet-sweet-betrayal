@@ -975,7 +975,7 @@ void GameScene::update(float timestep)
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
         _avatar->setJumping(_input.didJump());
         _avatar->applyForce();
-    
+        
         
 
         if (_avatar->isJumping() && _avatar->isGrounded())

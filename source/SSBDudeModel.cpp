@@ -129,33 +129,6 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 #pragma mark Attribute Properties
 
 /**
- * Sets left/right movement of this character.
- *
- * This is the result of input times dude force.
- *
- * @param value left/right movement of this character.
- */
-void DudeModel::setMovement(float value)
-{
-    _movement = value;
-    bool face = _movement > 0;
-    if (_movement == 0 || _faceRight == face)
-    {
-        return;
-    }
-
-    // Change facing
-    scene2::TexturedNode *image = dynamic_cast<scene2::TexturedNode *>(_node.get());
-    if (image != nullptr)
-    {
-        image->flipHorizontal(!image->isFlipHorizontal());
-    }
-    _faceRight = face;
-}
-
-#pragma mark -
-#pragma mark Physics Methods
-/**
  * Create new fixtures for this body, defining the shape
  *
  * This is the primary method to override for custom physics objects
@@ -210,7 +183,6 @@ void DudeModel::releaseFixtures()
         _sensorFixture = nullptr;
     }
 }
-
 /**
  * Disposes all resources and assets of this DudeModel
  *
@@ -224,6 +196,39 @@ void DudeModel::dispose()
     _sensorNode = nullptr;
 }
 
+
+#pragma mark -
+#pragma mark Physics Methods
+/**
+ * Sets left/right movement of this character.
+ *
+ * This is the result of input times dude force.
+ *
+ * @param value left/right movement of this character.
+ */
+void DudeModel::setMovement(float value)
+{
+    _movement = value;
+    bool face = _movement > 0;
+    if (_movement == 0 || _faceRight == face)
+    {
+        return;
+    }
+
+    // Change facing
+    scene2::TexturedNode* image = dynamic_cast<scene2::TexturedNode*>(_node.get());
+    if (image != nullptr)
+    {
+
+        image->flipHorizontal(!image->isFlipHorizontal());
+    }
+
+    if (_faceRight != face) {
+        _justFlipped = true;
+    }
+
+    _faceRight = face;
+}
 /**
  * Applies the force to the body of this dude
  *
@@ -250,8 +255,7 @@ void DudeModel::applyForce()
             b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
             if (!_isGliding) {
                 _body->ApplyForce(force, _body->GetPosition(), true);
-            }
-            
+            }   
         }
     }
 
@@ -261,11 +265,15 @@ void DudeModel::applyForce()
         setVX(SIGNUM(getVX()) * getMaxSpeed());
         // CULog("Hit limit!");
     }
+    else if (_isGliding) {
+        //significantly dampen aeriel movement while gliding
+        b2Vec2 force(getMovement()*0.6, 0);
+        _body->ApplyForce(force, _body->GetPosition(), true);
+    }
     else
     {
         b2Vec2 force(getMovement(), 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
-        // Reduce friction in air.
     }
     //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
     if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
@@ -277,6 +285,20 @@ void DudeModel::applyForce()
     {
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+    }
+    //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
+    if (_isGliding && (_justFlipped || _justGlided)) {
+        int face = SIGNUM(_movement);
+        b2Vec2 force(face*3.5, 0);
+        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+    }
+    
+    if (_justFlipped == true) {
+        CULog("JUSST FLISPPED");
+        _justFlipped = false;
+    }
+    if (_justGlided == true) {
+        _justGlided = false;
     }
 }
 
