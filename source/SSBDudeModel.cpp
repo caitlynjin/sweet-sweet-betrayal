@@ -68,11 +68,10 @@
 #define DUDE_JUMP 11.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
-/**How much the player speed should be dampened during gliding*/
-#define GLIDE_DAMPING 15.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 1.0f
 #define WIND_FACTOR_GLIDING 2.0f
+#define AIR_DAMPING 2.5f
 
 using namespace cugl;
 
@@ -247,9 +246,12 @@ void DudeModel::applyForce()
             vel.x = 0; // If you set y, you will stop a jump in place
             _body->SetLinearVelocity(vel);
         } else {
-            // Damping factor in the air 
-            b2Vec2 force(-getDamping()*getVX(),0);
-            _body->ApplyForce(force,_body->GetPosition(),true);
+            // Damping factor in the air. If we are gliding, ZERO FRICTION
+            b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
+            if (!_isGliding) {
+                _body->ApplyForce(force, _body->GetPosition(), true);
+            }
+            
         }
     }
 
@@ -264,13 +266,12 @@ void DudeModel::applyForce()
         b2Vec2 force(getMovement(), 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
         // Reduce friction in air.
-        if (_isGliding)
-        {
-            // force.operator*=(-0.5);
-            //_body->ApplyForce(force, _body->GetPosition(), true);
-            //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-        }
     }
+    //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
+    if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
+        setVY(GLIDE_FALL_SPEED);
+    }
+    
     // Jump!
     if (isJumping() && isGrounded())
     {
@@ -288,8 +289,8 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
-    // Check whether we are in glid mode
-    //glideUpdate(dt);
+    // Check whether we are in glide mode
+    glideUpdate(dt);
     // Apply cooldowns
     if (isJumping())
     {
@@ -340,22 +341,20 @@ void DudeModel::glideUpdate(float dt)
 {
     b2Vec2 motion = _body->GetLinearVelocity();
 
-    if (_isGliding && !isGrounded())
+    if (isGrounded()) {
+        _isGliding = false;
+    }
+
+    if (_isGliding)
     {
-        // if (motion.y < 0) {
-        //     _glideTimer += dt;
-        // }
-        // if (_glideTimer >= _glideDelay) {
-        //     _isGliding = true;
-        //
-        // } \
-        // GLIDIND DISABLED FOR NOW
-        //_body->SetLinearDamping(GLIDE_DAMPING);
+        _body->SetLinearDamping(GLIDE_DAMPING);
     }
     else
     {
         _body->SetLinearDamping(0);
     }
+
+    
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed

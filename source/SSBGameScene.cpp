@@ -1104,6 +1104,19 @@ void GameScene::preUpdate(float dt)
             _rightnode->setVisible(false);
         }
 
+        //THE GLIDE BULLSHIT SECTION
+        if (_input.getRightTapped()) {
+            _input.setRightTapped(false);
+            if (!_avatar->isGrounded())
+            {
+                _avatar->setGlide(true);
+            }
+        }
+        else if (!_input.isRightDown()) {
+            _avatar->setGlide(false);
+
+        }
+
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
         _avatar->setJumping(_input.didJump());
         _avatar->applyForce();
@@ -1114,21 +1127,7 @@ void GameScene::preUpdate(float dt)
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
         }
-
-        if (_avatar->isGrounded())
-        {
-            _input.setGlide(false);
-        }
-        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        if (_input.isRightDown() && _input.canGlide())
-        {
-
-            _avatar->setGlide(true);
-        }
-        else
-        {
-            _avatar->setGlide(false);
-        }
+        
         
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
             (*it)->update(dt);

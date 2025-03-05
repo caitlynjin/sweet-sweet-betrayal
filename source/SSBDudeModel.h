@@ -60,15 +60,18 @@ using namespace cugl;
 #pragma mark Physics Constants
 /** The factor to multiply by the input */
 #define DUDE_FORCE      20.0f
-/** The amount to slow the character down */
+/** The amount to slow the character down in the air */
 #define DUDE_DAMPING    10.0f
 /** The maximum character speed */
 #define DUDE_MAXSPEED   5.0f
 /**How much the player speed should be dampened during gliding*/
-#define GLIDE_DAMPING 20.0f
+#define GLIDE_DAMPING 2.5f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 1.0f
 #define WIND_FACTOR_GLIDING 2.0f
+#define GLIDE_FALL_SPEED -1.0f
+/*Air friction*/
+#define AIR_DAMPING = 2.5f
 
 
 #pragma mark -
