@@ -44,7 +44,7 @@ public:
     
     virtual void setPosition(const cugl::Vec2& position);
 
-    std::shared_ptr<cugl::physics2::BoxObstacle> getObstacle() {
+    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() {
         return _box;
     }
 

@@ -29,7 +29,7 @@ public:
 
 
 	/*Return the obstacle*/
-	std::shared_ptr<cugl::physics2::BoxObstacle> getObstacle() {
+	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
 		return _gust;
 	}
 

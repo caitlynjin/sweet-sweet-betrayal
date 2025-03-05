@@ -5,6 +5,16 @@
 using namespace cugl;
 using namespace cugl::graphics;
 
+/**
+ * Sets the position
+ *
+ * @param position   The position
+ */
+void Platform::setPosition(const cugl::Vec2& position) {
+    _position = position;
+    _box->setPosition(position + Vec2(0.5, 0.5));
+}
+
 void Platform::update(float timestep) {
     if (!_moving) return;
     
@@ -48,8 +58,10 @@ using namespace cugl;
 bool Platform::init(const Vec2 pos, const Size size) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
+    _itemType = Item::PLATFORM;
     return true;
 }
+
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
     if (!init(pos, size)) return false;
     _moving = true;
@@ -64,7 +76,3 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _box->setLinearVelocity(direction * _speed);
     return true;
 }
-
-
-
-

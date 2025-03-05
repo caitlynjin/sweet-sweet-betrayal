@@ -12,6 +12,7 @@
 #include <box2d/b2_fixture.h>
 #include <unordered_set>
 #include <vector>
+#include "Constants.h"
 #include "SSBInput.h"
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
@@ -21,6 +22,7 @@
 //#include <cmath>
 
 using namespace cugl;
+using namespace Constants;
 
 /**
  * This class is the primary gameplay constroller for the demo.
@@ -31,30 +33,6 @@ using namespace cugl;
  */
 class GameScene : public scene2::Scene2 {
 protected:
-    /**
-     * The type of an item/obstacle.
-     */
-    enum Item {
-        /** A standard platform */
-        PLATFORM,
-        /** A moving platform */
-        MOVING_PLATFORM,
-        /** A wind object */
-        WIND
-    };
-    
-    /**
-     * Convert an Item enum to the corresponding string.
-     */
-    std::string itemToString(Item item) {
-        switch (item) {
-            case PLATFORM:
-                return "platform";
-            default:
-                return "unknown";
-        }
-    }
-    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 
@@ -146,8 +124,10 @@ protected:
     int _countdown;
     /** Whether we are in build mode */
     bool _buildingMode;
-    /** The selected item in build mode */
+    /** The selected item in build mode (new object) */
     Item _selectedItem;
+    /** The selected object in build mode (object being moved) */
+    std::shared_ptr<Object> _selectedObject;
     /** The initial camera position */
     Vec2 _camerapos;
 
@@ -159,11 +139,8 @@ protected:
     int _currRound = 1;
     /** How many gems the player collected and won */
     int _currGems = 0;
-      
-
     /** The number of items currently placed */
     int _itemsPlaced = 0;
-
 
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
@@ -196,16 +173,19 @@ private:
     */
     void createTreasure(Vec2 pos, Size size);
 
-    /** Creates a platform.
-    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
-    * @param size The size of the platform in Box2D coordinates.
-    * @param wall Whether this is a wall or not (if not it is a user placed platform)
-    */
+    /**
+     * Creates a platform.
+     *
+     * @return the platform being created
+     *
+     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+     * @param size The size of the platform in Box2D coordinates.
+     * @param wall Whether this is a wall or not (if not it is a user placed platform)
+     */
+    std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
 
-    void createPlatform(Vec2 pos, Size size, bool wall);
-    
     void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
-    
+
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
     /**
      * Lays out the game geography.
@@ -328,11 +308,13 @@ public:
     /**
      * Creates an item of type item and places it at the grid position.
      *
+     * @return the object being placed
+     *
      * @param gridPos   The grid position to place the item at
      * @param item  The type of the item to be placed/created
      */
-    void placeItem(Vec2 gridPos, Item item);
-    
+    std::shared_ptr<Object> placeItem(Vec2 gridPos, Item item);
+
     /**
      * Returns the corresponding asset name to the item.
      *

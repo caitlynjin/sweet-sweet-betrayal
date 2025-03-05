@@ -34,7 +34,7 @@ public:
 
 	void dispose();
 
-	std::shared_ptr<cugl::physics2::PolygonObstacle> getObstacle() {
+	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
 		return _hitbox;
 	}
 
