@@ -35,14 +35,14 @@ public:
      * This state allows the top level application to know what the user
      * chose.
      */
-//    enum Choice {
-//        /** User has not yet made a choice */
-//        NONE,
-//        /** User wants to host a game */
-//        HOST,
-//        /** User wants to join a game */
-//        JOIN
-//    };
+    enum Choice {
+        /** User has not yet made a choice */
+        NONE,
+        /** User wants to host a game */
+        HOST,
+        /** User wants to join a game */
+        JOIN
+    };
 
 protected:
     /** The asset manager for this scene. */
@@ -52,6 +52,12 @@ protected:
     PlatformInput _input;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
+    
+    std::shared_ptr<cugl::scene2::Button> _hostbutton;
+       /** The menu button for joining a game */
+    std::shared_ptr<cugl::scene2::Button> _joinbutton;
+    /** The player menu choice */
+    Choice _choice;
 
 public:
 #pragma mark -
@@ -93,15 +99,24 @@ public:
     bool init(const std::shared_ptr<cugl::AssetManager>& assets);
     
     /**
-     * Allocates a new MenuScene instance.
+     * Sets whether the scene is currently active
      *
-     * @param assets The asset manager.
-     * @return A shared pointer to the new MenuScene.
+     * This method should be used to toggle all the UI elements.  Buttons
+     * should be activated when it is made active and deactivated when
+     * it is not.
+     *
+     * @param value whether the scene is currently active
      */
-    static std::shared_ptr<MenuScene> alloc(const std::shared_ptr<cugl::AssetManager>& assets) {
-        std::shared_ptr<MenuScene> result = std::make_shared<MenuScene>();
-        return (result->init(assets) ? result : nullptr);
-    };
+    virtual void setActive(bool value) override;
+    
+    /**
+     * Returns the user's menu choice.
+     *
+     * This will return NONE if the user had no yet made a choice.
+     *
+     * @return the user's menu choice.
+     */
+    Choice getChoice() const { return _choice; }
 
 };
 

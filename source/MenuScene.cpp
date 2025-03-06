@@ -27,11 +27,6 @@
 #include <random>
 
 using namespace cugl;
-using namespace cugl::graphics;
-using namespace cugl::physics2;
-using namespace cugl::audio;
-using namespace Constants;
-using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
@@ -64,16 +59,40 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets) {
        return false;
    }
 
-   _active = true;
+    Size dimen = getSize();
+        
+    // Start up the input handler
+    _assets = assets;
    Application::get()->setClearColor(Color4f::CORNFLOWER);
+std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu");
+    scene->setContentSize(dimen);
+    scene->doLayout(); // Repositions the HUD
+    _choice = Choice::NONE;
+    _hostbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.host"));
+    _joinbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.join"));
 
    // Load the background
    _background = scene2::PolygonNode::allocWithTexture(assets->get<Texture>(BACKGROUND_TEXTURE));
    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
    _background->setPosition(Vec2::ZERO);
    _background->setScale(1.0f);
-   addChild(_background);
+    
+    // Program the buttons
+    _hostbutton->addListener([this](const std::string& name, bool down) {
+        if (down) {
+            _choice = Choice::HOST;
+        }
+    });
+    _joinbutton->addListener([this](const std::string& name, bool down) {
+        if (down) {
+            _choice = Choice::JOIN;
+        }
+    });
+
+    addChild(scene);
+    setActive(false);
     return true;
+
 }
 
 /**
@@ -85,6 +104,31 @@ void MenuScene::dispose() {
         _background = nullptr;
         _active = false;
         Scene2::dispose();
+    }
+}
+/**
+ * Sets whether the scene is currently active
+ *
+ * This method should be used to toggle all the UI elements.  Buttons
+ * should be activated when it is made active and deactivated when
+ * it is not.
+ *
+ * @param value whether the scene is currently active
+ */
+void MenuScene::setActive(bool value) {
+    if (isActive() != value) {
+        Scene2::setActive(value);
+        if (value) {
+            _choice = NONE;
+            _hostbutton->activate();
+            _joinbutton->activate();
+        } else {
+            _hostbutton->deactivate();
+            _joinbutton->deactivate();
+            // If any were pressed, reset them
+            _hostbutton->setDown(false);
+            _joinbutton->setDown(false);
+        }
     }
 }
 
