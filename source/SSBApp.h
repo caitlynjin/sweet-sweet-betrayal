@@ -2,11 +2,16 @@
 #define __PF_APP_H__
 #include <cugl/cugl.h>
 #include "SSBGameScene.h"
+#include "MenuScene.h"
+#include "SSBInput.h"
 
 /**
  * This class represents the application root for the platform demo.
  */
 class SSBApp : public cugl::Application {
+    enum Status {
+        LOAD, MENU, HOST, CLIENT, GAME
+    };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
     std::shared_ptr<cugl::graphics::SpriteBatch> _batch;
@@ -16,11 +21,19 @@ protected:
     // Player modes
     /** The primary controller for the game world */
     GameScene _gameplay;
+    
+    /***/
+    std::shared_ptr<MenuScene> _mainmenu;
+    
+    /***/
+    PlatformInput _input;
     /** The controller for the loading screen */
     cugl::scene2::LoadingScene _loading;
     
     /** Whether or not we have finished loading all assets */
     bool _loaded;
+    
+    Status _status;
     
 public:
 #pragma mark Constructors

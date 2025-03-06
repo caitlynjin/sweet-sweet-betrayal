@@ -1,4 +1,5 @@
 #include "SSBApp.h"
+#include "SSBInput.h"
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -22,6 +23,7 @@ void SSBApp::onStartup() {
     _assets = AssetManager::alloc();
     _batch  = SpriteBatch::alloc();
     
+    
     // Start-up basic input
 #ifdef CU_TOUCH_SCREEN
     Input::activate<Touchscreen>();
@@ -44,6 +46,7 @@ void SSBApp::onStartup() {
     _loading.start();
     AudioEngine::start();
     Application::onStartup(); // YOU MUST END with call to parent
+    _input.init(_loading.getBounds());
 }
 
 /**
@@ -122,17 +125,40 @@ void SSBApp::update(float dt) {
     if (!_loaded && _loading.isActive()) {
         _loading.update(0.01f);
     } else if (!_loaded) {
-        _loading.dispose(); // Disables the input listeners in this mode
-        _gameplay.init(_assets);
-        _gameplay.setSpriteBatch(_batch);
+        _loading.dispose();
+
+        // Correct way to initialize the menu scene
+        _mainmenu = MenuScene::alloc(_assets);
+        _mainmenu->setSpriteBatch(_batch);
+
         _loaded = true;
-        
-        // Switch to deterministic mode (UNCOMMENT TO COMPARE)
-        setDeterministic(true);
+        _status = MENU;
     } else {
-        _gameplay.update(dt);
+        switch (_status) {
+            case MENU:
+                _mainmenu->update(dt);
+                
+                // Check if any touch is detected
+                if (_input._touchDown) {
+                    _mainmenu->dispose();  // Dispose menu before switching
+                    _mainmenu = nullptr;
+
+                    _gameplay.init(_assets);
+                    _gameplay.setSpriteBatch(_batch);
+                    _status = GAME;
+                }
+                break;
+
+            case GAME:
+                _gameplay.update(dt);
+                break;
+
+            default:
+                break;
+        }
     }
 }
+
 
 /**
  * The method called to indicate the start of a deterministic loop.
