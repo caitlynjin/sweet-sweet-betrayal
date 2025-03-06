@@ -253,7 +253,20 @@ void SSBApp::draw() {
     if (!_loaded) {
         _loading.render();
     } else {
-        _gameplay.render();
+        switch (_status) {
+            case MENU:
+                if (_mainmenu) {
+                    _mainmenu->render();
+                }
+                break;
+                
+            case GAME:
+                _gameplay.render();
+                break;
+                
+            default:
+                break;
+        }
     }
 }
 
