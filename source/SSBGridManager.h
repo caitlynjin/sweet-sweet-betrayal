@@ -7,6 +7,7 @@
 #define __SSB_GRID_MANAGER_H__
 
 #include <cugl/cugl.h>
+#include "Object.h"
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -17,6 +18,10 @@ using namespace cugl::graphics;
 * The grid manager for the grid used in building mode.
 */
 class GridManager {
+public:
+    /** Object map to map grid positions to world objects */
+    std::map<std::pair<int, int> , std::shared_ptr<Object>> objectMap;
+
 private:
     /** Reference to building mode grid */
     std::shared_ptr<scene2::SceneNode> _grid;
@@ -114,4 +119,25 @@ public:
      * Sets the sprite node's visibility to false
      */
     void setSpriteInvisible();
+
+#pragma mark -
+#pragma mark Object Handling
+
+    /**
+     * Adds the object to the object map.
+     *
+     *@param cellPos    the cell position
+     *@param obj    the object
+     */
+    void addObject(Vec2 cellPos, std::shared_ptr<Object> obj);
+
+    /**
+     * Removes the object from the object map, if it exists.
+     *
+     *@return   the object removed
+     *
+     *@param cellPos    the cell position
+     */
+    std::shared_ptr<Object> removeObject(Vec2 cellPos);
+
 };

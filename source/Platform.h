@@ -1,10 +1,11 @@
-#include "Object.h"
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 #include <cugl/cugl.h>
+#include "Object.h"
 
 using namespace cugl;
 using namespace std;
+using namespace Constants;
 
 class Platform : public Object {
 
@@ -20,7 +21,7 @@ private:
 public:
 	Platform() : Object() {}
 
-	Platform(Vec2 pos) : Object(pos) {}
+    Platform(Vec2 pos) : Object(pos, Item::PLATFORM) {}
 
 	/** The update method for the platform */
 	void update(float timestep) override;
@@ -29,7 +30,14 @@ public:
 
 	void dispose();
 
-    std::shared_ptr<cugl::physics2::BoxObstacle> getObstacle() {
+    /**
+     * Sets the position
+     *
+     * @param position   The position
+     */
+    void setPosition(const cugl::Vec2& position) override;
+
+    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
         return _box;
     }
 
