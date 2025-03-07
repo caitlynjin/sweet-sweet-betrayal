@@ -286,20 +286,7 @@ void DudeModel::applyForce()
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
     }
-    //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
-    if (_isGliding && (_justFlipped || _justGlided)) {
-        int face = SIGNUM(_movement);
-        b2Vec2 force(face*3.5, 0);
-        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-    }
     
-    if (_justFlipped == true) {
-        CULog("JUSST FLISPPED");
-        _justFlipped = false;
-    }
-    if (_justGlided == true) {
-        _justGlided = false;
-    }
 }
 
 /**
@@ -313,6 +300,14 @@ void DudeModel::update(float dt)
 {
     // Check whether we are in glide mode
     glideUpdate(dt);
+    //Set Justflipped and justglided to instantly deactivate 
+    if (_justFlipped == true) {
+        _justFlipped = false;
+    }
+    if (_justGlided == true) {
+        _justGlided = false;
+    }
+    
     // Apply cooldowns
     if (isJumping())
     {
@@ -332,6 +327,7 @@ void DudeModel::update(float dt)
     {
         _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
     }
+
     if (_onMovingPlat && MovingPlat != nullptr)
     {
         Vec2 platformVel = MovingPlat->getLinearVelocity();
@@ -370,13 +366,19 @@ void DudeModel::glideUpdate(float dt)
     if (_isGliding)
     {
         _body->SetLinearDamping(GLIDE_DAMPING);
+        //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
+        if (_justFlipped || _justGlided) {
+            int face = SIGNUM(_movement);
+            b2Vec2 force(face * GLIDE_BOOST_FACTOR, 0);
+            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        }
     }
     else
     {
         _body->SetLinearDamping(0);
     }
 
-    
+
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed
