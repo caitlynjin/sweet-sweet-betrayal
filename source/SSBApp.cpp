@@ -36,7 +36,9 @@ void SSBApp::onStartup() {
     _assets->attach<Font>(FontLoader::alloc()->getHook());
     _assets->attach<Texture>(TextureLoader::alloc()->getHook());
     _assets->attach<Sound>(SoundLoader::alloc()->getHook());
-    _assets->attach<SceneNode>(Scene2Loader::alloc()->getHook());
+    _assets->attach<scene2::SceneNode>(Scene2Loader::alloc()->getHook());
+    _assets->attach<JsonValue>(JsonLoader::alloc()->getHook());
+    _assets->attach<WidgetValue>(WidgetLoader::alloc()->getHook());
     _assets->loadDirectory("json/loading.json");
 
     // Create a "loading" screen
@@ -50,6 +52,8 @@ void SSBApp::onStartup() {
     Application::onStartup(); // YOU MUST END with call to parent
     _input.init(_loading.getBounds());
     
+    
+        
 }
 
 /**
@@ -135,9 +139,10 @@ void SSBApp::update(float dt) {
         _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
 
         _loading.dispose();
-
+        CULog("init");
         _mainmenu.init(_assets);
         _mainmenu.setActive(true);
+        
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets,_network);
         _hostgame.setSpriteBatch(_batch);
@@ -145,32 +150,7 @@ void SSBApp::update(float dt) {
         _joingame.setSpriteBatch(_batch);
         //_gameplay.init(_assets);
         _status = MENU;
-    } else {
-        switch (_status) {
-            case MENU:
-                _mainmenu.update(dt);
-                
-                // COMMENT OUT, USED JUST FOR TESTING
-                if (_input._touchDown) {
-                    _mainmenu.dispose();  // Dispose menu before switching
-                    _status = GAME;
-                }
-                break;
-            case HOST:
-                updateHostScene(dt);
-                break;
-                
-            case CLIENT:
-                updateClientScene(dt);
-                break;
-
-            case GAME:
-                _gameplay.update(dt);
-                break;
-            
-            default:
-                break;
-        }
+        setDeterministic(true);
     }
 }
 
@@ -196,7 +176,28 @@ void SSBApp::update(float dt) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::preUpdate(float dt) {
-    _gameplay.preUpdate(dt);
+    
+    switch (_status) {
+        case MENU:
+            _mainmenu.update(dt);
+
+            break;
+        case HOST:
+            updateHostScene(dt);
+            break;
+            
+        case CLIENT:
+            updateClientScene(dt);
+            break;
+
+        case GAME:
+            _gameplay.preUpdate(dt);
+            break;
+        
+        default:
+            break;
+    }
+
 }
 
 /**
@@ -223,7 +224,12 @@ void SSBApp::preUpdate(float dt) {
 void SSBApp::fixedUpdate() {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep()/1000000.0f;
-    _gameplay.fixedUpdate(time);
+    if (_status == GAME) {
+        _gameplay.fixedUpdate(time);
+    }
+    if(_network){
+        _network->updateNet();
+    }
 }
 
 /**
@@ -252,7 +258,10 @@ void SSBApp::fixedUpdate() {
 void SSBApp::postUpdate(float dt) {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder()/1000000.0f;
-    _gameplay.postUpdate(time);
+    if (_status == GAME) {
+        _gameplay.postUpdate(time);
+    }
+   
 }
 /**
  * Inidividualized update method for the menu scene.

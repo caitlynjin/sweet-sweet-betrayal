@@ -4,6 +4,8 @@
 //
 //  Created by jessie jia on 3/5/25.
 //
+#ifndef __NL_MENU_SCENE_H__
+#define __NL_MENU_SCENE_H__
 #include <cugl/cugl.h>
 #include <box2d/b2_world_callbacks.h>
 #include <box2d/b2_fixture.h>
@@ -120,3 +122,4 @@ public:
 
 };
 
+#endif /* __NL_MENU_SCENE_H__ */

@@ -63,19 +63,14 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets) {
         
     // Start up the input handler
     _assets = assets;
-   Application::get()->setClearColor(Color4f::CORNFLOWER);
-std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu");
+    
+    // Acquire the scene built by the asset loader and resize it the scene
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
     _hostbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.host"));
     _joinbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.join"));
-
-   // Load the background
-   _background = scene2::PolygonNode::allocWithTexture(assets->get<Texture>(BACKGROUND_TEXTURE));
-   _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-   _background->setPosition(Vec2::ZERO);
-   _background->setScale(1.0f);
     
     // Program the buttons
     _hostbutton->addListener([this](const std::string& name, bool down) {
@@ -88,7 +83,7 @@ std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu
             _choice = Choice::JOIN;
         }
     });
-
+    CULog("scene");
     addChild(scene);
     setActive(false);
     return true;
