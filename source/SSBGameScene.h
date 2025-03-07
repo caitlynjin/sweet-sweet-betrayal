@@ -19,6 +19,7 @@
 #include "Platform.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
+#include "UIScene.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -81,7 +82,8 @@ protected:
     /** Reference to the overlay of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
-
+    /** The primary controller for the UI */
+    UIScene _ui;
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
@@ -395,6 +397,7 @@ public:
      */
     void setBuildingMode(bool value);
 
+
 #pragma mark -
 #pragma mark Collision Handling
     /**
@@ -510,6 +513,11 @@ public:
      * Resets the status of the game so that we can play again.
      */
     void reset();
+
+    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch) override;
+
+    void render() override;
+
 
 #pragma mark -
 #pragma mark Helpers
