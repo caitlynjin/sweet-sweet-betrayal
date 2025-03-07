@@ -161,6 +161,7 @@ void SSBApp::update(float dt) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::preUpdate(float dt) {
+    CULog("Status: %d", static_cast<int>(_status));
     if (_status ==LOAD && _loading.isActive()) {
         _loading.update(0.01f);
     } else if (_status==LOAD) {
@@ -181,7 +182,7 @@ void SSBApp::preUpdate(float dt) {
     } else {
         switch (_status) {
             case MENU:
-                _mainmenu.update(dt);
+                updateMenuScene(dt);
                 
                 break;
             case HOST:
@@ -376,25 +377,23 @@ void SSBApp::updateClientScene(float timestep) {
  * at all. The default implmentation does nothing.
  */
 void SSBApp::draw() {
-    if (!_loaded) {
-        _loading.render();
-    } else {
-        switch (_status) {
-            case MENU:
-                _mainmenu.render();
-                break;
-            case HOST:
-                _hostgame.render();
-                break;
-            case CLIENT:
-                _joingame.render();
-            case GAME:
-                _gameplay.render();
-                break;
-                
-            default:
-                break;
-        }
+    switch (_status) {
+        case LOAD:
+            _loading.render();
+            break;
+        case MENU:
+            _mainmenu.render();
+            break;
+        case HOST:
+            _hostgame.render();
+            break;
+        case CLIENT:
+            _joingame.render();
+            break;
+        case GAME:
+            _gameplay.render();
+        default:
+            break;
     }
 }
 
