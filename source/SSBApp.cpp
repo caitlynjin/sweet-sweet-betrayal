@@ -48,9 +48,13 @@ void SSBApp::onStartup() {
     
     // Queue up the other assets
     _loading.start();
+    _status = LOAD;
     AudioEngine::start();
+    
+    NetworkLayer::start(NetworkLayer::Log::INFO);
     Application::onStartup(); // YOU MUST END with call to parent
-    _input.init(_loading.getBounds());
+    
+    setDeterministic(true);
     
     
         
@@ -133,25 +137,6 @@ void SSBApp::onResume() {
  */
 void SSBApp::update(float dt) {
 
-    if (!_loaded && _loading.isActive()) {
-        _loading.update(0.01f);
-    } else if (!_loaded) {
-        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
-
-        _loading.dispose();
-        CULog("init");
-        _mainmenu.init(_assets);
-        _mainmenu.setActive(true);
-        
-        _mainmenu.setSpriteBatch(_batch);
-        _hostgame.init(_assets,_network);
-        _hostgame.setSpriteBatch(_batch);
-        _joingame.init(_assets,_network);
-        _joingame.setSpriteBatch(_batch);
-        //_gameplay.init(_assets);
-        _status = MENU;
-        setDeterministic(true);
-    }
 }
 
 
@@ -176,26 +161,44 @@ void SSBApp::update(float dt) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::preUpdate(float dt) {
-    
-    switch (_status) {
-        case MENU:
-            _mainmenu.update(dt);
+    if (_status ==LOAD && _loading.isActive()) {
+        _loading.update(0.01f);
+    } else if (_status==LOAD) {
+        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
 
-            break;
-        case HOST:
-            updateHostScene(dt);
-            break;
-            
-        case CLIENT:
-            updateClientScene(dt);
-            break;
-
-        case GAME:
-            _gameplay.preUpdate(dt);
-            break;
+        _loading.dispose();
+        CULog("init");
+        _mainmenu.init(_assets);
+        _mainmenu.setActive(true);
         
-        default:
-            break;
+        _mainmenu.setSpriteBatch(_batch);
+        _hostgame.init(_assets,_network);
+        _hostgame.setSpriteBatch(_batch);
+        _joingame.init(_assets,_network);
+        _joingame.setSpriteBatch(_batch);
+        //_gameplay.init(_assets);
+        _status = MENU;
+    } else {
+        switch (_status) {
+            case MENU:
+                _mainmenu.update(dt);
+                
+                break;
+            case HOST:
+                updateHostScene(dt);
+                break;
+                
+            case CLIENT:
+                updateClientScene(dt);
+                break;
+                
+            case GAME:
+                _gameplay.preUpdate(dt);
+                break;
+                
+            default:
+                break;
+        }
     }
 
 }
