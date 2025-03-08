@@ -535,11 +535,22 @@ public:
     /**
      * Converts from screen to Box2D coordinates.
      *
+     * @return the Box2D position
+     *
      * @param screenPos    The screen position
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
-    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
+
+    /**
+     * Snaps the Box2D position to within the bounds of the build phase grid.
+     *
+     * @return the grid position
+     *
+     * @param screenPos    The screen position
+     */
+    Vec2 snapToGrid(const Vec2 &gridPos);
 
   };
 

@@ -1045,6 +1045,9 @@ void GameScene::preUpdate(float dt)
 
     if (_buildingMode)
     {
+        /** The offset of finger placement to object indicator */
+        Vec2 dragOffset = Vec2(-1, 1);
+
         // Deactivate inventory buttons once all traps are placed
         if (_itemsPlaced == 0){
             for (size_t i = 0; i < _inventoryButtons.size(); i++)
@@ -1057,7 +1060,7 @@ void GameScene::preUpdate(float dt)
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
 
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
@@ -1083,8 +1086,8 @@ void GameScene::preUpdate(float dt)
             if (_input.isTouchDown()) {
                 // Attempt to move object that exists on the grid
                 Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-                
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset));
+
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
                 
                 // If object exists
@@ -1101,7 +1104,7 @@ void GameScene::preUpdate(float dt)
         else if (_input.getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
 
             if (_selectedObject) {
                 // Move the existing object to new position
@@ -1121,7 +1124,8 @@ void GameScene::preUpdate(float dt)
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(_input.getPlacedPos(), _scale, _offset) + dragOffset);
+                std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                 _gridManager->addObject(gridPos, obj);
 
                 _itemsPlaced += 1;
@@ -1606,11 +1610,13 @@ void GameScene::endContact(b2Contact *contact)
 /**
  * Converts from screen to Box2D coordinates.
  *
+ * @return the Box2D position
+ *
  * @param screenPos    The screen position
  * @param scale             The screen to world scale
  * @param offset           The offset of the scene to the world
  */
-Vec2 GameScene::convertScreenToGrid(const Vec2 &screenPos, float scale, const Vec2 &offset)
+Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const Vec2 &offset)
 {
     Vec2 adjusted = screenPos - offset;
 
@@ -1620,6 +1626,20 @@ Vec2 GameScene::convertScreenToGrid(const Vec2 &screenPos, float scale, const Ve
     // Converts to the specific grid position
     int xGrid = xBox2D;
     int yGrid = yBox2D;
+
+    return Vec2(xGrid, yGrid);
+}
+
+/**
+ * Snaps the Box2D position to within the bounds of the build phase grid.
+ *
+ * @return the grid position
+ *
+ * @param screenPos    The screen position
+ */
+Vec2 GameScene::snapToGrid(const Vec2 &gridPos) {
+    int xGrid = gridPos.x;
+    int yGrid = gridPos.y;
 
     // Snaps the placement to inside the grid
     int maxRows = _gridManager->getNumRows() - 1;
