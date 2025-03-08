@@ -140,4 +140,13 @@ public:
      */
     std::shared_ptr<Object> removeObject(Vec2 cellPos);
 
+    /**
+     * Checks if there's an object in this grid position.
+     *
+     * @return true if there exists an object
+     *
+     * @param cellPos    the cell position
+     */
+    bool hasObject(Vec2 cellPos);
+
 };

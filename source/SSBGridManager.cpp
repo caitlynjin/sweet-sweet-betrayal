@@ -117,3 +117,23 @@ std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
     objectMap.erase(it);
     return obj;
 };
+
+/**
+ * Checks if there's an object in this grid position.
+ *
+ * @return true if there exists an object
+ *
+ * @param cellPos    the cell position
+ */
+bool GridManager::hasObject(Vec2 cellPos) {
+    // Find object in object map
+    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+
+    auto it = objectMap.find(posPair);
+    if (it == objectMap.end()) {
+        // If unable to find object
+        return false;
+    }
+
+    return true;
+};

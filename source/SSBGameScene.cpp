@@ -1060,22 +1060,26 @@ void GameScene::preUpdate(float dt)
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset));
+            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
 
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
                 CULog("Placing object");
 
                 if (_selectedObject) {
+                    // Set the current position of the object
+                    _prevPos = gridPos;
+
                     // Move the existing object to new position
-                    _selectedObject->setPosition(gridPos);
+                    _selectedObject->setPosition(gridPosWithOffset);
 
                     // Trigger obstacle update listener
                     if (_selectedObject->getObstacle()->getListener()) {
                         _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
                     }
                 } else {
-                    _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+                    _gridManager->setObject(gridPosWithOffset, _assets->get<Texture>(itemToAssetName(_selectedItem)));
                 }
             }
         }
@@ -1107,35 +1111,42 @@ void GameScene::preUpdate(float dt)
             Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
 
             if (_selectedObject) {
-                // Move the existing object to new position
-                _selectedObject->setPosition(gridPos);
+                if (_gridManager->hasObject(gridPos)) {
+                    // Move the object back to its original position
+                    _selectedObject->setPosition(_prevPos);
+                    _gridManager->addObject(_prevPos, _selectedObject);
+
+                    _prevPos = Vec2(0, 0);
+                } else {
+                    // Move the existing object to new position
+                    _selectedObject->setPosition(gridPos);
+                    _gridManager->addObject(gridPos, _selectedObject);
+                }
 
                 // Trigger listener
                 if (_selectedObject->getObstacle()->getListener()) {
                     _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
                 }
 
-                _gridManager->addObject(gridPos, _selectedObject);
-
-                CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
-                CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
-
                 // Reset selected object
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(_input.getPlacedPos(), _scale, _offset) + dragOffset);
-                std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                _gridManager->addObject(gridPos, obj);
 
-                _itemsPlaced += 1;
+                if (!_gridManager->hasObject(gridPos)) {
+                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                    _gridManager->addObject(gridPos, obj);
 
-                // Update inventory UI
-                if (_itemsPlaced >= 1)
-                {
-                    for (size_t i = 0; i < _inventoryButtons.size(); i++)
+                    _itemsPlaced += 1;
+
+                    // Update inventory UI
+                    if (_itemsPlaced >= 1)
                     {
-                        _inventoryButtons[i]->deactivate();
+                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
+                        {
+                            _inventoryButtons[i]->deactivate();
+                        }
                     }
                 }
             }

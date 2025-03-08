@@ -110,6 +110,10 @@ protected:
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode;
 
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
+
+    /** Previous position of object in build phase */
+    Vec2 _prevPos = Vec2(0, 0);
+
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */
