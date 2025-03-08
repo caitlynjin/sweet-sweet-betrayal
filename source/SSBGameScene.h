@@ -194,7 +194,18 @@ private:
      */
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
 
-    void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+    /**
+     * Creates a moving platform.
+     *
+     * @return the moving platform
+     *
+     * @param pos The bottom left position of the platform starting position
+     * @param size The dimensions of the platform.
+     * @param end The bottom left position of the platform's destination.
+     * @param speed The speed at which the platform moves.
+     */
+    std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+
     /**
      * Lays out the game geography.
      *

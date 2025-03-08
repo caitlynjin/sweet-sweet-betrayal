@@ -476,9 +476,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return createPlatform(gridPos, Size(1, 1), false);
             break;
         case (MOVING_PLATFORM):
-            createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
-            // TODO: Fix this
-            return nullptr;
+            return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
             break;
         case (WIND):
             return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
@@ -593,12 +591,15 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
 }
 /**
  * Creates a moving platform.
+ *
+ * @return the moving platform
+ *
  * @param pos The bottom left position of the platform starting position
  * @param size The dimensions of the platform.
  * @param end The bottom left position of the platform's destination.
  * @param speed The speed at which the platform moves.
  */
-void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
+std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
     
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
@@ -622,6 +623,8 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
+
+    return plat;
 }
 /**
  * Create the growing wall if not created. Otherwise, increase its width
