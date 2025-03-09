@@ -33,6 +33,9 @@ void SSBApp::onStartup() {
     Input::activate<Mouse>();
 #endif
     
+    Input::activate<Keyboard>();
+    Input::activate<TextInput>();
+    
     _assets->attach<Font>(FontLoader::alloc()->getHook());
     _assets->attach<Texture>(TextureLoader::alloc()->getHook());
     _assets->attach<Sound>(SoundLoader::alloc()->getHook());
