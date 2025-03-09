@@ -15,6 +15,8 @@ protected:
 	std::shared_ptr<graphics::Texture> _texture;
     /** The item type of this object */
     Item _itemType;
+    /** Size of the object */
+    Size _size = Size(1, 1);
 
 public:
 #pragma mark -
@@ -26,15 +28,21 @@ public:
 	Object();
 
     /**
-    * Gets the position of the object.
-    * @return the position of the object
-    */
+     * Gets the position of the object.
+     * @return the position of the object
+     */
     const cugl::Vec2& getPosition() const { return _position; }
 
+    /**
+     * Get the size of the object.
+     * @return the size of the object
+     */
+    const Size getSize() const { return _size; }
+
 	/**
-	* Gets the object texture.
-	* @return the texture of the object
-	*/
+	 * Gets the object texture.
+	 * @return the texture of the object
+	 */
 	const std::shared_ptr<graphics::Texture>& getTexture() const { return _texture; }
 
 	/**

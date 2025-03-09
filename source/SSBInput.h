@@ -52,8 +52,6 @@ public:
         PLACED
     };
 
-    bool canGlide() { return _canGlide; }
-    void setGlide(bool v) { _canGlide = v; }
 private:
     /** Whether or not this input is active */
     bool _active;
@@ -84,6 +82,20 @@ public:
     bool _touchDown;
     
 
+#pragma mark glide bullshit
+    //Here is the glide bullshit
+    /**Whether or not we are holding the right side of the screen*/
+    bool _holdRight;
+    //This is set to true the moment we tap the right side of the screen. It should be immediately set to false
+    //Once we perform a game update
+    bool _rightTapped;
+    //Set _tapRight. 
+    void setRightTapped(bool set) { _rightTapped = set; };
+    //get rightTapped
+    bool getRightTapped() { return _rightTapped; };
+
+    bool canGlide() { return _canGlide; }
+    void setGlide(bool v) { _canGlide = v; }
 
 protected:
     // INPUT RESULTS
@@ -101,10 +113,6 @@ protected:
     float _horizontal;
     /** Touch position on screen */
     cugl::Vec2 _touchPosForDrag;
-
-    //GLIDING CONTROLS
-    /**Whether or not we can glide*/
-    bool _canGlide;
     
     
     // INVENTORY
@@ -112,6 +120,11 @@ protected:
     InventoryStatus _inventoryStatus;
     /** The screen position of the placed item */
     cugl::Vec2 _placedPos;
+
+
+    //GLIDING CONTROLS
+/**Whether or not we can glide*/
+    bool _canGlide;
 
 #pragma mark Internal Touch Management   
 	// The screen is divided into four zones: Left, Bottom, Right and Main/
@@ -172,8 +185,7 @@ protected:
     cugl::Vec2 _joycenter;
     /** Whether or not we have processed a jump for this swipe yet */
     bool _hasJumped;
-    /**Whether or not we are holding the right side of the screen*/
-    bool _holdRight;
+    
     /** The timestamp for a double tap on the right */
     cugl::Timestamp _rtime;
 	/** The timestamp for a double tap in the middle */
