@@ -13,7 +13,7 @@ using namespace cugl::graphics;
  */
 void Platform::setPosition(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + Vec2(0.5, 0.5));
+    _box->setPosition(position + _size / 2);
 }
 
 void Platform::update(float timestep) {
@@ -60,15 +60,17 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Platform::init(const Vec2 pos, const Size size) {
+bool Platform::init(const Vec2 pos, const Size size, bool wall) {
     Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
+    // The long platform is shorter in height
+    _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, wall ? nsize.height : nsize.height/7));
+    _size = size;
     _itemType = Item::PLATFORM;
     return true;
 }
 
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
-    if (!init(pos, size)) return false;
+    if (!init(pos, size, false)) return false;
     _moving = true;
     _startPos = start;
     _endPos   = end+ Vec2(size.width/2, size.height/2);
