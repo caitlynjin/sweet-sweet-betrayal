@@ -15,6 +15,11 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "platform_long": {
+            "file": "textures/platform_long.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "moving": {
             "file": "textures/movingplatformtile.png",
             "wrapS": "repeat",

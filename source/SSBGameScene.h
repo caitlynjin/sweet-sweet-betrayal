@@ -110,6 +110,10 @@ protected:
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode;
 
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
+
+    /** Previous position of object in build phase */
+    Vec2 _prevPos = Vec2(0, 0);
+
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */
@@ -194,7 +198,18 @@ private:
      */
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
 
-    void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+    /**
+     * Creates a moving platform.
+     *
+     * @return the moving platform
+     *
+     * @param pos The bottom left position of the platform starting position
+     * @param size The dimensions of the platform.
+     * @param end The bottom left position of the platform's destination.
+     * @param speed The speed at which the platform moves.
+     */
+    std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+
     /**
      * Lays out the game geography.
      *
@@ -524,11 +539,23 @@ public:
     /**
      * Converts from screen to Box2D coordinates.
      *
+     * @return the Box2D position
+     *
      * @param screenPos    The screen position
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
-    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
+
+    /**
+     * Snaps the Box2D position to within the bounds of the build phase grid.
+     *
+     * @return the grid position
+     *
+     * @param screenPos    The screen position
+     * @param item               The selected item being snapped to the grid
+     */
+    Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
   };
 
