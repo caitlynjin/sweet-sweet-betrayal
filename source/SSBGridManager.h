@@ -19,8 +19,10 @@ using namespace cugl::graphics;
 */
 class GridManager {
 public:
-    /** Object map to map grid positions to world objects */
-    std::map<std::pair<int, int> , std::shared_ptr<Object>> objectMap;
+    /** Maps grid positions to world objects */
+    std::map<std::pair<int, int>, std::shared_ptr<Object>> posToObjMap;
+    /** Maps world objects to bottom left position of objects */
+    std::map<std::shared_ptr<Object>, std::pair<int, int>> objToOriginPosMap;
 
 private:
     /** Reference to building mode grid */
@@ -110,11 +112,11 @@ public:
     /**
      * Adds an object to the corresponding cell at this row and column.
      *
-     *@param cellPos the cell position to add it to
-     *@param texture the texture of the object
+     * @param cellPos   the cell position
+     * @param item          the item of the corresponding object
      */
-    void setObject(Vec2 cellPos, std::shared_ptr<Texture> texture);
-    
+    void setObject(Vec2 cellPos, Item item);
+
     /**
      * Sets the sprite node's visibility to false
      */

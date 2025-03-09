@@ -37,10 +37,13 @@ using namespace Constants;
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
 
+/** The number pixels in a Box2D unit */
+#define BOX2D_UNIT 50.0f
+
 /** Width of the game world in Box2d units */
-#define DEFAULT_WIDTH 20.0f
+#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
 /** Height of the game world in Box2d units */
-#define DEFAULT_HEIGHT 12.0f
+#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
@@ -97,6 +100,8 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define EARTH_TEXTURE   "gray"
 /** The key for the platform texture in the asset manager*/
 #define PLATFORM_TEXTURE   "platform"
+/** The key for the 3x0.5 platform texture in the asset manager */
+#define PLATFORM_LONG_TEXTURE   "platform_long"
 /** The key for the moving platform texture in the asset manager*/
 #define MOVING_TEXTURE   "moving"
 /** The key for the spike texture in the asset manager */
@@ -429,7 +434,7 @@ void GameScene::dispose()
 void GameScene::initInventory()
 {
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {PLATFORM_LONG_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -473,7 +478,7 @@ void GameScene::initInventory()
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            return createPlatform(gridPos, Size(1, 1), false);
+            return createPlatform(gridPos, Size(3, 1), false);
             break;
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
@@ -481,25 +486,6 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
         case (WIND):
             return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
             break;
-        case (NONE):
-            return nullptr;
-    }
-}
-
-/**
- * Returns the corresponding asset name to the item.
- *
- * @param item The item
- * @Return the item's asset name
- */
-std::string GameScene::itemToAssetName(Item item){
-    switch (item){
-        case (PLATFORM):
-            return PLATFORM_TEXTURE;
-        case (MOVING_PLATFORM):
-            return MOVING_TEXTURE;
-        case (WIND):
-            return WIND_TEXTURE;
         case (NONE):
             return nullptr;
     }
@@ -560,12 +546,16 @@ void GameScene::reset()
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
     std::shared_ptr<Texture> image;
     if (wall){
-        image = _assets->get<Texture>(EARTH_TEXTURE);
-    } else {
         image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    } else {
+        image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
     }
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
-    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -1060,8 +1050,8 @@ void GameScene::preUpdate(float dt)
         if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset));
-            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
 
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
@@ -1079,7 +1069,7 @@ void GameScene::preUpdate(float dt)
                         _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
                     }
                 } else {
-                    _gridManager->setObject(gridPosWithOffset, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
                 }
             }
         }
@@ -1090,7 +1080,7 @@ void GameScene::preUpdate(float dt)
             if (_input.isTouchDown()) {
                 // Attempt to move object that exists on the grid
                 Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset));
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
                 
@@ -1108,7 +1098,7 @@ void GameScene::preUpdate(float dt)
         else if (_input.getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset);
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
 
             if (_selectedObject) {
                 if (_gridManager->hasObject(gridPos)) {
@@ -1132,7 +1122,7 @@ void GameScene::preUpdate(float dt)
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(_input.getPlacedPos(), _scale, _offset) + dragOffset);
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
@@ -1647,8 +1637,11 @@ Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const V
  * @return the grid position
  *
  * @param screenPos    The screen position
+ * @param item               The selected item being snapped to the grid
  */
-Vec2 GameScene::snapToGrid(const Vec2 &gridPos) {
+Vec2 GameScene::snapToGrid(const Vec2 &gridPos, Item item) {
+    Size offset = itemToSize(item) - Vec2(1, 1);
+
     int xGrid = gridPos.x;
     int yGrid = gridPos.y;
 
@@ -1658,8 +1651,8 @@ Vec2 GameScene::snapToGrid(const Vec2 &gridPos) {
 
     xGrid = xGrid < 0 ? 0 : xGrid;
     yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid > maxCols ? maxCols : xGrid;
-    yGrid = yGrid > maxRows ? maxRows : yGrid;
+    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }

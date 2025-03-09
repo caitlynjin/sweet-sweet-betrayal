@@ -553,8 +553,9 @@ public:
      * @return the grid position
      *
      * @param screenPos    The screen position
+     * @param item               The selected item being snapped to the grid
      */
-    Vec2 snapToGrid(const Vec2 &gridPos);
+    Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
   };
 
