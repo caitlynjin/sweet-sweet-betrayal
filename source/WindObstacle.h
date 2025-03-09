@@ -23,6 +23,8 @@ public:
 	/** The update method for the WindObstacle */
 	void update(float timestep) override;
 
+	string getJsonKey() override;
+
 	/*Disposal*/
 	~WindObstacle(void) override { dispose(); }
 	void dispose();

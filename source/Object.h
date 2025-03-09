@@ -3,6 +3,13 @@
 #include <cugl/cugl.h>
 #include "Constants.h"
 
+
+/* The default JSON key for an object type.
+* If a subclass fails to have a key specified, it defaults to this.
+* This is used for generating JSON levels from the in-game level editor.
+*/
+#define JSON_KEY   "objects";
+
 using namespace cugl;
 using namespace Constants;
 
@@ -15,10 +22,15 @@ protected:
 	std::shared_ptr<graphics::Texture> _texture;
     /** The item type of this object */
     Item _itemType;
+	/** Whether or not this object has been placed by a player */
+	bool _playerPlaced;
 
 public:
 #pragma mark -
 #pragma mark Constructors
+
+	Object(Vec2 pos, Item itemType, bool playerPlaced);
+
     Object(Vec2 pos, Item itemType);
 
 	Object(Vec2 pos);
@@ -30,6 +42,7 @@ public:
     * @return the position of the object
     */
     const cugl::Vec2& getPosition() const { return _position; }
+
 
 	/**
 	* Gets the object texture.
@@ -44,6 +57,14 @@ public:
 	 * @param position   The position
 	 */
 	virtual void setPosition(const cugl::Vec2& position);
+
+	/**
+	* Sets if the player placed this object
+	*
+	*
+	* @param playerPlaced  Whether the player placed this object 
+	*/
+	void setPlayerPlaced(const bool playerPlaced);
 
 	/**
 	 * Sets the texture
@@ -63,6 +84,14 @@ public:
     const Item getItemType() const {
         return _itemType;
     }
+	/**
+	* Gets whether this object was placed by a player.
+	* @return whether this object was placed by a player
+	*/
+	const bool isPlayerPlaced() const {
+		return _playerPlaced;
+	}
+
 
 	/** Update method for this object. This will probably be different for each subclass. */
 	virtual void update(float timestep);
@@ -73,6 +102,9 @@ public:
 
 	virtual ~Object(void) { dispose(); }
 
+	/** Returns the JSON key for this object */
+	virtual std::string getJsonKey();
+
 	/**
 	 * Disposes all resources and assets of this Object
 	 *
@@ -82,6 +114,8 @@ public:
 
 	void draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 		cugl::Size size);
+
+	std::map<std::string, double> getMap();
 };
 
 

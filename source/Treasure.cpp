@@ -1,6 +1,7 @@
 #include "Treasure.h"
 //#include "Object.h"
 
+#define JSON_KEY "treasures"
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -15,6 +16,10 @@ void Treasure::update(float timestep) {
 //    if (_node != nullptr) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
+}
+
+string Treasure::getJsonKey() {
+    return JSON_KEY;
 }
 
 void Treasure::setPosition(const cugl::Vec2 &position){

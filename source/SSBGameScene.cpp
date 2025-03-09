@@ -14,6 +14,7 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
+#include "LevelModel.h"
 
 #include <ctime>
 #include <string>
@@ -380,6 +381,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     }
 
     populate();
+    shared_ptr<LevelModel> level = make_shared<LevelModel>();
+
+    // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
+    //
+    //level->createJsonFromLevel(Size(32, 32), _objects);
 
     _active = true;
     _complete = false;
@@ -584,6 +590,8 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
     plat->getObstacle()->setName("platform");
 
+    plat->setPosition(pos);
+
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
@@ -689,6 +697,8 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
     spk->getObstacle()->setDebugColor(DEBUG_COLOR);
     spk->getObstacle()->setName("spike");
 
+    spk->setPosition(pos);
+
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
     spk->setSceneNode(sprite, angle);
     addObstacle(spk->getObstacle(), sprite);
@@ -706,6 +716,8 @@ void GameScene::createTreasure(Vec2 pos, Size size){
     addObstacle(_treasure->getObstacle(),sprite);
     _treasure->getObstacle()->setName("treasure");
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    _treasure->setPosition(pos);
 }
 
 /**
@@ -724,6 +736,8 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
 
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(adjustedPos, size, gust);
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+
+    wind->setPosition(pos);
 
     addObstacle(wind->getObstacle(), sprite); // All walls share the same texture
     _objects.push_back(wind);

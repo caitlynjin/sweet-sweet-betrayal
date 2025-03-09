@@ -1,11 +1,16 @@
 #include "Spike.h"
 #include "Object.h"
 
+#define JSON_KEY "spikes"
 
 using namespace cugl;
 using namespace cugl::graphics;
 
 void Spike::update(float timestep) {
+}
+
+string Spike::getJsonKey() {
+    return JSON_KEY;
 }
 
 void Spike::dispose() {}

@@ -1,11 +1,16 @@
 #include "WindObstacle.h"
 #include "Object.h"
 
+#define JSON_KEY "windObstacles"
 
 using namespace cugl;
 using namespace cugl::graphics;
 
 void WindObstacle::update(float timestep) {
+}
+
+string WindObstacle::getJsonKey() {
+    return JSON_KEY;
 }
 
 void WindObstacle::dispose() {}

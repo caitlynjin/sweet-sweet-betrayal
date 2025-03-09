@@ -38,6 +38,8 @@ public:
     /** The update method for the spike */
     void update(float timestep) override;
 
+    string getJsonKey() override;
+
     ~Treasure(void) override { dispose(); }
 
     void dispose();

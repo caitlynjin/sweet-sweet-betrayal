@@ -1,6 +1,7 @@
 #include "Platform.h"
 #include "Object.h"
 
+#define JSON_KEY  "platforms";
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -36,6 +37,10 @@ void Platform::update(float timestep) {
         _box->setLinearVelocity(velocity);
     }
 
+}
+
+string Platform::getJsonKey() {
+    return JSON_KEY;
 }
 
 void Platform::dispose() {}
