@@ -66,6 +66,15 @@
         },
         "background": {
             "file":     "textures/background.png"
+        },
+        "button": {
+            "file":  "textures/button.png"
+        },
+        "frame": {
+            "file":  "textures/frame.png"
+        },
+        "left": {
+            "file":  "textures/left_arrow.png"
         }
     },
     "jsons": {
@@ -179,7 +188,7 @@
                     "data" : {
                         "anchor"  : [0.5,1.0],
                         "scale"    : 1.5,
-                        "font"     : "retro",
+                        "font"     : "gyparody",
                         "text"     : "Host View",
                         "padding"  : [20, 20, 20, 20],
                         "halign"   : "center",
@@ -242,7 +251,7 @@
                                     "type": "Label",
                                     "data"   : {
                                         "anchor"   : [0.5, 0.5],
-                                        "font"     : "retro",
+                                        "font"     : "gyparody",
                                         "text"     : "Game ID:",
                                         "padding"  : [20, 20, 40, 20],
                                         "halign"   : "left",
@@ -290,7 +299,7 @@
                                     "type": "Label",
                                     "data"   : {
                                         "anchor"   : [0.5, 0.5],
-                                        "font"     : "retro",
+                                        "font"     : "gyparody",
                                         "text"     : "Players:",
                                         "padding"  : [20, 20, 20, 20],
                                         "halign"   : "left",
@@ -355,7 +364,7 @@
                     "data" : {
                         "anchor"  : [0.5,1.0],
                         "scale"    : 1.5,
-                        "font"     : "retro",
+                        "font"     : "gyparody",
                         "text"     : "Client View",
                         "padding"  : [20, 20, 20, 20],
                         "halign"   : "center",
@@ -418,7 +427,7 @@
                                     "type": "Label",
                                     "data"   : {
                                         "anchor"   : [0.5, 0.5],
-                                        "font"     : "retro",
+                                        "font"     : "gyparody",
                                         "text"     : "Game ID:",
                                         "padding"  : [20, 20, 40, 20],
                                         "halign"   : "left",
@@ -466,7 +475,7 @@
                                     "type": "Label",
                                     "data"   : {
                                         "anchor"   : [0.5, 0.5],
-                                        "font"     : "retro",
+                                        "font"     : "gyparody",
                                         "text"     : "Players:",
                                         "padding"  : [20, 20, 20, 20],
                                         "halign"   : "left",
@@ -546,7 +555,7 @@
                             "type": "Label",
                             "data"   : {
                                 "anchor"   : [0.5, 0.5],
-                                "font"     : "retro",
+                                "font"     : "gyparody",
                                 "text"     : "Players:",
                                 "padding"  : [20, 20, 20, 20],
                                 "halign"   : "left",
