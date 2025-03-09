@@ -69,6 +69,9 @@
         "ready_button": {
             "file":     "textures/ready_button.png"
         },
+        "left_button": {
+          "file":     "textures/left_button.png"
+        },
         "background": {
             "file":     "textures/background.png"
         }

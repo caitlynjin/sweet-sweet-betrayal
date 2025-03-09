@@ -256,6 +256,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         return false;
     }
 
+
     // Start in building mode
     _buildingMode = true;
 
@@ -310,11 +311,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
     
-    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
+//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
     
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
@@ -336,18 +337,18 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
-    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    readyNode->setScale(0.8f);
-    _readyButton = scene2::Button::alloc(readyNode);
-    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
-    _readyButton->activate();
-    _readyButton->addListener([this](const std::string &name, bool down) {
-        if (down && _buildingMode) {
-            setBuildingMode(!_buildingMode);
-            _readyButton->setVisible(false);
-        }
-    });
+//    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+//    readyNode->setScale(0.8f);
+//    _readyButton = scene2::Button::alloc(readyNode);
+//    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
+//    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+//    _readyButton->activate();
+//    _readyButton->addListener([this](const std::string &name, bool down) {
+//        if (down && _buildingMode) {
+//            setBuildingMode(!_buildingMode);
+//            _readyButton->setVisible(false);
+//        }
+//    });
 
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
@@ -373,16 +374,18 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
-    addChild(_roundsnode);
+//    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_scrollpane);
-    addChild(_readyButton);
+//    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
     
     for (auto score : _scoreImages){
         addChild(score);
     }
+
+    _ui.init(assets);
 
     populate();
 
@@ -410,17 +413,17 @@ void GameScene::dispose()
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
-        _roundsnode = nullptr;
+//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        _readyButton = nullptr;
+        //_readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
         for (auto score : _scoreImages){
             score = nullptr;
         }
-        
+        _ui.dispose();
         Scene2::dispose();
     }
 }
@@ -520,13 +523,16 @@ void GameScene::reset()
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    getCamera()->setPosition(_camerapos);
+    getCamera()->update();
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
         _inventoryButtons[i]->activate();
     }
     _inventoryOverlay->setVisible(false);
-    _readyButton->setVisible(true);
+    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
+    _ui.reset();
 
     populate();
 }
@@ -1002,7 +1008,7 @@ void GameScene::update(float timestep)
     // Turn the physics engine crank.
 
     _world->update(timestep);
-    
+    _ui.update(timestep);
     
 }
 
@@ -1221,13 +1227,10 @@ void GameScene::preUpdate(float dt)
     }
 
     // TODO: Commented out camera code for now
-    // if (!_buildingMode){
-    //     getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
-    // }
-    // else {
-    //     getCamera()->setPosition(_camerapos);
-    // }
-    // getCamera()->update();
+    if (!_buildingMode){
+        getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
+    }
+    getCamera()->update();
     
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
@@ -1236,6 +1239,19 @@ void GameScene::preUpdate(float dt)
     if (!_buildingMode)
     {
         updateGrowingWall(dt);
+    }
+
+    _ui.preUpdate(dt);
+    if (_ui.getReadyPressed()){
+        setBuildingMode(false);
+    }
+    if (_ui.getRightPressed() && _buildingMode){
+        getCamera()->translate(10, 0);
+        getCamera()->update();
+    }
+    if (_ui.getLeftPressed() && _buildingMode){
+        getCamera()->translate(-10, 0);
+        getCamera()->update();
     }
 
 }
@@ -1272,7 +1288,7 @@ void GameScene::fixedUpdate(float step)
     if (!_buildingMode){
         _world->update(step);
     }
-    
+    _ui.fixedUpdate(step);
 }
 
 /**
@@ -1325,6 +1341,7 @@ void GameScene::postUpdate(float remain)
     {
         reset();
     }
+    _ui.postUpdate(remain);
 }
 
 /**
@@ -1422,16 +1439,17 @@ void GameScene::nextRound(bool reachedGoal) {
     // Increment round
     _currRound += 1;
     // Update text
-//    _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+//   _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+    _ui.updateRound(_currRound, TOTAL_ROUNDS);
 
     // FIND BETTER SOLUTION LATER
-    removeChild(_roundsnode);
-    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
-    addChild(_roundsnode);
+//    removeChild(_roundsnode);
+//    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
+//    addChild(_roundsnode);
     
     setFailure(false);
     
@@ -1447,10 +1465,11 @@ void GameScene::nextRound(bool reachedGoal) {
 
     
     // Return to building mode
-    _readyButton->setVisible(true);
+    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
     setBuildingMode(true);
-    
+
+    _ui.visibleButtons();
     
     
 }
@@ -1460,8 +1479,7 @@ void GameScene::nextRound(bool reachedGoal) {
  *
  * @param value whether the level is in building mode.
  */
-void GameScene::setBuildingMode(bool value)
-{
+void GameScene::setBuildingMode(bool value) {
     _buildingMode = value;
 
     _gridManager->getGridNode()->setVisible(value);
@@ -1471,6 +1489,7 @@ void GameScene::setBuildingMode(bool value)
     }
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
+
 }
 
 #pragma mark -
@@ -1653,3 +1672,14 @@ Vec2 GameScene::snapToGrid(const Vec2 &gridPos, Item item) {
 
     return Vec2(xGrid, yGrid);
 }
+
+void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+    Scene2::setSpriteBatch(batch);
+    _ui.setSpriteBatch(batch);
+}
+
+void GameScene::render() {
+    Scene2::render();
+    _ui.render();
+}
+
