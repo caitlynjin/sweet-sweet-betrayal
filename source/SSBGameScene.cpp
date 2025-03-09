@@ -1481,6 +1481,8 @@ void GameScene::beginContact(b2Contact *contact)
     b2Fixture *fix1 = contact->GetFixtureA();
     b2Fixture *fix2 = contact->GetFixtureB();
 
+    contact->GetChildIndexA();
+
     b2Body *body1 = fix1->GetBody();
     b2Body *body2 = fix2->GetBody();
 
@@ -1520,12 +1522,25 @@ void GameScene::beginContact(b2Contact *contact)
         _died = true;
 
     }
-
+    //If we collide with gust, blow the player in a direction
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _avatar.get()))
-    {
-        // CULog("WIND");
-        _avatar->addWind(Vec2(0, 6));
+    {   
+        //determine which of bd1 or bd2 is the wind object
+        Vec2 windPos = Vec2();
+        if (bd2->getName() == "gust") {
+            windPos = bd2->getPosition();
+        }
+        else {
+            windPos = bd1->getPosition();
+        } 
+        //Find the appropriate object
+        std::pair<int, int> p = std::make_pair(windPos.y, windPos.x);
+        if (_gridManager->objectMap.count(p) > 0) {
+             std::shared_ptr<Object> thing = _gridManager->objectMap[p];
+             _avatar->addWind(thing->getTrajectory());
+        }
+        //_avatar->addWind(Vec2(0, 6));
     }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
