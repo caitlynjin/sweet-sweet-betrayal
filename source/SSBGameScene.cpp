@@ -481,9 +481,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return nullptr;
             break;
         case (WIND):
-            createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
-            // TODO: Fix this
-            return nullptr;
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
             break;
         case (NONE):
             return nullptr;
@@ -712,10 +710,13 @@ void GameScene::createTreasure(Vec2 pos, Size size){
 
 /**
  * Creates a new windobstacle
+ *
+ * @return the wind obstacle
+ *
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
+std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
     // TODO: Fix this
@@ -726,6 +727,8 @@ void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
 
     addObstacle(wind->getObstacle(), sprite); // All walls share the same texture
     _objects.push_back(wind);
+
+    return wind;
 }
 
 /**
