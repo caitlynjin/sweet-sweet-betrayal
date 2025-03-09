@@ -1428,7 +1428,8 @@ void GameScene::nextRound(bool reachedGoal) {
     // Increment round
     _currRound += 1;
     // Update text
-//    _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+//   _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+    _ui.updateRound(_currRound, TOTAL_ROUNDS);
 
     // FIND BETTER SOLUTION LATER
 //    removeChild(_roundsnode);

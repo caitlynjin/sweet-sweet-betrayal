@@ -12,6 +12,13 @@
 using namespace cugl;
 using namespace Constants;
 
+/**
+ * This class is the scene for the UI of the game.
+ *
+ * Since the game itself has a camera that moves along with the player,
+ * this class makes it so that the UI always stays on screen.
+ *
+ */
 class UIScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
@@ -26,8 +33,6 @@ protected:
 
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
-    /** Reference to build mode inventory buttons */
-    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the right button */
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
@@ -93,13 +98,33 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets);
 
+    /**
+     * @return true if the ready button was pressed
+     */
     bool getReadyPressed();
 
+    /**
+     * @return true if the right button was pressed
+     */
     bool getRightPressed();
 
+    /**
+     * @return true if the left button was pressed
+     */
     bool getLeftPressed();
 
+    /**
+     * Makes the buttons in the building mode visible
+     */
     void visibleButtons();
+
+    /**
+    * Updates round counter
+    *
+    * @param cur       The current round number
+    * @param total     The total number of rounds
+    */
+    void updateRound(int cur, int total);
 
 #pragma mark -
 #pragma mark Gameplay Handling

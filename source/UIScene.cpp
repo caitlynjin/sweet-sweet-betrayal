@@ -20,16 +20,14 @@ using namespace Constants;
 /** This is adjusted by screen aspect ratio to get the height */
 #define SCENE_WIDTH 1024
 #define SCENE_HEIGHT 576
-/** The image for the right dpad/joystick */
-#define RIGHT_IMAGE "dpad_right"
 /** The image for the ready button */
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
-/** The font for Round and Gem info */
-#define INFO_FONT    "marker"
 /** The color of the info labels */
 #define INFO_COLOR      Color4::WHITE
+/** The font for Round and Gem info */
+#define INFO_FONT    "marker"
 
 UIScene::UIScene() : Scene2() {
 
@@ -244,22 +242,44 @@ void UIScene::reset(){
     _leftButton->setVisible(true);
 }
 
+/**
+* @return true if the ready button was pressed
+*/
 bool UIScene::getReadyPressed() {
     return _readypressed;
 }
 
+/**
+* @return true if the right button was pressed
+*/
 bool UIScene::getRightPressed() {
     return _rightpressed;
 }
 
+/**
+* @return true if the left button was pressed
+*/
 bool UIScene::getLeftPressed() {
     return _leftpressed;
 }
 
+/**
+* Makes the buttons in the building mode visible
+*/
 void UIScene::visibleButtons() {
     _readyButton->setVisible(true);
     _rightButton->setVisible(true);
     _leftButton->setVisible(true);
+}
+
+/**
+ * Updates round counter
+ *
+ * @param cur       The current round number
+ * @param total     The total number of rounds
+ */
+void UIScene::updateRound(int cur, int total) {
+    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
 
