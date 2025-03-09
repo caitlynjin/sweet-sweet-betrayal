@@ -6,6 +6,7 @@
 //
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
+#include <cugl/cugl.h>
 #include "string"
 
 namespace Constants {
@@ -25,6 +26,20 @@ enum Item {
  * Convert an Item enum to the corresponding string.
  */
 std::string itemToString(Item item);
+
+/**
+ * Gets the default size of this Item..
+ */
+cugl::Size itemToSize(Item item);
+
+/**
+ * Returns the corresponding asset name to the item.
+ *
+ * @return the item's asset name
+ *
+ * @param item The item
+ */
+std::string itemToAssetName(Item item);
 
 }
 

@@ -20,17 +20,27 @@ public:
 
 	WindObstacle(Vec2 pos) : Object(pos) {}
 
+    /**
+     * Sets the position
+     *
+     * @param position   The position
+     */
+    void setPosition(const cugl::Vec2& position) override;
+
 	/** The update method for the WindObstacle */
 	void update(float timestep) override;
 
+  /** Return the JSON Key
+  * Every derived class should override this
+  */
 	string getJsonKey() override;
 
-	/*Disposal*/
+	/** Disposal */
 	~WindObstacle(void) override { dispose(); }
 	void dispose();
 
 
-	/*Return the obstacle*/
+	/** Return the obstacle */
 	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
 		return _gust;
 	}

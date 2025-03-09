@@ -6,6 +6,16 @@
 using namespace cugl;
 using namespace cugl::graphics;
 
+/**
+ * Sets the position
+ *
+ * @param position   The position
+ */
+void WindObstacle::setPosition(const cugl::Vec2& position) {
+    _position = position;
+    _gust->setPosition(position + _size / 2);
+}
+
 void WindObstacle::update(float timestep) {
 }
 
@@ -30,8 +40,10 @@ using namespace cugl;
  */
 bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
     Size nsize = size;
-    _gust = cugl::physics2::BoxObstacle::alloc(pos, nsize);
-    _gust->setBodyType(b2_staticBody);
+    _size = size;
+    _itemType = WIND;
+
+    _gust = cugl::physics2::BoxObstacle::alloc(pos + _size/2, nsize);
     _gust->setDensity(0.0f);
     _gust->setFriction(0.0f);
     _gust->setRestitution(0.0f);
