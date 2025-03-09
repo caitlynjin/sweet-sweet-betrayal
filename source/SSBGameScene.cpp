@@ -479,13 +479,10 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
             return createPlatform(gridPos, Size(3, 1), false);
-            break;
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
-            break;
         case (WIND):
             return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
-            break;
         case (NONE):
             return nullptr;
     }
@@ -712,13 +709,14 @@ void GameScene::createTreasure(Vec2 pos, Size size){
 std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    // TODO: Fix this
-    Vec2 adjustedPos = pos + Vec2(size.width / 2, size.height / 2);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
 
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(adjustedPos, size, gust);
+    // Allow movement of obstacle
+    wind->getObstacle()->setBodyType(b2_dynamicBody);
+
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    addObstacle(wind->getObstacle(), sprite); // All walls share the same texture
+    addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
     _objects.push_back(wind);
 
     return wind;
