@@ -51,7 +51,7 @@ public:
 	const cugl::Vec2& getTrajectory() const { return _trajectory; }
 
 	/**Sets the trajectory*/
-	void setTrajctory(const cugl::Vec2& trajectory) { _trajectory = trajectory; };
+	void setTrajectory(cugl::Vec2 trajectory) { _trajectory = trajectory; };
 	
 
 	/**

@@ -471,6 +471,7 @@ void GameScene::initInventory()
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
+
     switch (item) {
         case (PLATFORM):
             return createPlatform(gridPos, Size(1, 1), false);
@@ -481,7 +482,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return nullptr;
             break;
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 20));
             break;
         case (NONE):
             return nullptr;
@@ -725,7 +726,9 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(adjustedPos, size, gust);
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    addObstacle(wind->getObstacle(), sprite); // All walls share the same texture
+    wind->setTrajectory(gust);
+
+    addObstacle(wind->getObstacle(), sprite); 
     _objects.push_back(wind);
 
     return wind;
@@ -1140,6 +1143,7 @@ void GameScene::preUpdate(float dt)
             _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
+
     }
     else
     {
@@ -1537,9 +1541,24 @@ void GameScene::beginContact(b2Contact *contact)
         else {
             windPos = bd1->getPosition();
         } 
+        CULog("WIND COLLIDE!");
         //Find the appropriate object
-        std::pair<int, int> p = std::make_pair(windPos.y, windPos.x);
+
+        const string x = std::to_string(windPos.x);
+        const string y = std::to_string(windPos.y);
+        CULog("%s", x.c_str());
+        CULog("%s", y.c_str());
+        
+        for (const auto& pair : _gridManager->objectMap) {
+            const string x = std::to_string(pair.first.first);
+            const string y = std::to_string(pair.first.second);
+            CULog("%s", x.c_str());
+            CULog("%s", y.c_str());
+        }
+
+        auto p = std::make_pair(floor(windPos.y), floor(windPos.x));
         if (_gridManager->objectMap.count(p) > 0) {
+            CULog("WIND FOUND!");
              std::shared_ptr<Object> thing = _gridManager->objectMap[p];
              _avatar->addWind(thing->getTrajectory());
         }

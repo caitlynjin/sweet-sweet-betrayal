@@ -6,6 +6,7 @@
 //
 #include "SSBGridManager.h"
 
+
 using namespace cugl;
 using namespace cugl::graphics;
 
@@ -93,6 +94,11 @@ void GridManager::setSpriteInvisible(){
 void GridManager::addObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     auto posPair = std::make_pair(cellPos.x, cellPos.y);
     objectMap[posPair] = obj;
+
+    std::string x = std::to_string(cellPos.x);
+    std::string y = std::to_string(cellPos.y);
+    CULog("%s", x.c_str());
+    CULog("%s", y.c_str());
 };
 
 /**

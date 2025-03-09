@@ -334,7 +334,7 @@ void DudeModel::update(float dt)
         setPosition(getPosition() + platformVel * dt);
     }
 
-    //windUpdate(dt);
+    windUpdate(dt);
 
     CapsuleObstacle::update(dt);
 

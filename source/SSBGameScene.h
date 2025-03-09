@@ -184,14 +184,14 @@ private:
      */
     std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
 
-    /**
-     * Creates a new windobstacle
+    /**Creates a new windobstacle
      *
      * @return the wind obstacle
      *
      * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
      * @param size The dimensions (width, height) of the platform.
      */
+
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
 
     void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
