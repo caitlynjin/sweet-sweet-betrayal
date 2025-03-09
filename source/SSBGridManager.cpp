@@ -66,11 +66,14 @@ void GridManager::initGrid() {
 
 /**
  * Adds an object to the corresponding cell at this row and column.
+ *
+ * @param cellPos   the cell position
+ * @param item          the item of the corresponding object
  */
-void GridManager::setObject(Vec2 cellPos, std::shared_ptr<Texture> texture){
+void GridManager::setObject(Vec2 cellPos, Item item) {
     if (_spriteNode) {
         _spriteNode->setPosition(cellPos);
-        _spriteNode->setTexture(texture);
+        _spriteNode->setTexture(_assets->get<Texture>(itemToAssetName(item)));
         _spriteNode->setVisible(true);
     }
 }
@@ -92,13 +95,23 @@ void GridManager::setSpriteInvisible(){
  *@param obj    the object
  */
 void GridManager::addObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
-    auto posPair = std::make_pair(cellPos.x, cellPos.y);
-    objectMap[posPair] = obj;
+    auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
 
     std::string x = std::to_string(cellPos.x);
     std::string y = std::to_string(cellPos.y);
     CULog("%s", x.c_str());
     CULog("%s", y.c_str());
+    // Add the origin position of the object
+    objToOriginPosMap[obj] = originPosPair;
+
+    // Add the object to every position it exists in
+    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
+        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
+            posToObjMap[posPair] = obj;
+        }
+    }
 };
 
 /**
@@ -113,13 +126,50 @@ std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
     // Find object in object map
     auto posPair = std::make_pair(cellPos.x, cellPos.y);
 
-    auto it = objectMap.find(posPair);
-    if (it == objectMap.end()) {
+    auto it = posToObjMap.find(posPair);
+    if (it == posToObjMap.end()) {
         // If unable to find object
         return nullptr;
     }
 
     std::shared_ptr<Object> obj = it->second;
-    objectMap.erase(it);
+    // TODO: Remove this
+//    posToObjectMap.erase(it);
+
+    // Clear all positions the object occupies
+    auto originPosX = objToOriginPosMap[obj].first;
+    auto originPosY = objToOriginPosMap[obj].second;
+
+    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
+        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(originPosX + i, originPosY + j);
+            posToObjMap.erase(posPair);
+        }
+    }
+
+    // Clear the origin position of the object
+    objToOriginPosMap.erase(obj);
+
     return obj;
+};
+
+/**
+ * Checks if there's an object in this grid position.
+ *
+ * @return true if there exists an object
+ *
+ * @param cellPos    the cell position
+ */
+bool GridManager::hasObject(Vec2 cellPos) {
+    // Find object in object map
+    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+
+    auto it = posToObjMap.find(posPair);
+    if (it == posToObjMap.end()) {
+        // If unable to find object
+        return false;
+    }
+
+    return true;
 };
