@@ -520,9 +520,9 @@ public:
     /**
      * Resets the status of the game so that we can play again.
      */
-    void reset();
+    void reset() override;
 
-    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch) override;
+    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render() override;
 
