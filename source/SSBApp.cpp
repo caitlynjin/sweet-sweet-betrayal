@@ -353,6 +353,7 @@ void SSBApp::updateClientScene(float timestep) {
         //TODO: add network
 //        _gameplay.init(_assets, _network, false);
         _gameplay.init(_assets);
+        _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME) {
