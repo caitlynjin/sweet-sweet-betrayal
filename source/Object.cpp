@@ -59,10 +59,19 @@ void Object::draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 
 }
 
-std::map<std::string, double> Object::getMap() {
-	std::map<std::string, double> m = {
-		{"x", _position.x},
-		{"y", _position.y}
+/** 
+* This method returns the JSON encoding of the object for level creation purposes.
+* NOTE: Currently, only std::string is supported for the first item in each pair.
+		Only double, long, bool, and std::string are supported for the second item in each pair.
+		This is because the JSONValue class only supports these key/value types.
+		If you have an int, float, or anything else, you should convert it to one of the above types.
+		ALSO, if you use a string literal as a VALUE (keys seem to be fine), you should cast it to an std::string.
+		It will become a boolean in the JSON somehow if you don't.
+*/
+std::map<std::string, std::any> Object::getMap() {
+	std::map<std::string, std::any> m = {
+		{"x", double(_position.x)},
+		{"y", double(_position.y)},
 	};
 	return m;
 }

@@ -1,14 +1,8 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
 #include <cugl/cugl.h>
+#include <any>
 #include "Constants.h"
-
-
-/* The default JSON key for an object type.
-* If a subclass fails to have a key specified, it defaults to this.
-* This is used for generating JSON levels from the in-game level editor.
-*/
-#define JSON_KEY   "objects";
 
 using namespace cugl;
 using namespace Constants;
@@ -102,7 +96,10 @@ public:
 
 	virtual ~Object(void) { dispose(); }
 
-	/** Returns the JSON key for this object */
+	/** Returns the JSON key for this object 
+	* All derived classes must override this
+	*/
+
 	virtual std::string getJsonKey();
 
 	/**
@@ -115,7 +112,7 @@ public:
 	void draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 		cugl::Size size);
 
-	std::map<std::string, double> getMap();
+	std::map<std::string, std::any> getMap();
 };
 
 

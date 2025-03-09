@@ -8,8 +8,8 @@
 #ifndef __LEVEL_MODEL_H__
 #define __LEVEL_MODEL_H__
 #include <cugl/cugl.h>
-#include <unordered_set>
 #include <vector>
+#include <any>
 #include "Object.h"
 #include "Platform.h"
 #include "Spike.h"
@@ -18,7 +18,7 @@
 
 class LevelModel {
 public: 
-	shared_ptr<JsonValue> createJsonObject(map<std::string, double> dict);
+	shared_ptr<JsonValue> createJsonObject(map<std::string, std::any> dict);
 
 	template <typename T>
 	shared_ptr <JsonValue> createJsonObjectList(string name, vector<shared_ptr<T>> objects);

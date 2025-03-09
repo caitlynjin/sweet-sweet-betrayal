@@ -4,7 +4,7 @@ template <typename T>
 shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<shared_ptr<T>> objects) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	shared_ptr<JsonValue> innerArray = JsonValue::allocArray();
-	map<string, double> objData;
+	map<string, any> objData;
 	if (objects.size () == 0) {
 		json->appendValue("name", std::string("emptyObjectList"));
 	}
@@ -20,10 +20,23 @@ shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<share
 
 }
 
-shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, double> dict) {
+shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any> dict) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	for (auto it = dict.begin(); it != dict.end(); ++it) {
-		json->appendValue(it->first, it->second);
+		if ((it->second).type() == typeid(bool)) {
+			json->appendValue(it->first, std::any_cast<bool>(it->second));
+		}
+		else if ((it->second).type() == typeid(std::string)) {
+			json->appendValue(it->first, std::any_cast<std::string>(it->second));
+		}
+		else if ((it->second).type() == typeid(double)) {
+			json->appendValue(it->first, std::any_cast<double>(it->second));
+		}
+		else if ((it->second).type() == typeid(long)) {
+			json->appendValue(it->first, std::any_cast<long>(it->second));
+		}
+		// Add other types here if necessary
+		
 	}
 	return json;
 }
