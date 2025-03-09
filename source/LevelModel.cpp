@@ -1,7 +1,7 @@
 #include "LevelModel.h"
 
 template <typename T>
-shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<shared_ptr<T>> objects) {
+shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<shared_ptr<T>>& objects) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	shared_ptr<JsonValue> innerArray = JsonValue::allocArray();
 	map<string, any> objData;
@@ -20,7 +20,7 @@ shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<share
 
 }
 
-shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any> dict) {
+shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any>& dict) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	for (auto it = dict.begin(); it != dict.end(); ++it) {
 		if ((it->second).type() == typeid(bool)) {
@@ -46,8 +46,8 @@ shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any> di
 * By passing it the level objects, it creates and saves a JSON level.
 */
 
-void LevelModel::createJsonFromLevel(Size levelSize, vector<shared_ptr<Platform>> platforms, vector<shared_ptr<Spike>> spikes,
-	vector<shared_ptr<Treasure>> treasures, vector<shared_ptr<WindObstacle>> windObstacles) {
+void LevelModel::createJsonFromLevel(Size levelSize, vector<shared_ptr<Platform>>& platforms, vector<shared_ptr<Spike>>& spikes,
+	vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	shared_ptr<JsonValue> innerArray = JsonValue::allocArray();
 	json->appendValue("width", double(levelSize.getIWidth()));
@@ -61,7 +61,7 @@ void LevelModel::createJsonFromLevel(Size levelSize, vector<shared_ptr<Platform>
 	jsonWriter->writeJson(json);
 }
 
-void LevelModel::createJsonFromLevel(Size levelSize, vector<shared_ptr<Object>> objects) {
+void LevelModel::createJsonFromLevel(Size levelSize, vector<shared_ptr<Object>>& objects) {
 	vector<shared_ptr<Platform>> platforms;
 	vector<shared_ptr<Spike>> spikes;
 	vector<shared_ptr<WindObstacle>> windObstacles;

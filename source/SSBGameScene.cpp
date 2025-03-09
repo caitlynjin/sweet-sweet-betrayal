@@ -385,7 +385,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 
     // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
     //
-    //level->createJsonFromLevel(Size(32, 32), _objects);
+    level->createJsonFromLevel(Size(32, 32), _objects);
 
     _active = true;
     _complete = false;
