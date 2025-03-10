@@ -16,6 +16,8 @@ protected:
 	std::shared_ptr<graphics::Texture> _texture;
     /** The item type of this object */
     Item _itemType;
+	/**The trajectory of the object-Should be unused by most objects, used by gust objects rn*/
+	cugl::Vec2 _trajectory;
 	/** Whether or not this object has been placed by a player */
 	bool _playerPlaced;
     /** Size of the object */
@@ -60,6 +62,13 @@ public:
 	 * @param position   The position
 	 */
 	virtual void setPosition(const cugl::Vec2& position);
+
+	/**Gets the trajectory*/
+	const cugl::Vec2& getTrajectory() const { return _trajectory; }
+
+	/**Sets the trajectory*/
+	void setTrajectory(cugl::Vec2 trajectory) { _trajectory = trajectory; };
+	
 
 	/**
 	* Sets if the player placed this object

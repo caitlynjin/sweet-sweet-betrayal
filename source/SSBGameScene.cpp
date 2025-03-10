@@ -481,13 +481,14 @@ void GameScene::initInventory()
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
+
     switch (item) {
         case (PLATFORM):
             return createPlatform(gridPos, Size(3, 1), false);
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0));
         case (NONE):
             return nullptr;
     }
@@ -743,6 +744,7 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
+    wind->setTrajectory(gust);
     wind->setPosition(pos);
 
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
@@ -1207,6 +1209,7 @@ void GameScene::preUpdate(float dt)
             _inventoryOverlay->setVisible(true);
             _input.setInventoryStatus(PlatformInput::WAITING);
         }
+
     }
     else
     {
@@ -1565,6 +1568,8 @@ void GameScene::beginContact(b2Contact *contact)
     b2Fixture *fix1 = contact->GetFixtureA();
     b2Fixture *fix2 = contact->GetFixtureB();
 
+    contact->GetChildIndexA();
+
     b2Body *body1 = fix1->GetBody();
     b2Body *body2 = fix2->GetBody();
 
@@ -1575,9 +1580,10 @@ void GameScene::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // See if we have landed on the ground.
-    if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
-        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2))
+    if (((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
+        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
     {
+
         _avatar->setGrounded(true);
         // Could have more than one ground
         _sensorFixtures.emplace(_avatar.get() == bd1 ? fix2 : fix1);
@@ -1607,9 +1613,23 @@ void GameScene::beginContact(b2Contact *contact)
 
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _avatar.get()))
-    {
-        // CULog("WIND");
-        _avatar->addWind(Vec2(0, 6));
+    {   
+        //determine which of bd1 or bd2 is the wind object
+        Vec2 windPos = Vec2();
+        if (bd2->getName() == "gust") {
+            windPos = bd2->getPosition();
+        }
+        else {
+            windPos = bd1->getPosition();
+        } 
+        //Find the appropriate object
+
+        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
+        if (_gridManager->posToObjMap.count(p) > 0) {
+            CULog("WIND FOUND!");
+             std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
+             _avatar->addWind(thing->getTrajectory());
+        }
     }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
@@ -1675,6 +1695,27 @@ void GameScene::endContact(b2Contact *contact)
         CULog("disable movement platform");
         _avatar->setOnMovingPlat(false);
         _avatar->setMovingPlat(nullptr);
+    }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _avatar.get()))
+    {
+        //determine which of bd1 or bd2 is the wind object
+        Vec2 windPos = Vec2();
+        if (bd2->getName() == "gust") {
+            windPos = bd2->getPosition();
+        }
+        else {
+            windPos = bd1->getPosition();
+        }
+        //Find the appropriate object
+
+        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
+        if (_gridManager->posToObjMap.count(p) > 0) {
+            CULog("WIND FOUND!");
+            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
+            _avatar->addWind(-(thing->getTrajectory()));
+        }
     }
 }
 
