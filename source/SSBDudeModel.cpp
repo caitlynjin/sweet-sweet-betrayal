@@ -65,7 +65,7 @@
 /** The density of the character */
 #define DUDE_DENSITY 1.0f
 /** The impulse for the character jump */
-#define DUDE_JUMP 11.25f
+#define DUDE_JUMP 13.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
