@@ -196,31 +196,31 @@ _treasure(nullptr),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets)
+bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetEventController> network, bool isHost)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY));
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), network, isHost);
 }
 
-/**
- * Initializes the controller contents, and starts the game
- *
- * The constructor does not allocate any objects or memory.  This allows
- * us to have a non-pointer reference to this controller, reducing our
- * memory allocation.  Instead, allocation happens in this method.
- *
- * The game world is scaled so that the screen coordinates do not agree
- * with the Box2d coordinates.  The bounds are in terms of the Box2d
- * world, not the screen.
- *
- * @param assets    The (loaded) assets for this game mode
- * @param rect      The game bounds in Box2d coordinates
- *
- * @return  true if the controller is initialized properly, false otherwise.
- */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &rect)
-{
-    return init(assets, rect, Vec2(0, DEFAULT_GRAVITY));
-}
+///**
+// * Initializes the controller contents, and starts the game
+// *
+// * The constructor does not allocate any objects or memory.  This allows
+// * us to have a non-pointer reference to this controller, reducing our
+// * memory allocation.  Instead, allocation happens in this method.
+// *
+// * The game world is scaled so that the screen coordinates do not agree
+// * with the Box2d coordinates.  The bounds are in terms of the Box2d
+// * world, not the screen.
+// *
+// * @param assets    The (loaded) assets for this game mode
+// * @param rect      The game bounds in Box2d coordinates
+// *
+// * @return  true if the controller is initialized properly, false otherwise.
+// */
+//bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &rect)
+//{
+//    return init(assets, rect, Vec2(0, DEFAULT_GRAVITY));
+//}
 
 /**
  * Initializes the controller contents, and starts the game
@@ -240,7 +240,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &re
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetEventController> network, bool isHost)
 {
     if (assets == nullptr)
     {
@@ -250,6 +250,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         return false;
     }
+    
+    // Init networking
+    _network = network;
+    _isHost = isHost;
+    _network->attachEventType<MessageEvent>();
 
     // Start in building mode
     _buildingMode = true;
@@ -339,8 +344,12 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down && _buildingMode) {
-            setBuildingMode(!_buildingMode);
-            _readyButton->setVisible(false);
+            // Send a message to the network that the button was pressed
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+            // Update number of players that are ready
+//            _numReady += 1;
+            //TODO: add way to disable button after pressing
+            
         }
     });
 
@@ -923,92 +932,92 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
  */
 void GameScene::update(float timestep)
 {
-    _input.update(timestep);
-
-    if (_buildingMode)
-    {
-        // Removed because duplicate code in preupdate causes issues
-    }
-    else
-    {
-        // Process the toggled key commands
-        if (_input.didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input.didReset())
-        {
-            reset();
-        }
-        if (_input.didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
-
-        // Process the movement
-        if (_input.withJoystick())
-        {
-            if (_input.getHorizontal() < 0)
-            {
-                _leftnode->setVisible(true);
-                _rightnode->setVisible(false);
-            }
-            else if (_input.getHorizontal() > 0)
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(true);
-            }
-            else
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(false);
-            }
-            _leftnode->setPosition(_input.getJoystick());
-            _rightnode->setPosition(_input.getJoystick());
-        }
-        else
-        {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(false);
-        }
-
-        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_input.didJump());
-        _avatar->applyForce();
-
-        if (_avatar->isJumping() && _avatar->isGrounded())
-        {
-
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-        }
-
-        if (_avatar->isGrounded())
-        {
-            _input.setGlide(false);
-        }
-        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        if (_input.isRightDown() && _input.canGlide())
-        {
-
-            _avatar->setGlide(true);
-        }
-        else
-        {
-            _avatar->setGlide(false);
-        }
-    }
-
-    for (auto &obj : _objects)
-    {
-        obj->update(timestep);
-    }
-
-
-    // Turn the physics engine crank.
-
-    _world->update(timestep);
+//    _input.update(timestep);
+//
+//    if (_buildingMode)
+//    {
+//        // Removed because duplicate code in preupdate causes issues
+//    }
+//    else
+//    {
+//        // Process the toggled key commands
+//        if (_input.didDebug())
+//        {
+//            setDebug(!isDebug());
+//        }
+//        if (_input.didReset())
+//        {
+//            reset();
+//        }
+//        if (_input.didExit())
+//        {
+//            CULog("Shutting down");
+//            Application::get()->quit();
+//        }
+//
+//        // Process the movement
+//        if (_input.withJoystick())
+//        {
+//            if (_input.getHorizontal() < 0)
+//            {
+//                _leftnode->setVisible(true);
+//                _rightnode->setVisible(false);
+//            }
+//            else if (_input.getHorizontal() > 0)
+//            {
+//                _leftnode->setVisible(false);
+//                _rightnode->setVisible(true);
+//            }
+//            else
+//            {
+//                _leftnode->setVisible(false);
+//                _rightnode->setVisible(false);
+//            }
+//            _leftnode->setPosition(_input.getJoystick());
+//            _rightnode->setPosition(_input.getJoystick());
+//        }
+//        else
+//        {
+//            _leftnode->setVisible(false);
+//            _rightnode->setVisible(false);
+//        }
+//
+//        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
+//        _avatar->setJumping(_input.didJump());
+//        _avatar->applyForce();
+//
+//        if (_avatar->isJumping() && _avatar->isGrounded())
+//        {
+//
+//            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+//            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+//        }
+//
+//        if (_avatar->isGrounded())
+//        {
+//            _input.setGlide(false);
+//        }
+//        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
+//        if (_input.isRightDown() && _input.canGlide())
+//        {
+//
+//            _avatar->setGlide(true);
+//        }
+//        else
+//        {
+//            _avatar->setGlide(false);
+//        }
+//    }
+//
+//    for (auto &obj : _objects)
+//    {
+//        obj->update(timestep);
+//    }
+//
+//
+//    // Turn the physics engine crank.
+//
+//    _world->update(timestep);
     
     
 }
@@ -1036,6 +1045,15 @@ void GameScene::update(float timestep)
 void GameScene::preUpdate(float dt)
 {
     _input.update(dt);
+    
+    // Process Networking
+    if (_buildingMode && (_numReady >= _network->getNumPlayers())){
+        // Exit build mode and switch to movement phase
+        setBuildingMode(!_buildingMode);
+        _readyButton->setVisible(false);
+        _numReady = 0;
+    }
+    
 
     if (_buildingMode)
     {
@@ -1260,6 +1278,14 @@ void GameScene::fixedUpdate(float step)
     // Turn the physics engine crank.
     if (!_buildingMode){
         _world->update(step);
+    }
+    
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            CULog("Message received");
+            processMessageEvent(mEvent);
+        }
     }
     
 }
@@ -1622,4 +1648,22 @@ Vec2 GameScene::convertScreenToGrid(const Vec2 &screenPos, float scale, const Ve
     yGrid = yGrid > maxRows ? maxRows : yGrid;
 
     return Vec2(xGrid, yGrid);
+}
+
+/**
+ * This method takes a MessageEvent and processes it.
+ */
+void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+    Message message = event->getMesage();
+    switch (message) {
+            case Message::BUILD_READY:
+                // Increment number of players ready
+                _numReady += 1;
+                break;
+            
+            default:
+                // Handle unknown message types
+                std::cout << "Unknown message type received" << std::endl;
+                break;
+        }
 }

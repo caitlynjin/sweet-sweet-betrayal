@@ -6,6 +6,7 @@
 //
 
 #include "MessageEvent.hpp"
+#include "Message.h"
 using namespace cugl::physics2::distrib;
 
 /**

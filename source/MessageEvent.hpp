@@ -10,15 +10,10 @@
 
 #include <stdio.h>
 #include <cugl/cugl.h>
+#include "Message.h"
 using namespace cugl;
 using namespace cugl::physics2::distrib;
 
-/**
- * Enum representing different message types for the MessageEvent.
- */
-enum class Message {
-    BUILD_READY,      // Signal to build something
-};
 
 class MessageEvent : public NetEvent {
     
@@ -38,7 +33,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocMessageEvent(Vec2 pos);
+    static std::shared_ptr<NetEvent> allocMessageEvent(Message message);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
