@@ -62,8 +62,7 @@ using namespace cugl;
  */
 bool Platform::init(const Vec2 pos, const Size size, bool wall) {
     Size nsize = size;
-    // The long platform is shorter in height
-    _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, wall ? nsize.height : nsize.height/7));
+    _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, nsize.height));
     _size = size;
     _itemType = Item::PLATFORM;
     _wall = wall;
