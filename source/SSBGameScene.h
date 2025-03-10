@@ -21,6 +21,7 @@
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
+#include "BuildEvent.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -578,6 +579,7 @@ public:
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
 
+
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
     /**
@@ -591,6 +593,11 @@ public:
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
 
+    /**
+     * This method takes a BuildEvent and processes it
+     */
+    void processBuildEvent(const
+        std::shared_ptr<BuildEvent>& event);
   };
 
 

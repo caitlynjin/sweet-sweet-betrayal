@@ -13,6 +13,12 @@
 using namespace cugl;
 using namespace cugl::physics2::distrib;
 
+enum class BuildType {
+    PLATFORM,
+    MOVING_PLATFORM,
+    WIND
+};
+
 class BuildEvent : public NetEvent {
     
 protected:
@@ -20,6 +26,7 @@ protected:
     LWDeserializer _deserializer;
     
     Vec2 _pos;
+    BuildType _buildType;
     
     
 public:
@@ -32,7 +39,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocBuildEvent(Vec2 pos);
+    static std::shared_ptr<NetEvent> allocBuildEvent(Vec2 pos, BuildType buildType);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -49,8 +56,12 @@ public:
      */
     void deserialize(const std::vector<std::byte>& data) override;
     
-    /** Gets the position of the event. */
+    /** Gets the grid position of the event. */
     Vec2 getPos() { return _pos; }
+    
+    /** Get object type*/
+    BuildType getBuildType() const {return _buildType;}
+    
 };
 
 #endif /* BuildEvent_hpp */

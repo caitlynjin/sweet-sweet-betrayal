@@ -260,6 +260,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _network = network;
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
+    _network->attachEventType<BuildEvent>();
 
 
     // Start in building mode
@@ -933,93 +934,201 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
 void GameScene::update(float timestep)
 {
 
-    _input.update(timestep);
-
-    if (_buildingMode)
-    {
-        // Removed because duplicate code in preupdate causes issues
-    }
-    else
-    {
-        // Process the toggled key commands
-        if (_input.didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input.didReset())
-        {
-            reset();
-        }
-        if (_input.didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
-
-        // Process the movement
-        if (_input.withJoystick())
-        {
-            if (_input.getHorizontal() < 0)
-            {
-                _leftnode->setVisible(true);
-                _rightnode->setVisible(false);
-            }
-            else if (_input.getHorizontal() > 0)
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(true);
-            }
-            else
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(false);
-            }
-            _leftnode->setPosition(_input.getJoystick());
-            _rightnode->setPosition(_input.getJoystick());
-        }
-        else
-        {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(false);
-        }
-
-        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_input.didJump());
-        _avatar->applyForce();
-
-        if (_avatar->isJumping() && _avatar->isGrounded())
-        {
-
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-        }
-
-        if (_avatar->isGrounded())
-        {
-            _input.setGlide(false);
-        }
-        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        if (_input.isRightDown() && _input.canGlide())
-        {
-
-            _avatar->setGlide(true);
-        }
-        else
-        {
-            _avatar->setGlide(false);
-        }
-    }
-
-    for (auto &obj : _objects)
-    {
-        obj->update(timestep);
-    }
-
-
-    // Turn the physics engine crank.
-
-    _world->update(timestep);
-    _ui.update(timestep);
+//    _input.update(timestep);
+//
+//    if (_buildingMode)
+//    {
+//        // Removed because duplicate code in preupdate causes issues
+//        // Deactivate inventory buttons once all traps are placed
+//        if (_itemsPlaced == 0){
+//            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+//            {
+//                _inventoryButtons[i]->activate();
+//                _inventoryOverlay->setVisible(false);
+//            }
+//        }
+//        
+//        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
+//        {
+//            Vec2 screenPos = _input.getPosOnDrag();
+//            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+//
+//            // Show placing object indicator when dragging object
+//            if (_selectedItem != NONE) {
+//                CULog("Placing object");
+//
+//                if (_selectedObject) {
+//                    // Move the existing object to new position
+//                    _selectedObject->setPosition(gridPos);
+//
+//                    // Trigger obstacle update listener
+//                    if (_selectedObject->getObstacle()->getListener()) {
+//                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+//                    }
+//                } else {
+//                    
+//                    _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
+//                }
+//            }
+//        }
+//        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
+//        {
+//            _gridManager->setSpriteInvisible();
+//
+//            if (_input.isTouchDown()) {
+//                // Attempt to move object that exists on the grid
+//                Vec2 screenPos = _input.getPosOnDrag();
+//                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+//                
+//                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+//                
+//                // If object exists
+//                if (obj) {
+//                    CULog("Selected existing object");
+//                    _selectedObject = obj;
+//                    _selectedItem = obj->getItemType();
+//
+//                    _gridManager->removeObject(gridPos);
+//                    _input.setInventoryStatus(PlatformInput::PLACING);
+//                }
+//            }
+//        }
+//        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
+//        {
+//            Vec2 screenPos = _input.getPosOnDrag();
+//            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+//            
+//            
+//
+//            if (_selectedObject) {
+//                
+//                
+//                // Move the existing object to new position
+//                _selectedObject->setPosition(gridPos);
+//                
+//
+//
+//                // Trigger listener
+//                if (_selectedObject->getObstacle()->getListener()) {
+//                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+//                }
+//
+//                _gridManager->addObject(gridPos, _selectedObject);
+//
+//                CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
+//                CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
+//
+//                // Reset selected object
+//                _selectedObject = nullptr;
+//            } else {
+//                // Place new object on grid
+//                //should still build own object right?
+//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem));
+//                _network->pushOutEvent(buildEvent);
+//                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
+//                _gridManager->addObject(gridPos, obj);
+//
+//                _itemsPlaced += 1;
+//
+//                // Update inventory UI
+//                if (_itemsPlaced >= 1)
+//                {
+//                    for (size_t i = 0; i < _inventoryButtons.size(); i++)
+//                    {
+//                        _inventoryButtons[i]->deactivate();
+//                    }
+//                }
+//            }
+//
+//            // Reset selected item
+//            _selectedItem = NONE;
+//
+//            // Darken inventory UI
+//            _inventoryOverlay->setVisible(true);
+//            _input.setInventoryStatus(PlatformInput::WAITING);
+//        }
+//    }
+//    else
+//    {
+//        // Process the toggled key commands
+//        if (_input.didDebug())
+//        {
+//            setDebug(!isDebug());
+//        }
+//        if (_input.didReset())
+//        {
+//            reset();
+//        }
+//        if (_input.didExit())
+//        {
+//            CULog("Shutting down");
+//            Application::get()->quit();
+//        }
+//
+//        // Process the movement
+//        if (_input.withJoystick())
+//        {
+//            if (_input.getHorizontal() < 0)
+//            {
+//                _leftnode->setVisible(true);
+//                _rightnode->setVisible(false);
+//            }
+//            else if (_input.getHorizontal() > 0)
+//            {
+//                _leftnode->setVisible(false);
+//                _rightnode->setVisible(true);
+//            }
+//            else
+//            {
+//                _leftnode->setVisible(false);
+//                _rightnode->setVisible(false);
+//            }
+//            _leftnode->setPosition(_input.getJoystick());
+//            _rightnode->setPosition(_input.getJoystick());
+//        }
+//        else
+//        {
+//            _leftnode->setVisible(false);
+//            _rightnode->setVisible(false);
+//        }
+//
+//        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
+//        _avatar->setJumping(_input.didJump());
+//        _avatar->applyForce();
+//
+//        if (_avatar->isJumping() && _avatar->isGrounded())
+//        {
+//
+//            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+//            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+//        }
+//
+//        if (_avatar->isGrounded())
+//        {
+//            _input.setGlide(false);
+//        }
+//        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
+//        if (_input.isRightDown() && _input.canGlide())
+//        {
+//
+//            _avatar->setGlide(true);
+//        }
+//        else
+//        {
+//            _avatar->setGlide(false);
+//        }
+//    }
+//
+//    for (auto &obj : _objects)
+//    {
+//        obj->update(timestep);
+//    }
+//
+//
+//    // Turn the physics engine crank.
+//
+//    _world->update(timestep);
+//    _ui.update(timestep);
 
     
 }
@@ -1322,6 +1431,10 @@ void GameScene::fixedUpdate(float step)
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             CULog("Message received");
             processMessageEvent(mEvent);
+        }
+        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
+            CULog("BuildEvent received");
+            processBuildEvent(buildEvent);
         }
     }
     
@@ -1731,6 +1844,7 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
         }
 }
 
+
 void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
     Scene2::setSpriteBatch(batch);
     _ui.setSpriteBatch(batch);
@@ -1741,3 +1855,18 @@ void GameScene::render() {
     _ui.render();
 }
 
+
+/**
+ * This method takes a BuildEvent and processes it
+ */
+void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
+    Vec2 gridPos = event->getPos();
+    BuildType type = event->getBuildType();
+    
+    Item itemType = static_cast<Item>(type);
+    
+    std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
+        
+    _gridManager->addObject(gridPos, obj);
+    
+};
