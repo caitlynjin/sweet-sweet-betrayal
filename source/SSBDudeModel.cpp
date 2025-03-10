@@ -57,15 +57,15 @@
 /** The amount to shrink the body fixture (vertically) relative to the image */
 #define DUDE_VSHRINK 0.95f
 /** The amount to shrink the body fixture (horizontally) relative to the image */
-#define DUDE_HSHRINK 0.7f
+#define DUDE_HSHRINK 0.6f
 /** The amount to shrink the sensor fixture (horizontally) relative to the image */
 #define DUDE_SSHRINK 0.6f
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
-#define DUDE_DENSITY 1.0f
+#define DUDE_DENSITY 0.7f
 /** The impulse for the character jump */
-#define DUDE_JUMP 11.25f
+#define DUDE_JUMP 13.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/

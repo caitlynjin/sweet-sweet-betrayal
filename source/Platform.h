@@ -49,7 +49,7 @@ public:
     */
     static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, bool wall) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position, size, wall) ? result : nullptr);
+        return (result->init(position + size/2, size, wall) ? result : nullptr);
     }
   
     // New alloc method for moving platform.

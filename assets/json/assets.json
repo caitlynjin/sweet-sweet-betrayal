@@ -26,7 +26,7 @@
             "wrapT": "repeat"
         },
         "spike": {
-            "file": "textures/Spike2.png"
+            "file": "textures/spike.png"
         },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"

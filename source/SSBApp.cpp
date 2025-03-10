@@ -124,6 +124,7 @@ void SSBApp::update(float dt) {
     } else if (!_loaded) {
         _loading.dispose(); // Disables the input listeners in this mode
         _gameplay.init(_assets);
+        setClearColor(Color4(85,158,145));
         _gameplay.setSpriteBatch(_batch);
         _loaded = true;
         

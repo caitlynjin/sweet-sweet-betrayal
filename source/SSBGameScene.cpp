@@ -39,10 +39,10 @@ using namespace Constants;
 #define SCENE_ASPECT 9.0 / 16.0
 
 /** The number pixels in a Box2D unit */
-#define BOX2D_UNIT 50.0f
+#define BOX2D_UNIT 64.0f
 
 /** Width of the game world in Box2d units */
-#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
+#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT) * 2
 /** Height of the game world in Box2d units */
 #define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
@@ -68,13 +68,13 @@ using namespace Constants;
 // };
 
 /** The goal door position */
-float GOAL_POS[] = {18.0f, 2.0f};
+float GOAL_POS[] = { 31.0f, 6.0f };
 /** The initial position of the dude */
 
-float DUDE_POS[] = { 2.5f, 2.0f};
+float DUDE_POS[] = { 1.0f, 3.0f};
 
 /** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {9.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
+float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
 
 
@@ -284,11 +284,13 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
-    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
-    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _background->setPosition(Vec2(0,0));
-    _background->setScale(1.0f);
-    
+    // TODO: Bring back background
+//    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
+//    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+//    _background->setPosition(Vec2(0,0));
+//    _background->setScale(1.0f);
+//    addChild(_background);
+
     // Create the scene graph
     std::shared_ptr<Texture> image;
     _worldnode = scene2::SceneNode::alloc();
@@ -354,8 +356,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
-    addChild(_background);
-    
     initInventory();
 
     _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
@@ -509,15 +509,15 @@ void GameScene::reset()
     _debugnode->removeAllChildren();
     _avatar = nullptr;
     _goalDoor = nullptr;
-    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
-    {
-        _world->removeObstacle(_growingWall);
-        _worldnode->removeChild(_growingWallNode);
-    }
-    
-    _growingWall = nullptr;
-    _growingWallNode = nullptr;
-    _growingWallWidth = 0.1f;
+//    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
+//    {
+//        _world->removeObstacle(_growingWall);
+//        _worldnode->removeChild(_growingWallNode);
+//    }
+//    
+//    _growingWall = nullptr;
+//    _growingWallNode = nullptr;
+//    _growingWallWidth = 0.1f;
     _treasure = nullptr;
 
     _currRound = 1;
@@ -587,7 +587,7 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  */
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, wall);
     return createPlatform(plat);
 }
 /**
@@ -793,6 +793,7 @@ void GameScene::populate()
 
     // Add the scene graph nodes to this object
     sprite = scene2::PolygonNode::allocWithTexture(image);
+    sprite->setColor(Color4(1,255,0));
     _goalDoor->setDebugColor(DEBUG_COLOR);
     addObstacle(_goalDoor, sprite);
 
@@ -921,7 +922,7 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    /*createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));*/
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));
 
 
     // Play the background music on a loop.
@@ -1296,7 +1297,7 @@ void GameScene::preUpdate(float dt)
     // increase growing wall
     if (!_buildingMode)
     {
-        updateGrowingWall(dt);
+//        updateGrowingWall(dt);
     }
 
     _ui.preUpdate(dt);
@@ -1518,8 +1519,8 @@ void GameScene::nextRound(bool reachedGoal) {
     _reachedGoal = false;
     
     // Reset growing wall
-    _growingWallWidth = 0.1f;
-    _growingWallNode->setVisible(false);
+//    _growingWallWidth = 0.1f;
+//    _growingWallNode->setVisible(false);
 
     
     // Return to building mode
@@ -1603,13 +1604,13 @@ void GameScene::beginContact(b2Contact *contact)
 
 
     // If the player collides with the growing wall, game over
-    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
-        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
-    {
-        _died = true;
+//    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
+//        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
+//    {
+//        _died = true;
+//
+//    }
 
-    }
-    //If we collide with gust, blow the player in a direction
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _avatar.get()))
     {   

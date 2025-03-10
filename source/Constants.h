@@ -9,6 +9,8 @@
 #include <cugl/cugl.h>
 #include "string"
 
+/** The key for the background texture in the asset manager */
+#define BACKGROUND_TEXTURE    "background"
 /** The key for the earth texture in the asset manager */
 #define EARTH_TEXTURE   "gray"
 /** The key for the platform texture in the asset manager*/
