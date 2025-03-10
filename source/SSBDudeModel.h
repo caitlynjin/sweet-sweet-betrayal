@@ -67,9 +67,12 @@ using namespace cugl;
 /**How much the player speed should be dampened during gliding*/
 #define GLIDE_DAMPING 2.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define WIND_FACTOR 1.0f
-#define WIND_FACTOR_GLIDING 2.0f
+#define WIND_FACTOR 0.05f
+#define WIND_FACTOR_GLIDING 0.4f
+#define WIND_FACTOR_AIR 0.08f
+
 #define GLIDE_FALL_SPEED -2.5f
+
 /**Initial burst of speed when the player begins gliding or changes direction*/
 #define GLIDE_BOOST_FACTOR 2.5f
 /*Air friction*/

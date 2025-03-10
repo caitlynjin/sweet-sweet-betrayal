@@ -485,7 +485,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0));
         case (NONE):
             return nullptr;
     }
@@ -1524,9 +1524,10 @@ void GameScene::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // See if we have landed on the ground.
-    if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
-        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2))
+    if (((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
+        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
     {
+
         _avatar->setGrounded(true);
         // Could have more than one ground
         _sensorFixtures.emplace(_avatar.get() == bd1 ? fix2 : fix1);
@@ -1565,28 +1566,14 @@ void GameScene::beginContact(b2Contact *contact)
         else {
             windPos = bd1->getPosition();
         } 
-        CULog("WIND COLLIDE!");
         //Find the appropriate object
 
-        const string x = std::to_string(windPos.x);
-        const string y = std::to_string(windPos.y);
-        CULog("%s", x.c_str());
-        CULog("%s", y.c_str());
-        
-        for (const auto& pair : _gridManager->objectMap) {
-            const string x = std::to_string(pair.first.first);
-            const string y = std::to_string(pair.first.second);
-            CULog("%s", x.c_str());
-            CULog("%s", y.c_str());
-        }
-
-        auto p = std::make_pair(floor(windPos.y), floor(windPos.x));
-        if (_gridManager->objectMap.count(p) > 0) {
+        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
+        if (_gridManager->posToObjMap.count(p) > 0) {
             CULog("WIND FOUND!");
-             std::shared_ptr<Object> thing = _gridManager->objectMap[p];
+             std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
              _avatar->addWind(thing->getTrajectory());
         }
-        //_avatar->addWind(Vec2(0, 6));
     }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
@@ -1652,6 +1639,27 @@ void GameScene::endContact(b2Contact *contact)
         CULog("disable movement platform");
         _avatar->setOnMovingPlat(false);
         _avatar->setMovingPlat(nullptr);
+    }
+
+    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _avatar.get()))
+    {
+        //determine which of bd1 or bd2 is the wind object
+        Vec2 windPos = Vec2();
+        if (bd2->getName() == "gust") {
+            windPos = bd2->getPosition();
+        }
+        else {
+            windPos = bd1->getPosition();
+        }
+        //Find the appropriate object
+
+        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
+        if (_gridManager->posToObjMap.count(p) > 0) {
+            CULog("WIND FOUND!");
+            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
+            _avatar->addWind(-(thing->getTrajectory()));
+        }
     }
 }
 

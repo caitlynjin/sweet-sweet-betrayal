@@ -69,8 +69,6 @@
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define WIND_FACTOR 1.0f
-#define WIND_FACTOR_GLIDING 2.0f
 #define AIR_DAMPING 2.5f
 
 using namespace cugl;
@@ -278,6 +276,7 @@ void DudeModel::applyForce()
     //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
     if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
         setVY(GLIDE_FALL_SPEED);
+        CULog("HIT GLIDE LIMIT");
     }
     
     // Jump!
@@ -299,7 +298,9 @@ void DudeModel::applyForce()
 void DudeModel::update(float dt)
 {
     // Check whether we are in glide mode
-    glideUpdate(dt);
+    
+    
+    windUpdate(dt);
     //Set Justflipped and justglided to instantly deactivate 
     if (_justFlipped == true) {
         _justFlipped = false;
@@ -334,7 +335,7 @@ void DudeModel::update(float dt)
         setPosition(getPosition() + platformVel * dt);
     }
 
-    windUpdate(dt);
+    glideUpdate(dt);
 
     CapsuleObstacle::update(dt);
 
@@ -385,21 +386,17 @@ Inflicts an appropriate force to the player based on _windspeed
 */
 void DudeModel::windUpdate(float dt)
 {
-    // Vec2 force = _windvel;
-    if (!isGrounded())
-    {
-        int mult = 1;
-        if (!_isGliding)
-        {
-            mult = 0.2;
-        }
-
-        b2Vec2 vel = _body->GetLinearVelocity();
-        vel.x += _windvel.x * mult;
-        vel.y += _windvel.y * mult;
-        _body->SetLinearVelocity(vel);
+    float mult = WIND_FACTOR_GLIDING;
+    if (!_isGliding) {
+        mult = WIND_FACTOR_AIR;
     }
-    _windvel = Vec2();
+    else if (_isGrounded) {
+        mult = WIND_FACTOR;
+    }
+    b2Vec2 vel = _body->GetLinearVelocity();
+    vel.x += _windvel.x * mult;
+    vel.y += _windvel.y * mult;
+    _body->SetLinearVelocity(vel);
 }
 
 #pragma mark -
