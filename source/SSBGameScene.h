@@ -19,7 +19,7 @@
 #include "Platform.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
-#include "MessageEvent.hpp"
+#include "MessageEvent.h"
 //#include <cmath>
 
 using namespace cugl;

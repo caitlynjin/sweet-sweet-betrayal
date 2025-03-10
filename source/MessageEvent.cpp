@@ -5,7 +5,7 @@
 //  Created by Angelica Borowy on 3/9/25.
 //
 
-#include "MessageEvent.hpp"
+#include "MessageEvent.h"
 #include "Message.h"
 using namespace cugl::physics2::distrib;
 
