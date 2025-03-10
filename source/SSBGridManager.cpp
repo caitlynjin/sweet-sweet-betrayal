@@ -51,11 +51,10 @@ void GridManager::initGrid() {
     float textureWidth = image->getWidth();
     float textureHeight = image->getHeight();
 
-    // TODO: FIX THIS TEXTURE SIZE
-//    _spriteNode = scene2::SpriteNode::allocWithTexture(image);
-//    _spriteNode = scene2::SpriteNode::allocWithSheet(PLATFORM_IMAGE, 1, 1);
+    _spriteNode = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     _spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-//    _spriteNode->setScale(CELL_SIZE / textureWidth, CELL_SIZE / textureHeight);
+    _spriteNode->setContentSize(image->getSize());
+    _spriteNode->setScale(CELL_SIZE / textureWidth, CELL_SIZE / textureHeight);
     _spriteNode->setPosition(cellPos);
     _spriteNode->setVisible(false);
 
@@ -73,13 +72,16 @@ void GridManager::initGrid() {
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
     if (_spriteNode) {
-        auto texture = _assets->get<Texture>(itemToAssetName(item));
+        auto image = _assets->get<Texture>(itemToAssetName(item));
+
+        float textureWidth = image->getWidth();
+        float textureHeight = image->getHeight();
+        Size itemSize = itemToSize(item);
 
         _spriteNode->setPosition(cellPos);
-        _spriteNode->setTexture(texture);
-        // TODO: FIX SIZE OF TEXTURE WHEN PLACING
-//        _spriteNode->SceneNode::setContentSize(itemToSize(item));
-        _spriteNode->setScale(CELL_SIZE / texture->getWidth(), CELL_SIZE / texture->getHeight());
+        _spriteNode->setTexture(image);
+        _spriteNode->setContentSize(image->getSize());
+        _spriteNode->setScale(itemSize.width / textureWidth, itemSize.height / textureHeight);
         _spriteNode->setVisible(true);
     }
 }
