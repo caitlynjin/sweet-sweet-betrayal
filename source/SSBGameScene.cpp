@@ -39,7 +39,7 @@ using namespace Constants;
 #define SCENE_ASPECT 9.0 / 16.0
 
 /** The number pixels in a Box2D unit */
-#define BOX2D_UNIT 50.0f
+#define BOX2D_UNIT 64.0f
 
 /** Width of the game world in Box2d units */
 #define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
@@ -68,7 +68,7 @@ using namespace Constants;
 // };
 
 /** The goal door position */
-float GOAL_POS[] = {18.0f, 2.0f};
+float GOAL_POS[] = {13.0f, 2.0f};
 /** The initial position of the dude */
 
 float DUDE_POS[] = { 2.5f, 2.0f};
@@ -586,7 +586,7 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  */
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, wall);
     return createPlatform(plat);
 }
 /**
