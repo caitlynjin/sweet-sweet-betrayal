@@ -69,8 +69,6 @@
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define WIND_FACTOR 1.0f
-#define WIND_FACTOR_GLIDING 2.0f
 #define AIR_DAMPING 2.5f
 
 using namespace cugl;
@@ -278,6 +276,7 @@ void DudeModel::applyForce()
     //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
     if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
         setVY(GLIDE_FALL_SPEED);
+        CULog("HIT GLIDE LIMIT");
     }
     
     // Jump!
@@ -286,20 +285,7 @@ void DudeModel::applyForce()
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
     }
-    //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
-    if (_isGliding && (_justFlipped || _justGlided)) {
-        int face = SIGNUM(_movement);
-        b2Vec2 force(face*3.5, 0);
-        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-    }
     
-    if (_justFlipped == true) {
-        CULog("JUSST FLISPPED");
-        _justFlipped = false;
-    }
-    if (_justGlided == true) {
-        _justGlided = false;
-    }
 }
 
 /**
@@ -312,7 +298,17 @@ void DudeModel::applyForce()
 void DudeModel::update(float dt)
 {
     // Check whether we are in glide mode
-    glideUpdate(dt);
+    
+    
+    windUpdate(dt);
+    //Set Justflipped and justglided to instantly deactivate 
+    if (_justFlipped == true) {
+        _justFlipped = false;
+    }
+    if (_justGlided == true) {
+        _justGlided = false;
+    }
+    
     // Apply cooldowns
     if (isJumping())
     {
@@ -332,13 +328,14 @@ void DudeModel::update(float dt)
     {
         _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
     }
+
     if (_onMovingPlat && MovingPlat != nullptr)
     {
         Vec2 platformVel = MovingPlat->getLinearVelocity();
         setPosition(getPosition() + platformVel * dt);
     }
 
-    //windUpdate(dt);
+    glideUpdate(dt);
 
     CapsuleObstacle::update(dt);
 
@@ -370,34 +367,36 @@ void DudeModel::glideUpdate(float dt)
     if (_isGliding)
     {
         _body->SetLinearDamping(GLIDE_DAMPING);
+        //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
+        if (_justFlipped || _justGlided) {
+            int face = SIGNUM(_movement);
+            b2Vec2 force(face * GLIDE_BOOST_FACTOR, 0);
+            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        }
     }
     else
     {
         _body->SetLinearDamping(0);
     }
 
-    
+
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed
 */
 void DudeModel::windUpdate(float dt)
 {
-    // Vec2 force = _windvel;
-    if (!isGrounded())
-    {
-        int mult = 1;
-        if (!_isGliding)
-        {
-            mult = 0.2;
-        }
-
-        b2Vec2 vel = _body->GetLinearVelocity();
-        vel.x += _windvel.x * mult;
-        vel.y += _windvel.y * mult;
-        _body->SetLinearVelocity(vel);
+    float mult = WIND_FACTOR_GLIDING;
+    if (!_isGliding) {
+        mult = WIND_FACTOR_AIR;
     }
-    _windvel = Vec2();
+    else if (_isGrounded) {
+        mult = WIND_FACTOR;
+    }
+    b2Vec2 vel = _body->GetLinearVelocity();
+    vel.x += _windvel.x * mult;
+    vel.y += _windvel.y * mult;
+    _body->SetLinearVelocity(vel);
 }
 
 #pragma mark -

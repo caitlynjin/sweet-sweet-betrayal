@@ -15,6 +15,8 @@ protected:
 	std::shared_ptr<graphics::Texture> _texture;
     /** The item type of this object */
     Item _itemType;
+	/**The trajectory of the object-Should be unused by most objects, used by gust objects rn*/
+	cugl::Vec2 _trajectory;
     /** Size of the object */
     Size _size = Size(1, 1);
 
@@ -52,6 +54,13 @@ public:
 	 * @param position   The position
 	 */
 	virtual void setPosition(const cugl::Vec2& position);
+
+	/**Gets the trajectory*/
+	const cugl::Vec2& getTrajectory() const { return _trajectory; }
+
+	/**Sets the trajectory*/
+	void setTrajectory(cugl::Vec2 trajectory) { _trajectory = trajectory; };
+	
 
 	/**
 	 * Sets the texture
