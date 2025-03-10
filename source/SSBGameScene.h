@@ -20,6 +20,7 @@
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
+#include "UIScene.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -83,7 +84,8 @@ protected:
     /** Reference to the overlay of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
-
+    /** The primary controller for the UI */
+    UIScene _ui;
     /** The Box2D world */
     std::shared_ptr<physics2::ObstacleWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
@@ -112,6 +114,10 @@ protected:
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode;
 
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
+
+    /** Previous position of object in build phase */
+    Vec2 _prevPos = Vec2(0, 0);
+
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */
@@ -155,6 +161,8 @@ protected:
     float _numReady = 0;
     /** Whether the player is the host */
     bool _isHost;
+    /** Whether the message has been sent */
+    bool _readyMessageSent = false;
     
     
     
@@ -199,9 +207,28 @@ private:
      */
     std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
 
-    void createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    /**
+     * Creates a new windobstacle
+     *
+     * @return the wind obstacle
+     *
+     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+     * @param size The dimensions (width, height) of the platform.
+     */
+    std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
 
-    void createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+    /**
+     * Creates a moving platform.
+     *
+     * @return the moving platform
+     *
+     * @param pos The bottom left position of the platform starting position
+     * @param size The dimensions of the platform.
+     * @param end The bottom left position of the platform's destination.
+     * @param speed The speed at which the platform moves.
+     */
+    std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+
     /**
      * Lays out the game geography.
      *
@@ -410,6 +437,7 @@ public:
      */
     void setBuildingMode(bool value);
 
+
 #pragma mark -
 #pragma mark Collision Handling
     /**
@@ -524,23 +552,44 @@ public:
     /**
      * Resets the status of the game so that we can play again.
      */
-    void reset();
+    void reset() override;
+
+    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
+
+    void render() override;
+
 
 #pragma mark -
 #pragma mark Helpers
     /**
      * Converts from screen to Box2D coordinates.
      *
+     * @return the Box2D position
+     *
      * @param screenPos    The screen position
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
+
     Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
     
     /**
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
+
+    /**
+     * Snaps the Box2D position to within the bounds of the build phase grid.
+     *
+     * @return the grid position
+     *
+     * @param screenPos    The screen position
+     * @param item               The selected item being snapped to the grid
+     */
+    Vec2 snapToGrid(const Vec2 &gridPos, Item item);
+
 
   };
 

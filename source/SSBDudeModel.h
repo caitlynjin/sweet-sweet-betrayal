@@ -60,15 +60,18 @@ using namespace cugl;
 #pragma mark Physics Constants
 /** The factor to multiply by the input */
 #define DUDE_FORCE      20.0f
-/** The amount to slow the character down */
+/** The amount to slow the character down in the air */
 #define DUDE_DAMPING    10.0f
 /** The maximum character speed */
 #define DUDE_MAXSPEED   5.0f
 /**How much the player speed should be dampened during gliding*/
-#define GLIDE_DAMPING 20.0f
+#define GLIDE_DAMPING 2.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 1.0f
 #define WIND_FACTOR_GLIDING 2.0f
+#define GLIDE_FALL_SPEED -1.0f
+/*Air friction*/
+#define AIR_DAMPING = 2.5f
 
 
 #pragma mark -
@@ -111,6 +114,9 @@ protected:
     float _glideDelay;
     float _glideTimer;
     bool _isGliding;
+    bool _justGlided = false;
+    //Returns whether or not we have just flipped our character from left to right this update frame.
+    bool _justFlipped = false;
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
@@ -495,7 +501,7 @@ public:
     void setMovingPlat(physics2::Obstacle* plat) {MovingPlat = plat;}
 
     /**Sets whether we are trying to glide or not.*/
-    void setGlide(bool value) { _isGliding = value; }
+    void setGlide(bool value) { if (!_isGliding && _isGliding != value) { _justGlided = true; };_isGliding = value; }
     
 
     

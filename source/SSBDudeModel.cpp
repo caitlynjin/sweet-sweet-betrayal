@@ -68,11 +68,10 @@
 #define DUDE_JUMP 11.25f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
-/**How much the player speed should be dampened during gliding*/
-#define GLIDE_DAMPING 15.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 1.0f
 #define WIND_FACTOR_GLIDING 2.0f
+#define AIR_DAMPING 2.5f
 
 using namespace cugl;
 
@@ -130,33 +129,6 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 #pragma mark Attribute Properties
 
 /**
- * Sets left/right movement of this character.
- *
- * This is the result of input times dude force.
- *
- * @param value left/right movement of this character.
- */
-void DudeModel::setMovement(float value)
-{
-    _movement = value;
-    bool face = _movement > 0;
-    if (_movement == 0 || _faceRight == face)
-    {
-        return;
-    }
-
-    // Change facing
-    scene2::TexturedNode *image = dynamic_cast<scene2::TexturedNode *>(_node.get());
-    if (image != nullptr)
-    {
-        image->flipHorizontal(!image->isFlipHorizontal());
-    }
-    _faceRight = face;
-}
-
-#pragma mark -
-#pragma mark Physics Methods
-/**
  * Create new fixtures for this body, defining the shape
  *
  * This is the primary method to override for custom physics objects
@@ -211,7 +183,6 @@ void DudeModel::releaseFixtures()
         _sensorFixture = nullptr;
     }
 }
-
 /**
  * Disposes all resources and assets of this DudeModel
  *
@@ -225,6 +196,39 @@ void DudeModel::dispose()
     _sensorNode = nullptr;
 }
 
+
+#pragma mark -
+#pragma mark Physics Methods
+/**
+ * Sets left/right movement of this character.
+ *
+ * This is the result of input times dude force.
+ *
+ * @param value left/right movement of this character.
+ */
+void DudeModel::setMovement(float value)
+{
+    _movement = value;
+    bool face = _movement > 0;
+    if (_movement == 0 || _faceRight == face)
+    {
+        return;
+    }
+
+    // Change facing
+    scene2::TexturedNode* image = dynamic_cast<scene2::TexturedNode*>(_node.get());
+    if (image != nullptr)
+    {
+
+        image->flipHorizontal(!image->isFlipHorizontal());
+    }
+
+    if (_faceRight != face) {
+        _justFlipped = true;
+    }
+
+    _faceRight = face;
+}
 /**
  * Applies the force to the body of this dude
  *
@@ -247,9 +251,11 @@ void DudeModel::applyForce()
             vel.x = 0; // If you set y, you will stop a jump in place
             _body->SetLinearVelocity(vel);
         } else {
-            // Damping factor in the air 
-            b2Vec2 force(-getDamping()*getVX(),0);
-            _body->ApplyForce(force,_body->GetPosition(),true);
+            // Damping factor in the air. If we are gliding, ZERO FRICTION
+            b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
+            if (!_isGliding) {
+                _body->ApplyForce(force, _body->GetPosition(), true);
+            }   
         }
     }
 
@@ -259,23 +265,40 @@ void DudeModel::applyForce()
         setVX(SIGNUM(getVX()) * getMaxSpeed());
         // CULog("Hit limit!");
     }
+    else if (_isGliding) {
+        //significantly dampen aeriel movement while gliding
+        b2Vec2 force(getMovement()*0.6, 0);
+        _body->ApplyForce(force, _body->GetPosition(), true);
+    }
     else
     {
         b2Vec2 force(getMovement(), 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
-        // Reduce friction in air.
-        if (_isGliding)
-        {
-            // force.operator*=(-0.5);
-            //_body->ApplyForce(force, _body->GetPosition(), true);
-            //_body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-        }
     }
+    //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
+    if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
+        setVY(GLIDE_FALL_SPEED);
+    }
+    
     // Jump!
     if (isJumping() && isGrounded())
     {
         b2Vec2 force(0, DUDE_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+    }
+    //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
+    if (_isGliding && (_justFlipped || _justGlided)) {
+        int face = SIGNUM(_movement);
+        b2Vec2 force(face*3.5, 0);
+        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+    }
+    
+    if (_justFlipped == true) {
+        CULog("JUSST FLISPPED");
+        _justFlipped = false;
+    }
+    if (_justGlided == true) {
+        _justGlided = false;
     }
 }
 
@@ -288,8 +311,8 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
-    // Check whether we are in glid mode
-    //glideUpdate(dt);
+    // Check whether we are in glide mode
+    glideUpdate(dt);
     // Apply cooldowns
     if (isJumping())
     {
@@ -340,22 +363,20 @@ void DudeModel::glideUpdate(float dt)
 {
     b2Vec2 motion = _body->GetLinearVelocity();
 
-    if (_isGliding && !isGrounded())
+    if (isGrounded()) {
+        _isGliding = false;
+    }
+
+    if (_isGliding)
     {
-        // if (motion.y < 0) {
-        //     _glideTimer += dt;
-        // }
-        // if (_glideTimer >= _glideDelay) {
-        //     _isGliding = true;
-        //
-        // } \
-        // GLIDIND DISABLED FOR NOW
-        //_body->SetLinearDamping(GLIDE_DAMPING);
+        _body->SetLinearDamping(GLIDE_DAMPING);
     }
     else
     {
         _body->SetLinearDamping(0);
     }
+
+    
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed

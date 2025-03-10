@@ -37,10 +37,13 @@ using namespace Constants;
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
 
+/** The number pixels in a Box2D unit */
+#define BOX2D_UNIT 50.0f
+
 /** Width of the game world in Box2d units */
-#define DEFAULT_WIDTH 20.0f
+#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
 /** Height of the game world in Box2d units */
-#define DEFAULT_HEIGHT 12.0f
+#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
@@ -97,6 +100,8 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define EARTH_TEXTURE   "gray"
 /** The key for the platform texture in the asset manager*/
 #define PLATFORM_TEXTURE   "platform"
+/** The key for the 3x0.5 platform texture in the asset manager */
+#define PLATFORM_LONG_TEXTURE   "platform_long"
 /** The key for the moving platform texture in the asset manager*/
 #define MOVING_TEXTURE   "moving"
 /** The key for the spike texture in the asset manager */
@@ -256,6 +261,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
 
+
     // Start in building mode
     _buildingMode = true;
 
@@ -310,11 +316,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
     
-    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
+//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
     
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
@@ -336,22 +342,23 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
-    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    readyNode->setScale(0.8f);
-    _readyButton = scene2::Button::alloc(readyNode);
-    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
-    _readyButton->activate();
-    _readyButton->addListener([this](const std::string &name, bool down) {
-        if (down && _buildingMode) {
-            // Send a message to the network that the button was pressed
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
-            // Update number of players that are ready
-//            _numReady += 1;
-            //TODO: add way to disable button after pressing
-            
-        }
-    });
+//    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+//    readyNode->setScale(0.8f);
+//    _readyButton = scene2::Button::alloc(readyNode);
+//    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
+//    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+//    _readyButton->activate();
+//    _readyButton->addListener([this](const std::string &name, bool down) {
+//        if (down && _buildingMode) {
+//            // Send a message to the network that the button was pressed
+//            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+//            // Update number of players that are ready
+////            _numReady += 1;
+//            //TODO: add way to disable button after pressing
+//            
+//        }
+//    });
+
 
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
@@ -377,16 +384,18 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
-    addChild(_roundsnode);
+//    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_scrollpane);
-    addChild(_readyButton);
+//    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
     
     for (auto score : _scoreImages){
         addChild(score);
     }
+
+    _ui.init(assets);
 
     populate();
 
@@ -414,17 +423,17 @@ void GameScene::dispose()
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
-        _roundsnode = nullptr;
+//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        _readyButton = nullptr;
+        //_readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
         for (auto score : _scoreImages){
             score = nullptr;
         }
-        
+        _ui.dispose();
         Scene2::dispose();
     }
 }
@@ -438,7 +447,7 @@ void GameScene::dispose()
 void GameScene::initInventory()
 {
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {PLATFORM_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {PLATFORM_LONG_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -454,8 +463,7 @@ void GameScene::initInventory()
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
         itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 40, _size.height - 100 - yOffset);
-        itemButton->setScale(2.0f);
+        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
@@ -482,37 +490,11 @@ void GameScene::initInventory()
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            return createPlatform(gridPos, Size(1, 1), false);
-            break;
+            return createPlatform(gridPos, Size(3, 1), false);
         case (MOVING_PLATFORM):
-            createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
-            // TODO: Fix this
-            return nullptr;
-            break;
+            return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
-            // TODO: Fix this
-            return nullptr;
-            break;
-        case (NONE):
-            return nullptr;
-    }
-}
-
-/**
- * Returns the corresponding asset name to the item.
- *
- * @param item The item
- * @Return the item's asset name
- */
-std::string GameScene::itemToAssetName(Item item){
-    switch (item){
-        case (PLATFORM):
-            return PLATFORM_TEXTURE;
-        case (MOVING_PLATFORM):
-            return MOVING_TEXTURE;
-        case (WIND):
-            return WIND_TEXTURE;
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 3));
         case (NONE):
             return nullptr;
     }
@@ -551,13 +533,16 @@ void GameScene::reset()
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
+    getCamera()->setPosition(_camerapos);
+    getCamera()->update();
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
         _inventoryButtons[i]->activate();
     }
     _inventoryOverlay->setVisible(false);
-    _readyButton->setVisible(true);
+    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
+    _ui.reset();
 
     populate();
 }
@@ -573,12 +558,16 @@ void GameScene::reset()
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
     std::shared_ptr<Texture> image;
     if (wall){
-        image = _assets->get<Texture>(EARTH_TEXTURE);
-    } else {
         image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    } else {
+        image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
     }
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size);
-    Poly2 poly(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -604,12 +593,15 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
 }
 /**
  * Creates a moving platform.
+ *
+ * @return the moving platform
+ *
  * @param pos The bottom left position of the platform starting position
  * @param size The dimensions of the platform.
  * @param end The bottom left position of the platform's destination.
  * @param speed The speed at which the platform moves.
  */
-void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
+std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
     
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
@@ -633,6 +625,8 @@ void GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed)
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
+
+    return plat;
 }
 /**
  * Create the growing wall if not created. Otherwise, increase its width
@@ -721,20 +715,26 @@ void GameScene::createTreasure(Vec2 pos, Size size){
 
 /**
  * Creates a new windobstacle
+ *
+ * @return the wind obstacle
+ *
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-void GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
+std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    // TODO: Fix this
-    Vec2 adjustedPos = pos + Vec2(size.width / 2, size.height / 2);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
 
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(adjustedPos, size, gust);
+    // Allow movement of obstacle
+    wind->getObstacle()->setBodyType(b2_dynamicBody);
+
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    addObstacle(wind->getObstacle(), sprite); // All walls share the same texture
+    addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
     _objects.push_back(wind);
+
+    return wind;
 }
 
 /**
@@ -932,229 +932,12 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
  */
 void GameScene::update(float timestep)
 {
-//    _input.update(timestep);
-//
-//    if (_buildingMode)
-//    {
-//        // Removed because duplicate code in preupdate causes issues
-//    }
-//    else
-//    {
-//        // Process the toggled key commands
-//        if (_input.didDebug())
-//        {
-//            setDebug(!isDebug());
-//        }
-//        if (_input.didReset())
-//        {
-//            reset();
-//        }
-//        if (_input.didExit())
-//        {
-//            CULog("Shutting down");
-//            Application::get()->quit();
-//        }
-//
-//        // Process the movement
-//        if (_input.withJoystick())
-//        {
-//            if (_input.getHorizontal() < 0)
-//            {
-//                _leftnode->setVisible(true);
-//                _rightnode->setVisible(false);
-//            }
-//            else if (_input.getHorizontal() > 0)
-//            {
-//                _leftnode->setVisible(false);
-//                _rightnode->setVisible(true);
-//            }
-//            else
-//            {
-//                _leftnode->setVisible(false);
-//                _rightnode->setVisible(false);
-//            }
-//            _leftnode->setPosition(_input.getJoystick());
-//            _rightnode->setPosition(_input.getJoystick());
-//        }
-//        else
-//        {
-//            _leftnode->setVisible(false);
-//            _rightnode->setVisible(false);
-//        }
-//
-//        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-//        _avatar->setJumping(_input.didJump());
-//        _avatar->applyForce();
-//
-//        if (_avatar->isJumping() && _avatar->isGrounded())
-//        {
-//
-//            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-//            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-//        }
-//
-//        if (_avatar->isGrounded())
-//        {
-//            _input.setGlide(false);
-//        }
-//        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-//        if (_input.isRightDown() && _input.canGlide())
-//        {
-//
-//            _avatar->setGlide(true);
-//        }
-//        else
-//        {
-//            _avatar->setGlide(false);
-//        }
-//    }
-//
-//    for (auto &obj : _objects)
-//    {
-//        obj->update(timestep);
-//    }
-//
-//
-//    // Turn the physics engine crank.
-//
-//    _world->update(timestep);
-    
-    
-}
 
-/**
- * The method called to indicate the start of a deterministic loop.
- *
- * This method is used instead of {@link #update} if {@link #setDeterministic}
- * is set to true. It marks the beginning of the core application loop,
- * which is concluded with a call to {@link #postUpdate}.
- *
- * This method should be used to process any events that happen early in
- * the application loop, such as user input or events created by the
- * {@link schedule} method. In particular, no new user input will be
- * recorded between the time this method is called and {@link #postUpdate}
- * is invoked.
- *
- * Note that the time passed as a parameter is the time measured from the
- * start of the previous frame to the start of the current frame. It is
- * measured before any input or callbacks are processed. It agrees with
- * the value sent to {@link #postUpdate} this animation frame.
- *
- * @param dt    The amount of time (in seconds) since the last frame
- */
-void GameScene::preUpdate(float dt)
-{
-    _input.update(dt);
-    
-    // Process Networking
-    if (_buildingMode && (_numReady >= _network->getNumPlayers())){
-        // Exit build mode and switch to movement phase
-        setBuildingMode(!_buildingMode);
-        _readyButton->setVisible(false);
-        _numReady = 0;
-    }
-    
+    _input.update(timestep);
 
     if (_buildingMode)
     {
-        // Deactivate inventory buttons once all traps are placed
-        if (_itemsPlaced == 0){
-            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-            {
-                _inventoryButtons[i]->activate();
-                _inventoryOverlay->setVisible(false);
-            }
-        }
-        
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            // Show placing object indicator when dragging object
-            if (_selectedItem != NONE) {
-                CULog("Placing object");
-
-                if (_selectedObject) {
-                    // Move the existing object to new position
-                    _selectedObject->setPosition(gridPos);
-
-                    // Trigger obstacle update listener
-                    if (_selectedObject->getObstacle()->getListener()) {
-                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                    }
-                } else {
-                    _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-        {
-            _gridManager->setSpriteInvisible();
-
-            if (_input.isTouchDown()) {
-                // Attempt to move object that exists on the grid
-                Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-                
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                // If object exists
-                if (obj) {
-                    CULog("Selected existing object");
-                    _selectedObject = obj;
-                    _selectedItem = obj->getItemType();
-
-                    _gridManager->removeObject(gridPos);
-                    _input.setInventoryStatus(PlatformInput::PLACING);
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-
-            if (_selectedObject) {
-                // Move the existing object to new position
-                _selectedObject->setPosition(gridPos);
-
-                // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                }
-
-                _gridManager->addObject(gridPos, _selectedObject);
-
-                CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
-                CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
-
-                // Reset selected object
-                _selectedObject = nullptr;
-            } else {
-                // Place new object on grid
-                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
-                _gridManager->addObject(gridPos, obj);
-
-                _itemsPlaced += 1;
-
-                // Update inventory UI
-                if (_itemsPlaced >= 1)
-                {
-                    for (size_t i = 0; i < _inventoryButtons.size(); i++)
-                    {
-                        _inventoryButtons[i]->deactivate();
-                    }
-                }
-            }
-
-            // Reset selected item
-            _selectedItem = NONE;
-
-            // Darken inventory UI
-            _inventoryOverlay->setVisible(true);
-            _input.setInventoryStatus(PlatformInput::WAITING);
-        }
+        // Removed because duplicate code in preupdate causes issues
     }
     else
     {
@@ -1227,14 +1010,248 @@ void GameScene::preUpdate(float dt)
         }
     }
 
+    for (auto &obj : _objects)
+    {
+        obj->update(timestep);
+    }
+
+
+    // Turn the physics engine crank.
+
+    _world->update(timestep);
+    _ui.update(timestep);
+
+    
+}
+
+/**
+ * The method called to indicate the start of a deterministic loop.
+ *
+ * This method is used instead of {@link #update} if {@link #setDeterministic}
+ * is set to true. It marks the beginning of the core application loop,
+ * which is concluded with a call to {@link #postUpdate}.
+ *
+ * This method should be used to process any events that happen early in
+ * the application loop, such as user input or events created by the
+ * {@link schedule} method. In particular, no new user input will be
+ * recorded between the time this method is called and {@link #postUpdate}
+ * is invoked.
+ *
+ * Note that the time passed as a parameter is the time measured from the
+ * start of the previous frame to the start of the current frame. It is
+ * measured before any input or callbacks are processed. It agrees with
+ * the value sent to {@link #postUpdate} this animation frame.
+ *
+ * @param dt    The amount of time (in seconds) since the last frame
+ */
+void GameScene::preUpdate(float dt)
+{
+    _input.update(dt);
+    
+    // Process Networking
+    if (_buildingMode && (_numReady >= _network->getNumPlayers())){
+        // Exit build mode and switch to movement phase
+        setBuildingMode(!_buildingMode);
+//        _readyButton->setVisible(false);
+        _numReady = 0;
+    }
+    
+
+    if (_buildingMode)
+    {
+        /** The offset of finger placement to object indicator */
+        Vec2 dragOffset = Vec2(-1, 1);
+
+        // Deactivate inventory buttons once all traps are placed
+        if (_itemsPlaced == 0){
+            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+            {
+                _inventoryButtons[i]->activate();
+                _inventoryOverlay->setVisible(false);
+            }
+        }
+        
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
+        {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
+
+            // Show placing object indicator when dragging object
+            if (_selectedItem != NONE) {
+                CULog("Placing object");
+
+                if (_selectedObject) {
+                    // Set the current position of the object
+                    _prevPos = gridPos;
+
+                    // Move the existing object to new position
+                    _selectedObject->setPosition(gridPosWithOffset);
+
+                    // Trigger obstacle update listener
+                    if (_selectedObject->getObstacle()->getListener()) {
+                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                    }
+                } else {
+                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
+                }
+            }
+        }
+        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
+        {
+            _gridManager->setSpriteInvisible();
+
+            if (_input.isTouchDown()) {
+                // Attempt to move object that exists on the grid
+                Vec2 screenPos = _input.getPosOnDrag();
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+
+                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+                
+                // If object exists
+                if (obj) {
+                    CULog("Selected existing object");
+                    _selectedObject = obj;
+                    _selectedItem = obj->getItemType();
+
+                    _gridManager->removeObject(gridPos);
+                    _input.setInventoryStatus(PlatformInput::PLACING);
+                }
+            }
+        }
+        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
+        {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+
+            if (_selectedObject) {
+                if (_gridManager->hasObject(gridPos)) {
+                    // Move the object back to its original position
+                    _selectedObject->setPosition(_prevPos);
+                    _gridManager->addObject(_prevPos, _selectedObject);
+
+                    _prevPos = Vec2(0, 0);
+                } else {
+                    // Move the existing object to new position
+                    _selectedObject->setPosition(gridPos);
+                    _gridManager->addObject(gridPos, _selectedObject);
+                }
+
+                // Trigger listener
+                if (_selectedObject->getObstacle()->getListener()) {
+                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                }
+
+                // Reset selected object
+                _selectedObject = nullptr;
+            } else {
+                // Place new object on grid
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+
+                if (!_gridManager->hasObject(gridPos)) {
+                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                    _gridManager->addObject(gridPos, obj);
+
+                    _itemsPlaced += 1;
+
+                    // Update inventory UI
+                    if (_itemsPlaced >= 1)
+                    {
+                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
+                        {
+                            _inventoryButtons[i]->deactivate();
+                        }
+                    }
+                }
+            }
+
+            // Reset selected item
+            _selectedItem = NONE;
+
+            // Darken inventory UI
+            _inventoryOverlay->setVisible(true);
+            _input.setInventoryStatus(PlatformInput::WAITING);
+        }
+    }
+    else
+    {
+        // Process the toggled key commands
+        if (_input.didDebug())
+        {
+            setDebug(!isDebug());
+        }
+        if (_input.didReset())
+        {
+            reset();
+        }
+        if (_input.didExit())
+        {
+            CULog("Shutting down");
+            Application::get()->quit();
+        }
+
+        // Process the movement
+        if (_input.withJoystick())
+        {
+            if (_input.getHorizontal() < 0)
+            {
+                _leftnode->setVisible(true);
+                _rightnode->setVisible(false);
+            }
+            else if (_input.getHorizontal() > 0)
+            {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(true);
+            }
+            else
+            {
+                _leftnode->setVisible(false);
+                _rightnode->setVisible(false);
+            }
+            _leftnode->setPosition(_input.getJoystick());
+            _rightnode->setPosition(_input.getJoystick());
+        }
+        else
+        {
+            _leftnode->setVisible(false);
+            _rightnode->setVisible(false);
+        }
+
+        //THE GLIDE BULLSHIT SECTION
+        if (_input.getRightTapped()) {
+            _input.setRightTapped(false);
+            if (!_avatar->isGrounded())
+            {
+                _avatar->setGlide(true);
+            }
+        }
+        else if (!_input.isRightDown()) {
+            _avatar->setGlide(false);
+
+        }
+
+        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
+        _avatar->setJumping(_input.didJump());
+        _avatar->applyForce();
+
+        if (_avatar->isJumping() && _avatar->isGrounded())
+        {
+
+            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
+            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+        }
+        
+        
+        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+            (*it)->update(dt);
+        }
+    }
+
     // TODO: Commented out camera code for now
-    // if (!_buildingMode){
-    //     getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51, getCamera()->getPosition().y, 0));
-    // }
-    // else {
-    //     getCamera()->setPosition(_camerapos);
-    // }
-    // getCamera()->update();
+    if (!_buildingMode){
+        getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
+    }
+    getCamera()->update();
     
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
@@ -1243,6 +1260,23 @@ void GameScene::preUpdate(float dt)
     if (!_buildingMode)
     {
         updateGrowingWall(dt);
+    }
+
+    _ui.preUpdate(dt);
+    if (_ui.getReadyPressed() && !_readyMessageSent){
+        CULog("send out event");
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+        _readyMessageSent = true;
+    } else if (!_ui.getReadyPressed()) {
+        _readyMessageSent = false;
+    }
+    if (_ui.getRightPressed() && _buildingMode){
+        getCamera()->translate(10, 0);
+        getCamera()->update();
+    }
+    if (_ui.getLeftPressed() && _buildingMode){
+        getCamera()->translate(-10, 0);
+        getCamera()->update();
     }
 
 }
@@ -1280,6 +1314,9 @@ void GameScene::fixedUpdate(float step)
         _world->update(step);
     }
     
+    _ui.fixedUpdate(step);
+
+    
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
@@ -1288,6 +1325,8 @@ void GameScene::fixedUpdate(float step)
         }
     }
     
+    
+
 }
 
 /**
@@ -1340,6 +1379,7 @@ void GameScene::postUpdate(float remain)
     {
         reset();
     }
+    _ui.postUpdate(remain);
 }
 
 /**
@@ -1437,16 +1477,17 @@ void GameScene::nextRound(bool reachedGoal) {
     // Increment round
     _currRound += 1;
     // Update text
-//    _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+//   _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
+    _ui.updateRound(_currRound, TOTAL_ROUNDS);
 
     // FIND BETTER SOLUTION LATER
-    removeChild(_roundsnode);
-    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
-    addChild(_roundsnode);
+//    removeChild(_roundsnode);
+//    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
+//    addChild(_roundsnode);
     
     setFailure(false);
     
@@ -1462,10 +1503,11 @@ void GameScene::nextRound(bool reachedGoal) {
 
     
     // Return to building mode
-    _readyButton->setVisible(true);
+    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
     setBuildingMode(true);
-    
+
+//    _ui.visibleButtons(true);
     
     
 }
@@ -1475,8 +1517,7 @@ void GameScene::nextRound(bool reachedGoal) {
  *
  * @param value whether the level is in building mode.
  */
-void GameScene::setBuildingMode(bool value)
-{
+void GameScene::setBuildingMode(bool value) {
     _buildingMode = value;
 
     _gridManager->getGridNode()->setVisible(value);
@@ -1486,6 +1527,8 @@ void GameScene::setBuildingMode(bool value)
     }
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
+    _ui.visibleButtons(value);
+
 }
 
 #pragma mark -
@@ -1623,11 +1666,13 @@ void GameScene::endContact(b2Contact *contact)
 /**
  * Converts from screen to Box2D coordinates.
  *
+ * @return the Box2D position
+ *
  * @param screenPos    The screen position
  * @param scale             The screen to world scale
  * @param offset           The offset of the scene to the world
  */
-Vec2 GameScene::convertScreenToGrid(const Vec2 &screenPos, float scale, const Vec2 &offset)
+Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const Vec2 &offset)
 {
     Vec2 adjusted = screenPos - offset;
 
@@ -1638,17 +1683,35 @@ Vec2 GameScene::convertScreenToGrid(const Vec2 &screenPos, float scale, const Ve
     int xGrid = xBox2D;
     int yGrid = yBox2D;
 
+    return Vec2(xGrid, yGrid);
+}
+
+/**
+ * Snaps the Box2D position to within the bounds of the build phase grid.
+ *
+ * @return the grid position
+ *
+ * @param screenPos    The screen position
+ * @param item               The selected item being snapped to the grid
+ */
+Vec2 GameScene::snapToGrid(const Vec2 &gridPos, Item item) {
+    Size offset = itemToSize(item) - Vec2(1, 1);
+
+    int xGrid = gridPos.x;
+    int yGrid = gridPos.y;
+
     // Snaps the placement to inside the grid
     int maxRows = _gridManager->getNumRows() - 1;
     int maxCols = _gridManager->getNumColumns() - 1;
 
     xGrid = xGrid < 0 ? 0 : xGrid;
     yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid > maxCols ? maxCols : xGrid;
-    yGrid = yGrid > maxRows ? maxRows : yGrid;
+    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }
+
 
 /**
  * This method takes a MessageEvent and processes it.
@@ -1667,3 +1730,14 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
                 break;
         }
 }
+
+void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+    Scene2::setSpriteBatch(batch);
+    _ui.setSpriteBatch(batch);
+}
+
+void GameScene::render() {
+    Scene2::render();
+    _ui.render();
+}
+
