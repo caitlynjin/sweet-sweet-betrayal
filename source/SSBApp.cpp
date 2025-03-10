@@ -314,8 +314,7 @@ void SSBApp::updateMenuScene(float timestep) {
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network to gameplay
-//        _gameplay.init(_assets, _network, true);
-        _gameplay.init(_assets);
+        _gameplay.init(_assets, _network, true);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -351,8 +350,8 @@ void SSBApp::updateClientScene(float timestep) {
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network
-//        _gameplay.init(_assets, _network, false);
-        _gameplay.init(_assets);
+        _gameplay.init(_assets, _network, false);
+//        _gameplay.init(_assets);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }
