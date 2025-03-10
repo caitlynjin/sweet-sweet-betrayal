@@ -38,6 +38,8 @@ public:
     /** The update method for the spike */
     void update(float timestep) override;
 
+    string getJsonKey() override;
+
     ~Treasure(void) override { dispose(); }
 
     void dispose();
@@ -71,6 +73,8 @@ public:
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
     }
+
+    std::map<std::string, std::any> getMap() override;
     
 };
 

@@ -17,6 +17,7 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
+#include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "UIScene.h"
@@ -171,13 +172,17 @@ private:
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
     */
-    void createSpike(Vec2 pos, Size size, float scale, float angle = 0);
+    std::shared_ptr<Object> createSpike(Vec2 pos, Size size, float scale, float angle = 0);
+
+    std::shared_ptr<Object> createSpike(std::shared_ptr<Spike> spk);
     
     /** Creates a treasure
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
     * @param size The size of the treasure in Box2D coordinates.
     */
-    void createTreasure(Vec2 pos, Size size);
+    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size);
+
+    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
 
     /**
      * Creates a platform.
@@ -191,6 +196,15 @@ private:
     std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
 
     /**
+     * Creates a platform.
+     *
+     * @return the platform being created
+     *
+     * @param The platform being created (that has not yet been added to the physics world).
+     */
+    std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
+
+    /**
      * Creates a new windobstacle
      *
      * @return the wind obstacle
@@ -199,6 +213,8 @@ private:
      * @param size The dimensions (width, height) of the platform.
      */
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+
+    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
 
     /**
      * Creates a moving platform.

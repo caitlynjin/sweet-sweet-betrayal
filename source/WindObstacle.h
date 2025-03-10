@@ -30,6 +30,11 @@ public:
 	/** The update method for the WindObstacle */
 	void update(float timestep) override;
 
+  /** Return the JSON Key
+  * Every derived class should override this
+  */
+	string getJsonKey() override;
+
 	/** Disposal */
 	~WindObstacle(void) override { dispose(); }
 	void dispose();
@@ -52,6 +57,8 @@ public:
 
 	/*Return the wind vector*/
 	const Vec2 gustDir() { return _gustDir; };
+
+	std::map<std::string, std::any> getMap() override;
 };
 
 
