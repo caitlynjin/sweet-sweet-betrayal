@@ -116,7 +116,7 @@ public:
     /**
      * Makes the buttons in the building mode visible
      */
-    void visibleButtons();
+    void visibleButtons(bool isVisible);
 
     /**
     * Updates round counter
