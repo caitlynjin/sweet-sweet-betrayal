@@ -8,6 +8,7 @@
 
 using namespace cugl;
 using namespace cugl::graphics;
+using namespace Constants;
 
 #pragma mark -
 #pragma mark Asset Constants
@@ -22,8 +23,6 @@ using namespace cugl::graphics;
  * Initializes the grid layout on the screen for build mode.
  */
 void GridManager::initGrid() {
-    const std::shared_ptr<Texture> EARTH_IMAGE = _assets->get<Texture>(EARTH_TEXTURE);
-
     _grid->removeAllChildren();
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
@@ -45,16 +44,19 @@ void GridManager::initGrid() {
     // Set grid to be shown initially
     _grid->setVisible(true);
 
-    // TODO: Remove later, testing with adding a sprite node to a cell
-    Vec2 cellPos(3 * 1, 3 * 1);
+    // Initialize sprite node
+    Vec2 cellPos(0, 0);
 
-    float textureWidth = EARTH_IMAGE->getWidth();
-    float textureHeight = EARTH_IMAGE->getHeight();
+    const std::shared_ptr<Texture> image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    float textureWidth = image->getWidth();
+    float textureHeight = image->getHeight();
 
-    _spriteNode = scene2::SpriteNode::allocWithSheet(EARTH_IMAGE, 1, 1);
+    // TODO: FIX THIS TEXTURE SIZE
+//    _spriteNode = scene2::SpriteNode::allocWithTexture(image);
+//    _spriteNode = scene2::SpriteNode::allocWithSheet(PLATFORM_IMAGE, 1, 1);
     _spriteNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _spriteNode->setScale(CELL_SIZE / textureWidth, CELL_SIZE / textureHeight);
-    _spriteNode->setPosition(Vec2(0,0));
+//    _spriteNode->setScale(CELL_SIZE / textureWidth, CELL_SIZE / textureHeight);
+    _spriteNode->setPosition(cellPos);
     _spriteNode->setVisible(false);
 
     _grid->addChild(_spriteNode);
@@ -71,8 +73,13 @@ void GridManager::initGrid() {
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
     if (_spriteNode) {
+        auto texture = _assets->get<Texture>(itemToAssetName(item));
+
         _spriteNode->setPosition(cellPos);
-        _spriteNode->setTexture(_assets->get<Texture>(itemToAssetName(item)));
+        _spriteNode->setTexture(texture);
+        // TODO: FIX SIZE OF TEXTURE WHEN PLACING
+//        _spriteNode->SceneNode::setContentSize(itemToSize(item));
+        _spriteNode->setScale(CELL_SIZE / texture->getWidth(), CELL_SIZE / texture->getHeight());
         _spriteNode->setVisible(true);
     }
 }
