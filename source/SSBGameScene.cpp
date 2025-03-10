@@ -42,7 +42,7 @@ using namespace Constants;
 #define BOX2D_UNIT 64.0f
 
 /** Width of the game world in Box2d units */
-#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
+#define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT) * 2
 /** Height of the game world in Box2d units */
 #define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
@@ -68,13 +68,13 @@ using namespace Constants;
 // };
 
 /** The goal door position */
-float GOAL_POS[] = {13.0f, 2.0f};
+float GOAL_POS[] = { 31.0f, 6.0f };
 /** The initial position of the dude */
 
-float DUDE_POS[] = { 2.5f, 2.0f};
+float DUDE_POS[] = { 1.0f, 3.0f};
 
 /** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {9.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
+float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
 
 
@@ -919,7 +919,7 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    /*createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));*/
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));
 
 
     // Play the background music on a loop.
