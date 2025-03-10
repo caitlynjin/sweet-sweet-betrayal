@@ -1708,7 +1708,7 @@ void GameScene::render() {
     _ui.render();
 }
 
- * This method takes a MessageEvent and processes it.
+/** This method takes a MessageEvent and processes it.
  */
 void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
     Message message = event->getMesage();
