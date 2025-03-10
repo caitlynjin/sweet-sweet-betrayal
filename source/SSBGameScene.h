@@ -20,11 +20,14 @@
 #include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
+#include "MessageEvent.h"
 #include "UIScene.h"
+#include "BuildEvent.h"
 //#include <cmath>
 
 using namespace cugl;
 using namespace Constants;
+using namespace cugl::physics2::distrib;
 
 /**
  * This class is the primary gameplay constroller for the demo.
@@ -151,6 +154,21 @@ protected:
 
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
+    
+    
+#pragma mark Networking Variables
+    /** The network controller */
+    std::shared_ptr<NetEventController> _network;
+    /** The number of players ready to proceed from BuildPhase */
+    float _numReady = 0;
+    /** Whether the player is the host */
+    bool _isHost;
+    /** Whether the message has been sent */
+    bool _readyMessageSent = false;
+    
+    
+    
+    
 private:
     /** Initial width */
     float _growingWallWidth = 1.0f;
@@ -297,7 +315,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetEventController> network, bool isHost);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -336,7 +354,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-              const Rect& rect, const Vec2& gravity);
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetEventController> network, bool isHost);
 
 #pragma mark -
 #pragma mark Build Mode
@@ -569,6 +587,15 @@ public:
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
+
+    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
+    
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+
+
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
     /**
@@ -581,6 +608,13 @@ public:
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
+
+    /**
+     * This method takes a BuildEvent and processes it
+     */
+    void processBuildEvent(const
+        std::shared_ptr<BuildEvent>& event);
   };
+
 
 #endif /* __PF_GAME_SCENE_H__ */

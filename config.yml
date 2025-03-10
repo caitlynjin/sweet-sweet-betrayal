@@ -1,7 +1,7 @@
 ---
 name:   SweetSweetBetrayal               # The application display name
 short:  SweetSweetBetrayal                  # A shortened name for reference
-appid:  edu.cornell.gdiac.physics2  # Application identifier for Mac, iOS, Android
+appid:  edu.cornell.gdiac.ssv  # Application identifier for Mac, iOS, Android
 suffix: GC944B44
 
 build:  build                       # The build directory (targets are each a subdirectory)
@@ -18,6 +18,9 @@ modules:
     - audio                         # We need sound
     - physics2                      # We need the physics libraries
     - scene2                        # We want the 2d UI
+    - netcode
+    - physics2::distrib
+    - UIScene
 
 # This must be one of portrait, landscape, portrait-flipped, landscape-flipped,
 targets:                        # The target platforms to build for

@@ -112,9 +112,9 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _readypressed = true;
-            _readyButton->setVisible(false);
-            _rightButton->setVisible(false);
-            _leftButton->setVisible(false);
+//            _readyButton->setVisible(false);
+//            _rightButton->setVisible(false);
+//            _leftButton->setVisible(false);
         }
         else{
             _readypressed = false;
@@ -267,10 +267,10 @@ bool UIScene::getLeftPressed() {
 /**
 * Makes the buttons in the building mode visible
 */
-void UIScene::visibleButtons() {
-    _readyButton->setVisible(true);
-    _rightButton->setVisible(true);
-    _leftButton->setVisible(true);
+void UIScene::visibleButtons(bool isVisible) {
+    _readyButton->setVisible(isVisible);
+    _rightButton->setVisible(isVisible);
+    _leftButton->setVisible(isVisible);
 }
 
 /**
