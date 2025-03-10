@@ -1256,6 +1256,8 @@ void GameScene::preUpdate(float dt)
             } else {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem));
+                _network->pushOutEvent(buildEvent);
 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
