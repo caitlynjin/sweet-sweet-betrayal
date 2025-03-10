@@ -181,7 +181,7 @@ GameScene::GameScene() : Scene2(),
     _debugnode(nullptr),
     _world(nullptr),
     _avatar(nullptr),
-_treasure(nullptr),
+    _treasure(nullptr),
     _complete(false),
     _debug(false)
 
@@ -362,14 +362,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _scrollpane->setInterior(getBounds() / 2);
     _scrollpane->setConstrained(false);
 
+    // Set initial camera position
     _camerapos = getCamera()->getPosition();
-    // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
-    _inventoryOverlay->setVisible(false);
-    addChild(_inventoryOverlay);
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -383,7 +377,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_gridManager->getGridNode());
     
     for (auto score : _scoreImages){
-        addChild(score);
+        _ui.addChild(score);
     }
 
     _ui.init(assets);
@@ -446,7 +440,7 @@ void GameScene::initInventory()
     _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
     _inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
-    addChild(_inventoryBackground);
+    _ui.addChild(_inventoryBackground);
 
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
@@ -465,9 +459,17 @@ void GameScene::initInventory()
             }
         });
         _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
+        _ui.addChild(itemButton);
         yOffset += 80;
     }
+
+    // Set the darkened overlay
+    _inventoryOverlay = scene2::PolygonNode::alloc();
+    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
+    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay->setVisible(false);
+    _ui.addChild(_inventoryOverlay);
 }
 
 /**
@@ -1543,6 +1545,7 @@ void GameScene::setBuildingMode(bool value) {
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
 
+    _camera->setPosition(_camerapos);
 }
 
 #pragma mark -
@@ -1690,8 +1693,11 @@ Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const V
 {
     Vec2 adjusted = screenPos - offset;
 
-    float xBox2D = adjusted.x / scale;
-    float yBox2D = adjusted.y / scale;
+    // Adjust for camera position
+    Vec2 worldPos = adjusted + (_camera->getPosition() - _camerapos);
+
+    float xBox2D = worldPos.x / scale;
+    float yBox2D = worldPos.y / scale;
 
     // Converts to the specific grid position
     int xGrid = xBox2D;
