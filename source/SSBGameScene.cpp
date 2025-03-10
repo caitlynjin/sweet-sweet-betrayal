@@ -14,6 +14,7 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
+#include "LevelModel.h"
 
 #include <ctime>
 #include <string>
@@ -180,7 +181,7 @@ GameScene::GameScene() : Scene2(),
     _debugnode(nullptr),
     _world(nullptr),
     _avatar(nullptr),
-_treasure(nullptr),
+    _treasure(nullptr),
     _complete(false),
     _debug(false)
 
@@ -361,14 +362,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _scrollpane->setInterior(getBounds() / 2);
     _scrollpane->setConstrained(false);
 
+    // Set initial camera position
     _camerapos = getCamera()->getPosition();
-    // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
-    _inventoryOverlay->setVisible(false);
-    addChild(_inventoryOverlay);
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -382,7 +377,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_gridManager->getGridNode());
     
     for (auto score : _scoreImages){
-        addChild(score);
+        _ui.addChild(score);
     }
 
     _ui.init(assets);
@@ -445,7 +440,7 @@ void GameScene::initInventory()
     _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
     _inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
-    addChild(_inventoryBackground);
+    _ui.addChild(_inventoryBackground);
 
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
@@ -464,9 +459,17 @@ void GameScene::initInventory()
             }
         });
         _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
+        _ui.addChild(itemButton);
         yOffset += 80;
     }
+
+    // Set the darkened overlay
+    _inventoryOverlay = scene2::PolygonNode::alloc();
+    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
+    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay->setVisible(false);
+    _ui.addChild(_inventoryOverlay);
 }
 
 /**
@@ -538,27 +541,19 @@ void GameScene::reset()
     populate();
 }
 
-/**
- * Creates a new platform.
- *
- * @return the platform being created
- *
- * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
- * @param size The dimensions (width, height) of the platform.
- */
-std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
-    if (wall){
+    if (plat->isWall()) {
         image = _assets->get<Texture>(PLATFORM_TEXTURE);
-    } else {
+    }
+    else {
         image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
     }
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -581,6 +576,19 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
     _objects.push_back(plat);
 
     return plat;
+}
+/**
+ * Creates a new platform.
+ *
+ * @return the platform being created
+ *
+ * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+ * @param size The dimensions (width, height) of the platform.
+ */
+std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    return createPlatform(plat);
 }
 /**
  * Creates a moving platform.
@@ -672,10 +680,15 @@ void GameScene::updateGrowingWall(float timestep)
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
  * @param size The dimensions (width, height) of the spike.
  */
-void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+{
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle);
+    return createSpike(spk);
+}
+
+std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
-    std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize() / _scale, _scale, angle);
 
     // Set the physics attributes
     spk->getObstacle()->setBodyType(b2_staticBody);
@@ -686,12 +699,13 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
     spk->getObstacle()->setName("spike");
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-    spk->setSceneNode(sprite, angle);
+    spk->setSceneNode(sprite, spk->getAngle());
     addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
+    return spk;
 }
 
-void GameScene::createTreasure(Vec2 pos, Size size){
+std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
@@ -702,6 +716,14 @@ void GameScene::createTreasure(Vec2 pos, Size size){
     addObstacle(_treasure->getObstacle(),sprite);
     _treasure->getObstacle()->setName("treasure");
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    _treasure->setPosition(pos);
+    _objects.push_back(_treasure);
+    return _treasure;
+}
+
+std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _treasure) {
+    return createTreasure(_treasure->getPosition(), _treasure->getSize());
 }
 
 /**
@@ -723,11 +745,18 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
     wind->setTrajectory(gust);
+    wind->setPosition(pos);
 
-    addObstacle(wind->getObstacle(), sprite); 
+    addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
+
     _objects.push_back(wind);
 
     return wind;
+}
+
+std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstacle> wind)
+{
+    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir());
 }
 
 /**
@@ -828,6 +857,29 @@ void GameScene::populate()
 #pragma mark : Wind
 //    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
+    shared_ptr<LevelModel> level = make_shared<LevelModel>();
+
+    // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
+    //
+   // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
+    std::string key;
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
+    for (auto it = levelObjs.begin(); it != levelObjs.end(); ++it) {
+        key = (*it)->getJsonKey();
+        if (key == "platforms") {
+            createPlatform(dynamic_pointer_cast<Platform>(*it));
+        }
+        else if (key == "spikes") {
+            createSpike(dynamic_pointer_cast<Spike>(*it));
+        }
+        else if (key == "treasures") {
+            createTreasure(dynamic_pointer_cast<Treasure>(*it));
+        }
+        else if (key == "windObstacles") {
+            createWindObstacle(dynamic_pointer_cast<WindObstacle>(*it));
+        }
+    }
+    //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
 
     Vec2 dudePos = DUDE_POS;
@@ -840,7 +892,7 @@ void GameScene::populate()
     addObstacle(_avatar, sprite); // Put this at the very front
 
 #pragma mark : Spikes
-    createSpike(Vec2(13, 1), Size(1, 1), _scale);
+    /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
     createSpike(Vec2(14, 1), Size(1, 1), _scale);
     createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
@@ -860,14 +912,16 @@ void GameScene::populate()
     createPlatform(Vec2(1, 9), Size(18, 1), true);
     createPlatform(Vec2(17, 3), Size(2, 1), true);
     createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(3, 5), Size(2, 1), true);
+    createPlatform(Vec2(3, 5), Size(2, 1), true);*/
+
+    //level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
 #pragma mark : Treasure
 
-    createTreasure(Vec2(TREASURE_POS[0]), Size(1,1));
+    /*createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));*/
 
 
     // Play the background music on a loop.
@@ -1494,6 +1548,7 @@ void GameScene::setBuildingMode(bool value) {
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
 
+    _camera->setPosition(_camerapos);
 }
 
 #pragma mark -
@@ -1679,8 +1734,11 @@ Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const V
 {
     Vec2 adjusted = screenPos - offset;
 
-    float xBox2D = adjusted.x / scale;
-    float yBox2D = adjusted.y / scale;
+    // Adjust for camera position
+    Vec2 worldPos = adjusted + (_camera->getPosition() - _camerapos);
+
+    float xBox2D = worldPos.x / scale;
+    float yBox2D = worldPos.y / scale;
 
     // Converts to the specific grid position
     int xGrid = xBox2D;

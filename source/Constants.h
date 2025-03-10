@@ -9,6 +9,17 @@
 #include <cugl/cugl.h>
 #include "string"
 
+/** The key for the earth texture in the asset manager */
+#define EARTH_TEXTURE   "gray"
+/** The key for the platform texture in the asset manager*/
+#define PLATFORM_TEXTURE   "platform"
+/** The key for the 3x0.5 platform texture in the asset manager */
+#define PLATFORM_LONG_TEXTURE   "platform_long"
+/** The key for the moving platform texture in the asset manager*/
+#define MOVING_TEXTURE   "moving"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+
 namespace Constants {
 
 enum Item {
