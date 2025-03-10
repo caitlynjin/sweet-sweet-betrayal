@@ -19,6 +19,12 @@ enum class BuildType {
     WIND
 };
 
+enum class BuildAction {
+    ADD,
+    DELETE
+};
+
+
 class BuildEvent : public NetEvent {
     
 protected:
@@ -27,6 +33,7 @@ protected:
     
     Vec2 _pos;
     BuildType _buildType;
+    BuildAction _buildAction;
     
     
 public:
@@ -39,7 +46,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocBuildEvent(Vec2 pos, BuildType buildType);
+    static std::shared_ptr<NetEvent> allocBuildEvent(Vec2 pos, BuildType buildType, BuildAction buildAction);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -62,6 +69,8 @@ public:
     /** Get object type*/
     BuildType getBuildType() const {return _buildType;}
     
+    /** Get build action*/
+    BuildAction getBuildAction() const {return _buildAction;}
 };
 
 #endif /* BuildEvent_hpp */

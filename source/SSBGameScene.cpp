@@ -14,6 +14,7 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
+#include "BuildEvent.h"
 
 #include <ctime>
 #include <string>
@@ -1216,6 +1217,9 @@ void GameScene::preUpdate(float dt)
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
+//                _network->pushOutEvent(buildEvent);
+                
                 
                 // If object exists
                 if (obj) {
@@ -1224,6 +1228,8 @@ void GameScene::preUpdate(float dt)
                     _selectedItem = obj->getItemType();
 
                     _gridManager->removeObject(gridPos);
+                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
+                    _network->pushOutEvent(buildEvent);
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -1238,12 +1244,17 @@ void GameScene::preUpdate(float dt)
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addObject(_prevPos, _selectedObject);
-
+                    
+                    auto buildEvent = BuildEvent::allocBuildEvent(_prevPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
+                    _network->pushOutEvent(buildEvent);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
                     _selectedObject->setPosition(gridPos);
                     _gridManager->addObject(gridPos, _selectedObject);
+                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
+                    _network->pushOutEvent(buildEvent);
+                    
                 }
 
                 // Trigger listener
@@ -1256,7 +1267,7 @@ void GameScene::preUpdate(float dt)
             } else {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem));
+                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::ADD);
                 _network->pushOutEvent(buildEvent);
 
                 if (!_gridManager->hasObject(gridPos)) {
@@ -1864,11 +1875,22 @@ void GameScene::render() {
 void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
     Vec2 gridPos = event->getPos();
     BuildType type = event->getBuildType();
+    BuildAction action = event->getBuildAction();
     
+    CULog("Processing BuildEvent: Action=%d, Type=%d, Position=(%.2f, %.2f)",
+              static_cast<int>(action), static_cast<int>(type), gridPos.x, gridPos.y);
+
+
     Item itemType = static_cast<Item>(type);
-    
-    std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
+
+    if (action == BuildAction::ADD) {
+        if (!_gridManager->hasObject(gridPos)) {
+            std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
+            _gridManager->addObject(gridPos, obj);
+        }
+    }
+    else if (action == BuildAction::DELETE) {
+        _gridManager->removeObject(gridPos);
         
-    _gridManager->addObject(gridPos, obj);
-    
-};
+    }
+}

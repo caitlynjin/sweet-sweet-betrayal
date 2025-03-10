@@ -12,10 +12,11 @@ std::shared_ptr<NetEvent> BuildEvent::newEvent(){
     return std::make_shared<BuildEvent>();
 }
 
-std::shared_ptr<NetEvent> BuildEvent::allocBuildEvent(Vec2 pos, BuildType buildType) {
+std::shared_ptr<NetEvent> BuildEvent::allocBuildEvent(Vec2 pos, BuildType buildType, BuildAction buildAction) {
     auto event = std::make_shared<BuildEvent>();
     event->_pos = pos;
     event->_buildType = buildType;
+    event->_buildAction  = buildAction;
     return event;
 }
 
@@ -27,6 +28,8 @@ std::vector<std::byte> BuildEvent::serialize() {
     
     // convert build type to integer
     _serializer.writeSint32(static_cast<Sint32>(_buildType));
+    _serializer.writeSint32(static_cast<Sint32>(_buildAction));
+
     return _serializer.serialize();
 }
 
@@ -40,4 +43,6 @@ void BuildEvent::deserialize(const std::vector<std::byte>& data) {
     
     int typeInt = _deserializer.readSint32();
     _buildType = static_cast<BuildType>(typeInt);
+    int actionInt = _deserializer.readSint32();
+    _buildAction = static_cast<BuildAction>(actionInt);
 }
