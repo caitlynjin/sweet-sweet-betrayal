@@ -69,6 +69,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
     _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
     _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+    _roundsnode->setContentWidth(_size.width * .3);
     _roundsnode->setForeground(INFO_COLOR);
     _roundsnode->setVisible(true);
 
