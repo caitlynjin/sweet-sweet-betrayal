@@ -255,6 +255,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _network = network;
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
+    _network->attachEventType<BuildEvent>();
 
     // Start in building mode
     _buildingMode = true;
@@ -1084,6 +1085,7 @@ void GameScene::preUpdate(float dt)
                         _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
                     }
                 } else {
+                    
                     _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
                 }
             }
@@ -1114,10 +1116,16 @@ void GameScene::preUpdate(float dt)
         {
             Vec2 screenPos = _input.getPosOnDrag();
             Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
+            
+            
 
             if (_selectedObject) {
+                
+                
                 // Move the existing object to new position
                 _selectedObject->setPosition(gridPos);
+                
+
 
                 // Trigger listener
                 if (_selectedObject->getObstacle()->getListener()) {
@@ -1133,6 +1141,9 @@ void GameScene::preUpdate(float dt)
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
+                //should still build own object right?
+                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem));
+                _network->pushOutEvent(buildEvent);
                 std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
                 _gridManager->addObject(gridPos, obj);
 
@@ -1285,6 +1296,10 @@ void GameScene::fixedUpdate(float step)
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             CULog("Message received");
             processMessageEvent(mEvent);
+        }
+        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
+            CULog("BuildEvent received");
+            processBuildEvent(buildEvent);
         }
     }
     
@@ -1667,3 +1682,18 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
                 break;
         }
 }
+
+/**
+ * This method takes a BuildEvent and processes it
+ */
+void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
+    Vec2 gridPos = event->getPos();
+    BuildType type = event->getBuildType();
+    
+    Item itemType = static_cast<Item>(type);
+    
+    std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
+        
+    _gridManager->addObject(gridPos, obj);
+    
+};

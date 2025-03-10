@@ -164,7 +164,7 @@ void SSBApp::update(float dt) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::preUpdate(float dt) {
-    CULog("Status: %d", static_cast<int>(_status));
+//    CULog("Status: %d", static_cast<int>(_status));
     if (_status ==LOAD && _loading.isActive()) {
         _loading.update(0.01f);
     } else if (_status==LOAD) {

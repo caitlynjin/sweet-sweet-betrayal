@@ -20,6 +20,7 @@
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
+#include "BuildEvent.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -541,7 +542,12 @@ public:
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
-
+    
+    /**
+     * This method takes a BuildEvent and processes it
+     */
+    void processBuildEvent(const
+        std::shared_ptr<BuildEvent>& event);
   };
 
 
