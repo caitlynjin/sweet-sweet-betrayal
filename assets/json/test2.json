@@ -48,9 +48,9 @@
                 },
                 {
                     "height":    1,
-                    "wall":    false,
-                    "width":    3,
-                    "x":    13,
+                    "wall":    true,
+                    "width":    1,
+                    "x":    14,
                     "y":    6
                 },
                 {
@@ -210,14 +210,6 @@
                     "width":    1,
                     "x":    18,
                     "y":    3
-                },
-                {
-                    "angle":    0,
-                    "height":    1,
-                    "scale":    64,
-                    "width":    1,
-                    "x":    17,
-                    "y":    4
                 },
                 {
                     "angle":    1.57,

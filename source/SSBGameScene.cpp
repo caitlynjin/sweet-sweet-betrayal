@@ -508,15 +508,15 @@ void GameScene::reset()
     _debugnode->removeAllChildren();
     _avatar = nullptr;
     _goalDoor = nullptr;
-    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
-    {
-        _world->removeObstacle(_growingWall);
-        _worldnode->removeChild(_growingWallNode);
-    }
-    
-    _growingWall = nullptr;
-    _growingWallNode = nullptr;
-    _growingWallWidth = 0.1f;
+//    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
+//    {
+//        _world->removeObstacle(_growingWall);
+//        _worldnode->removeChild(_growingWallNode);
+//    }
+//    
+//    _growingWall = nullptr;
+//    _growingWallNode = nullptr;
+//    _growingWallWidth = 0.1f;
     _treasure = nullptr;
 
     _currRound = 1;
@@ -791,6 +791,7 @@ void GameScene::populate()
 
     // Add the scene graph nodes to this object
     sprite = scene2::PolygonNode::allocWithTexture(image);
+    sprite->setColor(Color4(1,255,0));
     _goalDoor->setDebugColor(DEBUG_COLOR);
     addObstacle(_goalDoor, sprite);
 
@@ -1293,7 +1294,7 @@ void GameScene::preUpdate(float dt)
     // increase growing wall
     if (!_buildingMode)
     {
-        updateGrowingWall(dt);
+//        updateGrowingWall(dt);
     }
 
     _ui.preUpdate(dt);
@@ -1515,8 +1516,8 @@ void GameScene::nextRound(bool reachedGoal) {
     _reachedGoal = false;
     
     // Reset growing wall
-    _growingWallWidth = 0.1f;
-    _growingWallNode->setVisible(false);
+//    _growingWallWidth = 0.1f;
+//    _growingWallNode->setVisible(false);
 
     
     // Return to building mode
@@ -1597,12 +1598,12 @@ void GameScene::beginContact(b2Contact *contact)
 
 
     // If the player collides with the growing wall, game over
-    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
-        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
-    {
-        _died = true;
-
-    }
+//    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
+//        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
+//    {
+//        _died = true;
+//
+//    }
 
     if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _avatar.get()))
