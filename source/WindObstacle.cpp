@@ -42,6 +42,8 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
     Size nsize = size;
     _size = size;
     _itemType = WIND;
+    _position = pos;
+    _size = size;
 
     _gust = cugl::physics2::BoxObstacle::alloc(pos + _size/2, nsize);
     _gust->setDensity(0.0f);
@@ -53,5 +55,17 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
     _gustDir = gust;
     return true;
     
+}
+
+std::map<std::string, std::any> WindObstacle::getMap() {
+    std::map<std::string, std::any> m = {
+        {"x", double(_position.x)},
+        {"y", double(_position.y)},
+        {"width", double(_size.getIWidth())},
+        {"height", double(_size.getIHeight())},
+        {"gustDirX", double(_gustDir.x)},
+        {"gustDirY", double(_gustDir.y)}
+    };
+    return m;
 }
 

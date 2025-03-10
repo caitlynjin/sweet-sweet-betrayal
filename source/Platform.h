@@ -17,6 +17,7 @@ private:
     Vec2   _endPos;
     float  _speed = 0;
     bool   _forward = true;
+    bool _wall = false;
 
 public:
 	Platform() : Object() {}
@@ -61,6 +62,12 @@ public:
 
     // New init for moving platform.
     bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed);
+
+    // Map for JSON level management
+    std::map<std::string, std::any> getMap() override;
+
+    // Gets if this is a wall
+    bool isWall() { return _wall; }
 };
 
 

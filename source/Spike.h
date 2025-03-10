@@ -19,6 +19,9 @@ protected:
     
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _drawScale;
+
+    /** The angle for the hitbox */
+    float _angle;
     /** The scene graph node for the Treasure. */
     std::shared_ptr<scene2::SceneNode> _node;
 
@@ -65,6 +68,12 @@ public:
         _node->setPosition(getPosition() * _drawScale);
         _node->setAngle(angle);
     }
+
+    std::map<std::string, std::any> getMap() override;
+
+    /* Gets the angle for the hitbox.
+    * @return the angle for the hitbox */
+    float getAngle() { return _angle; }
 };
 
 

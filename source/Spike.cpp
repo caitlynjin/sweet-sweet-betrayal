@@ -33,6 +33,9 @@ using namespace cugl;
 bool Spike::init(const Vec2 pos, const Size size, float scale, float angle) {
     _spikeTexture = "";
     _drawScale = scale;
+    _position = pos;
+    _size = size;
+    _angle = angle;
     Size nsize = size*.40; // FIX LATER
     
     Vec2 posA = Vec2(-nsize.width/2, -nsize.height/2);
@@ -50,6 +53,16 @@ bool Spike::init(const Vec2 pos, const Size size, float scale, float angle) {
     return true;
 }
 
-
+std::map<std::string, std::any> Spike::getMap() {
+    std::map<std::string, std::any> m = {
+        {"x", double(_position.x)},
+        {"y", double(_position.y)},
+        {"width", double(_size.getIWidth())},
+        {"height", double(_size.getIHeight())},
+        {"scale", double(_drawScale)},
+        {"angle", double(_angle)}
+    };
+    return m;
+}
 
 

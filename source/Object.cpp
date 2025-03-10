@@ -71,7 +71,7 @@ void Object::draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 std::map<std::string, std::any> Object::getMap() {
 	std::map<std::string, std::any> m = {
 		{"x", double(_position.x)},
-		{"y", double(_position.y)},
+		{"y", double(_position.y)}
 	};
 	return m;
 }

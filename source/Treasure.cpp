@@ -49,10 +49,23 @@ using namespace cugl;
 bool Treasure::init(const Vec2 pos, const Size size, float scale) {
     Size nsize = size;
     _treasureTexture = "";
+    _position = pos;
+    _size = size;
     _drawScale = scale;
     _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
     _box->setSensor(true);
     return true;
+}
+
+std::map<std::string, std::any> Treasure::getMap() {
+    std::map<std::string, std::any> m = {
+        {"x", double(_position.x)},
+        {"y", double(_position.y)},
+        {"width", double(_size.getIWidth())},
+        {"height", double(_size.getIHeight())},
+        {"scale", double(_drawScale)},
+    };
+    return m;
 }
 
 

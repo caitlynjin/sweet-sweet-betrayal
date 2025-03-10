@@ -57,6 +57,8 @@ public:
 
 	/*Return the wind vector*/
 	const Vec2 gustDir() { return _gustDir; };
+
+	std::map<std::string, std::any> getMap() override;
 };
 
 

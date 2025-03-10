@@ -121,7 +121,7 @@ public:
 	void draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 		cugl::Size size);
 
-	std::map<std::string, std::any> getMap();
+	virtual std::map<std::string, std::any> getMap();
 };
 
 

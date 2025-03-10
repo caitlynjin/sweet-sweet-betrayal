@@ -73,6 +73,8 @@ public:
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
     }
+
+    std::map<std::string, std::any> getMap() override;
     
 };
 
