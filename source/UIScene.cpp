@@ -111,9 +111,11 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _readypressed = true;
-//            _readyButton->setVisible(false);
-//            _rightButton->setVisible(false);
-//            _leftButton->setVisible(false);
+//            _readyButton->deactivate();
+                    
+            // Option 2: Change appearance to maintain "pressed" look
+            _readyButton->setColor(Color4(180, 180, 180, 255));
+
         }
         else{
             _readypressed = false;
