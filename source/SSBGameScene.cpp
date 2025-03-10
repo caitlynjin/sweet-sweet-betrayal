@@ -1637,8 +1637,11 @@ Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const V
 {
     Vec2 adjusted = screenPos - offset;
 
-    float xBox2D = adjusted.x / scale;
-    float yBox2D = adjusted.y / scale;
+    // Adjust for camera position
+    Vec2 worldPos = adjusted + (_camera->getPosition() - _camerapos);
+
+    float xBox2D = worldPos.x / scale;
+    float yBox2D = worldPos.y / scale;
 
     // Converts to the specific grid position
     int xGrid = xBox2D;
