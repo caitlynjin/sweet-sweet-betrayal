@@ -1157,6 +1157,11 @@ void GameScene::preUpdate(float dt)
 {
     _input.update(dt);
     
+    // TODO: DELETE THIS IF STATEMENT TO RE ENABLE BUILD
+    if (_buildingMode){
+        setBuildingMode(false);
+    }
+    
     // Process Networking
     if (_buildingMode && (_numReady >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
@@ -1165,125 +1170,125 @@ void GameScene::preUpdate(float dt)
         _numReady = 0;
     }
     
-
-    if (_buildingMode)
-    {
-        /** The offset of finger placement to object indicator */
-        Vec2 dragOffset = Vec2(-1, 1);
-
-        // Deactivate inventory buttons once all traps are placed
-        if (_itemsPlaced == 0){
-            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-            {
-                _inventoryButtons[i]->activate();
-                _inventoryOverlay->setVisible(false);
-            }
-        }
-        
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
-
-            // Show placing object indicator when dragging object
-            if (_selectedItem != NONE) {
-                CULog("Placing object");
-
-                if (_selectedObject) {
-                    // Set the current position of the object
-                    _prevPos = gridPos;
-
-                    // Move the existing object to new position
-                    _selectedObject->setPosition(gridPosWithOffset);
-
-                    // Trigger obstacle update listener
-                    if (_selectedObject->getObstacle()->getListener()) {
-                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                    }
-                } else {
-                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-        {
-            _gridManager->setSpriteInvisible();
-
-            if (_input.isTouchDown()) {
-                // Attempt to move object that exists on the grid
-                Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                // If object exists
-                if (obj) {
-                    CULog("Selected existing object");
-                    _selectedObject = obj;
-                    _selectedItem = obj->getItemType();
-
-                    _gridManager->removeObject(gridPos);
-                    _input.setInventoryStatus(PlatformInput::PLACING);
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-
-            if (_selectedObject) {
-                if (_gridManager->hasObject(gridPos)) {
-                    // Move the object back to its original position
-                    _selectedObject->setPosition(_prevPos);
-                    _gridManager->addObject(_prevPos, _selectedObject);
-
-                    _prevPos = Vec2(0, 0);
-                } else {
-                    // Move the existing object to new position
-                    _selectedObject->setPosition(gridPos);
-                    _gridManager->addObject(gridPos, _selectedObject);
-                }
-
-                // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                }
-
-                // Reset selected object
-                _selectedObject = nullptr;
-            } else {
-                // Place new object on grid
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-
-                if (!_gridManager->hasObject(gridPos)) {
-                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addObject(gridPos, obj);
-
-                    _itemsPlaced += 1;
-
-                    // Update inventory UI
-                    if (_itemsPlaced >= 1)
-                    {
-                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
-                        {
-                            _inventoryButtons[i]->deactivate();
-                        }
-                    }
-                }
-            }
-
-            // Reset selected item
-            _selectedItem = NONE;
-
-            // Darken inventory UI
-            _inventoryOverlay->setVisible(true);
-            _input.setInventoryStatus(PlatformInput::WAITING);
-        }
-    }
-    else
-    {
+    // TODO: UNCOMMENT OUT TO RE ENABLE BUILD
+//    if (_buildingMode)
+//    {
+//        /** The offset of finger placement to object indicator */
+//        Vec2 dragOffset = Vec2(-1, 1);
+//
+//        // Deactivate inventory buttons once all traps are placed
+//        if (_itemsPlaced == 0){
+//            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+//            {
+//                _inventoryButtons[i]->activate();
+//                _inventoryOverlay->setVisible(false);
+//            }
+//        }
+//        
+//        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
+//        {
+//            Vec2 screenPos = _input.getPosOnDrag();
+//            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+//            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
+//
+//            // Show placing object indicator when dragging object
+//            if (_selectedItem != NONE) {
+//                CULog("Placing object");
+//
+//                if (_selectedObject) {
+//                    // Set the current position of the object
+//                    _prevPos = gridPos;
+//
+//                    // Move the existing object to new position
+//                    _selectedObject->setPosition(gridPosWithOffset);
+//
+//                    // Trigger obstacle update listener
+//                    if (_selectedObject->getObstacle()->getListener()) {
+//                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+//                    }
+//                } else {
+//                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
+//                }
+//            }
+//        }
+//        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
+//        {
+//            _gridManager->setSpriteInvisible();
+//
+//            if (_input.isTouchDown()) {
+//                // Attempt to move object that exists on the grid
+//                Vec2 screenPos = _input.getPosOnDrag();
+//                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+//
+//                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+//                
+//                // If object exists
+//                if (obj) {
+//                    CULog("Selected existing object");
+//                    _selectedObject = obj;
+//                    _selectedItem = obj->getItemType();
+//
+//                    _gridManager->removeObject(gridPos);
+//                    _input.setInventoryStatus(PlatformInput::PLACING);
+//                }
+//            }
+//        }
+//        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
+//        {
+//            Vec2 screenPos = _input.getPosOnDrag();
+//            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+//
+//            if (_selectedObject) {
+//                if (_gridManager->hasObject(gridPos)) {
+//                    // Move the object back to its original position
+//                    _selectedObject->setPosition(_prevPos);
+//                    _gridManager->addObject(_prevPos, _selectedObject);
+//
+//                    _prevPos = Vec2(0, 0);
+//                } else {
+//                    // Move the existing object to new position
+//                    _selectedObject->setPosition(gridPos);
+//                    _gridManager->addObject(gridPos, _selectedObject);
+//                }
+//
+//                // Trigger listener
+//                if (_selectedObject->getObstacle()->getListener()) {
+//                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+//                }
+//
+//                // Reset selected object
+//                _selectedObject = nullptr;
+//            } else {
+//                // Place new object on grid
+//                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+//
+//                if (!_gridManager->hasObject(gridPos)) {
+//                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+//                    _gridManager->addObject(gridPos, obj);
+//
+//                    _itemsPlaced += 1;
+//
+//                    // Update inventory UI
+//                    if (_itemsPlaced >= 1)
+//                    {
+//                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
+//                        {
+//                            _inventoryButtons[i]->deactivate();
+//                        }
+//                    }
+//                }
+//            }
+//
+//            // Reset selected item
+//            _selectedItem = NONE;
+//
+//            // Darken inventory UI
+//            _inventoryOverlay->setVisible(true);
+//            _input.setInventoryStatus(PlatformInput::WAITING);
+//        }
+//    }
+//    else
+//    {
         // Process the toggled key commands
         if (_input.didDebug())
         {
@@ -1354,7 +1359,9 @@ void GameScene::preUpdate(float dt)
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
             (*it)->update(dt);
         }
-    }
+    
+//    TODO: UNCOMMENT TO REENABLE BUILD
+//    }
 
     // TODO: Commented out camera code for now
     if (!_buildingMode){
@@ -1618,7 +1625,9 @@ void GameScene::nextRound(bool reachedGoal) {
     // Return to building mode
     //_readyButton->setVisible(true);
     _itemsPlaced = 0;
-    setBuildingMode(true);
+    
+    // TODO: UNCOMMENT THIS TO RE ENABLE BUILD MODE
+//    setBuildingMode(true);
 
 //    _ui.visibleButtons(true);
     
