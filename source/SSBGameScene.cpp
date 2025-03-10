@@ -857,9 +857,9 @@ void GameScene::populate()
 
     // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
     //
-    //level->createJsonFromLevel("levelTest.json", Size(32, 32), _objects);
+   // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("levelTest.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
     for (auto it = levelObjs.begin(); it != levelObjs.end(); ++it) {
         key = (*it)->getJsonKey();
         if (key == "platforms") {
@@ -909,6 +909,8 @@ void GameScene::populate()
     createPlatform(Vec2(17, 3), Size(2, 1), true);
     createPlatform(Vec2(1, 9), Size(18, 1), true);
     createPlatform(Vec2(3, 5), Size(2, 1), true);*/
+
+    //level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
