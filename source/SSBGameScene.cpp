@@ -274,7 +274,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _input.init(getBounds());
 
     // Create the world and attach the listeners.
-    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+//    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+    _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
     _world->onBeginContact = [this](b2Contact *contact)
     {
@@ -284,6 +285,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         endContact(contact);
     };
+//    _world->update(FIXED_TIMESTEP_S);
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
@@ -1954,3 +1956,42 @@ void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
         
     }
 }
+
+/**
+ * Adds the physics object to the physics world and loosely couples it to the scene graph
+ *
+ * There are two ways to link a physics object to a scene graph node on the
+ * screen.  One way is to make a subclass of a physics object.
+ * The other is to use callback functions to loosely couple
+ * the two.  This function is an example of the latter.
+ *
+ * param obj    The physics object to add
+ * param node   The scene graph node to attach it to
+ */
+//void GameScene::addInitObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
+//    const std::shared_ptr<scene2::SceneNode>& node) {
+//    _world->initObstacle(obj);
+//    if(_isHost){
+//        _world->getOwnedObstacles().insert({obj,0});
+//    }
+//    linkSceneToObs(obj, node);
+//}
+//
+//void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+//    const std::shared_ptr<scene2::SceneNode>& node) {
+//
+//    node->setPosition(obj->getPosition() * _scale);
+//    _worldnode->addChild(node);
+//
+//    // Dynamic objects need constant updating
+//    if (obj->getBodyType() == b2_dynamicBody) {
+//        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+//        obj->setListener([=,this](physics2::Obstacle* obs) {
+//            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+//            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+//            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+//            weak->setPosition(pos * _scale);
+//            weak->setAngle(angle);
+//        });
+//    }
+//}

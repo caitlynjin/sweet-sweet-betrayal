@@ -89,7 +89,8 @@ protected:
     /** The primary controller for the UI */
     UIScene _ui;
     /** The Box2D world */
-    std::shared_ptr<physics2::ObstacleWorld> _world;
+//    std::shared_ptr<physics2::ObstacleWorld> _world;
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
     /** The offset from the world */
@@ -614,7 +615,31 @@ public:
      */
     void processBuildEvent(const
         std::shared_ptr<BuildEvent>& event);
+    
+    /**
+     * Adds the physics object to the physics world and loosely couples it to the scene graph
+     *
+     * There are two ways to link a physics object to a scene graph node on the
+     * screen.  One way is to make a subclass of a physics object.
+     * The other is to use callback functions to loosely couple
+     * the two.  This function is an example of the latter.
+     * the two.  This function is an example of the latter.
+     *
+     * param obj    The physics object to add
+     * param node   The scene graph node to attach it to
+     */
+    void addInitObstacle(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+                     const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
   };
+
+/**
+ * This method links a scene node to the obstacle.
+ *
+ * This method adds a listener so that the sceneNode will move along with the obstacle.
+ */
+void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+    const std::shared_ptr<cugl::scene2::SceneNode>& node);
 
 
 #endif /* __PF_GAME_SCENE_H__ */
