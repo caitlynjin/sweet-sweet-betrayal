@@ -48,6 +48,8 @@ using namespace Constants;
 /** Height of the game world in Box2d units */
 #define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
+#define FIXED_TIMESTEP_S 0.02f
+
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
 // IMPORTANT: Note that Box2D units do not equal drawing units
@@ -259,22 +261,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         return false;
     }
     
-    // Init networking
-    _network = network;
-    _isHost = isHost;
-    _network->attachEventType<MessageEvent>();
-    _network->attachEventType<BuildEvent>();
-
-
-    // Start in building mode
-    _buildingMode = true;
-
-    // Start up the input handler
-    _assets = assets;
-    _input.init(getBounds());
-
-    // Create the world and attach the listeners.
-//    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+    // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
     _world->onBeginContact = [this](b2Contact *contact)
@@ -285,7 +272,41 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         endContact(contact);
     };
-//    _world->update(FIXED_TIMESTEP_S);
+    _world->update(FIXED_TIMESTEP_S);
+    
+    //Make a std::function reference of the linkSceneToObs function in game scene for network controller
+    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
+        this->linkSceneToObs(obs,node);
+    };
+    
+    // Init networking
+    _network = network;
+    _isHost = isHost;
+    _network->attachEventType<MessageEvent>();
+    _network->attachEventType<BuildEvent>();
+    _network->enablePhysics(_world, linkSceneToObsFunc);
+    
+    // Init factories
+    _assets = assets;
+    _platFact = PlatformFactory::alloc(_assets);
+    _platFactId = _network->getPhysController()->attachFactory(_platFact);
+
+
+    // Start in building mode
+    _buildingMode = true;
+
+    // Start up the input handler
+    
+    _input.init(getBounds());
+
+    // Create the world and attach the listeners.
+//    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+    
+    
+    
+    
+    
+    
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
@@ -497,8 +518,34 @@ void GameScene::initInventory()
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
-        case (PLATFORM):
-            return createPlatform(gridPos, Size(3, 1), false);
+        case (PLATFORM): {
+            // TODO: Move this all into another function: createPlatformNetworked
+            Size size = Size(3,1);
+            
+            //TODO: Use Platform Factory to create the platform boxObstacle and sprite
+            auto params = _platFact->serializeParams(gridPos, size, false, _scale);
+            // pair holds the boxObstacle and sprite to be used for the platform
+            // Already added to _world after this call
+            CULog("platID: %u", _platFactId);
+            _network->getPhysController();
+
+            auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
+
+            // Cast the obstacle to a BoxObstacle
+            auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+
+            // Check if the cast was successful
+            if (boxObstacle) {
+                // Assign the obstacle that was just made to the platform
+                std::shared_ptr<Platform> plat = Platform::alloc(gridPos + size/2, size, false, boxObstacle);
+                _objects.push_back(plat);
+                return plat;
+            } else {
+                // Handle case where the obstacle is not a BoxObstacle
+                CULog("Error: Expected a BoxObstacle but got a different type");
+                return nullptr;
+            }
+        }
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
@@ -586,7 +633,11 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
 
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
+    // MAY NOT NEED THIS ANYMORE FOR NETWORKED PLATFORMS
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
+    
+    
     _objects.push_back(plat);
 
     return plat;
@@ -602,6 +653,10 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
 
     std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    // TODO: Call to PlatformFactory to get obstacle and sprite node
+    
+    
+    // No need for secondary function anymore, return plat instead
     return createPlatform(plat);
 }
 /**
@@ -1325,8 +1380,10 @@ void GameScene::preUpdate(float dt)
             } else {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::ADD);
-                _network->pushOutEvent(buildEvent);
+                
+                
+//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::ADD);
+//                _network->pushOutEvent(buildEvent);
 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
@@ -1995,3 +2052,101 @@ void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
 //        });
 //    }
 //}
+
+
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, bool isWall, float scale){
+    
+    std::shared_ptr<Texture> image;
+    if (isWall) {
+        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    }
+    else {
+        image = _assets->get<Texture>("platform_long");
+    }
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    // Set the physics attributes
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, isWall ? size.height : size.height/7));
+    
+    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setDebugColor(DEBUG_COLOR);
+    box->setName("platform");
+
+    poly *= scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
+    return std::make_pair(box, sprite);
+}
+
+/**
+ * Helper method for converting normal parameters into byte vectors used for syncing.
+ */
+std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, bool isWall, float scale) {
+    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
+#pragma mark BEGIN SOLUTION
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeBool(isWall);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+#pragma mark END SOLUTION
+}
+
+/**
+ * Generate a pair of Obstacle and SceneNode using serialized parameters.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
+    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
+#pragma mark BEGIN SOLUTION
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float x = _deserializer.readFloat();
+    float y = _deserializer.readFloat();
+    Vec2 pos = Vec2(x,y);
+    x = _deserializer.readFloat();
+    y = _deserializer.readFloat();
+    Size size = Size(x,y);
+    bool isWall = _deserializer.readBool();
+    float scale = _deserializer.readFloat();
+    
+    return createObstacle(pos, size, isWall, scale);
+#pragma mark END SOLUTION
+}
+
+void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+    const std::shared_ptr<scene2::SceneNode>& node) {
+
+    node->setPosition(obj->getPosition() * _scale);
+    _worldnode->addChild(node);
+
+    // Dynamic objects need constant updating
+    if (obj->getBodyType() == b2_dynamicBody) {
+        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+        obj->setListener([=,this](physics2::Obstacle* obs) {
+            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+            weak->setPosition(pos * _scale);
+            weak->setAngle(angle);
+        });
+    }
+}
+
