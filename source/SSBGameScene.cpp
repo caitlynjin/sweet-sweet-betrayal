@@ -526,7 +526,6 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             auto params = _platFact->serializeParams(gridPos, size, false, _scale);
             // pair holds the boxObstacle and sprite to be used for the platform
             // Already added to _world after this call
-            CULog("platID: %u", _platFactId);
             _network->getPhysController();
 
             auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
