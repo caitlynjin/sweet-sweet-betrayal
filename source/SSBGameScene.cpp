@@ -519,32 +519,7 @@ void GameScene::initInventory()
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM): {
-            // TODO: Move this all into another function: createPlatformNetworked
-            Size size = Size(3,1);
-            
-            //TODO: Use Platform Factory to create the platform boxObstacle and sprite
-            auto params = _platFact->serializeParams(gridPos, size, false, _scale);
-            // pair holds the boxObstacle and sprite to be used for the platform
-            // Already added to _world after this call
-            _network->getPhysController();
-
-            auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
-
-            // Cast the obstacle to a BoxObstacle
-            auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-
-            // Check if the cast was successful
-            if (boxObstacle) {
-                // Assign the obstacle that was just made to the platform
-                std::shared_ptr<Platform> plat = Platform::alloc(gridPos + size/2, size, false, boxObstacle);
-                _objects.push_back(plat);
-//                pair.first->setLinearVelocity(2, 0);
-                return plat;
-            } else {
-                // Handle case where the obstacle is not a BoxObstacle
-                CULog("Error: Expected a BoxObstacle but got a different type");
-                return nullptr;
-            }
+            return createPlatformNetworked(gridPos, Size(3,1), false);
         }
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
@@ -602,6 +577,38 @@ void GameScene::reset()
     populate();
 }
 
+/**
+ * Creates a networked platform.
+ *
+ * @return the platform being created
+ *
+ * @param The platform being created (that has not yet been added to the physics world).
+ */
+std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, bool wall){
+    
+    //Use Platform Factory to create the platform boxObstacle and sprite
+    auto params = _platFact->serializeParams(pos, size, wall, _scale);
+    // pair holds the boxObstacle and sprite to be used for the platform
+    // Already added to _world after this call
+    auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
+
+    // Cast the obstacle to a BoxObstacle
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+
+    // Check if the cast was successful
+    if (boxObstacle) {
+        // Assign the boxObstacle that was made to the platform
+        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall, boxObstacle);
+        _objects.push_back(plat);
+//                pair.first->setLinearVelocity(2, 0);
+        return plat;
+    } else {
+        // Handle case where the obstacle is not a BoxObstacle
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
+
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
     if (plat->isWall()) {
@@ -634,7 +641,6 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     
-    // MAY NOT NEED THIS ANYMORE FOR NETWORKED PLATFORMS
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
     
     

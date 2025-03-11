@@ -283,7 +283,7 @@ private:
      *
      * @param The platform being created (that has not yet been added to the physics world).
      */
-    std::shared_ptr<Object> createPlatformNetworked(std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>);
+    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, bool wall);
 
     /**
      * Creates a new windobstacle
