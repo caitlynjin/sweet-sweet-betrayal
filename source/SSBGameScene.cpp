@@ -283,7 +283,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _network = network;
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
-    _network->attachEventType<BuildEvent>();
+//    _network->attachEventType<BuildEvent>();
     _network->enablePhysics(_world, linkSceneToObsFunc);
     
     // Init factories
@@ -538,6 +538,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
                 // Assign the obstacle that was just made to the platform
                 std::shared_ptr<Platform> plat = Platform::alloc(gridPos + size/2, size, false, boxObstacle);
                 _objects.push_back(plat);
+//                pair.first->setLinearVelocity(2, 0);
                 return plat;
             } else {
                 // Handle case where the obstacle is not a BoxObstacle
@@ -1278,7 +1279,11 @@ void GameScene::preUpdate(float dt)
         _numReady = 0;
     }
     
-
+    // Update objects
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
+    }
+    
     if (_buildingMode)
     {
         /** The offset of finger placement to object indicator */
@@ -1339,9 +1344,11 @@ void GameScene::preUpdate(float dt)
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
 
-                    _gridManager->removeObject(gridPos);
-                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
-                    _network->pushOutEvent(buildEvent);
+//                    _gridManager->removeObject(gridPos);
+//                    _network->getPhysController()->remo
+                        
+//                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
+//                    _network->pushOutEvent(buildEvent);
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -1357,15 +1364,16 @@ void GameScene::preUpdate(float dt)
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addObject(_prevPos, _selectedObject);
                     
-                    auto buildEvent = BuildEvent::allocBuildEvent(_prevPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
-                    _network->pushOutEvent(buildEvent);
+//                    auto buildEvent = BuildEvent::allocBuildEvent(_prevPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
+//                    _network->pushOutEvent(buildEvent);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
+                    CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
                     _gridManager->addObject(gridPos, _selectedObject);
-                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
-                    _network->pushOutEvent(buildEvent);
+//                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
+//                    _network->pushOutEvent(buildEvent);
                     
                 }
 
@@ -1489,9 +1497,9 @@ void GameScene::preUpdate(float dt)
     }
     getCamera()->update();
     
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(dt);
+//    }
     // increase growing wall
     if (!_buildingMode)
     {
@@ -1500,7 +1508,7 @@ void GameScene::preUpdate(float dt)
 
     _ui.preUpdate(dt);
     if (_ui.getReadyPressed() && !_readyMessageSent){
-        CULog("send out event");
+//        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
     } else if (!_ui.getReadyPressed()) {
@@ -1546,9 +1554,10 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    if (!_buildingMode){
-        _world->update(step);
-    }
+    _world->update(step);
+//    if (!_buildingMode){
+//        _world->update(step);
+//    }
     
     _ui.fixedUpdate(step);
 
@@ -1556,13 +1565,13 @@ void GameScene::fixedUpdate(float step)
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            CULog("Message received");
+//            CULog("Message received");
             processMessageEvent(mEvent);
         }
-        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
-            CULog("BuildEvent received");
-            processBuildEvent(buildEvent);
-        }
+//        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
+//            CULog("BuildEvent received");
+//            processBuildEvent(buildEvent);
+//        }
     }
     
     
@@ -1838,7 +1847,7 @@ void GameScene::beginContact(b2Contact *contact)
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
         (bd2 == _avatar.get() && bd1->getName() == "movingPlatform" && _avatar->isGrounded()))
     {
-        CULog("moving platform");
+//        CULog("moving platform");
         _avatar->setOnMovingPlat(true);
         _avatar->setMovingPlat(bd1 == _avatar.get() ? bd2 : bd1);
 
@@ -1895,7 +1904,7 @@ void GameScene::endContact(b2Contact *contact)
     if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform") ||
         (bd2 == _avatar.get() && bd1->getName() == "movingPlatform"))
     {
-        CULog("disable movement platform");
+//        CULog("disable movement platform");
         _avatar->setOnMovingPlat(false);
         _avatar->setMovingPlat(nullptr);
     }
@@ -1995,8 +2004,8 @@ void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
     BuildType type = event->getBuildType();
     BuildAction action = event->getBuildAction();
     
-    CULog("Processing BuildEvent: Action=%d, Type=%d, Position=(%.2f, %.2f)",
-              static_cast<int>(action), static_cast<int>(type), gridPos.x, gridPos.y);
+//    CULog("Processing BuildEvent: Action=%d, Type=%d, Position=(%.2f, %.2f)",
+//              static_cast<int>(action), static_cast<int>(type), gridPos.x, gridPos.y);
 
 
     Item itemType = static_cast<Item>(type);
