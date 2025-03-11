@@ -2085,6 +2085,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     box->setRestitution(BASIC_RESTITUTION);
     box->setDebugColor(DEBUG_COLOR);
     box->setName("platform");
+    
+    box->setShared(true);
 
     poly *= scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
