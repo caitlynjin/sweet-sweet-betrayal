@@ -22,7 +22,6 @@
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
-#include "BuildEvent.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -671,12 +670,6 @@ public:
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
-
-    /**
-     * This method takes a BuildEvent and processes it
-     */
-    void processBuildEvent(const
-        std::shared_ptr<BuildEvent>& event);
     
     /**
      * Adds the physics object to the physics world and loosely couples it to the scene graph
