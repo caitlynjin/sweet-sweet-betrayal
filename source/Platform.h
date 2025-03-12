@@ -17,6 +17,7 @@ private:
     Vec2   _endPos;
     float  _speed = 0;
     bool   _forward = true;
+    bool _wall = false;
 
 public:
 	Platform() : Object() {}
@@ -25,6 +26,8 @@ public:
 
 	/** The update method for the platform */
 	void update(float timestep) override;
+
+    string getJsonKey() override;
 
 	~Platform(void) override { dispose(); }
 
@@ -48,6 +51,11 @@ public:
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
         return (result->init(position, size, wall) ? result : nullptr);
     }
+    
+    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, bool wall, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+        std::shared_ptr<Platform> result = std::make_shared<Platform>();
+        return (result->init(position, size, wall, box) ? result : nullptr);
+    }
   
     // New alloc method for moving platform.
     static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed) {
@@ -56,9 +64,18 @@ public:
     }
 
     bool init(const Vec2 pos, const Size size, bool wall);
+    
+    // New init method for networked platforms
+    bool init(const Vec2 pos, const Size size, bool wall, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
     // New init for moving platform.
     bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed);
+
+    // Map for JSON level management
+    std::map<std::string, std::any> getMap() override;
+
+    // Gets if this is a wall
+    bool isWall() { return _wall; }
 };
 
 

@@ -1,6 +1,7 @@
 #include "Platform.h"
 #include "Object.h"
 
+#define JSON_KEY  "platforms";
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -38,6 +39,10 @@ void Platform::update(float timestep) {
 
 }
 
+string Platform::getJsonKey() {
+    return JSON_KEY;
+}
+
 void Platform::dispose() {}
 
 
@@ -61,6 +66,22 @@ bool Platform::init(const Vec2 pos, const Size size, bool wall) {
     _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, wall ? nsize.height : nsize.height/7));
     _size = size;
     _itemType = Item::PLATFORM;
+    _wall = wall;
+    _position = pos;
+    _size = size;
+    return true;
+}
+
+// Init method used for networked platforms
+bool Platform::init(const Vec2 pos, const Size size, bool wall, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+    Size nsize = size;
+    // The long platform is shorter in height
+    _box = box;
+    _size = size;
+    _itemType = Item::PLATFORM;
+    _wall = wall;
+    _position = pos;
+    _size = size;
     return true;
 }
 
@@ -71,10 +92,23 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _endPos   = end+ Vec2(size.width/2, size.height/2);
     _speed    = speed;
     _forward  = true;
+    _position = pos;
+    _size = size;
     //enable moving
     _box->setBodyType(b2_kinematicBody);
     Vec2 direction = _endPos - _startPos;
     direction.normalize();
     _box->setLinearVelocity(direction * _speed);
     return true;
+}
+
+std::map<std::string, std::any> Platform::getMap() {
+    std::map<std::string, std::any> m = {
+        {"x", double(_position.x)},
+        {"y", double(_position.y)},
+        {"width", double(_size.getIWidth())},
+        {"height", double(_size.getIHeight())},
+        {"wall", _wall}
+    };
+    return m;
 }

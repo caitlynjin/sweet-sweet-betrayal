@@ -14,6 +14,7 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
+#include "LevelModel.h"
 
 #include <ctime>
 #include <string>
@@ -44,6 +45,8 @@ using namespace Constants;
 #define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT)
 /** Height of the game world in Box2d units */
 #define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
+
+#define FIXED_TIMESTEP_S 0.02f
 
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
@@ -234,7 +237,7 @@ GameScene::GameScene() : Scene2(),
     _debugnode(nullptr),
     _world(nullptr),
     _localPlayer(nullptr),
-_treasure(nullptr),
+    _treasure(nullptr),
     _complete(false),
     _debug(false)
 
@@ -310,23 +313,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         return false;
     }
     
-    // Init networking
-    _network = network;
-    _isHost = isHost;
-    _network->attachEventType<MessageEvent>();
-    _network->attachEventType<BuildEvent>();
-    _localID = _network->getShortUID();
-    _otherID = (_localID == 1) ? 2 : 1;
-
-    // Start in building mode
-    _buildingMode = true;
-
-    // Start up the input handler
-    _assets = assets;
-    _input.init(getBounds());
-
-    // Create the world and attach the listeners.
-    _world = physics2::distrib::NetWorld::alloc(rect, gravity);
+    // Networked physics world
+    _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
     _world->onBeginContact = [this](b2Contact *contact)
     {
@@ -336,6 +324,40 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         endContact(contact);
     };
+    _world->update(FIXED_TIMESTEP_S);
+    
+    //Make a std::function reference of the linkSceneToObs function in game scene for network controller
+    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
+        this->linkSceneToObs(obs,node);
+    };
+    
+    // Init networking
+    _network = network;
+    _isHost = isHost;
+    _network->attachEventType<MessageEvent>();
+    _network->enablePhysics(_world, linkSceneToObsFunc);
+    
+    // Init factories
+    _assets = assets;
+    _platFact = PlatformFactory::alloc(_assets);
+    _platFactId = _network->getPhysController()->attachFactory(_platFact);
+
+
+    // Start in building mode
+    _buildingMode = true;
+
+    // Start up the input handler
+    
+    _input.init(getBounds());
+
+    // Create the world and attach the listeners.
+//    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+    
+    
+    
+    
+    
+    
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
@@ -427,14 +449,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _scrollpane->setInterior(getBounds() / 2);
     _scrollpane->setConstrained(false);
 
+    // Set initial camera position
     _camerapos = getCamera()->getPosition();
-    // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
-    _inventoryOverlay->setVisible(false);
-    addChild(_inventoryOverlay);
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -448,7 +464,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_gridManager->getGridNode());
     
     for (auto score : _scoreImages){
-        addChild(score);
+        _ui.addChild(score);
     }
 
     _ui.init(assets);
@@ -538,7 +554,7 @@ void GameScene::initInventory()
     _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
     _inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
-    addChild(_inventoryBackground);
+    _ui.addChild(_inventoryBackground);
 
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
@@ -557,9 +573,17 @@ void GameScene::initInventory()
             }
         });
         _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
+        _ui.addChild(itemButton);
         yOffset += 80;
     }
+
+    // Set the darkened overlay
+    _inventoryOverlay = scene2::PolygonNode::alloc();
+    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
+    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay->setVisible(false);
+    _ui.addChild(_inventoryOverlay);
 }
 
 /**
@@ -572,8 +596,9 @@ void GameScene::initInventory()
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
-        case (PLATFORM):
-            return createPlatform(gridPos, Size(3, 1), false);
+        case (PLATFORM): {
+            return createPlatformNetworked(gridPos, Size(3,1), false);
+        }
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
@@ -631,26 +656,50 @@ void GameScene::reset()
 }
 
 /**
- * Creates a new platform.
+ * Creates a networked platform.
  *
  * @return the platform being created
  *
- * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
- * @param size The dimensions (width, height) of the platform.
+ * @param The platform being created (that has not yet been added to the physics world).
  */
-std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
-    std::shared_ptr<Texture> image;
-    if (wall){
-        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, bool wall){
+    
+    //Use Platform Factory to create the platform boxObstacle and sprite
+    auto params = _platFact->serializeParams(pos, size, wall, _scale);
+    // pair holds the boxObstacle and sprite to be used for the platform
+    // Already added to _world after this call
+    auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
+
+    // Cast the obstacle to a BoxObstacle
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+
+    // Check if the cast was successful
+    if (boxObstacle) {
+        // Assign the boxObstacle that was made to the platform
+        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall, boxObstacle);
+        _objects.push_back(plat);
+//                pair.first->setLinearVelocity(2, 0);
+        return plat;
     } else {
+        // Handle case where the obstacle is not a BoxObstacle
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
+
+std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
+    std::shared_ptr<Texture> image;
+    if (plat->isWall()) {
+        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    }
+    else {
         image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
     }
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -669,10 +718,30 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall
 
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
+    
+    
     _objects.push_back(plat);
 
     return plat;
+}
+/**
+ * Creates a new platform.
+ *
+ * @return the platform being created
+ *
+ * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+ * @param size The dimensions (width, height) of the platform.
+ */
+std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+
+    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+    // TODO: Call to PlatformFactory to get obstacle and sprite node
+    
+    
+    // No need for secondary function anymore, return plat instead
+    return createPlatform(plat);
 }
 /**
  * Creates a moving platform.
@@ -764,10 +833,15 @@ void GameScene::updateGrowingWall(float timestep)
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
  * @param size The dimensions (width, height) of the spike.
  */
-void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+{
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle);
+    return createSpike(spk);
+}
+
+std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
-    std::shared_ptr<Spike> spk = Spike::alloc(pos, image->getSize() / _scale, _scale, angle);
 
     // Set the physics attributes
     spk->getObstacle()->setBodyType(b2_staticBody);
@@ -778,12 +852,13 @@ void GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
     spk->getObstacle()->setName("spike");
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-    spk->setSceneNode(sprite, angle);
+    spk->setSceneNode(sprite, spk->getAngle());
     addObstacle(spk->getObstacle(), sprite);
     _objects.push_back(spk);
+    return spk;
 }
 
-void GameScene::createTreasure(Vec2 pos, Size size){
+std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
@@ -794,6 +869,14 @@ void GameScene::createTreasure(Vec2 pos, Size size){
     addObstacle(_treasure->getObstacle(),sprite);
     _treasure->getObstacle()->setName("treasure");
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    _treasure->setPosition(pos);
+    _objects.push_back(_treasure);
+    return _treasure;
+}
+
+std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _treasure) {
+    return createTreasure(_treasure->getPosition(), _treasure->getSize());
 }
 
 /**
@@ -814,10 +897,18 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
+    wind->setPosition(pos);
+
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
+
     _objects.push_back(wind);
 
     return wind;
+}
+
+std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstacle> wind)
+{
+    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir());
 }
 
 /**
@@ -918,6 +1009,29 @@ void GameScene::populate()
 #pragma mark : Wind
 //    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
+    shared_ptr<LevelModel> level = make_shared<LevelModel>();
+
+    // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
+    //
+   // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
+    std::string key;
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
+    for (auto it = levelObjs.begin(); it != levelObjs.end(); ++it) {
+        key = (*it)->getJsonKey();
+        if (key == "platforms") {
+            createPlatform(dynamic_pointer_cast<Platform>(*it));
+        }
+        else if (key == "spikes") {
+            createSpike(dynamic_pointer_cast<Spike>(*it));
+        }
+        else if (key == "treasures") {
+            createTreasure(dynamic_pointer_cast<Treasure>(*it));
+        }
+        else if (key == "windObstacles") {
+            createWindObstacle(dynamic_pointer_cast<WindObstacle>(*it));
+        }
+    }
+    //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
 
     Vec2 dudePos = DUDE_POS;
@@ -969,7 +1083,7 @@ void GameScene::populate()
     
 
 #pragma mark : Spikes
-    createSpike(Vec2(13, 1), Size(1, 1), _scale);
+    /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
     createSpike(Vec2(14, 1), Size(1, 1), _scale);
     createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
     createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
@@ -989,14 +1103,16 @@ void GameScene::populate()
     createPlatform(Vec2(1, 9), Size(18, 1), true);
     createPlatform(Vec2(17, 3), Size(2, 1), true);
     createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(3, 5), Size(2, 1), true);
+    createPlatform(Vec2(3, 5), Size(2, 1), true);*/
+
+    //level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     
     // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
     //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
 #pragma mark : Treasure
 
-    createTreasure(Vec2(TREASURE_POS[0]), Size(1,1));
+    /*createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));*/
 
 
     // Play the background music on a loop.
@@ -1055,202 +1171,6 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
 void GameScene::update(float timestep)
 {
 
-//    _input.update(timestep);
-//
-//    if (_buildingMode)
-//    {
-//        // Removed because duplicate code in preupdate causes issues
-//        // Deactivate inventory buttons once all traps are placed
-//        if (_itemsPlaced == 0){
-//            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-//            {
-//                _inventoryButtons[i]->activate();
-//                _inventoryOverlay->setVisible(false);
-//            }
-//        }
-//        
-//        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-//        {
-//            Vec2 screenPos = _input.getPosOnDrag();
-//            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-//
-//            // Show placing object indicator when dragging object
-//            if (_selectedItem != NONE) {
-//                CULog("Placing object");
-//
-//                if (_selectedObject) {
-//                    // Move the existing object to new position
-//                    _selectedObject->setPosition(gridPos);
-//
-//                    // Trigger obstacle update listener
-//                    if (_selectedObject->getObstacle()->getListener()) {
-//                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-//                    }
-//                } else {
-//                    
-//                    _gridManager->setObject(gridPos, _assets->get<Texture>(itemToAssetName(_selectedItem)));
-//                }
-//            }
-//        }
-//        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-//        {
-//            _gridManager->setSpriteInvisible();
-//
-//            if (_input.isTouchDown()) {
-//                // Attempt to move object that exists on the grid
-//                Vec2 screenPos = _input.getPosOnDrag();
-//                Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-//                
-//                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-//                
-//                // If object exists
-//                if (obj) {
-//                    CULog("Selected existing object");
-//                    _selectedObject = obj;
-//                    _selectedItem = obj->getItemType();
-//
-//                    _gridManager->removeObject(gridPos);
-//                    _input.setInventoryStatus(PlatformInput::PLACING);
-//                }
-//            }
-//        }
-//        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-//        {
-//            Vec2 screenPos = _input.getPosOnDrag();
-//            Vec2 gridPos = convertScreenToGrid(screenPos, _scale, _offset);
-//            
-//            
-//
-//            if (_selectedObject) {
-//                
-//                
-//                // Move the existing object to new position
-//                _selectedObject->setPosition(gridPos);
-//                
-//
-//
-//                // Trigger listener
-//                if (_selectedObject->getObstacle()->getListener()) {
-//                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-//                }
-//
-//                _gridManager->addObject(gridPos, _selectedObject);
-//
-//                CULog("grid position: (%f, %f)", gridPos.x, gridPos.y);
-//                CULog("object position: (%f, %f)", static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getX(), static_pointer_cast<Platform>(_selectedObject)->getObstacle()->getY());
-//
-//                // Reset selected object
-//                _selectedObject = nullptr;
-//            } else {
-//                // Place new object on grid
-//                //should still build own object right?
-//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem));
-//                _network->pushOutEvent(buildEvent);
-//                std::shared_ptr<Object> obj = placeItem(convertScreenToGrid(_input.getPlacedPos(), _scale, _offset), _selectedItem);
-//                _gridManager->addObject(gridPos, obj);
-//
-//                _itemsPlaced += 1;
-//
-//                // Update inventory UI
-//                if (_itemsPlaced >= 1)
-//                {
-//                    for (size_t i = 0; i < _inventoryButtons.size(); i++)
-//                    {
-//                        _inventoryButtons[i]->deactivate();
-//                    }
-//                }
-//            }
-//
-//            // Reset selected item
-//            _selectedItem = NONE;
-//
-//            // Darken inventory UI
-//            _inventoryOverlay->setVisible(true);
-//            _input.setInventoryStatus(PlatformInput::WAITING);
-//        }
-//    }
-//    else
-//    {
-//        // Process the toggled key commands
-//        if (_input.didDebug())
-//        {
-//            setDebug(!isDebug());
-//        }
-//        if (_input.didReset())
-//        {
-//            reset();
-//        }
-//        if (_input.didExit())
-//        {
-//            CULog("Shutting down");
-//            Application::get()->quit();
-//        }
-//
-//        // Process the movement
-//        if (_input.withJoystick())
-//        {
-//            if (_input.getHorizontal() < 0)
-//            {
-//                _leftnode->setVisible(true);
-//                _rightnode->setVisible(false);
-//            }
-//            else if (_input.getHorizontal() > 0)
-//            {
-//                _leftnode->setVisible(false);
-//                _rightnode->setVisible(true);
-//            }
-//            else
-//            {
-//                _leftnode->setVisible(false);
-//                _rightnode->setVisible(false);
-//            }
-//            _leftnode->setPosition(_input.getJoystick());
-//            _rightnode->setPosition(_input.getJoystick());
-//        }
-//        else
-//        {
-//            _leftnode->setVisible(false);
-//            _rightnode->setVisible(false);
-//        }
-//
-//        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-//        _avatar->setJumping(_input.didJump());
-//        _avatar->applyForce();
-//
-//        if (_avatar->isJumping() && _avatar->isGrounded())
-//        {
-//
-//            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-//            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-//        }
-//
-//        if (_avatar->isGrounded())
-//        {
-//            _input.setGlide(false);
-//        }
-//        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-//        if (_input.isRightDown() && _input.canGlide())
-//        {
-//
-//            _avatar->setGlide(true);
-//        }
-//        else
-//        {
-//            _avatar->setGlide(false);
-//        }
-//    }
-//
-//    for (auto &obj : _objects)
-//    {
-//        obj->update(timestep);
-//    }
-//
-//
-//    // Turn the physics engine crank.
-//
-//    _world->update(timestep);
-//    _ui.update(timestep);
-
     
 }
 
@@ -1291,125 +1211,130 @@ void GameScene::preUpdate(float dt)
         _numReady = 0;
     }
     
-    // TODO: UNCOMMENT OUT TO RE ENABLE BUILD
-//    if (_buildingMode)
-//    {
-//        /** The offset of finger placement to object indicator */
-//        Vec2 dragOffset = Vec2(-1, 1);
-//
-//        // Deactivate inventory buttons once all traps are placed
-//        if (_itemsPlaced == 0){
-//            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-//            {
-//                _inventoryButtons[i]->activate();
-//                _inventoryOverlay->setVisible(false);
-//            }
-//        }
-//        
-//        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-//        {
-//            Vec2 screenPos = _input.getPosOnDrag();
-//            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-//            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
-//
-//            // Show placing object indicator when dragging object
-//            if (_selectedItem != NONE) {
-//                CULog("Placing object");
-//
-//                if (_selectedObject) {
-//                    // Set the current position of the object
-//                    _prevPos = gridPos;
-//
-//                    // Move the existing object to new position
-//                    _selectedObject->setPosition(gridPosWithOffset);
-//
-//                    // Trigger obstacle update listener
-//                    if (_selectedObject->getObstacle()->getListener()) {
-//                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-//                    }
-//                } else {
-//                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
-//                }
-//            }
-//        }
-//        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-//        {
-//            _gridManager->setSpriteInvisible();
-//
-//            if (_input.isTouchDown()) {
-//                // Attempt to move object that exists on the grid
-//                Vec2 screenPos = _input.getPosOnDrag();
-//                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-//
-//                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-//                
-//                // If object exists
-//                if (obj) {
-//                    CULog("Selected existing object");
-//                    _selectedObject = obj;
-//                    _selectedItem = obj->getItemType();
-//
-//                    _gridManager->removeObject(gridPos);
-//                    _input.setInventoryStatus(PlatformInput::PLACING);
-//                }
-//            }
-//        }
-//        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-//        {
-//            Vec2 screenPos = _input.getPosOnDrag();
-//            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-//
-//            if (_selectedObject) {
-//                if (_gridManager->hasObject(gridPos)) {
-//                    // Move the object back to its original position
-//                    _selectedObject->setPosition(_prevPos);
-//                    _gridManager->addObject(_prevPos, _selectedObject);
-//
-//                    _prevPos = Vec2(0, 0);
-//                } else {
-//                    // Move the existing object to new position
-//                    _selectedObject->setPosition(gridPos);
-//                    _gridManager->addObject(gridPos, _selectedObject);
-//                }
-//
-//                // Trigger listener
-//                if (_selectedObject->getObstacle()->getListener()) {
-//                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-//                }
-//
-//                // Reset selected object
-//                _selectedObject = nullptr;
-//            } else {
-//                // Place new object on grid
-//                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-//
-//                if (!_gridManager->hasObject(gridPos)) {
-//                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-//                    _gridManager->addObject(gridPos, obj);
-//
-//                    _itemsPlaced += 1;
-//
-//                    // Update inventory UI
-//                    if (_itemsPlaced >= 1)
-//                    {
-//                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
-//                        {
-//                            _inventoryButtons[i]->deactivate();
-//                        }
-//                    }
-//                }
-//            }
-//
-//            // Reset selected item
-//            _selectedItem = NONE;
-//
-//            // Darken inventory UI
-//            _inventoryOverlay->setVisible(true);
-//            _input.setInventoryStatus(PlatformInput::WAITING);
-//        }
-//    }
-//    else
-//    {
+    // Update objects
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
+    }
+    
+    if (_buildingMode)
+    {
+        /** The offset of finger placement to object indicator */
+        Vec2 dragOffset = Vec2(-1, 1);
+
+        // Deactivate inventory buttons once all traps are placed
+        if (_itemsPlaced == 0){
+            for (size_t i = 0; i < _inventoryButtons.size(); i++)
+            {
+                _inventoryButtons[i]->activate();
+                _inventoryOverlay->setVisible(false);
+            }
+        }
+        
+        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
+        {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
+
+            // Show placing object indicator when dragging object
+            if (_selectedItem != NONE) {
+                CULog("Placing object");
+
+                if (_selectedObject) {
+                    // Set the current position of the object
+                    _prevPos = gridPos;
+
+                    // Move the existing object to new position
+                    _selectedObject->setPosition(gridPosWithOffset);
+
+                    // Trigger obstacle update listener
+                    if (_selectedObject->getObstacle()->getListener()) {
+                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                    }
+                } else {
+                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
+                }
+            }
+        }
+        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
+        {
+            _gridManager->setSpriteInvisible();
+
+            if (_input.isTouchDown()) {
+                // Attempt to move object that exists on the grid
+                Vec2 screenPos = _input.getPosOnDrag();
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
+
+                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
+                
+                
+                // If object exists
+                if (obj) {
+                    CULog("Selected existing object");
+                    _selectedObject = obj;
+                    _selectedItem = obj->getItemType();
+                    _input.setInventoryStatus(PlatformInput::PLACING);
+                }
+            }
+        }
+        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
+        {
+            Vec2 screenPos = _input.getPosOnDrag();
+            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+
+            if (_selectedObject) {
+                if (_gridManager->hasObject(gridPos)) {
+                    // Move the object back to its original position
+                    _selectedObject->setPosition(_prevPos);
+                    _gridManager->addObject(_prevPos, _selectedObject);
+                    _prevPos = Vec2(0, 0);
+                } else {
+                    // Move the existing object to new position
+                    CULog("Reposition object");
+                    _selectedObject->setPosition(gridPos);
+                    _gridManager->addObject(gridPos, _selectedObject);
+
+                    
+                }
+
+                // Trigger listener
+                if (_selectedObject->getObstacle()->getListener()) {
+                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                }
+
+                // Reset selected object
+                _selectedObject = nullptr;
+            } else {
+                // Place new object on grid
+                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
+
+                if (!_gridManager->hasObject(gridPos)) {
+                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                    _gridManager->addObject(gridPos, obj);
+
+                    _itemsPlaced += 1;
+
+                    // Update inventory UI
+                    if (_itemsPlaced >= 1)
+                    {
+                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
+                        {
+                            _inventoryButtons[i]->deactivate();
+                        }
+                    }
+                }
+            }
+
+            // Reset selected item
+            _selectedItem = NONE;
+
+            // Darken inventory UI
+            _inventoryOverlay->setVisible(true);
+            _input.setInventoryStatus(PlatformInput::WAITING);
+        }
+    }
+    else
+    {
         // Process the toggled key commands
         if (_input.didDebug())
         {
@@ -1481,8 +1406,7 @@ void GameScene::preUpdate(float dt)
             (*it)->update(dt);
         }
     
-//    TODO: UNCOMMENT TO REENABLE BUILD
-//    }
+    }
 
     // TODO: Commented out camera code for now
     if (!_buildingMode){
@@ -1490,9 +1414,9 @@ void GameScene::preUpdate(float dt)
     }
     getCamera()->update();
     
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(dt);
+//    }
     // increase growing wall
     if (!_buildingMode)
     {
@@ -1501,7 +1425,7 @@ void GameScene::preUpdate(float dt)
 
     _ui.preUpdate(dt);
     if (_ui.getReadyPressed() && !_readyMessageSent){
-        CULog("send out event");
+//        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
     } else if (!_ui.getReadyPressed()) {
@@ -1551,9 +1475,10 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    if (!_buildingMode){
-        _world->update(step);
-    }
+    _world->update(step);
+//    if (!_buildingMode){
+//        _world->update(step);
+//    }
     
     _ui.fixedUpdate(step);
 
@@ -1561,13 +1486,9 @@ void GameScene::fixedUpdate(float step)
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            CULog("Message received");
             processMessageEvent(mEvent);
         }
-        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
-            CULog("BuildEvent received");
-            processBuildEvent(buildEvent);
-        }
+
     }
     
     
@@ -1776,6 +1697,7 @@ void GameScene::setBuildingMode(bool value) {
     _inventoryBackground->setVisible(value);
     _ui.visibleButtons(value);
 
+    _camera->setPosition(_camerapos);
 }
 
 #pragma mark -
@@ -1844,7 +1766,7 @@ void GameScene::beginContact(b2Contact *contact)
     if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform" && _localPlayer->isGrounded()) ||
         (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform" && _localPlayer->isGrounded()))
     {
-        CULog("moving platform");
+//        CULog("moving platform");
         _localPlayer->setOnMovingPlat(true);
         _localPlayer->setMovingPlat(bd1 == _localPlayer.get() ? bd2 : bd1);
 
@@ -1901,7 +1823,7 @@ void GameScene::endContact(b2Contact *contact)
     if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform") ||
         (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform"))
     {
-        CULog("disable movement platform");
+//        CULog("disable movement platform");
         _localPlayer->setOnMovingPlat(false);
         _localPlayer->setMovingPlat(nullptr);
     }
@@ -1923,8 +1845,11 @@ Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const V
 {
     Vec2 adjusted = screenPos - offset;
 
-    float xBox2D = adjusted.x / scale;
-    float yBox2D = adjusted.y / scale;
+    // Adjust for camera position
+    Vec2 worldPos = adjusted + (_camera->getPosition() - _camerapos);
+
+    float xBox2D = worldPos.x / scale;
+    float yBox2D = worldPos.y / scale;
 
     // Converts to the specific grid position
     int xGrid = xBox2D;
@@ -1990,17 +1915,143 @@ void GameScene::render() {
 }
 
 
+
+
 /**
- * This method takes a BuildEvent and processes it
+ * Adds the physics object to the physics world and loosely couples it to the scene graph
+ *
+ * There are two ways to link a physics object to a scene graph node on the
+ * screen.  One way is to make a subclass of a physics object.
+ * The other is to use callback functions to loosely couple
+ * the two.  This function is an example of the latter.
+ *
+ * param obj    The physics object to add
+ * param node   The scene graph node to attach it to
  */
-void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
-    Vec2 gridPos = event->getPos();
-    BuildType type = event->getBuildType();
+//void GameScene::addInitObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
+//    const std::shared_ptr<scene2::SceneNode>& node) {
+//    _world->initObstacle(obj);
+//    if(_isHost){
+//        _world->getOwnedObstacles().insert({obj,0});
+//    }
+//    linkSceneToObs(obj, node);
+//}
+//
+//void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+//    const std::shared_ptr<scene2::SceneNode>& node) {
+//
+//    node->setPosition(obj->getPosition() * _scale);
+//    _worldnode->addChild(node);
+//
+//    // Dynamic objects need constant updating
+//    if (obj->getBodyType() == b2_dynamicBody) {
+//        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+//        obj->setListener([=,this](physics2::Obstacle* obs) {
+//            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+//            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+//            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+//            weak->setPosition(pos * _scale);
+//            weak->setAngle(angle);
+//        });
+//    }
+//}
+
+
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, bool isWall, float scale){
     
-    Item itemType = static_cast<Item>(type);
+    std::shared_ptr<Texture> image;
+    if (isWall) {
+        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    }
+    else {
+        image = _assets->get<Texture>("platform_long");
+    }
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    // Set the physics attributes
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, isWall ? size.height : size.height/7));
     
-    std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
-        
-    _gridManager->addObject(gridPos, obj);
+    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setDebugColor(DEBUG_COLOR);
+    box->setName("platform");
     
-};
+    box->setShared(true);
+
+    poly *= scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
+    return std::make_pair(box, sprite);
+}
+
+/**
+ * Helper method for converting normal parameters into byte vectors used for syncing.
+ */
+std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, bool isWall, float scale) {
+    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
+#pragma mark BEGIN SOLUTION
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeBool(isWall);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+#pragma mark END SOLUTION
+}
+
+/**
+ * Generate a pair of Obstacle and SceneNode using serialized parameters.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
+    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
+#pragma mark BEGIN SOLUTION
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float x = _deserializer.readFloat();
+    float y = _deserializer.readFloat();
+    Vec2 pos = Vec2(x,y);
+    x = _deserializer.readFloat();
+    y = _deserializer.readFloat();
+    Size size = Size(x,y);
+    bool isWall = _deserializer.readBool();
+    float scale = _deserializer.readFloat();
+    
+    return createObstacle(pos, size, isWall, scale);
+#pragma mark END SOLUTION
+}
+
+void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+    const std::shared_ptr<scene2::SceneNode>& node) {
+
+    node->setPosition(obj->getPosition() * _scale);
+    _worldnode->addChild(node);
+
+    // Dynamic objects need constant updating
+    if (obj->getBodyType() == b2_dynamicBody) {
+        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+        obj->setListener([=,this](physics2::Obstacle* obs) {
+            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+            weak->setPosition(pos * _scale);
+            weak->setAngle(angle);
+        });
+    }
+}
+

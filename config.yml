@@ -20,6 +20,7 @@ modules:
     - scene2                        # We want the 2d UI
     - netcode
     - physics2::distrib
+    - UIScene
 
 # This must be one of portrait, landscape, portrait-flipped, landscape-flipped,
 targets:                        # The target platforms to build for

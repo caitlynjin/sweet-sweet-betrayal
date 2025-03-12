@@ -17,11 +17,11 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
+#include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
-#include "BuildEvent.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -62,6 +62,55 @@ public:
      * Helper method for converting normal parameters into byte vectors used for syncing.
      */
     std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using serialized parameters.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
+
+/**
+ * The factory class for trap objects.
+ *
+ * This class is used to support automatically syncing newly added obstacle mid-simulation.
+ * Obstacles added throught the ObstacleFactory class from one client will be added to all
+ * clients in the simulations.
+ */
+class PlatformFactory : public ObstacleFactory {
+public:
+    /** Pointer to the AssetManager for texture access, etc. */
+    std::shared_ptr<cugl::AssetManager> _assets;
+
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+
+    /**
+     * Allocates a new instance of the factory using the given AssetManager.
+     */
+    static std::shared_ptr<PlatformFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<PlatformFactory>();
+        f->init(assets);
+        return f;
+    };
+
+    /**
+     * Initializes empty factories using the given AssetManager.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using the given parameters
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, bool isWall, float scale);
+
+    /**
+     * Helper method for converting normal parameters into byte vectors used for syncing.
+     */
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, bool isWall, float scale);
     
     /**
      * Generate a pair of Obstacle and SceneNode using serialized parameters.
@@ -214,6 +263,10 @@ protected:
     /** The other player's ID */
     int _otherID;
     
+    /** Variables for Platform Factory */
+    std::shared_ptr<PlatformFactory> _platFact;
+    Uint32 _platFactId;
+    
     
     std::shared_ptr<DudeFactory> _dudeFact;
     Uint32 _dudeFactID;
@@ -240,13 +293,17 @@ private:
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
     */
-    void createSpike(Vec2 pos, Size size, float scale, float angle = 0);
+    std::shared_ptr<Object> createSpike(Vec2 pos, Size size, float scale, float angle = 0);
+
+    std::shared_ptr<Object> createSpike(std::shared_ptr<Spike> spk);
     
     /** Creates a treasure
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
     * @param size The size of the treasure in Box2D coordinates.
     */
-    void createTreasure(Vec2 pos, Size size);
+    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size);
+
+    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
 
     /**
      * Creates a platform.
@@ -260,6 +317,24 @@ private:
     std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
 
     /**
+     * Creates a platform.
+     *
+     * @return the platform being created
+     *
+     * @param The platform being created (that has not yet been added to the physics world).
+     */
+    std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
+    
+    /**
+     * Creates a networked platform.
+     *
+     * @return the platform being created
+     *
+     * @param The platform being created (that has not yet been added to the physics world).
+     */
+    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, bool wall);
+
+    /**
      * Creates a new windobstacle
      *
      * @return the wind obstacle
@@ -268,6 +343,8 @@ private:
      * @param size The dimensions (width, height) of the platform.
      */
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+
+    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
 
     /**
      * Creates a moving platform.
@@ -532,7 +609,7 @@ public:
      *
      * @param timestep  The amount of time (in seconds) since the last frame
      */
-    void update(float timestep);
+    void update(float timestep) override;
 
      
     /**
@@ -652,13 +729,32 @@ public:
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
-
+    
     /**
-     * This method takes a BuildEvent and processes it
+     * Adds the physics object to the physics world and loosely couples it to the scene graph
+     *
+     * There are two ways to link a physics object to a scene graph node on the
+     * screen.  One way is to make a subclass of a physics object.
+     * The other is to use callback functions to loosely couple
+     * the two.  This function is an example of the latter.
+     * the two.  This function is an example of the latter.
+     *
+     * param obj    The physics object to add
+     * param node   The scene graph node to attach it to
      */
-    void processBuildEvent(const
-        std::shared_ptr<BuildEvent>& event);
+    void addInitObstacle(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+                     const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
+    /**
+     * This method links a scene node to the obstacle.
+     *
+     * This method adds a listener so that the sceneNode will move along with the obstacle.
+     */
+    void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+        const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
   };
+
 
 
 #endif /* __PF_GAME_SCENE_H__ */
