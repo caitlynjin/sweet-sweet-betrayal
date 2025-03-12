@@ -72,6 +72,12 @@
         "left_button": {
           "file":     "textures/left_button.png"
         },
+        "jump-button": {
+          "file":     "textures/jump-button.PNG"
+        },
+        "glide-button": {
+          "file":     "textures/glide-button.PNG"
+        },
         "background": {
             "file":     "textures/background.png"
         }

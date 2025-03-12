@@ -66,6 +66,10 @@ protected:
     std::shared_ptr<scene2::ScrollPane> _scrollpane;
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
+    /** Reference to the jump button */
+    std::shared_ptr<cugl::scene2::Button> _jumpbutton;
+    /** Reference to the glide button */
+    std::shared_ptr<cugl::scene2::Button> _glidebutton;
     /** Reference to build mode inventory buttons */
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
@@ -137,6 +141,10 @@ protected:
     std::shared_ptr<Object> _selectedObject;
     /** The initial camera position */
     Vec2 _camerapos;
+    /** Whether player is jumping */
+    bool _didjump;
+    /** Whether player is gliding */
+    bool _didglide;
 
     /** The total amount of rounds */
     int const TOTAL_ROUNDS = 5;
