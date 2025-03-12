@@ -1312,14 +1312,14 @@ void GameScene::preUpdate(float dt)
             (*it)->update(dt);
         }
 
-        if (_avatar->isGrounded()){
+        if (_avatar->isGrounded() && !_glidebutton->isDown()){
             _jumpbutton->activate();
             _jumpbutton->setVisible(true);
             _glidebutton->deactivate();
             _glidebutton->setVisible(false);
             _didglide = false;
         }
-        else{
+        else if (!_avatar->isGrounded() && !_jumpbutton->isDown()){
             _jumpbutton->deactivate();
             _jumpbutton->setVisible(false);
             _glidebutton->activate();
