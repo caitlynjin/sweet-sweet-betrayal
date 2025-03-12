@@ -988,7 +988,7 @@ void GameScene::populate()
 //    pos += Vec2(4, 5);
     // CLIENT STARTS ON RIGHT
     if (_localID == 2){
-        pos += Vec2(4, 5);
+        pos += Vec2(2, 0);
     }
     
     
@@ -998,11 +998,9 @@ void GameScene::populate()
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
     
-//    _localPlayer->setFilterData();
     _localPlayer->setDebugScene(_debugnode);
     
     
-
     
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_isHost){
@@ -1676,6 +1674,7 @@ void GameScene::setBuildingMode(bool value) {
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _glidebutton->setVisible(false);
+        _ui.setReadyDone(false);
     }
     else{
         _jumpbutton->activate();
@@ -1973,6 +1972,11 @@ void GameScene::render() {
     _ui.render();
 }
 
+/**
+ * This method attempts to set all the collision filters for the networked players.
+ *
+ * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
+ */
 void GameScene::trySetFilters(){
     // First, count how many players are in the world
     // We only want to set filters once all players are represented in the world

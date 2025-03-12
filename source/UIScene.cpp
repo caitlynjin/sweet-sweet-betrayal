@@ -110,8 +110,9 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (down && !_isReady) {
             _readypressed = true;
+            setReadyDone(true);
 //            _readyButton->setVisible(false);
 //            _rightButton->setVisible(false);
 //            _leftButton->setVisible(false);
@@ -281,6 +282,17 @@ void UIScene::visibleButtons(bool isVisible) {
  */
 void UIScene::updateRound(int cur, int total) {
     _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
+}
+
+void UIScene::setReadyDone(bool isDone){
+    if (isDone){
+        _readyButton->setColor(Color4::GRAY);
+        _isReady = true;
+    }
+    else{
+        _readyButton->setColor(Color4::WHITE);
+        _isReady = false;
+    }
 }
 
 

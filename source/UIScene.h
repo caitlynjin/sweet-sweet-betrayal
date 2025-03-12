@@ -49,6 +49,9 @@ protected:
 
     /** Whether ready button was pressed */
     bool _readypressed;
+    
+    /** Whether the player is ready to proceed to movement phase */
+    bool _isReady;
 
     /** Whether right camera button is being pressed */
     bool _rightpressed;
@@ -117,6 +120,11 @@ public:
      * Makes the buttons in the building mode visible
      */
     void visibleButtons(bool isVisible);
+    
+    /**
+     * Sets whether the player has pressed the ready button to indicate they are done with build phase.
+     */
+    void setReadyDone(bool isDone);
 
     /**
     * Updates round counter
