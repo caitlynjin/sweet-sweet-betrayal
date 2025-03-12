@@ -13,6 +13,7 @@
  */
 enum class Message {
     BUILD_READY,      // Signal to build something
+    MOVEMENT_END      // Signal that a player has ended movement phase by either dying or winning
 };
 
 #endif /* Message_h */
