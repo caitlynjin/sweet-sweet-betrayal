@@ -11,6 +11,19 @@
 
 namespace Constants {
 
+enum JsonType {
+    /** 1x1 tile */
+    TILE,
+    /** 3x0.5 platform tile */
+    PLATFORM_TILE,
+    /** 3x0.5 log obstacle */
+    LOG,
+    /** 3x0.5 gliding log obstacle */
+    GLIDING_LOG,
+    /** 1x1 spike tile */
+    SPIKE_TILE
+};
+
 enum Item {
     /** A standard platform */
     PLATFORM,
