@@ -22,6 +22,12 @@
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
 
+// Collision filtering categories
+
+#define CATEGORY_DEFAULT    0x0001  // Every object has this automatically as default
+#define CATEGORY_PLAYER     0x0002
+
+
 namespace Constants {
 
 enum Item {

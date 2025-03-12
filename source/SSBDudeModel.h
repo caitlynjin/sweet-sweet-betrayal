@@ -531,6 +531,11 @@ public:
     void releaseFixtures() override;
     
     /**
+     Sets the filtering data for collisions.
+     */
+    void setFilterData();
+    
+    /**
      * Updates the object's physics state (NOT GAME LOGIC).
      *
      * We use this method to reset cooldowns.

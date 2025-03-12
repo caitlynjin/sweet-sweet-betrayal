@@ -987,15 +987,22 @@ void GameScene::populate()
     Vec2 pos = DUDE_POS;
     // CLIENT STARTS ON RIGHT
     if (_localID == 2){
-        pos += Vec2(2, 0);
+        pos += Vec2(4, 2);
     }
+    
+
     auto params = _dudeFact->serializeParams(pos, _scale);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
+    _localPlayer->setFilterData();
+    
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_isHost){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
+    
+    
+    
 
 #pragma mark : Spikes
     /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
@@ -1680,6 +1687,13 @@ void GameScene::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
+    
+    // Check if both are players and disable contact
+        if ((bd1->getName() == "player" && bd2->getName() == "player") ||
+            (bd1 == _localPlayer.get() && bd2->getName() == "player") ||
+            (bd2 == _localPlayer.get() && bd1->getName() == "player")) {
+            contact->SetEnabled(false);
+        }
     // See if we have landed on the ground.
 
     if (((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
@@ -1689,11 +1703,19 @@ void GameScene::beginContact(b2Contact *contact)
         _localPlayer->setGrounded(true);
     }
 
-    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
-        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
-    {
+//    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
+//        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
+//    {
+//        _localPlayer->setGrounded(true);
+//
+//        // Could have more than one ground
+//        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
+//    }
+    
+    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1 && bd1->getName() != "player") ||
+        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2 && bd2->getName() != "player")) {
         _localPlayer->setGrounded(true);
-
+        
         // Could have more than one ground
         _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
     }
@@ -1957,6 +1979,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     auto image = _assets->get<Texture>(DUDE_TEXTURE);
 
     auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
+    
 
     player->setShared(true);
     
