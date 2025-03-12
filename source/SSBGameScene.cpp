@@ -14,7 +14,6 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
-#include "BuildEvent.h"
 #include "LevelModel.h"
 
 
@@ -283,7 +282,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _network = network;
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
-//    _network->attachEventType<BuildEvent>();
     _network->enablePhysics(_world, linkSceneToObsFunc);
     
     // Init factories
@@ -1054,6 +1052,7 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
 void GameScene::update(float timestep)
 {
 
+    
 }
 
 /**
@@ -1143,8 +1142,6 @@ void GameScene::preUpdate(float dt)
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
-//                _network->pushOutEvent(buildEvent);
                 
                 
                 // If object exists
@@ -1152,12 +1149,6 @@ void GameScene::preUpdate(float dt)
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
-
-//                    _gridManager->removeObject(gridPos);
-//                    _network->getPhysController()->remo
-                        
-//                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::DELETE);
-//                    _network->pushOutEvent(buildEvent);
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -1172,17 +1163,13 @@ void GameScene::preUpdate(float dt)
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addObject(_prevPos, _selectedObject);
-                    
-//                    auto buildEvent = BuildEvent::allocBuildEvent(_prevPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
-//                    _network->pushOutEvent(buildEvent);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
                     _gridManager->addObject(gridPos, _selectedObject);
-//                    auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedObject->getItemType()),BuildAction::ADD);
-//                    _network->pushOutEvent(buildEvent);
+
                     
                 }
 
@@ -1196,10 +1183,6 @@ void GameScene::preUpdate(float dt)
             } else {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-                
-                
-//                auto buildEvent = BuildEvent::allocBuildEvent(gridPos, static_cast<BuildType>(_selectedItem),BuildAction::ADD);
-//                _network->pushOutEvent(buildEvent);
 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
@@ -1374,13 +1357,9 @@ void GameScene::fixedUpdate(float step)
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-//            CULog("Message received");
             processMessageEvent(mEvent);
         }
-//        if (auto buildEvent = std::dynamic_pointer_cast<BuildEvent>(e)) {
-//            CULog("BuildEvent received");
-//            processBuildEvent(buildEvent);
-//        }
+
     }
     
     
@@ -1805,31 +1784,7 @@ void GameScene::render() {
 }
 
 
-/**
- * This method takes a BuildEvent and processes it
- */
-void GameScene::processBuildEvent(const std::shared_ptr<BuildEvent>& event) {
-    Vec2 gridPos = event->getPos();
-    BuildType type = event->getBuildType();
-    BuildAction action = event->getBuildAction();
-    
-//    CULog("Processing BuildEvent: Action=%d, Type=%d, Position=(%.2f, %.2f)",
-//              static_cast<int>(action), static_cast<int>(type), gridPos.x, gridPos.y);
 
-
-    Item itemType = static_cast<Item>(type);
-
-    if (action == BuildAction::ADD) {
-        if (!_gridManager->hasObject(gridPos)) {
-            std::shared_ptr<Object> obj = placeItem(gridPos, itemType);
-            _gridManager->addObject(gridPos, obj);
-        }
-    }
-    else if (action == BuildAction::DELETE) {
-        _gridManager->removeObject(gridPos);
-        
-    }
-}
 
 /**
  * Adds the physics object to the physics world and loosely couples it to the scene graph
