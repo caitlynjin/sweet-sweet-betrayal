@@ -172,7 +172,7 @@ private:
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
     */
-    std::shared_ptr<Object> createSpike(Vec2 pos, Size size, float scale, float angle = 0);
+    std::shared_ptr<Object> createSpike(Vec2 pos, Size size, float scale, float angle, string jsonType);
 
     std::shared_ptr<Object> createSpike(std::shared_ptr<Spike> spk);
     
@@ -180,7 +180,7 @@ private:
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
     * @param size The size of the treasure in Box2D coordinates.
     */
-    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size);
+    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
 
     std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
 
@@ -193,7 +193,7 @@ private:
      * @param size The size of the platform in Box2D coordinates.
      * @param wall Whether this is a wall or not (if not it is a user placed platform)
      */
-    std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, bool wall);
+    std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, string jsonType);
 
     /**
      * Creates a platform.
@@ -213,7 +213,7 @@ private:
      * @param size The dimensions (width, height) of the platform.
      */
 
-    std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
+    std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir, std::string jsonType);
 
     std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
 

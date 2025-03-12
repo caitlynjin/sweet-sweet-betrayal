@@ -30,6 +30,9 @@ using namespace cugl;
 #pragma mark -
 #pragma mark Constructors
 
+bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
+    return WindObstacle::init(pos, size, gust, "default");
+}
 /**
  * Initializes a new WindObstacle at the given position.
  *
@@ -38,12 +41,13 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
+bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string jsonType) {
     Size nsize = size;
     _size = size;
     _itemType = WIND;
     _position = pos;
     _size = size;
+    _jsonType = jsonType;
 
     _gust = cugl::physics2::BoxObstacle::alloc(pos + _size/2, nsize);
     _gust->setDensity(0.0f);
@@ -66,7 +70,8 @@ std::map<std::string, std::any> WindObstacle::getMap() {
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
         {"gustDirX", double(_gustDir.x)},
-        {"gustDirY", double(_gustDir.y)}
+        {"gustDirY", double(_gustDir.y)},
+         {"type", std::string(_jsonType)}
     };
     return m;
 }

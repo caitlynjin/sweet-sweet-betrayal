@@ -20,6 +20,9 @@ protected:
 	cugl::Vec2 _trajectory;
 	/** Whether or not this object has been placed by a player */
 	bool _playerPlaced;
+	/** The type of this object in the json file
+	* This allows different textures and sizes to be assigned to different "types" of the same object */
+	std::string _jsonType;
     /** Size of the object */
     Size _size = Size(1, 1);
 
@@ -47,6 +50,11 @@ public:
      * @return the size of the object
      */
     const Size getSize() const { return _size; }
+
+	/** Get the JSON type of the object.
+	* @return the JSON type of the object
+	*/
+	const std::string& getJsonType() const { return _jsonType; }
 
 
 	/**

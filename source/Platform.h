@@ -47,9 +47,14 @@ public:
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Platform and link it to a physics object.
     */
-    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, bool wall) {
+    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, string jsonType) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position + size/2, size, wall) ? result : nullptr);
+        return (result->init(position + size/2, size, jsonType) ? result : nullptr);
+    }
+
+    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size) {
+        std::shared_ptr<Platform> result = std::make_shared<Platform>();
+        return (result->init(position + size / 2, size) ? result : nullptr);
     }
   
     // New alloc method for moving platform.
@@ -58,7 +63,9 @@ public:
         return (result->initMoving(position, size, start, end, speed) ? result : nullptr);
     }
 
-    bool init(const Vec2 pos, const Size size, bool wall);
+    bool init(const Vec2 pos, const Size size);
+
+    bool init(const Vec2 pos, const Size size, string jsonType);
 
     // New init for moving platform.
     bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed);
