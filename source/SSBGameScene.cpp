@@ -97,16 +97,16 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 
 #pragma mark -
 #pragma mark Asset Constants
-/** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "gray"
 /** The key for the platform texture in the asset manager*/
-#define PLATFORM_TEXTURE   "platform"
+#define TILE_TEXTURE   "tile"
 /** The key for the 3x0.5 platform texture in the asset manager */
-#define PLATFORM_LONG_TEXTURE   "platform_long"
+#define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
-#define MOVING_TEXTURE   "moving"
+#define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
 /** The key for the spike texture in the asset manager */
-#define SPIKE_TEXTURE "spike"
+#define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -115,8 +115,6 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define TREASURE_TEXTURE    "treasure"
 /** The name of a wall (for object identification) */
 #define WALL_NAME "wall"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 /** Name of the wind object(for identification)*/
 #define WIND_NAME "gust"
 /** The name of a platform (for object identification) */
@@ -432,7 +430,7 @@ void GameScene::dispose()
 void GameScene::initInventory()
 {
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {PLATFORM_LONG_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -544,10 +542,10 @@ void GameScene::reset()
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
     if (plat->getJsonType() == "wall") {
-        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+        image = _assets->get<Texture>(TILE_TEXTURE);
     }
     else {
-        image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
+        image = _assets->get<Texture>(LOG_TEXTURE);
     }
 
     // Removes the black lines that display from wrapping
@@ -600,8 +598,8 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string js
  * @param speed The speed at which the platform moves.
  */
 std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
-    
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
+
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
 
     // Removes the black lines that display from wrapping
@@ -691,7 +689,7 @@ std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale,
 
 std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
 {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
 
     // Set the physics attributes
     spk->getObstacle()->setBodyType(b2_staticBody);
@@ -802,7 +800,7 @@ void GameScene::populate()
 
 //#pragma mark : Walls
     // All walls and platforms share the same texture
-//    image = _assets->get<Texture>(EARTH_TEXTURE);
+//    image = _assets->get<Texture>(TILE_TEXTURE);
 //    std::string wname = "wall";
 //    for (int ii = 0; ii < WALL_COUNT; ii++) {
 //        std::shared_ptr<physics2::PolygonObstacle> wallobj;

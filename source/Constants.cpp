@@ -8,6 +8,15 @@
 #include <cugl/cugl.h>
 #include "string"
 
+/** The key for the platform texture in the asset manager*/
+#define TILE_TEXTURE   "tile"
+/** The key for the 3x0.5 platform texture in the asset manager */
+#define LOG_TEXTURE   "log_obstacle"
+/** The key for the moving platform texture in the asset manager*/
+#define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+
 namespace Constants {
 
 /**
@@ -52,9 +61,9 @@ cugl::Size itemToSize(Item item) {
 std::string itemToAssetName(Item item) {
     switch (item){
         case (PLATFORM):
-            return PLATFORM_LONG_TEXTURE;
+            return LOG_TEXTURE;
         case (MOVING_PLATFORM):
-            return MOVING_TEXTURE;
+            return GLIDING_LOG_TEXTURE;
         case (WIND):
             return WIND_TEXTURE;
         case (NONE):
