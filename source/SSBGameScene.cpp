@@ -1346,7 +1346,8 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    _world->update(step);
+    _world->update(FIXED_TIMESTEP_S);
+//    _world->update(step);
 //    if (!_buildingMode){
 //        _world->update(step);
 //    }
