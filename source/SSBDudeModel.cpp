@@ -106,6 +106,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
         setName("player");
+        setDebugColor(Color4::YELLOW);
 
         // Gameplay attributes
         _isGrounded = false;
@@ -119,6 +120,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         _glideDelay = 0.2;
         _glideTimer = 0;
         _windvel = Vec2();
+        
         return true;
     }
     return false;
