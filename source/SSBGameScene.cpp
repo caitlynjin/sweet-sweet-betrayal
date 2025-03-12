@@ -1596,6 +1596,8 @@ void GameScene::setBuildingMode(bool value) {
 
     if (value){
         _jumpbutton->deactivate();
+        _glidebutton->deactivate();
+        _glidebutton->setVisible(false);
     }
     else{
         _jumpbutton->activate();
