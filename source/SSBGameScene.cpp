@@ -985,21 +985,39 @@ void GameScene::populate()
     
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
+//    pos += Vec2(4, 5);
     // CLIENT STARTS ON RIGHT
     if (_localID == 2){
-        pos += Vec2(4, 2);
+        pos += Vec2(4, 5);
     }
+    
+    
     
 
     auto params = _dudeFact->serializeParams(pos, _scale);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
-    _localPlayer->setFilterData();
+    
+//    _localPlayer->setFilterData();
+    _localPlayer->setDebugScene(_debugnode);
+    
+    
+
     
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_isHost){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
+    
+    
+    
+    
+    // Create a networked platform for test
+//    pos = DUDE_POS;
+//    if (_isHost){
+//        createPlatformNetworked(pos += Vec2(3, 2), Size(3,1), false);
+//    }
+    
     
     
     
@@ -1117,6 +1135,11 @@ void GameScene::update(float timestep)
  */
 void GameScene::preUpdate(float dt)
 {
+    // We need to create collision filters for players in the world --> not automatically handled by the network
+    if (!_filtersSet){
+        trySetFilters();
+    }
+    
     _input.update(dt);
     
     // TODO: DELETE THIS IF STATEMENT TO RE ENABLE BUILD
@@ -1950,6 +1973,38 @@ void GameScene::render() {
     _ui.render();
 }
 
+void GameScene::trySetFilters(){
+    // First, count how many players are in the world
+    // We only want to set filters once all players are represented in the world
+    int numPlayers = 0;
+    std::vector<std::shared_ptr<DudeModel>> playerList;
+    const auto& obstacles = _world->getObstacles();
+    
+    for (const auto& obstacle : obstacles) {
+        if (obstacle->getName() == "player"){
+            numPlayers += 1;
+            
+            // Try to cast to DudeModel and add to our list if successful
+            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            if (playerModel) {
+                playerList.push_back(playerModel);
+            } else {
+                CULog("Found player but casting failed");
+            }
+        }
+    }
+    
+    // Check if we have all players in world, then set their collision filters
+    if (numPlayers >= _network->getNumPlayers()){
+        // Loop through each obstacle
+        for (auto& player : playerList) {
+            player->setFilterData();
+        }
+        
+        _filtersSet = true;
+    }
+}
+
 void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
     const std::shared_ptr<scene2::SceneNode>& node) {
 
@@ -1982,6 +2037,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     
 
     player->setShared(true);
+//    player->setFilterData();
     
     auto sprite = scene2::PolygonNode::allocWithTexture(image);
     player->setDebugColor(DEBUG_COLOR);
@@ -2093,4 +2149,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     return createObstacle(pos, size, isWall, scale);
 #pragma mark END SOLUTION
 }
+
+
 

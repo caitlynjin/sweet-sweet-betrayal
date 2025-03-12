@@ -274,6 +274,8 @@ protected:
     int _localID;
     /** The other player's ID */
     int _otherID;
+    /** Whether we have set collision filters for all players */
+    bool _filtersSet = false;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
@@ -765,6 +767,14 @@ public:
      */
     void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
         const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
+    
+    /**
+     * This method attempts to set all the collision filters for the networked players.
+     *
+     * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
+     */
+    void trySetFilters();
     
   };
 
