@@ -5,28 +5,28 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "gray": {
-            "file": "textures/graytile.png",
+        "tile": {
+            "file": "textures/1x1-tile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "platform": {
-            "file": "textures/platformtile.png",
+        "log_obstacle": {
+            "file": "textures/3x0.5-log-obstacle.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "platform_long": {
-            "file": "textures/platform_long.png",
+        "gliding_log_obstacle": {
+            "file": "textures/3x0.5-gliding-log-obstacle.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "moving": {
-            "file": "textures/movingplatformtile.png",
+        "platform_tile": {
+            "file": "textures/3x0.5-platform-tile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "spike": {
-            "file": "textures/Spike.png"
+        "spike_tile": {
+            "file": "textures/1x1-spike-tile.png"
         },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
@@ -35,16 +35,13 @@
             "file": "textures/strawberry.png"
         },
         "dude": {
-            "file":     "textures/dude.png"
+            "file":     "textures/strawberry-glider.png"
         },
         "treasure": {
-            "file":     "textures/treasure.png"
+            "file":     "textures/strawberry-jewel.png"
         },
         "spinner": {
             "file":     "textures/barrier.png"
-        },
-        "bridge": {
-            "file":      "textures/ropebridge.png"
         },
         "bullet": {
             "file":      "textures/bullet.png"
