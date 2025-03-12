@@ -21,7 +21,7 @@
             "wrapT": "repeat"
         },
         "moving": {
-            "file": "textures/movingplatformtile.png",
+            "file": "textures/3x0.5-gliding-log-obstacle.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },

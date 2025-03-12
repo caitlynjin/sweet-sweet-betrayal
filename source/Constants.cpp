@@ -34,7 +34,7 @@ cugl::Size itemToSize(Item item) {
         case PLATFORM:
             return cugl::Size(3, 1);
         case MOVING_PLATFORM:
-            return cugl::Size(1, 1);
+            return cugl::Size(3, 1);
         case WIND:
             return cugl::Size(1, 1);
         case NONE:

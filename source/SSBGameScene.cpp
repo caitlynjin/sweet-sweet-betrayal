@@ -486,7 +486,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
         case (PLATFORM):
             return createPlatform(gridPos, Size(3, 1), "default");
         case (MOVING_PLATFORM):
-            return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
+            return createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
             return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
@@ -586,7 +586,6 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  * @param size The dimensions (width, height) of the platform.
  */
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
-
     std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
     return createPlatform(plat);
 }
@@ -603,24 +602,28 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string js
 std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
     
-    std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
-    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
 
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
-    triangulator.set(wall.vertices);
+    triangulator.set(poly.vertices);
     triangulator.calculate();
-    wall.setIndices(triangulator.getTriangulation());
+    poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
 
     plat->getObstacle()->setDensity(BASIC_DENSITY);
     plat->getObstacle()->setFriction(BASIC_FRICTION);
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-
     plat->getObstacle()->setName("movingPlatform");
 
-    wall *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    poly *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
