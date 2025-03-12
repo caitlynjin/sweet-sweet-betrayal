@@ -24,6 +24,11 @@ enum JsonType {
     SPIKE_TILE
 };
 
+/**
+ * Convert a JsonType to the corresponding string.
+ */
+std::string jsonTypeToString(JsonType type);
+
 enum Item {
     /** A standard platform */
     PLATFORM,

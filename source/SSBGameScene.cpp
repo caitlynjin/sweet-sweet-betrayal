@@ -97,8 +97,10 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 
 #pragma mark -
 #pragma mark Asset Constants
-/** The key for the platform texture in the asset manager*/
+/** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
+/** The key for the platform tile texture in the asset manager */
+#define PLATFORM_TILE_TEXTURE   "platform_tile"
 /** The key for the 3x0.5 platform texture in the asset manager */
 #define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
@@ -482,7 +484,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
 
     switch (item) {
         case (PLATFORM):
-            return createPlatform(gridPos, Size(3, 1), "default");
+            return createPlatform(gridPos, Size(3, 1), "log");
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
@@ -541,10 +543,11 @@ void GameScene::reset()
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
-    if (plat->getJsonType() == "wall") {
+    if (plat->getJsonType() == "tile") {
         image = _assets->get<Texture>(TILE_TEXTURE);
-    }
-    else {
+    } else if (plat->getJsonType() == "platform") {
+        image = _assets->get<Texture>(PLATFORM_TILE_TEXTURE);
+    } else {
         image = _assets->get<Texture>(LOG_TEXTURE);
     }
 

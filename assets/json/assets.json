@@ -20,6 +20,11 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "platform_tile": {
+            "file": "textures/3x0.5-platform-tile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "spike_tile": {
             "file": "textures/1x1-spike-tile.png"
         },

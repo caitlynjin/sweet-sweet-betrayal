@@ -20,6 +20,24 @@
 namespace Constants {
 
 /**
+ * Convert a JsonType to the corresponding string.
+ */
+std::string jsonTypeToString(JsonType type) {
+    switch (type) {
+        case TILE:
+            return "default";
+        case PLATFORM_TILE:
+            return "platform";
+        case LOG:
+            return "log";
+        case GLIDING_LOG:
+            return "gliding_log";
+        case SPIKE_TILE:
+            return "default";
+    }
+}
+
+/**
  * Convert an Item enum to the corresponding string.
  */
 std::string itemToString(Item item) {
