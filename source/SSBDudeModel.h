@@ -133,8 +133,6 @@ protected:
 	std::shared_ptr<scene2::SceneNode> _node;
 	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
 	float _drawScale;
-    
-    int _networkID;
 
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
@@ -237,11 +235,6 @@ public:
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
     virtual bool init(const Vec2& pos, const Size& size, float scale);
-
-#pragma mark -
-#pragma mark Networking
-    void setNetworkID(int id) { _networkID = id; }
-    int getNetworkID() const { return _networkID; }
     
 #pragma mark -
 #pragma mark Static Constructors

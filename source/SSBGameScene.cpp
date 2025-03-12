@@ -170,59 +170,6 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** Opacity of the physics outlines */
 #define DEBUG_OPACITY 192
 
-/**
- * Generate a pair of Obstacle and SceneNode using the given parameters
- */
-std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
-    //Choose randomly between wooden crates and iron crates.
-    auto image = _assets->get<Texture>(DUDE_TEXTURE);
-    
-    // TODO: allocate a box obstacle at pos with boxSize, set its angleSnap to 0, debugColor to DYNAMIC_COLOR, density to CRATE_DENSITY, friction to CRATE_FRICTION, and restitution to BASIC_RESTITUTION, after everything is set, make the object shared by calling setShared(). Then allocate a PolygonNode from image, set its anchor to center, and scale to 0.5f. Lastly return the pair of Obstacle and sceneNode.
-    
-    // NOTE: When an Obstacle is shared, function calls that change its state are monitored and automatically synchronized. However, every client calling this method is going to run the code above setting the properties. We don't want to share them redundantly, so sharing is turned on afterwards.
-    
-#pragma mark BEGIN SOLUTION
-    auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
-
-    player->setShared(true);
-    
-    auto sprite = scene2::PolygonNode::allocWithTexture(image);
-    player->setDebugColor(DEBUG_COLOR);
-    
-    return std::make_pair(player, sprite);
-#pragma mark END SOLUTION
-}
-
-/**
- * Helper method for converting normal parameters into byte vectors used for syncing.
- */
-std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale) {
-    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
-#pragma mark BEGIN SOLUTION
-    _serializer.reset();
-    _serializer.writeFloat(pos.x);
-    _serializer.writeFloat(pos.y);
-    _serializer.writeFloat(scale);
-    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
-#pragma mark END SOLUTION
-}
-
-/**
- * Generate a pair of Obstacle and SceneNode using serialized parameters.
- */
-std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(const std::vector<std::byte>& params) {
-    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
-#pragma mark BEGIN SOLUTION
-    _deserializer.reset();
-    _deserializer.receive(params);
-    float x = _deserializer.readFloat();
-    float y = _deserializer.readFloat();
-    Vec2 pos = Vec2(x,y);
-    float scale = _deserializer.readFloat();
-    return createObstacle(pos, scale);
-#pragma mark END SOLUTION
-}
-
 #pragma mark -
 #pragma mark Constructors
 /**
@@ -1840,49 +1787,70 @@ void GameScene::render() {
     _ui.render();
 }
 
+void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+    const std::shared_ptr<scene2::SceneNode>& node) {
 
+    node->setPosition(obj->getPosition() * _scale);
+    _worldnode->addChild(node);
 
+    // Dynamic objects need constant updating
+    if (obj->getBodyType() == b2_dynamicBody) {
+        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+        obj->setListener([=,this](physics2::Obstacle* obs) {
+            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+            weak->setPosition(pos * _scale);
+            weak->setAngle(angle);
+        });
+    }
+}
+
+#pragma mark -
+#pragma mark Dude Factory
 
 /**
- * Adds the physics object to the physics world and loosely couples it to the scene graph
- *
- * There are two ways to link a physics object to a scene graph node on the
- * screen.  One way is to make a subclass of a physics object.
- * The other is to use callback functions to loosely couple
- * the two.  This function is an example of the latter.
- *
- * param obj    The physics object to add
- * param node   The scene graph node to attach it to
+ * Generate a pair of Obstacle and SceneNode using the given parameters
  */
-//void GameScene::addInitObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
-//    const std::shared_ptr<scene2::SceneNode>& node) {
-//    _world->initObstacle(obj);
-//    if(_isHost){
-//        _world->getOwnedObstacles().insert({obj,0});
-//    }
-//    linkSceneToObs(obj, node);
-//}
-//
-//void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
-//    const std::shared_ptr<scene2::SceneNode>& node) {
-//
-//    node->setPosition(obj->getPosition() * _scale);
-//    _worldnode->addChild(node);
-//
-//    // Dynamic objects need constant updating
-//    if (obj->getBodyType() == b2_dynamicBody) {
-//        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
-//        obj->setListener([=,this](physics2::Obstacle* obs) {
-//            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
-//            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
-//            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
-//            weak->setPosition(pos * _scale);
-//            weak->setAngle(angle);
-//        });
-//    }
-//}
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
+    auto image = _assets->get<Texture>(DUDE_TEXTURE);
 
+    auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
 
+    player->setShared(true);
+    
+    auto sprite = scene2::PolygonNode::allocWithTexture(image);
+    player->setDebugColor(DEBUG_COLOR);
+    
+    return std::make_pair(player, sprite);
+}
+
+/**
+ * Helper method for converting normal parameters into byte vectors used for syncing.
+ */
+std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+/**
+ * Generate a pair of Obstacle and SceneNode using serialized parameters.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float x = _deserializer.readFloat();
+    float y = _deserializer.readFloat();
+    Vec2 pos = Vec2(x,y);
+    float scale = _deserializer.readFloat();
+    return createObstacle(pos, scale);
+}
+
+#pragma mark -
+#pragma mark Platform Factory
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, bool isWall, float scale){
     
@@ -1960,24 +1928,5 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     
     return createObstacle(pos, size, isWall, scale);
 #pragma mark END SOLUTION
-}
-
-void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
-    const std::shared_ptr<scene2::SceneNode>& node) {
-
-    node->setPosition(obj->getPosition() * _scale);
-    _worldnode->addChild(node);
-
-    // Dynamic objects need constant updating
-    if (obj->getBodyType() == b2_dynamicBody) {
-        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
-        obj->setListener([=,this](physics2::Obstacle* obs) {
-            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
-            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
-            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
-            weak->setPosition(pos * _scale);
-            weak->setAngle(angle);
-        });
-    }
 }
 
