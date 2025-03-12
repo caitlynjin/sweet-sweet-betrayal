@@ -29,6 +29,55 @@ using namespace Constants;
 using namespace cugl::physics2::distrib;
 
 /**
+ * The factory class for player/dude model.
+ *
+ * This class is used to support automatically syncing newly added players mid-simulation.
+ * Players added throught the ObstacleFactory class from one client will be added to all
+ * clients in the simulations.
+ */
+
+class DudeFactory : public ObstacleFactory {
+public:
+    /** Pointer to the AssetManager for texture access, etc. */
+    std::shared_ptr<cugl::AssetManager> _assets;
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+
+    /**
+     * Allocates a new instance of the factory using the given AssetManager.
+     */
+    static std::shared_ptr<DudeFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<DudeFactory>();
+        f->init(assets);
+        return f;
+    };
+
+    /**
+     * Initializes empty factories using the given AssetManager.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using the given parameters
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale);
+
+    /**
+     * Helper method for converting normal parameters into byte vectors used for syncing.
+     */
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using serialized parameters.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
+
+/**
  * The factory class for trap objects.
  *
  * This class is used to support automatically syncing newly added obstacle mid-simulation.
@@ -137,7 +186,6 @@ protected:
     /** The primary controller for the UI */
     UIScene _ui;
     /** The Box2D world */
-//    std::shared_ptr<physics2::ObstacleWorld> _world;
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -147,8 +195,8 @@ protected:
     // Physics objects for the game
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
-    /** Reference to the player avatar */
-    std::shared_ptr<DudeModel>              _avatar;
+    /** Reference to the local player */
+    std::shared_ptr<DudeModel> _localPlayer;
 
     std::shared_ptr<Platform> _platformTest;
     
@@ -214,12 +262,18 @@ protected:
     bool _isHost;
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
+    /** The player's ID */
+    int _localID;
+    /** The other player's ID */
+    int _otherID;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
     Uint32 _platFactId;
     
     
+    std::shared_ptr<DudeFactory> _dudeFact;
+    Uint32 _dudeFactID;
     
     
 private:
@@ -418,6 +472,15 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetEventController> network, bool isHost);
+
+#pragma mark -
+#pragma mark Networking/Player
+    
+    /**
+     * Initializes the players.
+     */
+    void initializePlayers();
+    
 
 #pragma mark -
 #pragma mark Build Mode

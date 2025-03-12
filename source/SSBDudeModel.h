@@ -241,7 +241,6 @@ public:
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
     virtual bool init(const Vec2& pos, const Size& size, float scale);
-
     
 #pragma mark -
 #pragma mark Static Constructors

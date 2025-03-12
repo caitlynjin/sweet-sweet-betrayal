@@ -252,6 +252,10 @@ void DudeModel::applyForce()
             // Damping factor in the air. If we are gliding, ZERO FRICTION
             b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
             if (!_isGliding) {
+                if (!_body){
+                    CULog("NO BODYYY");
+                    return;
+                }
                 _body->ApplyForce(force, _body->GetPosition(), true);
             }   
         }
