@@ -164,6 +164,10 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define RIGHT_IMAGE "dpad_right"
 /** The image for the ready button */
 #define READY_BUTTON "ready_button"
+/** The image for the jump button */
+#define JUMP_BUTTON "jump-button"
+/** The image for the glide button */
+#define GLIDE_BUTTON "glide-button"
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR Color4::YELLOW
@@ -379,6 +383,33 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 //        }
 //    });
 
+    std::shared_ptr<scene2::PolygonNode> jumpNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
+    _jumpbutton = scene2::Button::alloc(jumpNode);
+    _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _jumpbutton->setVisible(false);
+    _jumpbutton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _didjump = true;
+        }
+        else{
+            _didjump = false;
+        }
+    });
+
+    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
+    _glidebutton = scene2::Button::alloc(glideNode);
+    _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _glidebutton->setVisible(false);
+    _glidebutton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _didglide = true;
+        }
+        else{
+            _didglide = false;
+        }
+    });
 
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
@@ -402,6 +433,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_scrollpane);
 //    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
+    _ui.addChild(_jumpbutton);
+    _ui.addChild(_glidebutton);
     
     for (auto score : _scoreImages){
         _ui.addChild(score);
@@ -513,7 +546,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0));
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
             return nullptr;
     }
@@ -600,7 +633,7 @@ std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, 
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
-    if (plat->isWall()) {
+    if (plat->getJsonType() == "wall") {
         image = _assets->get<Texture>(PLATFORM_TEXTURE);
     }
     else {
@@ -645,14 +678,13 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
 
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
-    
-    // No need for secondary function anymore, return plat instead
 
-//    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, wall);
+//    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
+
+    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
 
     return createPlatform(plat);
 }
@@ -746,9 +778,9 @@ void GameScene::updateGrowingWall(float timestep)
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
  * @param size The dimensions (width, height) of the spike.
  */
-std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle, string jsonType)
 {
-    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle);
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle, jsonType);
     return createSpike(spk);
 }
 
@@ -771,7 +803,7 @@ std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
     return spk;
 }
 
-std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
+std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size, string jsonType){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
@@ -789,7 +821,7 @@ std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
 }
 
 std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPosition(), _treasure->getSize());
+    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 
 /**
@@ -800,7 +832,7 @@ std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _tre
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
+std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust, string jsonType)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
@@ -822,7 +854,7 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
 
 std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir());
+    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
 }
 
 /**
@@ -995,7 +1027,7 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
 
 
     // Play the background music on a loop.
@@ -1053,7 +1085,6 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
  */
 void GameScene::update(float timestep)
 {
-
     
 }
 
@@ -1271,12 +1302,26 @@ void GameScene::preUpdate(float dt)
         }
         else if (!_input.isRightDown()) {
             _localPlayer->setGlide(false);
-
         }
+
+//        if (_input.getRightTapped()) {
+//            _input.setRightTapped(false);
+//            if (!_avatar->isGrounded())
+//            {
+//                _avatar->setGlide(true);
+//            }
+//        }
+//        else if (!_input.isRightDown()) {
+//            _avatar->setGlide(false);
+//
+//        }
+        _localPlayer->setGlide(_didglide);
+
 
         _localPlayer->setMovement(_input.getHorizontal() * _localPlayer->getForce());
         _localPlayer->setJumping(_input.didJump());
         _localPlayer->applyForce();
+
 
         if (_localPlayer->isJumping() && _localPlayer->isGrounded())
         {
@@ -1289,7 +1334,23 @@ void GameScene::preUpdate(float dt)
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
             (*it)->update(dt);
         }
-    
+
+
+        if (_localPlayer->isGrounded() && !_glidebutton->isDown()){
+            _jumpbutton->activate();
+            _jumpbutton->setVisible(true);
+            _glidebutton->deactivate();
+            _glidebutton->setVisible(false);
+            _didglide = false;
+        }
+        else if (!_localPlayer->isGrounded() && !_jumpbutton->isDown()){
+            _jumpbutton->deactivate();
+            _jumpbutton->setVisible(false);
+            _glidebutton->activate();
+            _glidebutton->setVisible(true);
+            _didjump = false;
+        }
+
     }
 
     // TODO: Commented out camera code for now
@@ -1580,6 +1641,16 @@ void GameScene::setBuildingMode(bool value) {
     _ui.visibleButtons(value);
 
     _camera->setPosition(_camerapos);
+
+    if (value){
+        _jumpbutton->deactivate();
+        _glidebutton->deactivate();
+        _glidebutton->setVisible(false);
+    }
+    else{
+        _jumpbutton->activate();
+    }
+    _jumpbutton->setVisible(!value);
 }
 
 #pragma mark -

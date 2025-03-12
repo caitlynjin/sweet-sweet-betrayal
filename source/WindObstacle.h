@@ -52,8 +52,15 @@ public:
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
 		return (result->init(position, size, gustDir) ? result : nullptr);
 	}
+
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 gustDir, string jsonType) {
+		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
+		return (result->init(position, size, gustDir, jsonType) ? result : nullptr);
+	}
 	/*Intialize according to position and size. Need to change later*/
 	bool init(const Vec2 pos, const Size size, const Vec2 gustDir);
+
+	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, string jsonType);
 
 	/*Return the wind vector*/
 	const Vec2 gustDir() { return _gustDir; };

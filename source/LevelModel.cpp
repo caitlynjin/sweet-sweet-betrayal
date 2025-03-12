@@ -112,7 +112,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 				allLevelObjects.push_back(Platform::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					theSize,
-					(*it2)->get("wall")->asBool()
+					(*it2)->get("type")->asString()
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("spikes")) {
@@ -120,21 +120,24 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
 					(*it2)->get("scale")->asFloat(),
-					(*it2)->get("angle")->asFloat()
+					(*it2)->get("angle")->asFloat(),
+					(*it2)->get("type")->asString()
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("treasures")) {
 				allLevelObjects.push_back(Treasure::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
-					(*it2)->get("scale")->asFloat()
+					(*it2)->get("scale")->asFloat(),
+					(*it2)->get("type")->asString()
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("windObstacles")) {
 				allLevelObjects.push_back(WindObstacle::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
-					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat())
+					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat()),
+					(*it2)->get("type")->asString()
 				));
 			}
 		}

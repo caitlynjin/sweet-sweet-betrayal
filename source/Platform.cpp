@@ -60,12 +60,15 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Platform::init(const Vec2 pos, const Size size, bool wall) {
+bool Platform::init(const Vec2 pos, const Size size) {
+    return Platform::init(pos, size, "default");
+}
+bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, nsize.height));
     _size = size;
     _itemType = Item::PLATFORM;
-    _wall = wall;
+    _jsonType = jsonType;
     _position = pos;
     _size = size;
     return true;
@@ -85,7 +88,7 @@ bool Platform::init(const Vec2 pos, const Size size, bool wall, std::shared_ptr<
 }
 
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
-    if (!init(pos, size, false)) return false;
+    if (!init(pos, size)) return false;
     _moving = true;
     _startPos = start;
     _endPos   = end+ Vec2(size.width/2, size.height/2);
@@ -107,7 +110,7 @@ std::map<std::string, std::any> Platform::getMap() {
         {"y", double(_position.y)},
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
-        {"wall", _wall}
+         {"type", std::string(_jsonType)}
     };
     return m;
 }
