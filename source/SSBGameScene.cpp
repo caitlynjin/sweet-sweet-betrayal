@@ -461,13 +461,22 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     }
     
     //Make a std::function reference of the addObstacle function in game scene for network controller
-    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> addObstacle = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
+    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> addObstacleFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
         this->addObstacle(obs,node);
     };
     
-    _network->enablePhysics(_world, addObstacle);
+    _network->enablePhysics(_world, addObstacleFunc);
 
+    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
+    CULog("dude Fact ID: %u", _dudeFactID);
+    if (_dudeFactID){
+        CULog("FACT ID: EXISTS, %d", _dudeFactID);
+    } else{
+        CULog("FACT ID: DOESNT EXISTS");
+    }
+    
     populate();
+    
 
     _active = true;
     _complete = false;
@@ -941,13 +950,6 @@ void GameScene::populate()
 //    }
 //    addObstacle(_otherPlayer, sprite);
 //
-    
-    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
-    if (_dudeFactID){
-        CULog("FACT ID: EXISTS, %d", _dudeFactID);
-    } else{
-        CULog("FACT ID: DOESNT EXISTS");
-    }
     
     Vec2 localPos = DUDE_POS;
     auto params = _dudeFact->serializeParams(localPos, _scale);
