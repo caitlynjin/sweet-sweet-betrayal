@@ -484,11 +484,11 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
 
     switch (item) {
         case (PLATFORM):
-            return createPlatform(gridPos, Size(3, 1), false);
+            return createPlatform(gridPos, Size(3, 1), "default");
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0));
+            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
             return nullptr;
     }
@@ -543,7 +543,7 @@ void GameScene::reset()
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
-    if (plat->isWall()) {
+    if (plat->getJsonType() == "wall") {
         image = _assets->get<Texture>(PLATFORM_TEXTURE);
     }
     else {
@@ -585,9 +585,9 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, bool wall) {
+std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
 
-    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, wall);
+    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
     return createPlatform(plat);
 }
 /**
@@ -680,9 +680,9 @@ void GameScene::updateGrowingWall(float timestep)
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
  * @param size The dimensions (width, height) of the spike.
  */
-std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle)
+std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle, string jsonType)
 {
-    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle);
+    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle, jsonType);
     return createSpike(spk);
 }
 
@@ -705,7 +705,7 @@ std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
     return spk;
 }
 
-std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
+std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size, string jsonType){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
@@ -723,7 +723,7 @@ std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size){
 }
 
 std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPosition(), _treasure->getSize());
+    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 
 /**
@@ -734,7 +734,7 @@ std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _tre
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust)
+std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust, string jsonType)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
@@ -756,7 +756,7 @@ std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 
 
 std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir());
+    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
 }
 
 /**
@@ -922,7 +922,7 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1));
+    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
 
 
     // Play the background music on a loop.

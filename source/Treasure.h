@@ -58,7 +58,14 @@ public:
         return (result->init(position, size, scale) ? result : nullptr);
     }
 
+    static std::shared_ptr<Treasure> alloc(const Vec2 position, const Size size, float scale, string jsonType) {
+        std::shared_ptr<Treasure> result = std::make_shared<Treasure>();
+        return (result->init(position, size, scale, jsonType) ? result : nullptr);
+    }
+
     bool init(const Vec2 pos, const Size size, float scale);
+
+    bool init(const Vec2 pos, const Size size, float scale, string jsonType);
     
     /**
      * Sets the scene graph node representing this Treasure.

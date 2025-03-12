@@ -51,8 +51,18 @@ public:
 		return (result->init(position, size, scale, angle) ? result : nullptr);
 	}
 
+    static std::shared_ptr<Spike> alloc(const Vec2 position, const Size size, float scale, float angle, string jsonType) {
+        std::shared_ptr<Spike> result = std::make_shared<Spike>();
+        return (result->init(position, size, scale, angle, jsonType) ? result : nullptr);
+    }
+    static std::shared_ptr<Spike> alloc(const Vec2 position, const Size size, float scale, string jsonType) {
+        std::shared_ptr<Spike> result = std::make_shared<Spike>();
+        return (result->init(position, size, scale, 0.0f, jsonType) ? result : nullptr);
+    }
+
 
 	bool init(const Vec2 pos, const Size size, float scale, float angle);
+    bool init(const Vec2 pos, const Size size, float scale, float angle, string jsonType);
     
     /**
      * Sets the scene graph node representing this Spike.

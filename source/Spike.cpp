@@ -31,6 +31,9 @@ using namespace cugl;
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
 bool Spike::init(const Vec2 pos, const Size size, float scale, float angle) {
+    return Spike::init(pos, size, scale, angle, "default");
+}
+bool Spike::init(const Vec2 pos, const Size size, float scale, float angle, string jsonType) {
     _spikeTexture = "";
     _drawScale = scale;
     _position = pos;
@@ -60,7 +63,8 @@ std::map<std::string, std::any> Spike::getMap() {
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
         {"scale", double(_drawScale)},
-        {"angle", double(_angle)}
+        {"angle", double(_angle)},
+        {"type", std::string(_jsonType)}
     };
     return m;
 }

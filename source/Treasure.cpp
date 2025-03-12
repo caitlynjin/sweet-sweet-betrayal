@@ -38,6 +38,7 @@ using namespace cugl;
 #pragma mark -
 #pragma mark Constructors
 
+
 /**
  * Initializes a new Treasure at the given position.
  *
@@ -47,10 +48,14 @@ using namespace cugl;
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
 bool Treasure::init(const Vec2 pos, const Size size, float scale) {
+    return Treasure::init(pos, size, scale, "default");
+}
+bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonType) {
     Size nsize = size;
     _treasureTexture = "";
     _position = pos;
     _size = size;
+    _jsonType = jsonType;
     _drawScale = scale;
     _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
     _box->setSensor(true);
@@ -64,6 +69,7 @@ std::map<std::string, std::any> Treasure::getMap() {
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
         {"scale", double(_drawScale)},
+         {"type", std::string(_jsonType)}
     };
     return m;
 }
