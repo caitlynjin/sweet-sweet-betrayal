@@ -182,8 +182,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     // NOTE: When an Obstacle is shared, function calls that change its state are monitored and automatically synchronized. However, every client calling this method is going to run the code above setting the properties. We don't want to share them redundantly, so sharing is turned on afterwards.
     
 #pragma mark BEGIN SOLUTION
-    Vec2 dudePos = DUDE_POS;
-    auto player = DudeModel::alloc(dudePos, image->getSize() / scale, scale);
+    auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
 
     player->setShared(true);
     
@@ -336,12 +335,15 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _isHost = isHost;
     _network->attachEventType<MessageEvent>();
     _network->enablePhysics(_world, linkSceneToObsFunc);
+    _localID = _network->getShortUID();
     
     // Init factories
     _assets = assets;
     _platFact = PlatformFactory::alloc(_assets);
     _platFactId = _network->getPhysController()->attachFactory(_platFact);
 
+    _dudeFact = DudeFactory::alloc(_assets);
+    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
 
     // Start in building mode
     _buildingMode = true;
@@ -349,15 +351,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     // Start up the input handler
     
     _input.init(getBounds());
-
-    // Create the world and attach the listeners.
-//    _world = physics2::ObstacleWorld::alloc(rect, gravity);
-    
-    
-    
-    
-    
-    
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
@@ -468,40 +461,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     }
 
     _ui.init(assets);
-    
-    _dudeFact = DudeFactory::alloc(_assets);
-    if (_dudeFact){
-        CULog("DUDE FACT: EXISTS");
-    } else{
-        CULog("DUDE FACT: DOESNT EXISTS");
-    }
-    
-    //Make a std::function reference of the addObstacle function in game scene for network controller
-    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> addObstacleFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
-        this->addObstacle(obs,node);
-    };
-    
-    _network->enablePhysics(_world, addObstacleFunc);
-
-    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
-    CULog("dude Fact ID: %u", _dudeFactID);
-    if (_dudeFactID){
-        CULog("FACT ID: EXISTS, %d", _dudeFactID);
-    } else{
-        CULog("FACT ID: DOESNT EXISTS");
-    }
-    
     populate();
-    
-
     _active = true;
     _complete = false;
     setDebug(false);
-    
-    if(!isHost){
-        _network->getPhysController()->acquireObs(_localPlayer, 0);
-    }
-
 
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
@@ -621,7 +584,7 @@ void GameScene::reset()
     _world->clear();
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
-    _players.clear();
+    _localPlayer = nullptr;
     _goalDoor = nullptr;
     if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
     {
@@ -1033,54 +996,22 @@ void GameScene::populate()
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
-
-    Vec2 dudePos = DUDE_POS;
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     image = _assets->get<Texture>(DUDE_TEXTURE);
     
-//    // LOCAL PLAYER
-//    _localPlayer = DudeModel::alloc(dudePos, image->getSize() / _scale, _scale);
-//    sprite = scene2::PolygonNode::allocWithTexture(image);
-//    _localPlayer->setSceneNode(sprite);
-//    _localPlayer->setDebugColor(DEBUG_COLOR);
-//    _localPlayer->setNetworkID(_localID);
-//    _players.push_back(_localPlayer);
-//    _localPlayer->setShared(true);
-//    if(_isHost){
-//        _world->getOwnedObstacles().insert({_localPlayer,0});
-//    }
-//    addObstacle(_localPlayer, sprite);
-//    
-//    // OTHER PLAYER
-//    _otherPlayer = DudeModel::alloc((dudePos + Vec2(3, 0)), image->getSize() / _scale, _scale);
-//    sprite = scene2::PolygonNode::allocWithTexture(image);
-//    _otherPlayer->setSceneNode(sprite);
-//    _otherPlayer->setDebugColor(DEBUG_COLOR);
-//    _otherPlayer->setNetworkID(_otherID);
-//    _players.push_back(_otherPlayer);
-//    _otherPlayer->setShared(true);
-//    if(_isHost){
-//        _world->getOwnedObstacles().insert({_otherPlayer,0});
-//    }
-//    addObstacle(_otherPlayer, sprite);
-//
-    
-    Vec2 localPos = DUDE_POS;
-    auto params = _dudeFact->serializeParams(localPos, _scale);
+    // HOST STARTS ON LEFT
+    Vec2 pos = DUDE_POS;
+    // CLIENT STARTS ON RIGHT
+    if (_localID == 2){
+        pos += Vec2(2, 0);
+    }
+    auto params = _dudeFact->serializeParams(pos, _scale);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
-
     _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
-    _localPlayer->setNetworkID(_localID);
-    _players.push_back(_localPlayer);
-
-    Vec2 otherPos = dudePos + Vec2(3, 0);
-    auto otherParams = _dudeFact->serializeParams(otherPos, _scale);
-    auto otherPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, otherParams);
-
-    _otherPlayer = std::dynamic_pointer_cast<DudeModel>(otherPair.first);
-    _otherPlayer->setNetworkID(_otherID);
-    _players.push_back(_otherPlayer);
-    
+    _world->getOwnedObstacles().insert({_localPlayer,0});
+    if (!_isHost){
+        _network->getPhysController()->acquireObs(_localPlayer, 0);
+    }
 
 #pragma mark : Spikes
     /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
@@ -1420,7 +1351,7 @@ void GameScene::preUpdate(float dt)
     // increase growing wall
     if (!_buildingMode)
     {
-        updateGrowingWall(dt);
+//        updateGrowingWall(dt);
     }
 
     _ui.preUpdate(dt);
@@ -1439,11 +1370,6 @@ void GameScene::preUpdate(float dt)
         getCamera()->translate(-10, 0);
         getCamera()->update();
     }
-    
-    if(_localID){
-        CULog("LOCAL ID: %d", _localID);
-    }
-
 }
 
 /**
@@ -1475,7 +1401,7 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    _world->update(step);
+    _world->update(FIXED_TIMESTEP_S);
 //    if (!_buildingMode){
 //        _world->update(step);
 //    }

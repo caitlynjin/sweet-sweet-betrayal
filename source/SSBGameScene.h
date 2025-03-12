@@ -28,6 +28,14 @@ using namespace cugl;
 using namespace Constants;
 using namespace cugl::physics2::distrib;
 
+/**
+ * The factory class for player/dude model.
+ *
+ * This class is used to support automatically syncing newly added players mid-simulation.
+ * Players added throught the ObstacleFactory class from one client will be added to all
+ * clients in the simulations.
+ */
+
 class DudeFactory : public ObstacleFactory {
 public:
     /** Pointer to the AssetManager for texture access, etc. */
@@ -187,12 +195,8 @@ protected:
     // Physics objects for the game
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
-    /** A list to store the players */
-    std::vector<std::shared_ptr<DudeModel>> _players;
     /** Reference to the local player */
     std::shared_ptr<DudeModel> _localPlayer;
-    /** Reference to the local player */
-    std::shared_ptr<DudeModel> _otherPlayer;
 
     std::shared_ptr<Platform> _platformTest;
     
