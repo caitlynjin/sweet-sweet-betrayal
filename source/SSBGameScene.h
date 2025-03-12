@@ -292,6 +292,7 @@ private:
      * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
      * @param size The dimensions (width, height) of the platform.
      */
+
     std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir);
 
     std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);

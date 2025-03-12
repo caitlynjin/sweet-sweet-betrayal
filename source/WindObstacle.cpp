@@ -53,6 +53,8 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
     _gust->setName("gust");
     
     _gustDir = gust;
+
+    
     return true;
     
 }

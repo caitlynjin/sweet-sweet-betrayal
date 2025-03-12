@@ -6,6 +6,7 @@
 //
 #include "SSBGridManager.h"
 
+
 using namespace cugl;
 using namespace cugl::graphics;
 using namespace Constants;
@@ -105,6 +106,10 @@ void GridManager::setSpriteInvisible(){
 void GridManager::addObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
 
+    std::string x = std::to_string(cellPos.x);
+    std::string y = std::to_string(cellPos.y);
+    CULog("%s", x.c_str());
+    CULog("%s", y.c_str());
     // Add the origin position of the object
     objToOriginPosMap[obj] = originPosPair;
 
