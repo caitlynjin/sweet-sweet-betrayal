@@ -26,7 +26,7 @@
             "wrapT": "repeat"
         },
         "spike": {
-            "file": "textures/spike.png"
+            "file": "textures/Spike.png"
         },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
@@ -71,6 +71,12 @@
         },
         "left_button": {
           "file":     "textures/left_button.png"
+        },
+        "jump-button": {
+          "file":     "textures/jump-button.PNG"
+        },
+        "glide-button": {
+          "file":     "textures/glide-button.PNG"
         },
         "background": {
             "file":     "textures/background.png"

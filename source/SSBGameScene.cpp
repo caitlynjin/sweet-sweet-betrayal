@@ -162,6 +162,10 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define RIGHT_IMAGE "dpad_right"
 /** The image for the ready button */
 #define READY_BUTTON "ready_button"
+/** The image for the jump button */
+#define JUMP_BUTTON "jump-button"
+/** The image for the glide button */
+#define GLIDE_BUTTON "glide-button"
 
 /** Color to outline the physics nodes */
 #define DEBUG_COLOR Color4::YELLOW
@@ -353,6 +357,33 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 //        }
 //    });
 
+    std::shared_ptr<scene2::PolygonNode> jumpNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
+    _jumpbutton = scene2::Button::alloc(jumpNode);
+    _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _jumpbutton->setVisible(false);
+    _jumpbutton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _didjump = true;
+        }
+        else{
+            _didjump = false;
+        }
+    });
+
+    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
+    _glidebutton = scene2::Button::alloc(glideNode);
+    _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _glidebutton->setVisible(false);
+    _glidebutton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _didglide = true;
+        }
+        else{
+            _didglide = false;
+        }
+    });
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
@@ -375,6 +406,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_scrollpane);
 //    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
+    _ui.addChild(_jumpbutton);
+    _ui.addChild(_glidebutton);
     
     for (auto score : _scoreImages){
         _ui.addChild(score);
@@ -1031,7 +1064,7 @@ void GameScene::update(float timestep)
         }
 
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_input.didJump());
+        _avatar->setJumping(_didjump);
         _avatar->applyForce();
 
         if (_avatar->isJumping() && _avatar->isGrounded())
@@ -1041,20 +1074,13 @@ void GameScene::update(float timestep)
             AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
         }
 
-        if (_avatar->isGrounded())
-        {
-            _input.setGlide(false);
-        }
+//        if (_avatar->isGrounded())
+//        {
+//            _input.setGlide(false);
+//        }
         /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        if (_input.isRightDown() && _input.canGlide())
-        {
+        _avatar->setGlide(_didglide);
 
-            _avatar->setGlide(true);
-        }
-        else
-        {
-            _avatar->setGlide(false);
-        }
     }
 
     for (auto &obj : _objects)
@@ -1256,20 +1282,22 @@ void GameScene::preUpdate(float dt)
         }
 
         //THE GLIDE BULLSHIT SECTION
-        if (_input.getRightTapped()) {
-            _input.setRightTapped(false);
-            if (!_avatar->isGrounded())
-            {
-                _avatar->setGlide(true);
-            }
-        }
-        else if (!_input.isRightDown()) {
-            _avatar->setGlide(false);
+//        if (_input.getRightTapped()) {
+//            _input.setRightTapped(false);
+//            if (!_avatar->isGrounded())
+//            {
+//                _avatar->setGlide(true);
+//            }
+//        }
+//        else if (!_input.isRightDown()) {
+//            _avatar->setGlide(false);
+//
+//        }
 
-        }
+        _avatar->setGlide(_didglide);
 
         _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_input.didJump());
+        _avatar->setJumping(_didjump);
         _avatar->applyForce();
 
         if (_avatar->isJumping() && _avatar->isGrounded())
@@ -1282,6 +1310,21 @@ void GameScene::preUpdate(float dt)
         
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
             (*it)->update(dt);
+        }
+
+        if (_avatar->isGrounded()){
+            _jumpbutton->activate();
+            _jumpbutton->setVisible(true);
+            _glidebutton->deactivate();
+            _glidebutton->setVisible(false);
+            _didglide = false;
+        }
+        else{
+            _jumpbutton->deactivate();
+            _jumpbutton->setVisible(false);
+            _glidebutton->activate();
+            _glidebutton->setVisible(true);
+            _didjump = false;
         }
     }
 
@@ -1550,6 +1593,14 @@ void GameScene::setBuildingMode(bool value) {
     _inventoryBackground->setVisible(value);
 
     _camera->setPosition(_camerapos);
+
+    if (value){
+        _jumpbutton->deactivate();
+    }
+    else{
+        _jumpbutton->activate();
+    }
+    _jumpbutton->setVisible(!value);
 }
 
 #pragma mark -
