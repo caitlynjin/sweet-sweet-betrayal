@@ -1,8 +1,11 @@
 #include "SSBApp.h"
+#include "SSBInput.h"
+
 
 using namespace cugl;
 using namespace cugl::graphics;
 using namespace cugl::scene2;
+using namespace cugl::netcode;
 using namespace cugl::audio;
 
 
@@ -22,6 +25,7 @@ void SSBApp::onStartup() {
     _assets = AssetManager::alloc();
     _batch  = SpriteBatch::alloc();
     
+    
     // Start-up basic input
 #ifdef CU_TOUCH_SCREEN
     Input::activate<Touchscreen>();
@@ -29,10 +33,15 @@ void SSBApp::onStartup() {
     Input::activate<Mouse>();
 #endif
     
+    Input::activate<Keyboard>();
+    Input::activate<TextInput>();
+    
     _assets->attach<Font>(FontLoader::alloc()->getHook());
     _assets->attach<Texture>(TextureLoader::alloc()->getHook());
     _assets->attach<Sound>(SoundLoader::alloc()->getHook());
-    _assets->attach<SceneNode>(Scene2Loader::alloc()->getHook());
+    _assets->attach<scene2::SceneNode>(Scene2Loader::alloc()->getHook());
+    _assets->attach<JsonValue>(JsonLoader::alloc()->getHook());
+    _assets->attach<WidgetValue>(WidgetLoader::alloc()->getHook());
     _assets->loadDirectory("json/loading.json");
 
     // Create a "loading" screen
@@ -42,8 +51,16 @@ void SSBApp::onStartup() {
     
     // Queue up the other assets
     _loading.start();
+    _status = LOAD;
     AudioEngine::start();
+    
+    NetworkLayer::start(NetworkLayer::Log::INFO);
     Application::onStartup(); // YOU MUST END with call to parent
+    
+    setDeterministic(true);
+    
+    
+        
 }
 
 /**
@@ -60,6 +77,9 @@ void SSBApp::onStartup() {
 void SSBApp::onShutdown() {
     _loading.dispose();
     _gameplay.dispose();
+    _mainmenu.dispose();
+    _hostgame.dispose();
+    _joingame.dispose();
     _assets = nullptr;
     _batch = nullptr;
     
@@ -119,21 +139,8 @@ void SSBApp::onResume() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::update(float dt) {
-    if (!_loaded && _loading.isActive()) {
-        _loading.update(0.01f);
-    } else if (!_loaded) {
-        _loading.dispose(); // Disables the input listeners in this mode
-        _gameplay.init(_assets);
-        setClearColor(Color4(85,158,145));
-        _gameplay.setSpriteBatch(_batch);
-        _loaded = true;
-        
-        // Switch to deterministic mode (UNCOMMENT TO COMPARE)
-        setDeterministic(true);
-    } else {
-        _gameplay.update(dt);
-    }
 }
+
 
 /**
  * The method called to indicate the start of a deterministic loop.
@@ -156,7 +163,47 @@ void SSBApp::update(float dt) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void SSBApp::preUpdate(float dt) {
-    _gameplay.preUpdate(dt);
+//    CULog("Status: %d", static_cast<int>(_status));
+    if (_status ==LOAD && _loading.isActive()) {
+        _loading.update(0.01f);
+    } else if (_status==LOAD) {
+        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
+
+        _loading.dispose();
+//        CULog("init");
+        _mainmenu.init(_assets);
+        _mainmenu.setActive(true);
+        
+        _mainmenu.setSpriteBatch(_batch);
+        _hostgame.init(_assets,_network);
+        _hostgame.setSpriteBatch(_batch);
+        _joingame.init(_assets,_network);
+        _joingame.setSpriteBatch(_batch);
+        //_gameplay.init(_assets);
+        _status = MENU;
+    } else {
+        switch (_status) {
+            case MENU:
+                updateMenuScene(dt);
+                
+                break;
+            case HOST:
+                updateHostScene(dt);
+                break;
+                
+            case CLIENT:
+                updateClientScene(dt);
+                break;
+                
+            case GAME:
+                _gameplay.preUpdate(dt);
+                break;
+                
+            default:
+                break;
+        }
+    }
+
 }
 
 /**
@@ -183,7 +230,12 @@ void SSBApp::preUpdate(float dt) {
 void SSBApp::fixedUpdate() {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep()/1000000.0f;
-    _gameplay.fixedUpdate(time);
+    if (_status == GAME) {
+        _gameplay.fixedUpdate(time);
+    }
+    if(_network){
+        _network->updateNet();
+    }
 }
 
 /**
@@ -212,7 +264,109 @@ void SSBApp::fixedUpdate() {
 void SSBApp::postUpdate(float dt) {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder()/1000000.0f;
-    _gameplay.postUpdate(time);
+    if (_status == GAME) {
+        _gameplay.postUpdate(time);
+    }
+   
+}
+/**
+ * Inidividualized update method for the menu scene.
+ *
+ * This method keeps the primary {@link #update} from being a mess of switch
+ * statements. It also handles the transition logic from the menu scene.
+ *
+ * @param timestep  The amount of time (in seconds) since the last frame
+ */
+void SSBApp::updateMenuScene(float timestep) {
+    _mainmenu.update(timestep);
+    switch (_mainmenu.getChoice()) {
+        case MenuScene::Choice::HOST:
+            _mainmenu.setActive(false);
+            _hostgame.setActive(true);
+            _status = HOST;
+            break;
+        case MenuScene::Choice::JOIN:
+            _mainmenu.setActive(false);
+            _joingame.setActive(true);
+            _status = CLIENT;
+            break;
+        case MenuScene::Choice::NONE:
+            // DO NOTHING
+            break;
+    }
+}
+
+/**
+ * Inidividualized update method for the host scene.
+ *
+ * This method keeps the primary {@link #update} from being a mess of switch
+ * statements. It also handles the transition logic from the host scene.
+ *
+ * @param timestep  The amount of time (in seconds) since the last frame
+ */
+ void SSBApp::updateHostScene(float timestep) {
+    _hostgame.update(timestep);
+    if(_hostgame.getBackClicked()){
+        _status = MENU;
+        _hostgame.setActive(false);
+        _mainmenu.setActive(true);
+    }
+    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
+        //TODO: add network to gameplay
+        _gameplay.init(_assets, _network, true);
+        _gameplay.setSpriteBatch(_batch);
+        _network->markReady();
+    }
+    else if (_network->getStatus() == NetEventController::Status::INGAME) {
+        _hostgame.setActive(false);
+        _gameplay.setActive(true);
+        _status = GAME;
+    }
+    else if (_network->getStatus() == NetEventController::Status::NETERROR) {
+        _network->disconnect();
+		_hostgame.setActive(false);
+		_mainmenu.setActive(true);
+        _gameplay.dispose();
+		_status = MENU;
+	}
+}
+
+/**
+ * Inidividualized update method for the client scene.
+ *
+ * This method keeps the primary {@link #update} from being a mess of switch
+ * statements. It also handles the transition logic from the client scene.
+ *
+ * @param timestep  The amount of time (in seconds) since the last frame
+ */
+void SSBApp::updateClientScene(float timestep) {
+#pragma mark SOLUTION
+    _joingame.update(timestep);
+    if(_joingame.getBackClicked()){
+        _status = MENU;
+        _joingame.setActive(false);
+        _mainmenu.setActive(true);
+    }
+    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
+        //TODO: add network
+        _gameplay.init(_assets, _network, false);
+//        _gameplay.init(_assets);
+        _gameplay.setSpriteBatch(_batch);
+        _network->markReady();
+    }
+    else if (_network->getStatus() == NetEventController::Status::INGAME) {
+        _joingame.setActive(false);
+        _gameplay.setActive(true);
+        _status = GAME;
+    }
+    else if (_network->getStatus() == NetEventController::Status::NETERROR) {
+        _network->disconnect();
+		_joingame.setActive(false);
+		_mainmenu.setActive(true);
+        _gameplay.dispose();
+		_status = MENU;
+	}
+#pragma mark END SOLUTION
 }
 
 /**
@@ -225,10 +379,23 @@ void SSBApp::postUpdate(float dt) {
  * at all. The default implmentation does nothing.
  */
 void SSBApp::draw() {
-    if (!_loaded) {
-        _loading.render();
-    } else {
-        _gameplay.render();
+    switch (_status) {
+        case LOAD:
+            _loading.render();
+            break;
+        case MENU:
+            _mainmenu.render();
+            break;
+        case HOST:
+            _hostgame.render();
+            break;
+        case CLIENT:
+            _joingame.render();
+            break;
+        case GAME:
+            _gameplay.render();
+        default:
+            break;
     }
 }
 

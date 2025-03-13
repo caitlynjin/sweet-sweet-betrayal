@@ -46,6 +46,8 @@ using namespace Constants;
 /** Height of the game world in Box2d units */
 #define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
 
+#define FIXED_TIMESTEP_S 0.02f
+
 // Since these appear only once, we do not care about the magic numbers.
 // In an actual game, this information would go in a data file.
 // IMPORTANT: Note that Box2D units do not equal drawing units
@@ -184,7 +186,7 @@ GameScene::GameScene() : Scene2(),
     _worldnode(nullptr),
     _debugnode(nullptr),
     _world(nullptr),
-    _avatar(nullptr),
+    _localPlayer(nullptr),
     _treasure(nullptr),
     _complete(false),
     _debug(false)
@@ -206,31 +208,31 @@ GameScene::GameScene() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets)
+bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetEventController> network, bool isHost)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY));
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), network, isHost);
 }
 
-/**
- * Initializes the controller contents, and starts the game
- *
- * The constructor does not allocate any objects or memory.  This allows
- * us to have a non-pointer reference to this controller, reducing our
- * memory allocation.  Instead, allocation happens in this method.
- *
- * The game world is scaled so that the screen coordinates do not agree
- * with the Box2d coordinates.  The bounds are in terms of the Box2d
- * world, not the screen.
- *
- * @param assets    The (loaded) assets for this game mode
- * @param rect      The game bounds in Box2d coordinates
- *
- * @return  true if the controller is initialized properly, false otherwise.
- */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &rect)
-{
-    return init(assets, rect, Vec2(0, DEFAULT_GRAVITY));
-}
+///**
+// * Initializes the controller contents, and starts the game
+// *
+// * The constructor does not allocate any objects or memory.  This allows
+// * us to have a non-pointer reference to this controller, reducing our
+// * memory allocation.  Instead, allocation happens in this method.
+// *
+// * The game world is scaled so that the screen coordinates do not agree
+// * with the Box2d coordinates.  The bounds are in terms of the Box2d
+// * world, not the screen.
+// *
+// * @param assets    The (loaded) assets for this game mode
+// * @param rect      The game bounds in Box2d coordinates
+// *
+// * @return  true if the controller is initialized properly, false otherwise.
+// */
+//bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &rect)
+//{
+//    return init(assets, rect, Vec2(0, DEFAULT_GRAVITY));
+//}
 
 /**
  * Initializes the controller contents, and starts the game
@@ -250,7 +252,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &re
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetEventController> network, bool isHost)
 {
     if (assets == nullptr)
     {
@@ -260,17 +262,9 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         return false;
     }
-
-
-    // Start in building mode
-    _buildingMode = true;
-
-    // Start up the input handler
-    _assets = assets;
-    _input.init(getBounds());
-
-    // Create the world and attach the listeners.
-    _world = physics2::ObstacleWorld::alloc(rect, gravity);
+    
+    // Networked physics world
+    _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
     _world->onBeginContact = [this](b2Contact *contact)
     {
@@ -280,6 +274,34 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         endContact(contact);
     };
+    _world->update(FIXED_TIMESTEP_S);
+    
+    //Make a std::function reference of the linkSceneToObs function in game scene for network controller
+    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
+        this->linkSceneToObs(obs,node);
+    };
+    
+    // Init networking
+    _network = network;
+    _isHost = isHost;
+    _network->attachEventType<MessageEvent>();
+    _network->enablePhysics(_world, linkSceneToObsFunc);
+    _localID = _network->getShortUID();
+    
+    // Init factories
+    _assets = assets;
+    _platFact = PlatformFactory::alloc(_assets);
+    _platFactId = _network->getPhysController()->attachFactory(_platFact);
+
+    _dudeFact = DudeFactory::alloc(_assets);
+    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
+
+    // Start in building mode
+    _buildingMode = true;
+
+    // Start up the input handler
+    
+    _input.init(getBounds());
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
@@ -352,8 +374,12 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 //    _readyButton->activate();
 //    _readyButton->addListener([this](const std::string &name, bool down) {
 //        if (down && _buildingMode) {
-//            setBuildingMode(!_buildingMode);
-//            _readyButton->setVisible(false);
+//            // Send a message to the network that the button was pressed
+//            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+//            // Update number of players that are ready
+////            _numReady += 1;
+//            //TODO: add way to disable button after pressing
+//            
 //        }
 //    });
 
@@ -385,6 +411,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         }
     });
 
+
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
     initInventory();
@@ -414,13 +441,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     }
 
     _ui.init(assets);
-
     populate();
-
     _active = true;
     _complete = false;
     setDebug(false);
-
 
     // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
@@ -516,8 +540,9 @@ void GameScene::initInventory()
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
 
     switch (item) {
-        case (PLATFORM):
-            return createPlatform(gridPos, Size(3, 1), "log");
+        case (PLATFORM): {
+            return createPlatformNetworked(gridPos, Size(3,1), "log");
+        }
         case (MOVING_PLATFORM):
             return createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
@@ -540,7 +565,7 @@ void GameScene::reset()
     _world->clear();
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
-    _avatar = nullptr;
+    _localPlayer = nullptr;
     _goalDoor = nullptr;
 //    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
 //    {
@@ -572,6 +597,41 @@ void GameScene::reset()
     _ui.reset();
 
     populate();
+}
+
+/**
+ * Creates a networked platform.
+ *
+ * @return the platform being created
+ *
+ * @param The platform being created (that has not yet been added to the physics world).
+ */
+std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, string jsonType){
+    
+    //Use Platform Factory to create the platform boxObstacle and sprite
+    auto params = _platFact->serializeParams(pos + size/2, size, jsonType, _scale);
+    // pair holds the boxObstacle and sprite to be used for the platform
+    // Already added to _world after this call
+    auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
+
+    // Cast the obstacle to a BoxObstacle
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+
+    
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+    // Check if the cast was successful
+    if (boxObstacle) {
+        // Assign the boxObstacle that was made to the platform
+        
+        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, boxObstacle);
+        _objects.push_back(plat);
+//                pair.first->setLinearVelocity(2, 0);
+        return plat;
+    } else {
+        // Handle case where the obstacle is not a BoxObstacle
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
@@ -606,7 +666,10 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
 
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
+    
+    
     _objects.push_back(plat);
 
     return plat;
@@ -620,7 +683,9 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  * @param size The dimensions (width, height) of the platform.
  */
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
+
     std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
+
     return createPlatform(plat);
 }
 /**
@@ -919,15 +984,45 @@ void GameScene::populate()
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
-
-    Vec2 dudePos = DUDE_POS;
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     image = _assets->get<Texture>(DUDE_TEXTURE);
-    _avatar = DudeModel::alloc(dudePos, image->getSize() / _scale, _scale);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _avatar->setSceneNode(sprite);
-    _avatar->setDebugColor(DEBUG_COLOR);
-    addObstacle(_avatar, sprite); // Put this at the very front
+    
+    // HOST STARTS ON LEFT
+    Vec2 pos = DUDE_POS;
+//    pos += Vec2(4, 5);
+    // CLIENT STARTS ON RIGHT
+    if (_localID == 2){
+        pos += Vec2(2, 0);
+    }
+    
+    
+    
+
+    auto params = _dudeFact->serializeParams(pos, _scale);
+    auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
+    _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
+    
+    _localPlayer->setDebugScene(_debugnode);
+    
+    
+    
+    _world->getOwnedObstacles().insert({_localPlayer,0});
+    if (!_isHost){
+        _network->getPhysController()->acquireObs(_localPlayer, 0);
+    }
+    
+    
+    
+    
+    // Create a networked platform for test
+//    pos = DUDE_POS;
+//    if (_isHost){
+//        createPlatformNetworked(pos += Vec2(3, 2), Size(3,1), false);
+//    }
+    
+    
+    
+    
 
 #pragma mark : Spikes
     /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
@@ -1017,86 +1112,6 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
  */
 void GameScene::update(float timestep)
 {
-    _input.update(timestep);
-
-    if (_buildingMode)
-    {
-        // Removed because duplicate code in preupdate causes issues
-    }
-    else
-    {
-        // Process the toggled key commands
-        if (_input.didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input.didReset())
-        {
-            reset();
-        }
-        if (_input.didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
-
-        // Process the movement
-        if (_input.withJoystick())
-        {
-            if (_input.getHorizontal() < 0)
-            {
-                _leftnode->setVisible(true);
-                _rightnode->setVisible(false);
-            }
-            else if (_input.getHorizontal() > 0)
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(true);
-            }
-            else
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(false);
-            }
-            _leftnode->setPosition(_input.getJoystick());
-            _rightnode->setPosition(_input.getJoystick());
-        }
-        else
-        {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(false);
-        }
-
-        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_didjump);
-        _avatar->applyForce();
-
-        if (_avatar->isJumping() && _avatar->isGrounded())
-        {
-
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-        }
-
-//        if (_avatar->isGrounded())
-//        {
-//            _input.setGlide(false);
-//        }
-        /**Checks if we are gliding, by seeing if we are out of a jump and if we are holding down the right side of the screen.*/
-        _avatar->setGlide(_didglide);
-
-    }
-
-    for (auto &obj : _objects)
-    {
-        obj->update(timestep);
-    }
-
-
-    // Turn the physics engine crank.
-
-    _world->update(timestep);
-    _ui.update(timestep);
     
 }
 
@@ -1122,8 +1137,31 @@ void GameScene::update(float timestep)
  */
 void GameScene::preUpdate(float dt)
 {
+    // We need to create collision filters for players in the world --> not automatically handled by the network
+    if (!_filtersSet){
+        trySetFilters();
+    }
+    
     _input.update(dt);
-
+    
+    // TODO: DELETE THIS IF STATEMENT TO RE ENABLE BUILD
+//    if (_buildingMode){
+//        setBuildingMode(false);
+//    }
+    
+    // Process Networking
+    if (_buildingMode && (_numReady >= _network->getNumPlayers())){
+        // Exit build mode and switch to movement phase
+        setBuildingMode(!_buildingMode);
+//        _readyButton->setVisible(false);
+        _numReady = 0;
+    }
+    
+    // Update objects
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
+    }
+    
     if (_buildingMode)
     {
         /** The offset of finger placement to object indicator */
@@ -1175,13 +1213,12 @@ void GameScene::preUpdate(float dt)
 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
                 
+                
                 // If object exists
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
-
-                    _gridManager->removeObject(gridPos);
                     _input.setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -1196,12 +1233,14 @@ void GameScene::preUpdate(float dt)
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addObject(_prevPos, _selectedObject);
-
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
+                    CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
                     _gridManager->addObject(gridPos, _selectedObject);
+
+                    
                 }
 
                 // Trigger listener
@@ -1286,6 +1325,17 @@ void GameScene::preUpdate(float dt)
         }
 
         //THE GLIDE BULLSHIT SECTION
+        if (_input.getRightTapped()) {
+            _input.setRightTapped(false);
+            if (!_localPlayer->isGrounded())
+            {
+                _localPlayer->setGlide(true);
+            }
+        }
+        else if (!_input.isRightDown()) {
+            _localPlayer->setGlide(false);
+        }
+
 //        if (_input.getRightTapped()) {
 //            _input.setRightTapped(false);
 //            if (!_avatar->isGrounded())
@@ -1297,14 +1347,15 @@ void GameScene::preUpdate(float dt)
 //            _avatar->setGlide(false);
 //
 //        }
+        _localPlayer->setGlide(_didglide);
 
-        _avatar->setGlide(_didglide);
 
-        _avatar->setMovement(_input.getHorizontal() * _avatar->getForce());
-        _avatar->setJumping(_didjump);
-        _avatar->applyForce();
+        _localPlayer->setMovement(_input.getHorizontal() * _localPlayer->getForce());
+        _localPlayer->setJumping(_didjump);
+        _localPlayer->applyForce();
 
-        if (_avatar->isJumping() && _avatar->isGrounded())
+
+        if (_localPlayer->isJumping() && _localPlayer->isGrounded())
         {
 
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
@@ -1316,31 +1367,33 @@ void GameScene::preUpdate(float dt)
             (*it)->update(dt);
         }
 
-        if (_avatar->isGrounded() && !_glidebutton->isDown()){
+
+        if (_localPlayer->isGrounded() && !_glidebutton->isDown()){
             _jumpbutton->activate();
             _jumpbutton->setVisible(true);
             _glidebutton->deactivate();
             _glidebutton->setVisible(false);
             _didglide = false;
         }
-        else if (!_avatar->isGrounded() && !_jumpbutton->isDown()){
+        else if (!_localPlayer->isGrounded() && !_jumpbutton->isDown()){
             _jumpbutton->deactivate();
             _jumpbutton->setVisible(false);
             _glidebutton->activate();
             _glidebutton->setVisible(true);
             _didjump = false;
         }
+
     }
 
     // TODO: Commented out camera code for now
     if (!_buildingMode){
-        getCamera()->setPosition(Vec3(_avatar->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
+        getCamera()->setPosition(Vec3(_localPlayer->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
     }
     getCamera()->update();
     
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(dt);
+//    }
     // increase growing wall
     if (!_buildingMode)
     {
@@ -1348,8 +1401,12 @@ void GameScene::preUpdate(float dt)
     }
 
     _ui.preUpdate(dt);
-    if (_ui.getReadyPressed()){
-        setBuildingMode(false);
+    if (_ui.getReadyDone() && !_readyMessageSent){
+//        CULog("send out event");
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+        _readyMessageSent = true;
+    } else if (!_ui.getReadyDone()) {
+        _readyMessageSent = false;
     }
     if (_ui.getRightPressed() && _buildingMode){
         getCamera()->translate(10, 0);
@@ -1359,7 +1416,6 @@ void GameScene::preUpdate(float dt)
         getCamera()->translate(-10, 0);
         getCamera()->update();
     }
-
 }
 
 /**
@@ -1391,10 +1447,27 @@ void GameScene::preUpdate(float dt)
 void GameScene::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
-    if (!_buildingMode){
-        _world->update(step);
-    }
+    _world->update(FIXED_TIMESTEP_S);
+    
+//    _world->update(step);
+
+//    if (!_buildingMode){
+//        _world->update(step);
+//    }
+    
     _ui.fixedUpdate(step);
+
+    
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+
+    }
+    
+    
+
 }
 
 /**
@@ -1425,7 +1498,7 @@ void GameScene::postUpdate(float remain)
     _world->garbageCollect();
 
     // Record failure if necessary.
-    if (!_failed && _avatar->getY() < 0)
+    if (!_failed && _localPlayer->getY() < 0)
     {
         setFailure(true);
     }
@@ -1486,7 +1559,7 @@ void GameScene::setFailure(bool value) {
     if (value) {
         // If next round available, do not fail
         if (_currRound < TOTAL_ROUNDS){
-            if (_avatar->_hasTreasure){
+            if (_localPlayer->_hasTreasure){
                 _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
             }
             
@@ -1516,8 +1589,8 @@ void GameScene::setFailure(bool value) {
 void GameScene::nextRound(bool reachedGoal) {
     // Check if player won before going to next round
     if (reachedGoal){
-        if(_avatar->_hasTreasure){
-            _avatar->removeTreasure();
+        if(_localPlayer->_hasTreasure){
+            _localPlayer->removeTreasure();
             // Increment total treasure collected
             _currGems += 1;
             // Update score image
@@ -1560,8 +1633,8 @@ void GameScene::nextRound(bool reachedGoal) {
     setFailure(false);
     
     // Reset player properties
-    _avatar->setPosition(Vec2(DUDE_POS));
-    _avatar->removeTreasure();
+    _localPlayer->setPosition(Vec2(DUDE_POS));
+    _localPlayer->removeTreasure();
     _died = false;
     _reachedGoal = false;
     
@@ -1573,9 +1646,11 @@ void GameScene::nextRound(bool reachedGoal) {
     // Return to building mode
     //_readyButton->setVisible(true);
     _itemsPlaced = 0;
+    
+    // TODO: UNCOMMENT THIS TO RE ENABLE BUILD MODE
     setBuildingMode(true);
 
-    _ui.visibleButtons();
+//    _ui.visibleButtons(true);
     
     
 }
@@ -1595,6 +1670,7 @@ void GameScene::setBuildingMode(bool value) {
     }
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
+    _ui.visibleButtons(value);
 
     _camera->setPosition(_camerapos);
 
@@ -1602,6 +1678,7 @@ void GameScene::setBuildingMode(bool value) {
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _glidebutton->setVisible(false);
+        _ui.setReadyDone(false);
     }
     else{
         _jumpbutton->activate();
@@ -1636,31 +1713,55 @@ void GameScene::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
+    
+    // Check if both are players and disable contact
+        if ((bd1->getName() == "player" && bd2->getName() == "player") ||
+            (bd1 == _localPlayer.get() && bd2->getName() == "player") ||
+            (bd2 == _localPlayer.get() && bd1->getName() == "player")) {
+            contact->SetEnabled(false);
+        }
     // See if we have landed on the ground.
-    if (((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
-        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
-    {
 
-        _avatar->setGrounded(true);
+    if (((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
+        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
+    {
+        
+        _localPlayer->setGrounded(true);
+    }
+
+//    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
+//        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
+//    {
+//        _localPlayer->setGrounded(true);
+//
+//        // Could have more than one ground
+//        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
+//    }
+    
+    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1 && bd1->getName() != "player") ||
+        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2 && bd2->getName() != "player")) {
+        _localPlayer->setGrounded(true);
+        
         // Could have more than one ground
-        _sensorFixtures.emplace(_avatar.get() == bd1 ? fix2 : fix1);
+        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
     }
 
     // If we hit the "win" door, we are done
-    if((bd1 == _avatar.get()   && bd2 == _goalDoor.get()) ||
-        (bd1 == _goalDoor.get() && bd2 == _avatar.get())) {
+    if((bd1 == _localPlayer.get()   && bd2 == _goalDoor.get()) ||
+        (bd1 == _goalDoor.get() && bd2 == _localPlayer.get())) {
         _reachedGoal = true;
         
     }
     // If we hit a spike, we are DEAD
-    if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
-        (bd1->getName() == "spike" && bd2 == _avatar.get())) {
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "spike") ||
+        (bd1->getName() == "spike" && bd2 == _localPlayer.get())) {
         //        setFailure(true);
         _died = true;
     }
 
 
     // If the player collides with the growing wall, game over
+
 //    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
 //        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
 //    {
@@ -1668,9 +1769,9 @@ void GameScene::beginContact(b2Contact *contact)
 //
 //    }
 
-    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _avatar.get()))
-    {   
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
+    {
         //determine which of bd1 or bd2 is the wind object
         Vec2 windPos = Vec2();
         if (bd2->getName() == "gust") {
@@ -1678,39 +1779,53 @@ void GameScene::beginContact(b2Contact *contact)
         }
         else {
             windPos = bd1->getPosition();
-        } 
+        }
         //Find the appropriate object
-
+        
         auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
         if (_gridManager->posToObjMap.count(p) > 0) {
             CULog("WIND FOUND!");
-             std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-             _avatar->addWind(thing->getTrajectory());
+            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
+            _localPlayer->addWind(thing->getTrajectory());
         }
     }
-
-    if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform" && _avatar->isGrounded()) ||
-        (bd2 == _avatar.get() && bd1->getName() == "movingPlatform" && _avatar->isGrounded()))
+    
+    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
+        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
     {
-        CULog("moving platform");
-        _avatar->setOnMovingPlat(true);
-        _avatar->setMovingPlat(bd1 == _avatar.get() ? bd2 : bd1);
+        _died = true;
+
+    }
+
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
+    {
+        // CULog("WIND");
+        _localPlayer->addWind(Vec2(0, 6));
+    }
+
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform" && _localPlayer->isGrounded()) ||
+        (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform" && _localPlayer->isGrounded()))
+    {
+//        CULog("moving platform");
+        _localPlayer->setOnMovingPlat(true);
+        _localPlayer->setMovingPlat(bd1 == _localPlayer.get() ? bd2 : bd1);
 
         // If we hit a spike, we are DEAD
-        if ((bd1 == _avatar.get() && bd2->getName() == "spike") ||
-            (bd1->getName() == "spike" && bd2 == _avatar.get()))
+        if ((bd1 == _localPlayer.get() && bd2->getName() == "spike") ||
+            (bd1->getName() == "spike" && bd2 == _localPlayer.get()))
         {
             _died = true;
         }
     }
 
     // If we collide with a treasure, we pick it up
-    if ((bd1 == _avatar.get() && bd2->getName() == "treasure") ||
-        (bd1->getName() == "treasure" && bd2 == _avatar.get()))
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "treasure") ||
+        (bd1->getName() == "treasure" && bd2 == _localPlayer.get()))
     {
-        if (!_avatar->_hasTreasure)
+        if (!_localPlayer->_hasTreasure)
         {
-            _avatar->gainTreasure(_treasure);
+            _localPlayer->gainTreasure(_treasure);
         }
     }
 }
@@ -1736,26 +1851,26 @@ void GameScene::endContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    if ((_avatar->getSensorName() == fd2 && _avatar.get() != bd1) ||
-        (_avatar->getSensorName() == fd1 && _avatar.get() != bd2))
+    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
+        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
     {
-        _sensorFixtures.erase(_avatar.get() == bd1 ? fix2 : fix1);
+        _sensorFixtures.erase(_localPlayer.get() == bd1 ? fix2 : fix1);
         if (_sensorFixtures.empty())
         {
-            _avatar->setGrounded(false);
+            _localPlayer->setGrounded(false);
         }
     }
 
-    if ((bd1 == _avatar.get() && bd2->getName() == "movingPlatform") ||
-        (bd2 == _avatar.get() && bd1->getName() == "movingPlatform"))
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform") ||
+        (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform"))
     {
-        CULog("disable movement platform");
-        _avatar->setOnMovingPlat(false);
-        _avatar->setMovingPlat(nullptr);
+//        CULog("disable movement platform");
+        _localPlayer->setOnMovingPlat(false);
+        _localPlayer->setMovingPlat(nullptr);
     }
 
-    if ((bd1 == _avatar.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _avatar.get()))
+    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
+        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
     {
         //determine which of bd1 or bd2 is the wind object
         Vec2 windPos = Vec2();
@@ -1771,7 +1886,7 @@ void GameScene::endContact(b2Contact *contact)
         if (_gridManager->posToObjMap.count(p) > 0) {
             CULog("WIND FOUND!");
             std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _avatar->addWind(-(thing->getTrajectory()));
+            _localPlayer->addWind(-(thing->getTrajectory()));
         }
     }
 }
@@ -1831,6 +1946,26 @@ Vec2 GameScene::snapToGrid(const Vec2 &gridPos, Item item) {
     return Vec2(xGrid, yGrid);
 }
 
+
+/**
+ * This method takes a MessageEvent and processes it.
+ */
+void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+    Message message = event->getMesage();
+    switch (message) {
+            case Message::BUILD_READY:
+                // Increment number of players ready
+                _numReady += 1;
+                break;
+            
+            default:
+                // Handle unknown message types
+                std::cout << "Unknown message type received" << std::endl;
+                break;
+        }
+}
+
+
 void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
     Scene2::setSpriteBatch(batch);
     _ui.setSpriteBatch(batch);
@@ -1840,4 +1975,204 @@ void GameScene::render() {
     Scene2::render();
     _ui.render();
 }
+
+/**
+ * This method attempts to set all the collision filters for the networked players.
+ *
+ * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
+ */
+void GameScene::trySetFilters(){
+    // First, count how many players are in the world
+    // We only want to set filters once all players are represented in the world
+    int numPlayers = 0;
+    std::vector<std::shared_ptr<DudeModel>> playerList;
+    const auto& obstacles = _world->getObstacles();
+    
+    for (const auto& obstacle : obstacles) {
+        if (obstacle->getName() == "player"){
+            numPlayers += 1;
+            
+            // Try to cast to DudeModel and add to our list if successful
+            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            if (playerModel) {
+                playerList.push_back(playerModel);
+            } else {
+                CULog("Found player but casting failed");
+            }
+        }
+    }
+    
+    // Check if we have all players in world, then set their collision filters
+    if (numPlayers >= _network->getNumPlayers()){
+        // Loop through each obstacle
+        for (auto& player : playerList) {
+            player->setFilterData();
+        }
+        
+        _filtersSet = true;
+    }
+}
+
+void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+    const std::shared_ptr<scene2::SceneNode>& node) {
+
+    node->setPosition(obj->getPosition() * _scale);
+    _worldnode->addChild(node);
+
+    // Dynamic objects need constant updating
+    if (obj->getBodyType() == b2_dynamicBody) {
+        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+        obj->setListener([=,this](physics2::Obstacle* obs) {
+            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+            weak->setPosition(pos * _scale);
+            weak->setAngle(angle);
+        });
+    }
+}
+
+#pragma mark -
+#pragma mark Dude Factory
+
+/**
+ * Generate a pair of Obstacle and SceneNode using the given parameters
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
+    auto image = _assets->get<Texture>(DUDE_TEXTURE);
+
+    auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
+    
+
+    player->setShared(true);
+//    player->setFilterData();
+    
+    auto sprite = scene2::PolygonNode::allocWithTexture(image);
+    player->setDebugColor(DEBUG_COLOR);
+    
+    return std::make_pair(player, sprite);
+}
+
+/**
+ * Helper method for converting normal parameters into byte vectors used for syncing.
+ */
+std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+/**
+ * Generate a pair of Obstacle and SceneNode using serialized parameters.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float x = _deserializer.readFloat();
+    float y = _deserializer.readFloat();
+    Vec2 pos = Vec2(x,y);
+    float scale = _deserializer.readFloat();
+    return createObstacle(pos, scale);
+}
+
+#pragma mark -
+#pragma mark Platform Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, int jsonType, float scale){
+    
+    std::shared_ptr<Texture> image;
+    if (jsonType == static_cast<int>(JsonType::TILE)) {
+        image = _assets->get<Texture>(TILE_TEXTURE);
+    }
+    else if (jsonType == static_cast<int>(JsonType::PLATFORM)){
+        image = _assets->get<Texture>(PLATFORM_TILE_TEXTURE);
+    }
+    else{
+        image = _assets->get<Texture>(LOG_TEXTURE);
+    }
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    // Set the physics attributes
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    
+    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setDebugColor(DEBUG_COLOR);
+    box->setName("platform");
+    
+    box->setShared(true);
+
+    poly *= scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
+    return std::make_pair(box, sprite);
+}
+
+/**
+ * Helper method for converting normal parameters into byte vectors used for syncing.
+ */
+std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, string jsonType, float scale) {
+    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
+#pragma mark BEGIN SOLUTION
+    // Cast jsonType to an int for serializer
+    int type;
+    if (jsonType == "tile"){
+        type = static_cast<int>(JsonType::TILE);
+    }
+    else if (jsonType == "platform"){
+        type = static_cast<int>(JsonType::PLATFORM);
+    }
+    else{
+        type = static_cast<int>(JsonType::LOG);
+    }
+    
+    
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeSint32(type);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+#pragma mark END SOLUTION
+}
+
+/**
+ * Generate a pair of Obstacle and SceneNode using serialized parameters.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
+    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
+#pragma mark BEGIN SOLUTION
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float x = _deserializer.readFloat();
+    float y = _deserializer.readFloat();
+    Vec2 pos = Vec2(x,y);
+    x = _deserializer.readFloat();
+    y = _deserializer.readFloat();
+    Size size = Size(x,y);
+    int type = _deserializer.readSint32();
+    float scale = _deserializer.readFloat();
+    
+    return createObstacle(pos, size, type, scale);
+#pragma mark END SOLUTION
+}
+
+
 

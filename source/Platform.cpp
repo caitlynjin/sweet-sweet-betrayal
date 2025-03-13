@@ -74,6 +74,18 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     return true;
 }
 
+// Init method used for networked platforms
+bool Platform::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+    Size nsize = size;
+    // The long platform is shorter in height
+    _box = box;
+    _size = size;
+    _itemType = Item::PLATFORM;
+    _position = pos;
+    _size = size;
+    return true;
+}
+
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
     if (!init(pos, size)) return false;
     _moving = true;

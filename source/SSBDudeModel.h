@@ -241,7 +241,6 @@ public:
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
     virtual bool init(const Vec2& pos, const Size& size, float scale);
-
     
 #pragma mark -
 #pragma mark Static Constructors
@@ -530,6 +529,11 @@ public:
      * This is the primary method to override for custom physics objects.
      */
     void releaseFixtures() override;
+    
+    /**
+     Sets the filtering data for collisions.
+     */
+    void setFilterData();
     
     /**
      * Updates the object's physics state (NOT GAME LOGIC).

@@ -2,11 +2,22 @@
 #define __PF_APP_H__
 #include <cugl/cugl.h>
 #include "SSBGameScene.h"
+#include "MenuScene.h"
+#include "SSBInput.h"
+#include "NPClientScene.h"
+#include "NPHostScene.h"
+#include <cugl/physics2/distrib/CUNetEventController.h>
+
+
+using namespace cugl::physics2::distrib;
 
 /**
  * This class represents the application root for the platform demo.
  */
 class SSBApp : public cugl::Application {
+    enum Status {
+        LOAD, MENU, HOST, CLIENT, GAME
+    };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
     std::shared_ptr<cugl::graphics::SpriteBatch> _batch;
@@ -16,11 +27,25 @@ protected:
     // Player modes
     /** The primary controller for the game world */
     GameScene _gameplay;
+    
+    /**neworking scenes*/
+    MenuScene _mainmenu;
+    
+    ClientScene _joingame;
+        
+    HostScene _hostgame;
+    
+    /***/
+    PlatformInput _input;
     /** The controller for the loading screen */
     cugl::scene2::LoadingScene _loading;
     
+    std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
+    
     /** Whether or not we have finished loading all assets */
     bool _loaded;
+    
+    Status _status;
     
 public:
 #pragma mark Constructors
@@ -181,6 +206,34 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     virtual void postUpdate(float dt) override;
+    /**
+     * Inidividualized update method for the menu scene.
+     *
+     * This method keeps the primary {@link #update} from being a mess of switch
+     * statements. It also handles the transition logic from the menu scene.
+     *
+     * @param timestep  The amount of time (in seconds) since the last frame
+     */
+    void updateMenuScene(float timestep);
+    
+    /**
+     * Inidividualized update method for the host scene.
+     *
+     * This method keeps the primary {@link #update} from being a mess of switch
+     * statements. It also handles the transition logic from the host scene.
+     *
+     * @param timestep  The amount of time (in seconds) since the last frame
+     */
+    void updateHostScene(float timestep);
+    /**
+     * Inidividualized update method for the client scene.
+     *
+     * This method keeps the primary {@link #update} from being a mess of switch
+     * statements. It also handles the transition logic from the client scene.
+     *
+     * @param timestep  The amount of time (in seconds) since the last frame
+     */
+    void updateClientScene(float timestep);
     
     /**
      * The method called to draw the application to the screen.
@@ -192,5 +245,7 @@ public:
      * at all. The default implmentation does nothing.
      */
     virtual void draw() override;
+    
+    
 };
 #endif /* __PF_APP_H__ */

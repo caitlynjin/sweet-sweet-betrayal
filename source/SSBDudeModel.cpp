@@ -105,6 +105,8 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         setDensity(DUDE_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
+        setName("player");
+        setDebugColor(Color4::YELLOW);
 
         // Gameplay attributes
         _isGrounded = false;
@@ -118,6 +120,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         _glideDelay = 0.2;
         _glideTimer = 0;
         _windvel = Vec2();
+        
         return true;
     }
     return false;
@@ -139,9 +142,25 @@ void DudeModel::createFixtures()
     }
 
     CapsuleObstacle::createFixtures();
+    
+    // Add collision filtering to the main body fixture first
+       if (getBody()) {
+           b2Fixture* mainFixture = getBody()->GetFixtureList();
+           if (mainFixture) {
+               b2Filter filter;
+               filter.categoryBits = CATEGORY_PLAYER;
+               filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER;
+               mainFixture->SetFilterData(filter);
+           }
+       }
+    
     b2FixtureDef sensorDef;
     sensorDef.density = DUDE_DENSITY;
     sensorDef.isSensor = true;
+    
+    // Apply the same filter data to the sensor
+    sensorDef.filter.categoryBits = CATEGORY_PLAYER;
+    sensorDef.filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER;
 
     // Sensor dimensions
     b2Vec2 corners[4];
@@ -252,6 +271,10 @@ void DudeModel::applyForce()
             // Damping factor in the air. If we are gliding, ZERO FRICTION
             b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
             if (!_isGliding) {
+                if (!_body){
+                    CULog("NO BODYYY");
+                    return;
+                }
                 _body->ApplyForce(force, _body->GetPosition(), true);
             }   
         }
@@ -419,4 +442,23 @@ void DudeModel::resetDebug()
     _sensorNode->setColor(DEBUG_COLOR);
     _sensorNode->setPosition(Vec2(_debug->getContentSize().width / 2.0f, 0.0f));
     _debug->addChild(_sensorNode);
+}
+
+void DudeModel::setFilterData() {
+    // Get the body fixtures
+    b2Fixture* fixture = getBody()->GetFixtureList();
+    
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_PLAYER;
+    
+    // Set what this object collides with (everything EXCEPT other players)
+//    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_DEFAULT;
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER;
+    
+    // Apply the filter to all fixtures
+    while (fixture != nullptr) {
+        fixture->SetFilterData(filter);
+        fixture = fixture->GetNext();
+    }
 }

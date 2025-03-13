@@ -60,7 +60,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     }
 
     // Start in building mode
-    _readypressed = false;
+    _isReady = false;
     _rightpressed = false;
     _leftpressed = false;
 
@@ -111,13 +111,16 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down) {
-            _readypressed = true;
-            _readyButton->setVisible(false);
-            _rightButton->setVisible(false);
-            _leftButton->setVisible(false);
+            if (!_isReady){
+//                _readypressed = true;
+                setReadyDone(true);
+            }
+//            _readyButton->setVisible(false);
+//            _rightButton->setVisible(false);
+//            _leftButton->setVisible(false);
         }
         else{
-            _readypressed = false;
+//            _readypressed = false;
         }
     });
 
@@ -243,12 +246,6 @@ void UIScene::reset(){
     _leftButton->setVisible(true);
 }
 
-/**
-* @return true if the ready button was pressed
-*/
-bool UIScene::getReadyPressed() {
-    return _readypressed;
-}
 
 /**
 * @return true if the right button was pressed
@@ -267,10 +264,10 @@ bool UIScene::getLeftPressed() {
 /**
 * Makes the buttons in the building mode visible
 */
-void UIScene::visibleButtons() {
-    _readyButton->setVisible(true);
-    _rightButton->setVisible(true);
-    _leftButton->setVisible(true);
+void UIScene::visibleButtons(bool isVisible) {
+    _readyButton->setVisible(isVisible);
+    _rightButton->setVisible(isVisible);
+    _leftButton->setVisible(isVisible);
 }
 
 /**
@@ -281,6 +278,21 @@ void UIScene::visibleButtons() {
  */
 void UIScene::updateRound(int cur, int total) {
     _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
+}
+
+void UIScene::setReadyDone(bool isDone){
+    if (isDone){
+        _readyButton->setColor(Color4::GRAY);
+        _isReady = true;
+    }
+    else{
+        _readyButton->setColor(Color4::WHITE);
+        _isReady = false;
+    }
+}
+
+bool UIScene::getReadyDone(){
+    return _isReady;
 }
 
 

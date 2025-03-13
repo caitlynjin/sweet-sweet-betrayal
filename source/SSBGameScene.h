@@ -20,11 +20,118 @@
 #include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
+#include "MessageEvent.h"
 #include "UIScene.h"
 //#include <cmath>
 
 using namespace cugl;
 using namespace Constants;
+using namespace cugl::physics2::distrib;
+
+/**
+ * The factory class for player/dude model.
+ *
+ * This class is used to support automatically syncing newly added players mid-simulation.
+ * Players added throught the ObstacleFactory class from one client will be added to all
+ * clients in the simulations.
+ */
+
+class DudeFactory : public ObstacleFactory {
+public:
+    /** Pointer to the AssetManager for texture access, etc. */
+    std::shared_ptr<cugl::AssetManager> _assets;
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+
+    /**
+     * Allocates a new instance of the factory using the given AssetManager.
+     */
+    static std::shared_ptr<DudeFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<DudeFactory>();
+        f->init(assets);
+        return f;
+    };
+
+    /**
+     * Initializes empty factories using the given AssetManager.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using the given parameters
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale);
+
+    /**
+     * Helper method for converting normal parameters into byte vectors used for syncing.
+     */
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using serialized parameters.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
+
+/**
+ * The factory class for trap objects.
+ *
+ * This class is used to support automatically syncing newly added obstacle mid-simulation.
+ * Obstacles added throught the ObstacleFactory class from one client will be added to all
+ * clients in the simulations.
+ */
+class PlatformFactory : public ObstacleFactory {
+    
+    enum class JsonType {
+        TILE,
+        PLATFORM,
+        LOG
+    };
+    
+public:
+    /** Pointer to the AssetManager for texture access, etc. */
+    std::shared_ptr<cugl::AssetManager> _assets;
+
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+
+    /**
+     * Allocates a new instance of the factory using the given AssetManager.
+     */
+    static std::shared_ptr<PlatformFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<PlatformFactory>();
+        f->init(assets);
+        return f;
+    };
+
+    /**
+     * Initializes empty factories using the given AssetManager.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using the given parameters
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, int jsonType, float scale);
+
+    /**
+     * Helper method for converting normal parameters into byte vectors used for syncing.
+     */
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, string jsonType, float scale);
+    
+    /**
+     * Generate a pair of Obstacle and SceneNode using serialized parameters.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
 
 /**
  * This class is the primary gameplay constroller for the demo.
@@ -90,7 +197,7 @@ protected:
     /** The primary controller for the UI */
     UIScene _ui;
     /** The Box2D world */
-    std::shared_ptr<physics2::ObstacleWorld> _world;
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
     /** The offset from the world */
@@ -99,8 +206,8 @@ protected:
     // Physics objects for the game
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
-    /** Reference to the player avatar */
-    std::shared_ptr<DudeModel>              _avatar;
+    /** Reference to the local player */
+    std::shared_ptr<DudeModel> _localPlayer;
 
     std::shared_ptr<Platform> _platformTest;
     
@@ -159,6 +266,33 @@ protected:
 
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
+    
+    
+#pragma mark Networking Variables
+    /** The network controller */
+    std::shared_ptr<NetEventController> _network;
+    /** The number of players ready to proceed from BuildPhase */
+    float _numReady = 0;
+    /** Whether the player is the host */
+    bool _isHost;
+    /** Whether the message has been sent */
+    bool _readyMessageSent = false;
+    /** The player's ID */
+    int _localID;
+    /** The other player's ID */
+    int _otherID;
+    /** Whether we have set collision filters for all players */
+    bool _filtersSet = false;
+    
+    /** Variables for Platform Factory */
+    std::shared_ptr<PlatformFactory> _platFact;
+    Uint32 _platFactId;
+    
+    
+    std::shared_ptr<DudeFactory> _dudeFact;
+    Uint32 _dudeFactID;
+    
+    
 private:
     /** Initial width */
     float _growingWallWidth = 1.0f;
@@ -211,6 +345,15 @@ private:
      * @param The platform being created (that has not yet been added to the physics world).
      */
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
+    
+    /**
+     * Creates a networked platform.
+     *
+     * @return the platform being created
+     *
+     * @param The platform being created (that has not yet been added to the physics world).
+     */
+    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, string jsonType);
 
     /**
      * Creates a new windobstacle
@@ -306,7 +449,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetEventController> network, bool isHost);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -345,7 +488,16 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-              const Rect& rect, const Vec2& gravity);
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetEventController> network, bool isHost);
+
+#pragma mark -
+#pragma mark Networking/Player
+    
+    /**
+     * Initializes the players.
+     */
+    void initializePlayers();
+    
 
 #pragma mark -
 #pragma mark Build Mode
@@ -590,6 +742,44 @@ public:
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+    
+    /**
+     * Adds the physics object to the physics world and loosely couples it to the scene graph
+     *
+     * There are two ways to link a physics object to a scene graph node on the
+     * screen.  One way is to make a subclass of a physics object.
+     * The other is to use callback functions to loosely couple
+     * the two.  This function is an example of the latter.
+     * the two.  This function is an example of the latter.
+     *
+     * param obj    The physics object to add
+     * param node   The scene graph node to attach it to
+     */
+    void addInitObstacle(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+                     const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
+    /**
+     * This method links a scene node to the obstacle.
+     *
+     * This method adds a listener so that the sceneNode will move along with the obstacle.
+     */
+    void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
+        const std::shared_ptr<cugl::scene2::SceneNode>& node);
+    
+    
+    /**
+     * This method attempts to set all the collision filters for the networked players.
+     *
+     * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
+     */
+    void trySetFilters();
+    
   };
+
+
 
 #endif /* __PF_GAME_SCENE_H__ */
