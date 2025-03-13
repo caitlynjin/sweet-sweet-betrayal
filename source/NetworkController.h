@@ -239,22 +239,10 @@ public:
      */
     void setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
         _world = world;
+        
+        // Setup factories
         _platFact = PlatformFactory::alloc(_assets);
-        if (_platFact != nullptr) {
-            CULog("Platform factory allocated successfully");
-            if (_network != nullptr){
-                if (_network->getPhysController() != nullptr) {
-                    _platFactId = _network->getPhysController()->attachFactory(_platFact);
-                }
-                else {
-                    CULog("Network Physics Controller is null");
-                }
-            }
-            else{
-                CULog("Network is null");
-            }
-        }
-
+        _platFactId = _network->getPhysController()->attachFactory(_platFact);
 
         _dudeFact = DudeFactory::alloc(_assets);
         _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);

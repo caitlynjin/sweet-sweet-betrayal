@@ -204,10 +204,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _networkController->setObjects(_objects);
     _networkController->setWorld(_world);
    
-    
-    
-    
-    
 
     // Start in building mode
     _buildingMode = true;
@@ -252,12 +248,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _losenode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
-    
-//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-//    _roundsnode->setForeground(INFO_COLOR);
-//    _roundsnode->setVisible(true);
     
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
@@ -323,11 +313,9 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
-//    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_scrollpane);
-//    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
     _ui.addChild(_jumpbutton);
     _ui.addChild(_glidebutton);
@@ -355,19 +343,15 @@ void GameScene::dispose()
 {
     if (_active)
     {
-        // Dispose all controllers
-        _networkController->dispose();
-        
+
         _input.dispose();
         _world = nullptr;
         _worldnode = nullptr;
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
-//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        //_readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
@@ -501,40 +485,6 @@ void GameScene::reset()
     populate();
 }
 
-///**
-// * Creates a networked platform.
-// *
-// * @return the platform being created
-// *
-// * @param The platform being created (that has not yet been added to the physics world).
-// */
-//std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, string jsonType){
-//    
-//    //Use Platform Factory to create the platform boxObstacle and sprite
-//    auto params = _platFact->serializeParams(pos + size/2, size, jsonType, _scale);
-//    // pair holds the boxObstacle and sprite to be used for the platform
-//    // Already added to _world after this call
-//    auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
-//
-//    // Cast the obstacle to a BoxObstacle
-//    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-//
-//    
-//    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-//    // Check if the cast was successful
-//    if (boxObstacle) {
-//        // Assign the boxObstacle that was made to the platform
-//        
-//        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, boxObstacle);
-//        _objects.push_back(plat);
-////                pair.first->setLinearVelocity(2, 0);
-//        return plat;
-//    } else {
-//        // Handle case where the obstacle is not a BoxObstacle
-//        CULog("Error: Expected a BoxObstacle but got a different type");
-//        return nullptr;
-//    }
-//}
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
@@ -801,64 +751,7 @@ void GameScene::populate()
     _goalDoor->setDebugColor(DEBUG_COLOR);
     addObstacle(_goalDoor, sprite);
 
-//#pragma mark : Walls
-    // All walls and platforms share the same texture
-//    image = _assets->get<Texture>(TILE_TEXTURE);
-//    std::string wname = "wall";
-//    for (int ii = 0; ii < WALL_COUNT; ii++) {
-//        std::shared_ptr<physics2::PolygonObstacle> wallobj;
-//
-//        Poly2 wall(reinterpret_cast<Vec2*>(WALL[ii]),WALL_VERTS/2);
-//        // Call this on a polygon to get a solid shape
-//        EarclipTriangulator triangulator;
-//        triangulator.set(wall.vertices);
-//        triangulator.calculate();
-//        wall.setIndices(triangulator.getTriangulation());
-//        triangulator.clear();
-//
-//        wallobj = physics2::PolygonObstacle::allocWithAnchor(wall,Vec2::ANCHOR_CENTER);
-//        // You cannot add constant "".  Must stringify
-//        wallobj->setName(std::string(WALL_NAME)+strtool::to_string(ii));
-//        wallobj->setName(wname);
-//
-//        // Set the physics attributes
-//        wallobj->setBodyType(b2_staticBody);
-//        wallobj->setDensity(BASIC_DENSITY);
-//        wallobj->setFriction(BASIC_FRICTION);
-//        wallobj->setRestitution(BASIC_RESTITUTION);
-//        wallobj->setDebugColor(DEBUG_COLOR);
-//
-//        wall *= _scale;
-//        sprite = scene2::PolygonNode::allocWithTexture(image,wall);
-//        addObstacle(wallobj,sprite,1);  // All walls share the same texture
-//    }
 
-// #pragma mark : Platforms
-//     for (int ii = 0; ii < PLATFORM_COUNT; ii++) {
-//         std::shared_ptr<physics2::PolygonObstacle> platobj;
-//         Poly2 platform(reinterpret_cast<Vec2*>(PLATFORMS[ii]),4);
-//
-//         EarclipTriangulator triangulator;
-//         triangulator.set(platform.vertices);
-//         triangulator.calculate();
-//         platform.setIndices(triangulator.getTriangulation());
-//         triangulator.clear();
-//
-//         platobj = physics2::PolygonObstacle::allocWithAnchor(platform,Vec2::ANCHOR_CENTER);
-//         // You cannot add constant "".  Must stringify
-//         platobj->setName(std::string(PLATFORM_NAME)+strtool::to_string(ii));
-//
-//         // Set the physics attributes
-//         platobj->setBodyType(b2_staticBody);
-//         platobj->setDensity(BASIC_DENSITY);
-//         platobj->setFriction(BASIC_FRICTION);
-//         platobj->setRestitution(BASIC_RESTITUTION);
-//         platobj->setDebugColor(DEBUG_COLOR);
-//
-//         platform *= _scale;
-//         sprite = scene2::PolygonNode::allocWithTexture(image,platform);
-//         addObstacle(platobj,sprite,1);
-//     }
 #pragma mark : Wind
 //    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
@@ -897,13 +790,6 @@ void GameScene::populate()
         pos += Vec2(2, 0);
     }
     
-    
-    
-    //TODO: Move to NetworkController
-//    auto params = _dudeFact->serializeParams(pos, _scale);
-//    auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
-//    _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
-    
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
@@ -914,48 +800,12 @@ void GameScene::populate()
     
     _localPlayer->setDebugScene(_debugnode);
     
-    
-    
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_networkController->getIsHost()){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
-    
-    
-    
-    
-    // Create a networked platform for test
-//    pos = DUDE_POS;
-//    if (_isHost){
-//        createPlatformNetworked(pos += Vec2(3, 2), Size(3,1), false);
-//    }
-    
-    
-    
-    
 
 #pragma mark : Spikes
-    /*createSpike(Vec2(13, 1), Size(1, 1), _scale);
-    createSpike(Vec2(14, 1), Size(1, 1), _scale);
-    createSpike(Vec2(8, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(9, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(10, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(17, 4), Size(1, 1), _scale);
-    createSpike(Vec2(18, 4), Size(1, 1), _scale);
-    createSpike(Vec2(16, 3), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(90));
-    createSpike(Vec2(3, 8), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(180));
-    createSpike(Vec2(5, 5), Size(1, 1), _scale, CU_MATH_DEG_TO_RAD(270));
-    
-#pragma mark : Walls
-    createPlatform(Vec2(0, 0), Size(6, 1), true);
-    createPlatform(Vec2(13, 0), Size(7, 1), true);
-    createPlatform(Vec2(19, 1), Size(1, 9), true);
-    createPlatform(Vec2(0, 1), Size(1, 9), true);
-    createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(17, 3), Size(2, 1), true);
-    createPlatform(Vec2(1, 9), Size(18, 1), true);
-    createPlatform(Vec2(3, 5), Size(2, 1), true);*/
 
     //level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     
@@ -1059,17 +909,12 @@ void GameScene::preUpdate(float dt)
     
     
     _input.update(dt);
-    
-    // TODO: DELETE THIS IF STATEMENT TO RE ENABLE BUILD
-//    if (_buildingMode){
-//        setBuildingMode(false);
-//    }
+
     
     // Process Networking
     if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
-//        _readyButton->setVisible(false);
         _networkController->setNumReady(0);
     }
     
@@ -1368,12 +1213,6 @@ void GameScene::fixedUpdate(float step)
     // Update all controller
     _networkController->fixedUpdate(step);
     
-//    _world->update(step);
-
-//    if (!_buildingMode){
-//        _world->update(step);
-//    }
-    
     _ui.fixedUpdate(step);
 
     
@@ -1382,10 +1221,7 @@ void GameScene::fixedUpdate(float step)
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             processMessageEvent(mEvent);
         }
-
     }
-    
-    
 
 }
 
@@ -1566,15 +1402,8 @@ void GameScene::nextRound(bool reachedGoal) {
 
     
     // Return to building mode
-    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
-    
-    // TODO: UNCOMMENT THIS TO RE ENABLE BUILD MODE
     setBuildingMode(true);
-
-//    _ui.visibleButtons(true);
-    
-    
 }
 
 /**
