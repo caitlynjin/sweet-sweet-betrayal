@@ -110,9 +110,11 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
-        if (down && !_isReady) {
-            _readypressed = true;
-            setReadyDone(true);
+        if (down) {
+            if (!_isReady){
+                _readypressed = true;
+                setReadyDone(true);
+            }
 //            _readyButton->setVisible(false);
 //            _rightButton->setVisible(false);
 //            _leftButton->setVisible(false);
