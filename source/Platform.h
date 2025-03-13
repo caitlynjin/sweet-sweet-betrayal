@@ -69,7 +69,6 @@ public:
     }
 
 
-//    bool init(const Vec2 pos, const Size size, bool wall);
     
     // New init method for networked platforms
     bool init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box);
