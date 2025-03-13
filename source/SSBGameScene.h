@@ -85,6 +85,13 @@ public:
  * clients in the simulations.
  */
 class PlatformFactory : public ObstacleFactory {
+    
+    enum class JsonType {
+        TILE,
+        PLATFORM,
+        LOG
+    };
+    
 public:
     /** Pointer to the AssetManager for texture access, etc. */
     std::shared_ptr<cugl::AssetManager> _assets;
@@ -113,12 +120,12 @@ public:
     /**
      * Generate a pair of Obstacle and SceneNode using the given parameters
      */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, bool isWall, float scale);
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, int jsonType, float scale);
 
     /**
      * Helper method for converting normal parameters into byte vectors used for syncing.
      */
-    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, bool isWall, float scale);
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, string jsonType, float scale);
     
     /**
      * Generate a pair of Obstacle and SceneNode using serialized parameters.
@@ -346,7 +353,7 @@ private:
      *
      * @param The platform being created (that has not yet been added to the physics world).
      */
-    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, bool wall);
+    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, string jsonType);
 
     /**
      * Creates a new windobstacle

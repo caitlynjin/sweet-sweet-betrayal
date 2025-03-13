@@ -46,9 +46,6 @@ protected:
 
     /** Reference to the rounds message label */
     std::shared_ptr<scene2::Label> _roundsnode;
-
-    /** Whether ready button was pressed */
-    bool _readypressed;
     
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady;
@@ -102,11 +99,6 @@ public:
     bool init(const std::shared_ptr<AssetManager>& assets);
 
     /**
-     * @return true if the ready button was pressed
-     */
-    bool getReadyPressed();
-
-    /**
      * @return true if the right button was pressed
      */
     bool getRightPressed();
@@ -115,6 +107,12 @@ public:
      * @return true if the left button was pressed
      */
     bool getLeftPressed();
+    
+    
+    /**
+     * @return true if the ready button was pressed
+     */
+    bool getReadyDone();
 
     /**
      * Makes the buttons in the building mode visible

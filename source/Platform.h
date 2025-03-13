@@ -57,9 +57,9 @@ public:
         return (result->init(position + size/2, size) ? result : nullptr);
     }
     
-    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, bool wall, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position, size, wall, box) ? result : nullptr);
+        return (result->init(position, size, box) ? result : nullptr);
     }
   
     // New alloc method for moving platform.
@@ -72,7 +72,7 @@ public:
 //    bool init(const Vec2 pos, const Size size, bool wall);
     
     // New init method for networked platforms
-    bool init(const Vec2 pos, const Size size, bool wall, std::shared_ptr<cugl::physics2::BoxObstacle> box);
+    bool init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
     bool init(const Vec2 pos, const Size size);
 

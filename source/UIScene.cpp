@@ -60,7 +60,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     }
 
     // Start in building mode
-    _readypressed = false;
+    _isReady = false;
     _rightpressed = false;
     _leftpressed = false;
 
@@ -112,7 +112,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down) {
             if (!_isReady){
-                _readypressed = true;
+//                _readypressed = true;
                 setReadyDone(true);
             }
 //            _readyButton->setVisible(false);
@@ -120,7 +120,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
 //            _leftButton->setVisible(false);
         }
         else{
-            _readypressed = false;
+//            _readypressed = false;
         }
     });
 
@@ -246,12 +246,6 @@ void UIScene::reset(){
     _leftButton->setVisible(true);
 }
 
-/**
-* @return true if the ready button was pressed
-*/
-bool UIScene::getReadyPressed() {
-    return _readypressed;
-}
 
 /**
 * @return true if the right button was pressed
@@ -295,6 +289,10 @@ void UIScene::setReadyDone(bool isDone){
         _readyButton->setColor(Color4::WHITE);
         _isReady = false;
     }
+}
+
+bool UIScene::getReadyDone(){
+    return _isReady;
 }
 
 
