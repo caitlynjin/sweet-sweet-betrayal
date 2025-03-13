@@ -730,15 +730,6 @@ public:
      * @param scale             The screen to world scale
      * @param offset           The offset of the scene to the world
      */
-
-    Vec2 convertScreenToGrid(const Vec2& screenPos, float scale, const Vec2& offset);
-    
-    /**
-     * This method takes a MessageEvent and processes it.
-     */
-    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
-
-
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
     /**
@@ -751,6 +742,10 @@ public:
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
 
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
     
     /**
      * Adds the physics object to the physics world and loosely couples it to the scene graph
