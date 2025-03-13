@@ -20,7 +20,6 @@
 
 
 using namespace cugl::physics2::distrib;
-//using namespace cugl;
 
 /**
  * This class provides the interface to join an existing game.
