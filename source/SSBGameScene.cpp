@@ -99,16 +99,18 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 
 #pragma mark -
 #pragma mark Asset Constants
-/** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "gray"
-/** The key for the platform texture in the asset manager*/
-#define PLATFORM_TEXTURE   "platform"
+/** The key for the tile texture in the asset manager*/
+#define TILE_TEXTURE   "tile"
+/** The key for the platform tile texture in the asset manager */
+#define PLATFORM_TILE_TEXTURE   "platform_tile"
 /** The key for the 3x0.5 platform texture in the asset manager */
-#define PLATFORM_LONG_TEXTURE   "platform_long"
+#define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
-#define MOVING_TEXTURE   "moving"
+#define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
 /** The key for the spike texture in the asset manager */
-#define SPIKE_TEXTURE "spike"
+#define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -117,8 +119,6 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 #define TREASURE_TEXTURE    "treasure"
 /** The name of a wall (for object identification) */
 #define WALL_NAME "wall"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 /** Name of the wind object(for identification)*/
 #define WIND_NAME "gust"
 /** The name of a platform (for object identification) */
@@ -489,7 +489,7 @@ void GameScene::dispose()
 void GameScene::initInventory()
 {
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {PLATFORM_LONG_TEXTURE, MOVING_TEXTURE, WIND_TEXTURE};
+    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
 
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
@@ -541,10 +541,10 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
 
     switch (item) {
         case (PLATFORM): {
-            return createPlatformNetworked(gridPos, Size(3,1), false);
+            return createPlatformNetworked(gridPos, Size(3,1), "log");
         }
         case (MOVING_PLATFORM):
-            return createMovingPlatform(gridPos, Size(1, 1), gridPos + Vec2(3, 0), 1);
+            return createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
             return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
@@ -606,10 +606,10 @@ void GameScene::reset()
  *
  * @param The platform being created (that has not yet been added to the physics world).
  */
-std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, bool wall){
+std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, string jsonType){
     
     //Use Platform Factory to create the platform boxObstacle and sprite
-    auto params = _platFact->serializeParams(pos + size/2, size, wall, _scale);
+    auto params = _platFact->serializeParams(pos + size/2, size, jsonType, _scale);
     // pair holds the boxObstacle and sprite to be used for the platform
     // Already added to _world after this call
     auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
@@ -617,10 +617,13 @@ std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, 
     // Cast the obstacle to a BoxObstacle
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
 
+    
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
     // Check if the cast was successful
     if (boxObstacle) {
         // Assign the boxObstacle that was made to the platform
-        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall, boxObstacle);
+        
+        std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, boxObstacle);
         _objects.push_back(plat);
 //                pair.first->setLinearVelocity(2, 0);
         return plat;
@@ -633,11 +636,12 @@ std::shared_ptr<Object> GameScene::createPlatformNetworked(Vec2 pos, Size size, 
 
 std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
-    if (plat->getJsonType() == "wall") {
-        image = _assets->get<Texture>(PLATFORM_TEXTURE);
-    }
-    else {
-        image = _assets->get<Texture>(PLATFORM_LONG_TEXTURE);
+    if (plat->getJsonType() == "tile") {
+        image = _assets->get<Texture>(TILE_TEXTURE);
+    } else if (plat->getJsonType() == "platform") {
+        image = _assets->get<Texture>(PLATFORM_TILE_TEXTURE);
+    } else {
+        image = _assets->get<Texture>(LOG_TEXTURE);
     }
 
     // Removes the black lines that display from wrapping
@@ -680,10 +684,6 @@ std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat
  */
 std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
 
-
-
-//    std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, wall);
-
     std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
 
     return createPlatform(plat);
@@ -699,26 +699,30 @@ std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string js
  * @param speed The speed at which the platform moves.
  */
 std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(MOVING_TEXTURE);
-    
-    std::shared_ptr<Platform> plat = Platform::allocMoving(pos + size/2, size, pos + size/2, end, speed);
-    Poly2 wall(Rect(pos.x + size.getIWidth() / 2, pos.y + size.getIHeight() / 2, size.getIWidth(), size.getIHeight()));
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
+    std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
-    triangulator.set(wall.vertices);
+    triangulator.set(poly.vertices);
     triangulator.calculate();
-    wall.setIndices(triangulator.getTriangulation());
+    poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
 
     plat->getObstacle()->setDensity(BASIC_DENSITY);
     plat->getObstacle()->setFriction(BASIC_FRICTION);
     plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
     plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-
     plat->getObstacle()->setName("movingPlatform");
 
-    wall *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, wall);
+    poly *= _scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _objects.push_back(plat);
@@ -786,7 +790,7 @@ std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale,
 
 std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
 {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
 
     // Set the physics attributes
     spk->getObstacle()->setBodyType(b2_staticBody);
@@ -897,7 +901,7 @@ void GameScene::populate()
 
 //#pragma mark : Walls
     // All walls and platforms share the same texture
-//    image = _assets->get<Texture>(EARTH_TEXTURE);
+//    image = _assets->get<Texture>(TILE_TEXTURE);
 //    std::string wname = "wall";
 //    for (int ii = 0; ii < WALL_COUNT; ii++) {
 //        std::shared_ptr<physics2::PolygonObstacle> wallobj;
@@ -1397,11 +1401,11 @@ void GameScene::preUpdate(float dt)
     }
 
     _ui.preUpdate(dt);
-    if (_ui.getReadyPressed() && !_readyMessageSent){
+    if (_ui.getReadyDone() && !_readyMessageSent){
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
-    } else if (!_ui.getReadyPressed()) {
+    } else if (!_ui.getReadyDone()) {
         _readyMessageSent = false;
     }
     if (_ui.getRightPressed() && _buildingMode){
@@ -2076,14 +2080,17 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 #pragma mark -
 #pragma mark Platform Factory
 
-std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, bool isWall, float scale){
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(Vec2 pos, Size size, int jsonType, float scale){
     
     std::shared_ptr<Texture> image;
-    if (isWall) {
-        image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    if (jsonType == static_cast<int>(JsonType::TILE)) {
+        image = _assets->get<Texture>(TILE_TEXTURE);
     }
-    else {
-        image = _assets->get<Texture>("platform_long");
+    else if (jsonType == static_cast<int>(JsonType::PLATFORM)){
+        image = _assets->get<Texture>(PLATFORM_TILE_TEXTURE);
+    }
+    else{
+        image = _assets->get<Texture>(LOG_TEXTURE);
     }
 
     // Removes the black lines that display from wrapping
@@ -2099,7 +2106,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     triangulator.clear();
 
     // Set the physics attributes
-    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, isWall ? size.height : size.height/7));
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     
     box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     box->setDensity(BASIC_DENSITY);
@@ -2119,15 +2126,28 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 /**
  * Helper method for converting normal parameters into byte vectors used for syncing.
  */
-std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, bool isWall, float scale) {
+std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, string jsonType, float scale) {
     // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
 #pragma mark BEGIN SOLUTION
+    // Cast jsonType to an int for serializer
+    int type;
+    if (jsonType == "tile"){
+        type = static_cast<int>(JsonType::TILE);
+    }
+    else if (jsonType == "platform"){
+        type = static_cast<int>(JsonType::PLATFORM);
+    }
+    else{
+        type = static_cast<int>(JsonType::LOG);
+    }
+    
+    
     _serializer.reset();
     _serializer.writeFloat(pos.x);
     _serializer.writeFloat(pos.y);
     _serializer.writeFloat(size.width);
     _serializer.writeFloat(size.height);
-    _serializer.writeBool(isWall);
+    _serializer.writeSint32(type);
     _serializer.writeFloat(scale);
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 #pragma mark END SOLUTION
@@ -2147,10 +2167,10 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     x = _deserializer.readFloat();
     y = _deserializer.readFloat();
     Size size = Size(x,y);
-    bool isWall = _deserializer.readBool();
+    int type = _deserializer.readSint32();
     float scale = _deserializer.readFloat();
     
-    return createObstacle(pos, size, isWall, scale);
+    return createObstacle(pos, size, type, scale);
 #pragma mark END SOLUTION
 }
 

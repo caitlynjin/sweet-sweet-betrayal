@@ -13,8 +13,8 @@ using namespace Constants;
 
 #pragma mark -
 #pragma mark Asset Constants
-/** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "earth"
+/** The key for the 1x1 tile texture in the asset manager */
+#define TILE_TEXTURE   "tile"
 
 
 #pragma mark -
@@ -48,7 +48,7 @@ void GridManager::initGrid() {
     // Initialize sprite node
     Vec2 cellPos(0, 0);
 
-    const std::shared_ptr<Texture> image = _assets->get<Texture>(PLATFORM_TEXTURE);
+    const std::shared_ptr<Texture> image = _assets->get<Texture>(TILE_TEXTURE);
     float textureWidth = image->getWidth();
     float textureHeight = image->getHeight();
 
