@@ -52,6 +52,8 @@ protected:
     
     /** The network configuration */
     cugl::netcode::NetcodeConfig _config;
+
+    /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
     
     cugl::Timestamp _pingTimer;

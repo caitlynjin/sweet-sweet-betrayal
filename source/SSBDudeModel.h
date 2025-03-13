@@ -45,13 +45,14 @@
 #define __PF_DUDE_MODEL_H__
 #include <cugl/cugl.h>
 #include "Treasure.h"
+#include "Constants.h"
 
 using namespace cugl;
+using namespace Constants;
 
 #pragma mark -
 #pragma mark Drawing Constants
-/** The texture for the character avatar */
-#define DUDE_TEXTURE    "dude"
+
 /** Identifier to allow us to track the sensor in ContactListener */
 #define SENSOR_NAME     "dudesensor"
 

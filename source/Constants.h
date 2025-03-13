@@ -10,23 +10,150 @@
 #include "string"
 
 
+#pragma mark -
+#pragma mark Asset Constants
+
+
+#pragma mark -
+#pragma mark Identification Constants
+/** The name of a wall (for object identification) */
+#define WALL_NAME "wall"
+/** Name of the wind object(for identification)*/
+#define WIND_NAME "gust"
+/** The name of a platform (for object identification) */
+#define PLATFORM_NAME "platform"
+
+
+#pragma mark -
+#pragma mark Object Textures
+/** The texture for the character avatar */
+#define DUDE_TEXTURE    "dude"
+/** The key for the tile texture in the asset manager*/
+#define TILE_TEXTURE   "tile"
+/** The key for the platform tile texture in the asset manager */
+#define PLATFORM_TILE_TEXTURE   "platform_tile"
+/** The key for the 3x0.5 platform texture in the asset manager */
+#define LOG_TEXTURE   "log_obstacle"
+/** The key for the moving platform texture in the asset manager*/
+#define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the wind texture*/
+#define WIND_TEXTURE "up"
+/** The key for the spike texture in the asset manager */
+#define SPIKE_TILE_TEXTURE "spike_tile"
+/** The key for the win door texture in the asset manager */
+#define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
-/** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "gray"
+/** The key for the treasure texture in the asset manager */
+#define TREASURE_TEXTURE    "treasure"
 /** The key for the platform texture in the asset manager*/
 #define PLATFORM_TEXTURE   "platform"
 /** The key for the 3x0.5 platform texture in the asset manager */
 #define PLATFORM_LONG_TEXTURE   "platform_long"
 /** The key for the moving platform texture in the asset manager*/
 #define MOVING_TEXTURE   "moving"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 
-// Collision filtering categories
+
+#pragma mark -
+#pragma mark UI Textures
+/** The image for the left dpad/joystick */
+#define LEFT_IMAGE      "dpad_left"
+/** The image for the empty gem */
+#define EMPTY_IMAGE      "gemEmpty"
+/** The image for the full gem */
+#define FULL_IMAGE      "gemFull"
+/** The image for the right dpad/joystick */
+#define RIGHT_IMAGE "dpad_right"
+/** The image for the ready button */
+#define READY_BUTTON "ready_button"
+/** The image for the jump button */
+#define JUMP_BUTTON "jump-button"
+/** The image for the glide button */
+#define GLIDE_BUTTON "glide-button"
+
+
+#pragma mark -
+#pragma mark Text Constants
+/** The message for winning the game */
+#define WIN_MESSAGE "VICTORY!"
+/** The color of the win message */
+#define WIN_COLOR Color4::YELLOW
+/** The message for losing the game */
+#define LOSE_MESSAGE "FAILURE!"
+/** The color of the lose message */
+#define LOSE_COLOR      Color4::RED
+/** The color of the info labels */
+#define INFO_COLOR      Color4::WHITE
+// Fonts
+/** The font for victory/failure messages */
+#define MESSAGE_FONT    "retro"
+/** The font for Round and Gem info */
+#define INFO_FONT    "marker"
+
+
+#pragma mark -
+#pragma mark Environment Textures
+/** The key for the background texture in the asset manager */
+#define BACKGROUND_TEXTURE    "background"
+/** The key for the earth texture in the asset manager */
+#define EARTH_TEXTURE   "gray"
+
+
+#pragma mark -
+#pragma mark Physics Constants
+/** The new heavier gravity for this world (so it is not so floaty) */
+#define DEFAULT_GRAVITY -28.9f
+/** The density for most physics objects */
+#define BASIC_DENSITY 0.0f
+/** The density for a bullet */
+#define HEAVY_DENSITY 10.0f
+/** Friction of most platforms */
+#define BASIC_FRICTION 0.4f
+/** The restitution for all physics objects */
+#define BASIC_RESTITUTION 0.1f
+/** The number of frame to wait before reinitializing the game */
+#define EXIT_COUNT 240
+
+
+#pragma mark -
+#pragma mark Audio Constants
+/** The key the basic game music */
+#define GAME_MUSIC "game"
+/** The key the victory game music */
+#define WIN_MUSIC "win"
+/** The key the failure game music */
+#define LOSE_MUSIC "lose"
+/** The sound effect for firing a bullet */
+#define PEW_EFFECT "pew"
+/** The sound effect for a bullet collision */
+#define POP_EFFECT "pop"
+/** The sound effect for jumping */
+#define JUMP_EFFECT "jump"
+/** The volume for the music */
+#define MUSIC_VOLUME 0.7f
+/** The volume for sound effects */
+#define EFFECT_VOLUME 0.8f
+
+
+#pragma mark -
+#pragma mark Debug Constants
+/** Color to outline the physics nodes */
+#define DEBUG_COLOR Color4::YELLOW
+/** Opacity of the physics outlines */
+#define DEBUG_OPACITY 192
+
+
+#pragma mark -
+#pragma mark Collision Filtering Bits
 
 #define CATEGORY_DEFAULT    0x0001  // Every object has this automatically as default
 #define CATEGORY_PLAYER     0x0002
+
+
+
+
+#pragma mark -
+#pragma mark ENUMS
 
 
 namespace Constants {
@@ -59,6 +186,11 @@ enum Item {
     /** No type */
     NONE
 };
+
+
+
+#pragma mark -
+#pragma mark Identification Functions
 
 /**
  * Convert an Item enum to the corresponding string.

@@ -167,7 +167,18 @@ void SSBApp::preUpdate(float dt) {
     if (_status ==LOAD && _loading.isActive()) {
         _loading.update(0.01f);
     } else if (_status==LOAD) {
-        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
+        
+        //TODO: Initialize NetworkController
+        if (_assets != nullptr){
+            _networkController = NetworkController::alloc(_assets);
+//            CULog("Assets is Null");
+        }
+       
+        
+        //TODO: Replace _network with _networkController.getNetwork()
+        _network = _networkController->getNetwork();
+//        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
+//        CULog("Network Successfully created with assets");
 
         _loading.dispose();
 //        CULog("init");
@@ -313,7 +324,8 @@ void SSBApp::updateMenuScene(float timestep) {
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network to gameplay
-        _gameplay.init(_assets, _network, true);
+        _networkController->setIsHost(true);
+        _gameplay.init(_assets, _networkController);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -349,8 +361,8 @@ void SSBApp::updateClientScene(float timestep) {
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network
-        _gameplay.init(_assets, _network, false);
-//        _gameplay.init(_assets);
+        _networkController->setIsHost(false);
+        _gameplay.init(_assets, _networkController);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }

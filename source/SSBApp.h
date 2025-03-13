@@ -6,6 +6,7 @@
 #include "SSBInput.h"
 #include "NPClientScene.h"
 #include "NPHostScene.h"
+#include "NetworkController.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 
 
@@ -40,6 +41,10 @@ protected:
     /** The controller for the loading screen */
     cugl::scene2::LoadingScene _loading;
     
+    /** The controller for handling networking */
+    std::shared_ptr<NetworkController> _networkController;
+    
+    /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
     
     /** Whether or not we have finished loading all assets */
