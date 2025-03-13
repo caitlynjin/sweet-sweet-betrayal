@@ -355,6 +355,9 @@ void GameScene::dispose()
 {
     if (_active)
     {
+        // Dispose all controllers
+        _networkController->dispose();
+        
         _input.dispose();
         _world = nullptr;
         _worldnode = nullptr;
@@ -458,6 +461,9 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
  */
 void GameScene::reset()
 {
+    // Reset all controllers --> not sure if necessary
+    _networkController->reset();
+    
     _world->clear();
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
@@ -1359,6 +1365,9 @@ void GameScene::fixedUpdate(float step)
     // Turn the physics engine crank.
     _world->update(FIXED_TIMESTEP_S);
     
+    // Update all controller
+    _networkController->fixedUpdate(step);
+    
 //    _world->update(step);
 
 //    if (!_buildingMode){
@@ -1406,6 +1415,9 @@ void GameScene::postUpdate(float remain)
 {
     // Since items may be deleted, garbage collect
     _world->garbageCollect();
+    
+    // Update all controllers
+    _networkController->fixedUpdate(remain);
 
     // Record failure if necessary.
     if (!_failed && _localPlayer->getY() < 0)
