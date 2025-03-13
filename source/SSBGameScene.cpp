@@ -1351,7 +1351,7 @@ void GameScene::preUpdate(float dt)
 
 
         _localPlayer->setMovement(_input.getHorizontal() * _localPlayer->getForce());
-        _localPlayer->setJumping(_input.didJump());
+        _localPlayer->setJumping(_didjump);
         _localPlayer->applyForce();
 
 
