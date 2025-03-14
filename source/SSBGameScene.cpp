@@ -310,12 +310,14 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
+    _backgroundScene.init();
+
     // TODO: Bring back background
-//    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
-//    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-//    _background->setPosition(Vec2(0,0));
-//    _background->setScale(1.0f);
-//    addChild(_background);
+    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
+    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _background->setPosition(Vec2(0,0));
+    _background->setScale(2.0f);
+    _backgroundScene.addChild(_background);
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -460,6 +462,7 @@ void GameScene::dispose()
     if (_active)
     {
         _input.dispose();
+        _backgroundScene.dispose();
         _world = nullptr;
         _worldnode = nullptr;
         _debugnode = nullptr;
@@ -1967,11 +1970,13 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
 
 
 void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+    _backgroundScene.setSpriteBatch(batch);
     Scene2::setSpriteBatch(batch);
     _ui.setSpriteBatch(batch);
 }
 
 void GameScene::render() {
+    _backgroundScene.render();
     Scene2::render();
     _ui.render();
 }
