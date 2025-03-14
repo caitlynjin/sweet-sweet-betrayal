@@ -170,7 +170,6 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
-//
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
     
