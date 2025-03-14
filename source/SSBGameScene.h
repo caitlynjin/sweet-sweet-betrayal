@@ -17,12 +17,13 @@
 #include "SSBDudeModel.h"
 #include "SSBGridManager.h"
 #include "Platform.h"
-#include "Spike.h"
+
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
 #include "NetworkController.h"
+#include "ObjectController.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -164,6 +165,8 @@ protected:
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
     
+    std::shared_ptr<ObjectController> _objectController;
+    
     
 #pragma mark Networking Variables
     /** The network controller */
@@ -192,91 +195,10 @@ protected:
     
     
 private:
-    /** Initial width */
-    float _growingWallWidth = 1.0f;
-    /** Growth rate per second  */        
-    float _growingWallGrowthRate = 0.4f;      
-    std::shared_ptr<physics2::PolygonObstacle> _growingWall;
-    std::shared_ptr<scene2::PolygonNode> _growingWallNode;
-    /**
-    * Create the growing wall if not created. Otherwise, increase its width
-    *
-    * @param timestep  The elapsed time since the last frame.
-    */
-    void updateGrowingWall(float timestep);
 
-#pragma mark Internal Object Management
-
-
-    /** Creates a spike.
-    * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
-    * @param size The size of the spike in Box2D coordinates.
-    */
-    std::shared_ptr<Object> createSpike(Vec2 pos, Size size, float scale, float angle, string jsonType);
-
-    std::shared_ptr<Object> createSpike(std::shared_ptr<Spike> spk);
     
-    /** Creates a treasure
-    * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
-    * @param size The size of the treasure in Box2D coordinates.
-    */
-    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
 
-    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
-
-    /**
-     * Creates a platform.
-     *
-     * @return the platform being created
-     *
-     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
-     * @param size The size of the platform in Box2D coordinates.
-     * @param wall Whether this is a wall or not (if not it is a user placed platform)
-     */
-    std::shared_ptr<Object> createPlatform(Vec2 pos, Size size, string jsonType);
-
-    /**
-     * Creates a platform.
-     *
-     * @return the platform being created
-     *
-     * @param The platform being created (that has not yet been added to the physics world).
-     */
-    std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
-    
-//    /**
-//     * Creates a networked platform.
-//     *
-//     * @return the platform being created
-//     *
-//     * @param The platform being created (that has not yet been added to the physics world).
-//     */
-//    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, string jsonType);
-
-    /**
-     * Creates a new windobstacle
-     *
-     * @return the wind obstacle
-     *
-     * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
-     * @param size The dimensions (width, height) of the platform.
-     */
-
-    std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir, std::string jsonType);
-
-    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
-
-    /**
-     * Creates a moving platform.
-     *
-     * @return the moving platform
-     *
-     * @param pos The bottom left position of the platform starting position
-     * @param size The dimensions of the platform.
-     * @param end The bottom left position of the platform's destination.
-     * @param speed The speed at which the platform moves.
-     */
-    std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+   
 
     /**
      * Lays out the game geography.
