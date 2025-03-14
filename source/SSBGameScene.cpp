@@ -316,7 +316,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
     _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _background->setPosition(Vec2(0,0));
-    _background->setScale(2.0f);
+    _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
     // Create the scene graph
