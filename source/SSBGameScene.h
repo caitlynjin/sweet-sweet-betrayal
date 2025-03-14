@@ -85,6 +85,9 @@ protected:
     
     std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
 
+    /** Reference to background scene */
+    scene2::Scene2 _backgroundScene;
+
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
     /** Reference to the background of the inventory */
