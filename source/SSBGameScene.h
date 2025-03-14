@@ -173,20 +173,6 @@ protected:
 //
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
-//    /** The player's ID */
-//    int _localID;
-//    /** The other player's ID */
-//    int _otherID;
-//    /** Whether we have set collision filters for all players */
-//    bool _filtersSet = false;
-//    
-//    /** Variables for Platform Factory */
-//    std::shared_ptr<PlatformFactory> _platFact;
-//    Uint32 _platFactId;
-//    
-//    
-//    std::shared_ptr<DudeFactory> _dudeFact;
-//    Uint32 _dudeFactID;
     
     
 private:
