@@ -22,116 +22,13 @@
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
+#include "NetworkController.h"
 //#include <cmath>
 
 using namespace cugl;
 using namespace Constants;
 using namespace cugl::physics2::distrib;
 
-/**
- * The factory class for player/dude model.
- *
- * This class is used to support automatically syncing newly added players mid-simulation.
- * Players added throught the ObstacleFactory class from one client will be added to all
- * clients in the simulations.
- */
-
-class DudeFactory : public ObstacleFactory {
-public:
-    /** Pointer to the AssetManager for texture access, etc. */
-    std::shared_ptr<cugl::AssetManager> _assets;
-    /** Serializer for supporting parameters */
-    LWSerializer _serializer;
-    /** Deserializer for supporting parameters */
-    LWDeserializer _deserializer;
-
-    /**
-     * Allocates a new instance of the factory using the given AssetManager.
-     */
-    static std::shared_ptr<DudeFactory> alloc(std::shared_ptr<AssetManager>& assets) {
-        auto f = std::make_shared<DudeFactory>();
-        f->init(assets);
-        return f;
-    };
-
-    /**
-     * Initializes empty factories using the given AssetManager.
-     */
-    void init(std::shared_ptr<AssetManager>& assets) {
-        _assets = assets;
-    }
-    
-    /**
-     * Generate a pair of Obstacle and SceneNode using the given parameters
-     */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale);
-
-    /**
-     * Helper method for converting normal parameters into byte vectors used for syncing.
-     */
-    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
-    
-    /**
-     * Generate a pair of Obstacle and SceneNode using serialized parameters.
-     */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
-};
-
-/**
- * The factory class for trap objects.
- *
- * This class is used to support automatically syncing newly added obstacle mid-simulation.
- * Obstacles added throught the ObstacleFactory class from one client will be added to all
- * clients in the simulations.
- */
-class PlatformFactory : public ObstacleFactory {
-    
-    enum class JsonType {
-        TILE,
-        PLATFORM,
-        LOG
-    };
-    
-public:
-    /** Pointer to the AssetManager for texture access, etc. */
-    std::shared_ptr<cugl::AssetManager> _assets;
-
-    /** Serializer for supporting parameters */
-    LWSerializer _serializer;
-    /** Deserializer for supporting parameters */
-    LWDeserializer _deserializer;
-
-    /**
-     * Allocates a new instance of the factory using the given AssetManager.
-     */
-    static std::shared_ptr<PlatformFactory> alloc(std::shared_ptr<AssetManager>& assets) {
-        auto f = std::make_shared<PlatformFactory>();
-        f->init(assets);
-        return f;
-    };
-
-    /**
-     * Initializes empty factories using the given AssetManager.
-     */
-    void init(std::shared_ptr<AssetManager>& assets) {
-        _assets = assets;
-    }
-    
-    /**
-     * Generate a pair of Obstacle and SceneNode using the given parameters
-     */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, int jsonType, float scale);
-
-    /**
-     * Helper method for converting normal parameters into byte vectors used for syncing.
-     */
-    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, string jsonType, float scale);
-    
-    /**
-     * Generate a pair of Obstacle and SceneNode using serialized parameters.
-     */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
-};
 
 /**
  * This class is the primary gameplay constroller for the demo.
@@ -270,27 +167,11 @@ protected:
     
 #pragma mark Networking Variables
     /** The network controller */
+    std::shared_ptr<NetworkController> _networkController;
+    /** The network  */
     std::shared_ptr<NetEventController> _network;
-    /** The number of players ready to proceed from BuildPhase */
-    float _numReady = 0;
-    /** Whether the player is the host */
-    bool _isHost;
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
-    /** The player's ID */
-    int _localID;
-    /** The other player's ID */
-    int _otherID;
-    /** Whether we have set collision filters for all players */
-    bool _filtersSet = false;
-    
-    /** Variables for Platform Factory */
-    std::shared_ptr<PlatformFactory> _platFact;
-    Uint32 _platFactId;
-    
-    
-    std::shared_ptr<DudeFactory> _dudeFact;
-    Uint32 _dudeFactID;
     
     
 private:
@@ -346,14 +227,6 @@ private:
      */
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
     
-    /**
-     * Creates a networked platform.
-     *
-     * @return the platform being created
-     *
-     * @param The platform being created (that has not yet been added to the physics world).
-     */
-    std::shared_ptr<Object> createPlatformNetworked(Vec2 pos, Size size, string jsonType);
 
     /**
      * Creates a new windobstacle
@@ -449,7 +322,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetEventController> network, bool isHost);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -488,7 +361,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetEventController> network, bool isHost);
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController);
 
 #pragma mark -
 #pragma mark Networking/Player
@@ -771,12 +644,6 @@ public:
         const std::shared_ptr<cugl::scene2::SceneNode>& node);
     
     
-    /**
-     * This method attempts to set all the collision filters for the networked players.
-     *
-     * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
-     */
-    void trySetFilters();
     
   };
 
