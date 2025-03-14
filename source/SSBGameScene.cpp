@@ -544,42 +544,6 @@ void GameScene::populate()
     //    AudioEngine::get()->getMusicQueue()->play(source, true, MUSIC_VOLUME);
 }
 
-/**
- * Adds the physics object to the physics world and loosely couples it to the scene graph
- *
- * There are two ways to link a physics object to a scene graph node on the
- * screen.  One way is to make a subclass of a physics object, like we did
- * with dude.  The other is to use callback functions to loosely couple
- * the two.  This function is an example of the latter.
- *
- * @param obj             The physics object to add
- * @param node            The scene graph node to attach it to
- * @param zOrder          The drawing order
- * @param useObjPosition  Whether to update the node's position to be at the object's position
- */
-void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
-                            const std::shared_ptr<scene2::SceneNode> &node,
-                            bool useObjPosition)
-{
-    _world->addObstacle(obj);
-    obj->setDebugScene(_debugnode);
-
-    // Position the scene graph node (enough for static objects)
-    if (useObjPosition)
-    {
-        node->setPosition(obj->getPosition() * _scale);
-    }
-    _worldnode->addChild(node);
-
-    // Dynamic objects need constant updating
-    if (obj->getBodyType() != b2_staticBody)
-    {
-        scene2::SceneNode *weak = node.get(); // No need for smart pointer in callback
-        obj->setListener([=, this](physics2::Obstacle *obs) {
-            weak->setPosition(obs->getPosition()*_scale);
-            weak->setAngle(obs->getAngle()); });
-    }
-}
 
 #pragma mark -
 #pragma mark Physics Handling

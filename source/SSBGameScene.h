@@ -214,22 +214,6 @@ private:
      */
     void populate();
     
-    /**
-     * Adds the physics object to the physics world and loosely couples it to the scene graph
-     *
-     * There are two ways to link a physics object to a scene graph node on the
-     * screen.  One way is to make a subclass of a physics object, like we did
-     * with dude.  The other is to use callback functions to loosely couple
-     * the two.  This function is an example of the latter.
-     *
-     * @param obj    The physics object to add
-     * @param node   The scene graph node to attach it to
-     * @param useObjPosition  Whether to update the node's position to be at the object's position
-     */
-    void addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
-                     const std::shared_ptr<scene2::SceneNode>& node,
-                     bool useObjPosition=true);
-    
 public:
 #pragma mark -
 #pragma mark Constructors
