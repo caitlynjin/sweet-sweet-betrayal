@@ -170,8 +170,6 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
-//    /** The number of players ready to proceed from BuildPhase */
-//    float _numReady = 0;
 //
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
