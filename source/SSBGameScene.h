@@ -173,32 +173,13 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
-//    /** The number of players ready to proceed from BuildPhase */
-//    float _numReady = 0;
-//
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
-//    /** The player's ID */
-//    int _localID;
-//    /** The other player's ID */
-//    int _otherID;
-//    /** Whether we have set collision filters for all players */
-//    bool _filtersSet = false;
-//    
-//    /** Variables for Platform Factory */
-//    std::shared_ptr<PlatformFactory> _platFact;
-//    Uint32 _platFactId;
-//    
-//    
-//    std::shared_ptr<DudeFactory> _dudeFact;
-//    Uint32 _dudeFactID;
     
     
 private:
 
     
-
-   
 
     /**
      * Lays out the game geography.

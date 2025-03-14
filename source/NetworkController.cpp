@@ -49,16 +49,13 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<MessageEvent>();
     _localID = _network->getShortUID();
     
-    // Init factories
-    //TODO: Move to set
-    
     return true;
 }
 
 void NetworkController::dispose(){
 //    if (_active)
 //    {
-//        //TODO: Dispose variable
+//        //TODO: Dispose variables
 //        _roundsnode = nullptr;
 //        _readyButton = nullptr;
 //        _rightButton = nullptr;
@@ -289,7 +286,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     
 
     player->setShared(true);
-//    player->setFilterData();
     
     auto sprite = scene2::PolygonNode::allocWithTexture(image);
     player->setDebugColor(DEBUG_COLOR);

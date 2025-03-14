@@ -213,12 +213,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
     
-//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-//    _roundsnode->setForeground(INFO_COLOR);
-//    _roundsnode->setVisible(true);
-    
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
         std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
@@ -283,11 +277,9 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_debugnode);
     addChild(_winnode);
     addChild(_losenode);
-//    addChild(_roundsnode);
     addChild(_leftnode);
     addChild(_rightnode);
     addChild(_scrollpane);
-//    addChild(_readyButton);
     addChild(_gridManager->getGridNode());
     _ui.addChild(_jumpbutton);
     _ui.addChild(_glidebutton);
@@ -315,19 +307,15 @@ void GameScene::dispose()
 {
     if (_active)
     {
-        // Dispose all controllers
-        _networkController->dispose();
-        
+
         _input.dispose();
         _world = nullptr;
         _worldnode = nullptr;
         _debugnode = nullptr;
         _winnode = nullptr;
         _losenode = nullptr;
-//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
-        //_readyButton = nullptr;
         _gridManager->getGridNode() = nullptr;
         _complete = false;
         _debug = false;
@@ -461,6 +449,7 @@ void GameScene::reset()
     populate();
 }
 
+
 /**
  * Lays out the game geography.
  *
@@ -476,6 +465,7 @@ void GameScene::reset()
 void GameScene::populate()
 {
 #pragma mark : Goal door
+
     _goalDoor = _objectController->createGoalDoor(Vec2(GOAL_POS[0], GOAL_POS[1]));
 
 #pragma mark : Wind
@@ -503,13 +493,6 @@ void GameScene::populate()
         pos += Vec2(2, 0);
     }
     
-    
-    
-    //TODO: Move to NetworkController
-//    auto params = _dudeFact->serializeParams(pos, _scale);
-//    auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
-//    _localPlayer = std::dynamic_pointer_cast<DudeModel>(localPair.first);
-    
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
@@ -520,18 +503,11 @@ void GameScene::populate()
     
     _localPlayer->setDebugScene(_debugnode);
     
-    
-    
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_networkController->getIsHost()){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
-    
 
-    
-
-#pragma mark : Spikes
-   
 
 #pragma mark : Treasure
 
@@ -594,17 +570,12 @@ void GameScene::preUpdate(float dt)
     
     
     _input.update(dt);
-    
-    // TODO: DELETE THIS IF STATEMENT TO RE ENABLE BUILD
-//    if (_buildingMode){
-//        setBuildingMode(false);
-//    }
+
     
     // Process Networking
     if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
-//        _readyButton->setVisible(false);
         _networkController->setNumReady(0);
     }
     
@@ -903,12 +874,6 @@ void GameScene::fixedUpdate(float step)
     // Update all controller
     _networkController->fixedUpdate(step);
     
-//    _world->update(step);
-
-//    if (!_buildingMode){
-//        _world->update(step);
-//    }
-    
     _ui.fixedUpdate(step);
 
     
@@ -917,10 +882,7 @@ void GameScene::fixedUpdate(float step)
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             processMessageEvent(mEvent);
         }
-
     }
-    
-    
 
 }
 
@@ -1101,15 +1063,8 @@ void GameScene::nextRound(bool reachedGoal) {
 
     
     // Return to building mode
-    //_readyButton->setVisible(true);
     _itemsPlaced = 0;
-    
-    // TODO: UNCOMMENT THIS TO RE ENABLE BUILD MODE
     setBuildingMode(true);
-
-//    _ui.visibleButtons(true);
-    
-    
 }
 
 /**

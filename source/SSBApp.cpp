@@ -80,6 +80,10 @@ void SSBApp::onShutdown() {
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
+    
+    // Is this correct way of diposing networkController?
+    _networkController->dispose();
+    _networkController = nullptr;
     _assets = nullptr;
     _batch = nullptr;
     
@@ -168,20 +172,11 @@ void SSBApp::preUpdate(float dt) {
         _loading.update(0.01f);
     } else if (_status==LOAD) {
         
-        //TODO: Initialize NetworkController
-        if (_assets != nullptr){
-            _networkController = NetworkController::alloc(_assets);
-//            CULog("Assets is Null");
-        }
-       
-        
-        //TODO: Replace _network with _networkController.getNetwork()
+        _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
-//        _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
-//        CULog("Network Successfully created with assets");
+
 
         _loading.dispose();
-//        CULog("init");
         _mainmenu.init(_assets);
         _mainmenu.setActive(true);
         
@@ -190,7 +185,6 @@ void SSBApp::preUpdate(float dt) {
         _hostgame.setSpriteBatch(_batch);
         _joingame.init(_assets,_network);
         _joingame.setSpriteBatch(_batch);
-        //_gameplay.init(_assets);
         _status = MENU;
     } else {
         switch (_status) {
