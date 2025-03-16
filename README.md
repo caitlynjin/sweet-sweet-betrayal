@@ -13,6 +13,9 @@ python cugl sweet-sweet-betrayal
 ```
 
 
-## Gameplay Prototype Notes
+## Technical Prototype Notes
 
-- The wind gust item is currently a work in progress and is not functional (it does not currently move the player upwards in Play mode, but it can be placed in the Build mode). This item appears with a blue circle and white upwards arrow.
+Here are some of the bugs we are aware of after merging networking and will fix in the coming prototype:
+
+- Player is not flipping
+- When the player dies, the momentum continues when the player spawns
