@@ -208,6 +208,31 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
         return nullptr;
     }
 }
+/**
+ * Creates a networked moving platform.
+ *
+ * @return the moving platform being created
+ */
+std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
+    
+    auto params = _movingPlatFact->serializeParams(pos, size, end, speed, scale);
+    
+    auto pair = _network->getPhysController()->addSharedObstacle(_movingPlatFactID, params);
+
+    // Attempt to cast the obstacle to a BoxObstacle.
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+    if (boxObstacle) {
+        std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed, boxObstacle);
+        _objects.push_back(plat);
+        return plat;
+    } else {
+        
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
+
 
 /**
  * Creates a networked player.
@@ -370,7 +395,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
  */
 std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, string jsonType, float scale) {
     // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
-#pragma mark BEGIN SOLUTION
     // Cast jsonType to an int for serializer
     int type;
     if (jsonType == "tile"){
@@ -392,7 +416,6 @@ std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 po
     _serializer.writeSint32(type);
     _serializer.writeFloat(scale);
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
-#pragma mark END SOLUTION
 }
 
 /**
@@ -400,7 +423,6 @@ std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 po
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
     // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
-#pragma mark BEGIN SOLUTION
     _deserializer.reset();
     _deserializer.receive(params);
     float x = _deserializer.readFloat();
@@ -413,5 +435,72 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     float scale = _deserializer.readFloat();
     
     return createObstacle(pos, size, type, scale);
-#pragma mark END SOLUTION
+}
+
+
+
+#pragma mark -
+#pragma mark Moving Platform Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> MovingPlatFactory::createObstacle(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    
+    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setDebugColor(DEBUG_COLOR);
+    box->setName("movingPlatform");
+
+  
+    poly *= scale;
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    
+    return std::make_pair(box, sprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>> MovingPlatFactory::serializeParams(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeFloat(end.x);
+    _serializer.writeFloat(end.y);
+    _serializer.writeFloat(speed);
+    _serializer.writeFloat(scale);
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> MovingPlatFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+    float posx = _deserializer.readFloat();
+    float posy = _deserializer.readFloat();
+    Vec2 pos(posx, posy);
+    float width = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+    float endx = _deserializer.readFloat();
+    float endy = _deserializer.readFloat();
+    Vec2 end(endx, endy);
+    float speed = _deserializer.readFloat();
+    float scale = _deserializer.readFloat();
+    
+    return createObstacle(pos, size, end, speed, scale);
 }

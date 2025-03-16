@@ -130,6 +130,51 @@ public:
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
 };
 
+class MovingPlatFactory : public ObstacleFactory {
+public:
+    /** Pointer to the AssetManager for texture access, etc. */
+    std::shared_ptr<cugl::AssetManager> _assets;
+    
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+    
+    /**
+     * Allocates a new instance of the moving platform factory using the given AssetManager.
+     */
+    static std::shared_ptr<MovingPlatFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<MovingPlatFactory>();
+        f->init(assets);
+        return f;
+    }
+
+    /**
+     * Initializes the factory with the provided AssetManager.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Creates a moving platform obstacle and its associated scene node.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(
+            Vec2 pos, Size size, Vec2 end, float speed, float scale);
+
+    
+    /**
+     * Serializes the parameters for a moving platform.
+     */
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, Vec2 end, float speed, float scale);
+    
+    /**
+     * Creates a moving platform obstacle using serialized parameters.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(
+        const std::vector<std::byte>& params) override;
+};
+
 
 /**
  * This class is the scene for the UI of the game.
@@ -172,6 +217,10 @@ protected:
     /** Variables for Dude Factory */
     std::shared_ptr<DudeFactory> _dudeFact;
     Uint32 _dudeFactID;
+    
+    /** Variables for Moving Platform Factory*/
+    std::shared_ptr<MovingPlatFactory> _movingPlatFact;
+    Uint32 _movingPlatFactID;
 
 
 public:
@@ -246,6 +295,9 @@ public:
 
         _dudeFact = DudeFactory::alloc(_assets);
         _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
+        
+        _movingPlatFact = MovingPlatFactory::alloc(_assets);
+        _movingPlatFactID = _network->getPhysController()->attachFactory(_movingPlatFact);
     }
     
     /**
@@ -322,6 +374,13 @@ public:
      * @param The player being created (that has not yet been added to the physics world).
      */
     std::shared_ptr<DudeModel> createPlayerNetworked(Vec2 pos, float scale);
+    
+    /**
+     * Creates a networked moving platform.
+     *
+     * @return the moving platform being created
+     */
+    std::shared_ptr<Object> createMovingPlatformNetworked(Vec2 pos, Size size, Vec2 end, float speed, float scale);
     
     /**
      * The method called to update the game mode.

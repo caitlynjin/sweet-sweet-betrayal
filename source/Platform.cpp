@@ -102,6 +102,24 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _box->setLinearVelocity(direction * _speed);
     return true;
 }
+//for networked moving platform 
+bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+    if (!init(pos, size)) return false;
+    _moving = true;
+    _startPos = start;
+    _endPos   = end+ Vec2(size.width/2, size.height/2);
+    _speed    = speed;
+    _forward  = true;
+    _position = pos;
+    _size = size;
+    //enable moving
+    _box  =box;
+    _box->setBodyType(b2_kinematicBody);
+    Vec2 direction = _endPos - _startPos;
+    direction.normalize();
+    _box->setLinearVelocity(direction * _speed);
+    return true;
+}
 
 std::map<std::string, std::any> Platform::getMap() {
     std::map<std::string, std::any> m = {
