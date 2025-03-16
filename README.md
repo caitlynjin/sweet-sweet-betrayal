@@ -19,3 +19,5 @@ Here are some of the bugs we are aware of after merging networking and will fix 
 
 - Player is not flipping
 - When the player dies, the momentum continues when the player spawns
+- Moving platform is moving indefinitely to the right
+- Treasure collecting does not wor
