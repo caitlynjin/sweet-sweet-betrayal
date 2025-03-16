@@ -23,6 +23,7 @@
 #include "MessageEvent.h"
 #include "UIScene.h"
 #include "NetworkController.h"
+#include "SoundController.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -49,6 +50,9 @@ protected:
     /** Controller for abstracting out input across multiple platforms */
     PlatformInput _input;
     
+    /** Controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
+
     // VIEW
     /** Reference to the physics root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _worldnode;
@@ -322,7 +326,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -361,7 +365,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController);
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound);
 
 #pragma mark -
 #pragma mark Networking/Player

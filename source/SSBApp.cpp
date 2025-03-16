@@ -58,6 +58,7 @@ void SSBApp::onStartup() {
     Application::onStartup(); // YOU MUST END with call to parent
     
     setDeterministic(true);
+
     
     
         
@@ -174,16 +175,17 @@ void SSBApp::preUpdate(float dt) {
         
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
+        _sound = SoundController::alloc(_assets);
 
 
         _loading.dispose();
-        _mainmenu.init(_assets);
+        _mainmenu.init(_assets, _sound);
         _mainmenu.setActive(true);
         
         _mainmenu.setSpriteBatch(_batch);
-        _hostgame.init(_assets,_network);
+        _hostgame.init(_assets,_network, _sound);
         _hostgame.setSpriteBatch(_batch);
-        _joingame.init(_assets,_network);
+        _joingame.init(_assets,_network, _sound);
         _joingame.setSpriteBatch(_batch);
         _status = MENU;
     } else {
@@ -319,7 +321,7 @@ void SSBApp::updateMenuScene(float timestep) {
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network to gameplay
         _networkController->setIsHost(true);
-        _gameplay.init(_assets, _networkController);
+        _gameplay.init(_assets, _networkController, _sound);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -356,7 +358,7 @@ void SSBApp::updateClientScene(float timestep) {
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network
         _networkController->setIsHost(false);
-        _gameplay.init(_assets, _networkController);
+        _gameplay.init(_assets, _networkController, _sound);
         _gameplay.setSpriteBatch(_batch);
         _network->markReady();
     }

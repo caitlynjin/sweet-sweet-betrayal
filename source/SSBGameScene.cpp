@@ -117,9 +117,9 @@ GameScene::GameScene() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController)
+bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController);
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
 }
 
 ///**
@@ -161,7 +161,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_pt
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound)
 {
     if (assets == nullptr)
     {
@@ -174,6 +174,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     
     _assets = assets;
     _networkController = networkController;
+    _sound = sound;
     
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
@@ -1118,9 +1119,7 @@ void GameScene::preUpdate(float dt)
 
         if (_localPlayer->isJumping() && _localPlayer->isGrounded())
         {
-
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+            _sound->playSound("jump");
         }
         
         
@@ -1294,8 +1293,7 @@ void GameScene::setComplete(bool value)
     _complete = value;
     if (value && change)
     {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(WIN_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("win");
         _winnode->setVisible(true);
         _countdown = EXIT_COUNT;
     }
@@ -1325,8 +1323,7 @@ void GameScene::setFailure(bool value) {
             return;
         }
         
-        std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("lose");
         _losenode->setVisible(true);
         _countdown = EXIT_COUNT;
     }

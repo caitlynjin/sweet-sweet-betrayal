@@ -19,6 +19,7 @@
 #include <box2d/b2_collision.h>
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
+#include "SoundController.h"
 
 #include <ctime>
 #include <string>
@@ -50,10 +51,13 @@ using namespace std;
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets) {
+bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound) {
     if (assets == nullptr) {
        return false;
    }
+    if (sound == nullptr) {
+        return false;
+    }
 
    if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
        return false;
@@ -63,6 +67,8 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets) {
         
     // Start up the input handler
     _assets = assets;
+
+    _sound = sound;
     
     // Acquire the scene built by the asset loader and resize it the scene
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu");
