@@ -192,7 +192,7 @@ protected:
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
     /** A list of all objects to be updated during each animation frame. */
-    std::vector<std::shared_ptr<Object>> _objects;
+    std::vector<std::shared_ptr<Object>>* _objects;
     
     /** The network controller */
     std::shared_ptr<NetEventController> _network;
@@ -305,7 +305,7 @@ public:
      *
      * @param world the world to be used for networked physics.
      */
-    void setObjects(std::vector<std::shared_ptr<Object>> objects){
+    void setObjects(std::vector<std::shared_ptr<Object>>* objects){
         _objects = objects;
     }
     

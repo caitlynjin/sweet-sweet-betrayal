@@ -21,17 +21,24 @@ void Platform::update(float timestep) {
     CULog("udpating moving");
     
     Vec2 pos = _box->getPosition();
-    Vec2 target = _forward ? _endPos : _startPos;
+    Vec2 target = _forward ? _endPos- _size/2 : _startPos-_size/2;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
+    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
+          pos.x, pos.y, target.x, target.y, distance, _speed, _forward);
 
-    
+
+    Vec2 direction = toTarget;
+            direction.normalize();
+            Vec2 step = direction * (_speed * timestep);
+
     //if next step will move over the end_pos
-    if (distance < _speed * timestep) {
+    if (distance < _speed * timestep || toTarget.dot(_box->getLinearVelocity() * timestep) < 0) {
+        CULog("turning");
         pos = target;
         _box->setPosition(pos);
         _forward = !_forward;
-        Vec2 newTarget = _forward ? _endPos : _startPos;
+        Vec2 newTarget = _forward ? _endPos-_size/2 : _startPos-_size/2;
         Vec2 direction = newTarget - pos;
         direction.normalize();         
         Vec2 velocity = direction * _speed;
@@ -108,7 +115,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     if (!init(pos, size)) return false;
     _moving = true;
     _startPos = start;
-    _endPos   = end+ Vec2(size.width/2, size.height/2);
+    _endPos   = end;
     _speed    = speed;
     _forward  = true;
     _position = pos;

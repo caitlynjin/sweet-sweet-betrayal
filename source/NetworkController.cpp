@@ -200,7 +200,7 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
     if (boxObstacle) {
         // Assign the boxObstacle that was made to the platform
         std::shared_ptr<Platform> plat = Platform::alloc(pos + size/2, size, boxObstacle);
-        _objects.push_back(plat);
+        _objects->push_back(plat);
         return plat;
     } else {
         // Handle case where the obstacle is not a BoxObstacle
@@ -215,7 +215,7 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
  */
 std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
     
-    auto params = _movingPlatFact->serializeParams(pos, size, end, speed, scale);
+    auto params = _movingPlatFact->serializeParams(pos+ size/2, size, end+ size/2, speed, scale);
     
     auto pair = _network->getPhysController()->addSharedObstacle(_movingPlatFactID, params);
 
@@ -223,8 +223,8 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
     std::shared_ptr<scene2::SceneNode> sprite = pair.second;
     if (boxObstacle) {
-        std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed, boxObstacle);
-        _objects.push_back(plat);
+        std::shared_ptr<Platform> plat = Platform::allocMoving(pos+ size/2, size, pos+ size/2, end+ size/2, speed, boxObstacle);
+        _objects->push_back(plat);
         return plat;
     } else {
         

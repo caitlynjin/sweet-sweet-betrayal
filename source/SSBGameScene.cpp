@@ -161,7 +161,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _network->enablePhysics(_world, linkSceneToObsFunc);
     
     // Set _world and _objects in networkController
-    _networkController->setObjects(_objects);
+    _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
 
     // Start in building mode
@@ -394,7 +394,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _scale);
         }
         case (MOVING_PLATFORM):
-            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
+            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _scale);
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
