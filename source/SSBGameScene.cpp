@@ -514,7 +514,12 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    _objectController->createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
+    _treasure = std::dynamic_pointer_cast<Treasure>(
+        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0][0], TREASURE_POS[0][1]),
+                                                    Size(1, 1),
+                                                    _scale,
+                                                    false)
+    );
 
 
     // Play the background music on a loop.
@@ -1248,7 +1253,9 @@ void GameScene::beginContact(b2Contact *contact)
     {
         if (!_localPlayer->_hasTreasure)
         {
+            _treasure->setTaken(true);
             _localPlayer->gainTreasure(_treasure);
+            
         }
     }
 }

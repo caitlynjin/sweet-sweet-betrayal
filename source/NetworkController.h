@@ -175,6 +175,79 @@ public:
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(
         const std::vector<std::byte>& params) override;
 };
+/**
+ * The factory class for treasure objects.
+ */
+class TreasureFactory : public ObstacleFactory {
+public:
+    /** Pointer to the AssetManager for texture access and related resources. */
+    std::shared_ptr<AssetManager> _assets;
+
+    /** Serializer for supporting parameters */
+    LWSerializer _serializer;
+    /** Deserializer for supporting parameters */
+    LWDeserializer _deserializer;
+
+    /**
+     * Allocates a new instance of the treasure factory using the given AssetManager.
+     *
+     * @param assets The asset manager containing textures and other resources.
+     *
+     * @return A shared pointer to the newly allocated TreasureFactory.
+     */
+    static std::shared_ptr<TreasureFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<TreasureFactory>();
+        f->init(assets);
+        return f;
+    }
+
+    /**
+     * Initializes the treasure factory with the provided AssetManager.
+     *
+     * @param assets The asset manager to be used for resource access.
+     */
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+    
+    /**
+     * Creates a treasure obstacle and its associated scene node.
+     *
+     * @param pos The position of the treasure in Box2D coordinates.
+     * @param size The size of the treasure.
+     *
+     * @return A pair consisting of a physics obstacle and a scene node.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+    createObstacle(Vec2 pos, Size size, float scale, bool taken);
+
+    /**
+     * Serializes the parameters for a treasure.
+     *
+     * This method converts the provided parameters into a byte vector suitable for
+     * network transmission so that the treasure can be recreated on other clients.
+     *
+     * @param pos The position of the treasure.
+     * @param size The size of the treasure.
+     *
+     * @return A shared pointer to a byte vector containing the serialized parameters.
+     */
+    std::shared_ptr<std::vector<std::byte>>
+    serializeParams(Vec2 pos, Size size, float scale, bool taken);
+    
+    /**
+     * Creates a treasure obstacle using serialized parameters.
+     *
+     * This method decodes the serialized parameters and creates the corresponding treasure
+     * obstacle along with its scene node.
+     *
+     * @param params The byte vector containing serialized parameters.
+     *
+     * @return A pair consisting of a physics obstacle and a scene node.
+     */
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+    createObstacle(const std::vector<std::byte>& params) override;
+};
 
 
 /**
@@ -223,6 +296,8 @@ protected:
     std::shared_ptr<MovingPlatFactory> _movingPlatFact;
     Uint32 _movingPlatFactID;
 
+    std::shared_ptr<TreasureFactory> _treasureFact;
+    Uint32 _treasureFactID;
 
 public:
 #pragma mark -
@@ -299,6 +374,10 @@ public:
         
         _movingPlatFact = MovingPlatFactory::alloc(_assets);
         _movingPlatFactID = _network->getPhysController()->attachFactory(_movingPlatFact);
+        // Setup Treasure Factory
+        _treasureFact = TreasureFactory::alloc(_assets);
+        _treasureFactID = _network->getPhysController()->attachFactory(_treasureFact);
+
     }
     
     /**
@@ -382,6 +461,13 @@ public:
      * @return the moving platform being created
      */
     std::shared_ptr<Object> createMovingPlatformNetworked(Vec2 pos, Size size, Vec2 end, float speed, float scale);
+
+    /**
+     * Creates a networked treasure.
+     *
+     * @return the treasure being created
+     */
+    std::shared_ptr<Object> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
     
     /**
      * The method called to update the game mode.

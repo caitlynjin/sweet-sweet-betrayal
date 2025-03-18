@@ -232,6 +232,22 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
         return nullptr;
     }
 }
+std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken) {
+    auto params = _treasureFact->serializeParams(pos, size, scale, taken);
+    auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
+
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+    
+    if (boxObstacle) {
+        std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
+        _objects->push_back(treasure);
+        return treasure;
+    } else {
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
 
 
 /**
@@ -246,7 +262,6 @@ std::shared_ptr<DudeModel> NetworkController::createPlayerNetworked(Vec2 pos, fl
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     return std::dynamic_pointer_cast<DudeModel>(localPair.first);
 }
-
 
 
 #pragma mark -
@@ -503,4 +518,94 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     float scale = _deserializer.readFloat();
     
     return createObstacle(pos, size, end, speed, scale);
+}
+
+#pragma mark -
+#pragma mark Treasure Factory
+
+/**
+ * Creates a treasure obstacle and its associated scene node.
+ *
+ * This implementation mimics ObjectController::createTreasure but also uses the provided scale.
+ *
+ * @param pos The position of the treasure in Box2D coordinates.
+ * @param size The size of the treasure.
+ * @param scale The scale factor for the treasure.
+ * @param taken Whether the treasure has been taken.
+ *
+ * @return A pair consisting of a physics obstacle and a scene node.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
+
+    std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
+    
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+    
+
+    auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
+    
+    treasure->setSceneNode(sprite);
+    treasure->getObstacle()->setName("treasure");
+    treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    treasure->setPosition(pos);
+    treasure->getObstacle()->setShared(true);
+    
+    return std::make_pair(treasure->getObstacle(), sprite);
+}
+
+/**
+ * Serializes the parameters for a treasure.
+ *
+ * This method converts the provided parameters (including scale) into a byte vector
+ * suitable for network transmission so that the treasure can be recreated on other clients.
+ *
+ * @param pos The position of the treasure.
+ * @param size The size of the treasure.
+ * @param jsonType The type identifier for the treasure.
+ * @param scale The scale factor for the treasure.
+ *
+ * @return A shared pointer to a byte vector containing the serialized parameters.
+ */
+std::shared_ptr<std::vector<std::byte>>
+TreasureFactory::serializeParams(Vec2 pos, Size size, float scale, bool taken) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeFloat(scale);
+    _serializer.writeBool(taken);
+    //TODO: serialize if we have more jsontype
+
+    
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+/**
+ * Creates a treasure obstacle using serialized parameters.
+ *
+ * This method decodes the serialized parameters (including scale) and creates the corresponding
+ * treasure obstacle along with its scene node.
+ *
+ * @param params The byte vector containing serialized parameters.
+ *
+ * @return A pair consisting of a physics obstacle and a scene node.
+ */
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+    
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+    
+    float width = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+    float scale = _deserializer.readFloat();
+    bool taken = _deserializer.readBool();
+    
+    return createObstacle(pos, size, scale, taken);
 }
