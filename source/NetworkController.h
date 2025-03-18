@@ -14,6 +14,7 @@
 #include "Platform.h"
 #include "Constants.h"
 #include "MessageEvent.h"
+#include "Treasure.h"
 
 using namespace cugl;
 using namespace cugl::netcode;

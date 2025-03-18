@@ -91,6 +91,9 @@ public:
 
     // Gets if this is a wall
     bool isWall() { return _wall; }
+    /**update start.end pos**/
+    bool updateMoving(Vec2 gridpos);
+
 };
 
 

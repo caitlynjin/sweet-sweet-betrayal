@@ -663,6 +663,13 @@ void GameScene::preUpdate(float dt)
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
+                    if (_selectedObject->getItemType() == Item::PLATFORM) {
+                        auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
+                        if (platform) {  // Ensure casting succeeded
+                            
+                            platform->updateMoving(gridPos);
+                        }
+                    }
                     _gridManager->addObject(gridPos, _selectedObject);
 
                     
@@ -981,6 +988,7 @@ void GameScene::setFailure(bool value) {
     if (value) {
         // If next round available, do not fail
         if (_currRound < TOTAL_ROUNDS){
+            //dupllicaet code with dudemodel update
             if (_localPlayer->_hasTreasure){
                 _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
             }

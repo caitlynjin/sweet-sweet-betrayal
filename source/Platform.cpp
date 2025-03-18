@@ -18,14 +18,12 @@ void Platform::setPosition(const cugl::Vec2& position) {
 
 void Platform::update(float timestep) {
     if (!_moving) return;
-    CULog("udpating moving");
-    
     Vec2 pos = _box->getPosition();
     Vec2 target = _forward ? _endPos- _size/2 : _startPos-_size/2;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
-    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
-          pos.x, pos.y, target.x, target.y, distance, _speed, _forward);
+//    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
+//          pos.x, pos.y, target.x, target.y, distance, _speed, _forward);
 
 
     Vec2 direction = toTarget;
@@ -139,3 +137,26 @@ std::map<std::string, std::any> Platform::getMap() {
     };
     return m;
 }
+bool Platform::updateMoving(Vec2 gridpos) {
+    if (_moving) {
+        Vec2 oldStartPos = _startPos;
+        Vec2 oldEndPos = _endPos;
+        
+        _endPos = gridpos + (_endPos - _startPos);
+        _startPos = gridpos;
+        _forward = true;
+        
+        Vec2 direction = _endPos - _startPos;
+        direction.normalize();
+        _box->setLinearVelocity(direction * _speed);
+        CULog("Platform Moved | Start: (%.2f, %.2f) -> (%.2f, %.2f) | End: (%.2f, %.2f) -> (%.2f, %.2f) | Velocity: (%.2f, %.2f)",
+              oldStartPos.x, oldStartPos.y, _startPos.x, _startPos.y,
+              oldEndPos.x, oldEndPos.y, _endPos.x, _endPos.y,
+              direction.x * _speed, direction.y * _speed);
+        
+        return true;
+    }
+        
+    return false;
+}
+
