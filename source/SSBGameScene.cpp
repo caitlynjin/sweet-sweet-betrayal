@@ -15,6 +15,7 @@
 #include "SSBDudeModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
+#include "ObjectController.h"
 
 #include <ctime>
 #include <string>
@@ -48,26 +49,6 @@ using namespace Constants;
 
 #define FIXED_TIMESTEP_S 0.02f
 
-// Since these appear only once, we do not care about the magic numbers.
-// In an actual game, this information would go in a data file.
-// IMPORTANT: Note that Box2D units do not equal drawing units
-/** The wall vertices */
-// #define WALL_VERTS 8
-// #define WALL_COUNT  0
-
-// float WALL[WALL_COUNT][WALL_VERTS] = {
-//     { 0.0f, 1.0f, 0.0f, 0.0f, 20.0f, 0.0f, 20.0f, 1.0f }
-// };
-// float WALL[WALL_COUNT][WALL_VERTS];
-
-///** The number of platforms */
-// #define PLATFORM_VERTS  8
-// #define PLATFORM_COUNT  1  // Only one ground platform
-//
-///** The single large ground platform */
-// float PLATFORMS[PLATFORM_COUNT][PLATFORM_VERTS] = {
-//     { 0.0f, 1.0f, 0.0f, 0.0f, 32.0f, 0.0f, 32.0f, 1.0f }
-// };
 
 /** The goal door position */
 float GOAL_POS[] = { 31.0f, 6.0f };
@@ -80,7 +61,6 @@ float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
 
 
-float SPIKE_POS[] = {5.5f, 1.5f};
 
 
 #pragma mark -
@@ -122,26 +102,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_pt
     return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
 }
 
-///**
-// * Initializes the controller contents, and starts the game
-// *
-// * The constructor does not allocate any objects or memory.  This allows
-// * us to have a non-pointer reference to this controller, reducing our
-// * memory allocation.  Instead, allocation happens in this method.
-// *
-// * The game world is scaled so that the screen coordinates do not agree
-// * with the Box2d coordinates.  The bounds are in terms of the Box2d
-// * world, not the screen.
-// *
-// * @param assets    The (loaded) assets for this game mode
-// * @param rect      The game bounds in Box2d coordinates
-// *
-// * @return  true if the controller is initialized properly, false otherwise.
-// */
-//bool GameScene::init(const std::shared_ptr<AssetManager> &assets, const Rect &rect)
-//{
-//    return init(assets, rect, Vec2(0, DEFAULT_GRAVITY));
-//}
 
 /**
  * Initializes the controller contents, and starts the game
@@ -204,7 +164,6 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     // Set _world and _objects in networkController
     _networkController->setObjects(_objects);
     _networkController->setWorld(_world);
-   
 
     // Start in building mode
     _buildingMode = true;
@@ -217,15 +176,20 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
+    
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
+    
+    
+
+    _backgroundScene.init();
 
     // TODO: Bring back background
-//    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
-//    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-//    _background->setPosition(Vec2(0,0));
-//    _background->setScale(1.0f);
-//    addChild(_background);
+    _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
+    _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _background->setPosition(Vec2(0,0));
+    _background->setScale(2.1f);
+    _backgroundScene.addChild(_background);
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -237,6 +201,8 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
     _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _debugnode->setPosition(offset);
+    //initialize object controller
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode);
 
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -346,6 +312,7 @@ void GameScene::dispose()
     {
 
         _input.dispose();
+        _backgroundScene.dispose();
         _world = nullptr;
         _worldnode = nullptr;
         _debugnode = nullptr;
@@ -428,9 +395,9 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _scale);
         }
         case (MOVING_PLATFORM):
-            return createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
+            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
-            return createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):
             return nullptr;
     }
@@ -487,233 +454,6 @@ void GameScene::reset()
 }
 
 
-std::shared_ptr<Object> GameScene::createPlatform(std::shared_ptr<Platform> plat) {
-    std::shared_ptr<Texture> image;
-    if (plat->getJsonType() == "tile") {
-        image = _assets->get<Texture>(TILE_TEXTURE);
-    } else if (plat->getJsonType() == "platform") {
-        image = _assets->get<Texture>(PLATFORM_TILE_TEXTURE);
-    } else {
-        image = _assets->get<Texture>(LOG_TEXTURE);
-    }
-
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
-    // Set the physics attributes
-    plat->getObstacle()->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
-    plat->getObstacle()->setDensity(BASIC_DENSITY);
-    plat->getObstacle()->setFriction(BASIC_FRICTION);
-    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-    plat->getObstacle()->setName("platform");
-
-    poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-    
-    addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
-    
-    
-    _objects.push_back(plat);
-
-    return plat;
-}
-/**
- * Creates a new platform.
- *
- * @return the platform being created
- *
- * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
- * @param size The dimensions (width, height) of the platform.
- */
-std::shared_ptr<Object> GameScene::createPlatform(Vec2 pos, Size size, string jsonType) {
-
-    std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
-
-    return createPlatform(plat);
-}
-/**
- * Creates a moving platform.
- *
- * @return the moving platform
- *
- * @param pos The bottom left position of the platform starting position
- * @param size The dimensions of the platform.
- * @param end The bottom left position of the platform's destination.
- * @param speed The speed at which the platform moves.
- */
-std::shared_ptr<Object> GameScene::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
-
-    std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
-
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
-    plat->getObstacle()->setDensity(BASIC_DENSITY);
-    plat->getObstacle()->setFriction(BASIC_FRICTION);
-    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-    plat->getObstacle()->setName("movingPlatform");
-
-    poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-
-    addObstacle(plat->getObstacle(), sprite, 1);
-    _objects.push_back(plat);
-
-    return plat;
-}
-/**
- * Create the growing wall if not created. Otherwise, increase its width
- *
- * @param timestep  The elapsed time since the last frame.
- */
-
-void GameScene::updateGrowingWall(float timestep)
-{
-    // Increase the width
-    _growingWallWidth += _growingWallGrowthRate * timestep;
-
-    // Remove the old wall if it exists
-    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
-    {
-        _world->removeObstacle(_growingWall);
-        _worldnode->removeChild(_growingWallNode);
-    }
-
-    // Create a new polygon for the wall
-    Poly2 wallPoly;
-    wallPoly.vertices.push_back(Vec2(0, DEFAULT_HEIGHT*.80));
-    wallPoly.vertices.push_back(Vec2(0, 0));
-    wallPoly.vertices.push_back(Vec2(_growingWallWidth, 0));
-    wallPoly.vertices.push_back(Vec2(_growingWallWidth, DEFAULT_HEIGHT*.80));
-
-    EarclipTriangulator triangulator;
-    triangulator.set(wallPoly.vertices);
-    triangulator.calculate();
-    wallPoly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
-    // Create the collision box
-    _growingWall = physics2::PolygonObstacle::allocWithAnchor(wallPoly, Vec2::ANCHOR_BOTTOM_LEFT);
-    _growingWall->setName("growingWall");
-    _growingWall->setBodyType(b2_staticBody);
-    _growingWall->setDensity(BASIC_DENSITY);
-    _growingWall->setFriction(BASIC_FRICTION);
-    _growingWall->setRestitution(BASIC_RESTITUTION);
-    _growingWall->setDebugColor(Color4::RED);
-
-    wallPoly *= _scale;
-    _growingWallNode = scene2::PolygonNode::allocWithPoly(wallPoly);
-    _growingWallNode->setColor(Color4::RED);
-    _growingWallNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-
-    addObstacle(_growingWall, _growingWallNode, true);
-}
-
-/**
- * Creates a new spike.
- * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
- * @param size The dimensions (width, height) of the spike.
- */
-std::shared_ptr<Object> GameScene::createSpike(Vec2 pos, Size size, float scale, float angle, string jsonType)
-{
-    std::shared_ptr<Spike> spk = Spike::alloc(pos, size, scale, angle, jsonType);
-    return createSpike(spk);
-}
-
-std::shared_ptr<Object> GameScene::createSpike(std::shared_ptr<Spike> spk)
-{
-    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
-
-    // Set the physics attributes
-    spk->getObstacle()->setBodyType(b2_staticBody);
-    spk->getObstacle()->setDensity(BASIC_DENSITY);
-    spk->getObstacle()->setFriction(BASIC_FRICTION);
-    spk->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    spk->getObstacle()->setDebugColor(DEBUG_COLOR);
-    spk->getObstacle()->setName("spike");
-
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-    spk->setSceneNode(sprite, spk->getAngle());
-    addObstacle(spk->getObstacle(), sprite);
-    _objects.push_back(spk);
-    return spk;
-}
-
-std::shared_ptr<Object> GameScene::createTreasure(Vec2 pos, Size size, string jsonType){
-    std::shared_ptr<Texture> image;
-    std::shared_ptr<scene2::PolygonNode> sprite;
-    Vec2 treasurePos = pos;
-    image = _assets->get<Texture>("treasure");
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(),sprite);
-    _treasure->getObstacle()->setName("treasure");
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
-
-    _treasure->setPosition(pos);
-    _objects.push_back(_treasure);
-    return _treasure;
-}
-
-std::shared_ptr<Object> GameScene::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
-}
-
-/**
- * Creates a new windobstacle
- *
- * @return the wind obstacle
- *
- * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
- * @param size The dimensions (width, height) of the platform.
- */
-std::shared_ptr<Object> GameScene::createWindObstacle(Vec2 pos, Size size, Vec2 gust, string jsonType)
-{
-    std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
-
-    // Allow movement of obstacle
-    wind->getObstacle()->setBodyType(b2_dynamicBody);
-
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-
-    wind->setTrajectory(gust);
-    wind->setPosition(pos);
-
-    addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
-
-    _objects.push_back(wind);
-
-    return wind;
-}
-
-std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstacle> wind)
-{
-    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
-}
-
 /**
  * Lays out the game geography.
  *
@@ -729,32 +469,10 @@ std::shared_ptr<Object> GameScene::createWindObstacle(std::shared_ptr<WindObstac
 void GameScene::populate()
 {
 #pragma mark : Goal door
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
-    std::shared_ptr<scene2::PolygonNode> sprite;
-    std::shared_ptr<scene2::WireNode> draw;
 
-    // Create obstacle
-    Vec2 goalPos = GOAL_POS;
-    Size goalSize(image->getSize().width / _scale,
-                  image->getSize().height / _scale);
-    _goalDoor = physics2::BoxObstacle::alloc(goalPos, goalSize);
-
-    // Set the physics attributes
-    _goalDoor->setBodyType(b2_staticBody);
-    _goalDoor->setDensity(0.0f);
-    _goalDoor->setFriction(0.0f);
-    _goalDoor->setRestitution(0.0f);
-    _goalDoor->setSensor(true);
-
-    // Add the scene graph nodes to this object
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    sprite->setColor(Color4(1,255,0));
-    _goalDoor->setDebugColor(DEBUG_COLOR);
-    addObstacle(_goalDoor, sprite);
-
+    _goalDoor = _objectController->createGoalDoor(Vec2(GOAL_POS[0], GOAL_POS[1]));
 
 #pragma mark : Wind
-//    createWindObstacle(Vec2(2.5, 1.5), Size(1, 1), Vec2(0, 10));
 
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
 
@@ -763,25 +481,13 @@ void GameScene::populate()
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
-    for (auto it = levelObjs.begin(); it != levelObjs.end(); ++it) {
-        key = (*it)->getJsonKey();
-        if (key == "platforms") {
-            createPlatform(dynamic_pointer_cast<Platform>(*it));
-        }
-        else if (key == "spikes") {
-            createSpike(dynamic_pointer_cast<Spike>(*it));
-        }
-        else if (key == "treasures") {
-            createTreasure(dynamic_pointer_cast<Treasure>(*it));
-        }
-        else if (key == "windObstacles") {
-            createWindObstacle(dynamic_pointer_cast<WindObstacle>(*it));
-        }
+    for (auto& obj : levelObjs) {
+        _objectController->processLevelObject(obj);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
-    image = _assets->get<Texture>(DUDE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
     
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
@@ -806,16 +512,10 @@ void GameScene::populate()
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
 
-#pragma mark : Spikes
-
-    //level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
-    
-    // KEEP TO REMEMBER HOW TO MAKE MOVING PLATFORM
-    //    createMovingPlatform(Vec2(3, 4), Sizef(2, 1), Vec2(8, 4), 1.0f);
 
 #pragma mark : Treasure
 
-    createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
+    _objectController->createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
 
 
     // Play the background music on a loop.
@@ -824,42 +524,6 @@ void GameScene::populate()
     //    AudioEngine::get()->getMusicQueue()->play(source, true, MUSIC_VOLUME);
 }
 
-/**
- * Adds the physics object to the physics world and loosely couples it to the scene graph
- *
- * There are two ways to link a physics object to a scene graph node on the
- * screen.  One way is to make a subclass of a physics object, like we did
- * with dude.  The other is to use callback functions to loosely couple
- * the two.  This function is an example of the latter.
- *
- * @param obj             The physics object to add
- * @param node            The scene graph node to attach it to
- * @param zOrder          The drawing order
- * @param useObjPosition  Whether to update the node's position to be at the object's position
- */
-void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
-                            const std::shared_ptr<scene2::SceneNode> &node,
-                            bool useObjPosition)
-{
-    _world->addObstacle(obj);
-    obj->setDebugScene(_debugnode);
-
-    // Position the scene graph node (enough for static objects)
-    if (useObjPosition)
-    {
-        node->setPosition(obj->getPosition() * _scale);
-    }
-    _worldnode->addChild(node);
-
-    // Dynamic objects need constant updating
-    if (obj->getBodyType() != b2_staticBody)
-    {
-        scene2::SceneNode *weak = node.get(); // No need for smart pointer in callback
-        obj->setListener([=, this](physics2::Obstacle *obs) {
-            weak->setPosition(obs->getPosition()*_scale);
-            weak->setAngle(obs->getAngle()); });
-    }
-}
 
 #pragma mark -
 #pragma mark Physics Handling
@@ -1538,12 +1202,12 @@ void GameScene::beginContact(b2Contact *contact)
         }
     }
     
-    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
-        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
-    {
-        _died = true;
-
-    }
+//    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
+//        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
+//    {
+//        _died = true;
+//
+//    }
 
     if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
         (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
@@ -1716,11 +1380,13 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
 
 
 void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+    _backgroundScene.setSpriteBatch(batch);
     Scene2::setSpriteBatch(batch);
     _ui.setSpriteBatch(batch);
 }
 
 void GameScene::render() {
+    _backgroundScene.render();
     Scene2::render();
     _ui.render();
 }
@@ -1744,9 +1410,3 @@ void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
         });
     }
 }
-
-
-
-
-
-
