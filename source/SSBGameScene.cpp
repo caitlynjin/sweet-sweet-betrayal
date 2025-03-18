@@ -201,7 +201,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _debugnode->setPosition(offset);
     //initialize object controller
-    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode);
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, &_objects);
 
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -394,7 +394,7 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
             return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _scale);
         }
         case (MOVING_PLATFORM):
-            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _scale);
+            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):

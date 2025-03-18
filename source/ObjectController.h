@@ -36,7 +36,7 @@ private:
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     float _scale;
     /** A list of all objects to be updated during each animation frame. */
-    std::vector<std::shared_ptr<Object>> _objects;
+    std::vector<std::shared_ptr<Object>>* _gameObjects;
     /** Reference to the physics root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _worldnode;
     /** Reference to the debug root of the scene graph */
@@ -56,7 +56,8 @@ public:
                      const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
                      float scale,
                      const std::shared_ptr<scene2::SceneNode> world_node,
-                     const std::shared_ptr<scene2::SceneNode> debug_node);
+                     const std::shared_ptr<scene2::SceneNode> debug_node,
+                     std::vector<std::shared_ptr<Object>>* gameObjects);
     /**
      * Creates a platform.
      *

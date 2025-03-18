@@ -18,6 +18,7 @@ void Platform::setPosition(const cugl::Vec2& position) {
 
 void Platform::update(float timestep) {
     if (!_moving) return;
+    CULog("udpating moving");
     
     Vec2 pos = _box->getPosition();
     Vec2 target = _forward ? _endPos : _startPos;
