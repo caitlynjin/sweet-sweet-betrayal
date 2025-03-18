@@ -31,13 +31,6 @@ protected:
     /** Controller for abstracting out input across multiple platforms */
     PlatformInput _input;
 
-    /** Reference to the ready button */
-    std::shared_ptr<cugl::scene2::Button> _readyButton;
-    /** Reference to the right button */
-    std::shared_ptr<cugl::scene2::Button> _rightButton;
-    /** Reference to the left button */
-    std::shared_ptr<cugl::scene2::Button> _leftButton;
-
     /** The total amount of rounds */
     int const TOTAL_ROUNDS = 5;
 
@@ -46,15 +39,6 @@ protected:
 
     /** Reference to the rounds message label */
     std::shared_ptr<scene2::Label> _roundsnode;
-    
-    /** Whether the player is ready to proceed to movement phase */
-    bool _isReady;
-
-    /** Whether right camera button is being pressed */
-    bool _rightpressed;
-
-    /** Whether left camera button is being pressed */
-    bool _leftpressed;
 
     std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
 public:
@@ -99,30 +83,9 @@ public:
     bool init(const std::shared_ptr<AssetManager>& assets);
 
     /**
-     * @return true if the right button was pressed
-     */
-    bool getRightPressed();
-
-    /**
-     * @return true if the left button was pressed
-     */
-    bool getLeftPressed();
-    
-    
-    /**
-     * @return true if the ready button was pressed
-     */
-    bool getReadyDone();
-
-    /**
      * Makes the buttons in the building mode visible
      */
     void visibleButtons(bool isVisible);
-    
-    /**
-     * Sets whether the player has pressed the ready button to indicate they are done with build phase.
-     */
-    void setReadyDone(bool isDone);
 
     /**
     * Updates round counter

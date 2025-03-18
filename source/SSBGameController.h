@@ -1,12 +1,12 @@
 //
-//  SSBGameScene.h
+//  SSBGameController.h
 //  SweetSweetBetrayal
 //
-//  Created by Grace Sawatyanon on 18/2/25.
+//  Created by Caitlyn Jin on 3/16/25.
 //
 
-#ifndef __PF_GAME_SCENE_H__
-#define __PF_GAME_SCENE_H__
+#ifndef __SSB_GAME_CONTROLLER_H__
+#define __SSB_GAME_CONTROLLER_H__
 #include <cugl/cugl.h>
 #include <box2d/b2_world_callbacks.h>
 #include <box2d/b2_fixture.h>
@@ -22,6 +22,7 @@
 #include "Treasure.h"
 #include "MessageEvent.h"
 #include "UIScene.h"
+#include "BuildPhaseController.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
 //#include <cmath>
@@ -38,18 +39,19 @@ using namespace cugl::physics2::distrib;
  * really a mini-GameEngine in its own right.  As in 3152, we separate it out
  * so that we can have a separate mode for the loading screen.
  */
-class GameScene : public scene2::Scene2 {
+class SSBGameController : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 
     /** A list of all objects to be updated during each animation frame. */
     std::vector<std::shared_ptr<Object>> _objects;
-    
+
     // CONTROLLERS
     /** Controller for abstracting out input across multiple platforms */
-    PlatformInput _input;
-    
+    std::shared_ptr<PlatformInput> _input;
+    std::shared_ptr<BuildPhaseController> _buildPhaseController;
+
     // VIEW
     /** Reference to the physics root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _worldnode;
@@ -75,14 +77,14 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _jumpbutton;
     /** Reference to the glide button */
     std::shared_ptr<cugl::scene2::Button> _glidebutton;
-    /** Reference to build mode inventory buttons */
-    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
+//    /** Reference to build mode inventory buttons */
+//    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
 
     /** Reference to the label for counting rounds */
     std::shared_ptr<cugl::scene2::Label> _roundsLabel;
-    
+
     std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
 
     /** Reference to background scene */
@@ -90,10 +92,6 @@ protected:
 
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
-    /** Reference to the background of the inventory */
-    std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
-    /** Reference to the overlay of the inventory */
-    std::shared_ptr<scene2::PolygonNode> _inventoryOverlay;
 
     /** The primary controller for the UI */
     UIScene _ui;
@@ -111,7 +109,7 @@ protected:
     std::shared_ptr<DudeModel> _localPlayer;
 
     std::shared_ptr<Platform> _platformTest;
-    
+
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
 
@@ -126,8 +124,6 @@ protected:
 
     std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
 
-    /** Previous position of object in build phase */
-    Vec2 _prevPos = Vec2(0, 0);
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -143,12 +139,8 @@ protected:
     int _countdown;
     /** Whether we are in build mode */
     bool _buildingMode;
-    /** The selected item in build mode (new object) */
-    Item _selectedItem;
-    /** The selected object in build mode (object being moved) */
-    std::shared_ptr<Object> _selectedObject;
     /** The initial camera position */
-    Vec2 _camerapos;
+    Vec2 _initialCameraPos;
     /** Whether player is jumping */
     bool _didjump;
     /** Whether player is gliding */
@@ -162,27 +154,23 @@ protected:
     int _currRound = 1;
     /** How many gems the player collected and won */
     int _currGems = 0;
-    /** The number of items currently placed */
-    int _itemsPlaced = 0;
 
     /** Mark set to handle more sophisticated collision callbacks */
     std::unordered_set<b2Fixture*> _sensorFixtures;
-    
+
     std::shared_ptr<ObjectController> _objectController;
-    
-    
+
+
 #pragma mark Networking Variables
     /** The network controller */
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
-    /** Whether the message has been sent */
-    bool _readyMessageSent = false;
-    
-    
+
+
 private:
 
-    
+
 
     /**
      * Lays out the game geography.
@@ -197,7 +185,7 @@ private:
      *
      */
     void populate();
-    
+
 public:
 #pragma mark -
 #pragma mark Constructors
@@ -208,21 +196,21 @@ public:
      * This constructor does not allocate any objects or start the controller.
      * This allows us to use a controller without a heap pointer.
      */
-    GameScene();
-    
+    SSBGameController();
+
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      *
      * This method is different from dispose() in that it ALSO shuts off any
      * static resources, like the input controller.
      */
-    ~GameScene() { dispose(); }
-    
+    ~SSBGameController() { dispose(); }
+
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */
-    void dispose();
-    
+    void dispose() override;
+
     /**
      * Initializes the controller contents, and starts the game
      *
@@ -257,7 +245,7 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
               const Rect& rect);
-    
+
     /**
      * Initializes the controller contents, and starts the game
      *
@@ -280,39 +268,31 @@ public:
 
 #pragma mark -
 #pragma mark Networking/Player
-    
+
     /**
      * Initializes the players.
      */
     void initializePlayers();
-    
+
 
 #pragma mark -
 #pragma mark Build Mode
-    
-    /**
-     * Initializes the inventory for build mode.
-     */
-    void initInventory();
-    
-    /**
-     * Creates an item of type item and places it at the grid position.
-     *
-     * @return the object being placed
-     *
-     * @param gridPos   The grid position to place the item at
-     * @param item  The type of the item to be placed/created
-     */
-    std::shared_ptr<Object> placeItem(Vec2 gridPos, Item item);
 
-    /**
-     * Returns the corresponding asset name to the item.
-     *
-     * @param item The item
-     * @Return the item's asset name
-     */
-    std::string itemToAssetName(Item item);
-    
+//    /**
+//     * Initializes the inventory for build mode.
+//     */
+//    void initInventory();
+
+//    /**
+//     * Creates an item of type item and places it at the grid position.
+//     *
+//     * @return the object being placed
+//     *
+//     * @param gridPos   The grid position to place the item at
+//     * @param item  The type of the item to be placed/created
+//     */
+//    std::shared_ptr<Object> placeItem(Vec2 gridPos, Item item);
+
 #pragma mark -
 #pragma mark State Access
     /**
@@ -323,7 +303,7 @@ public:
      * @return true if debug mode is active.
      */
     bool isDebug( ) const { return _debug; }
-    
+
     /**
      * Sets whether debug mode is active.
      *
@@ -332,7 +312,7 @@ public:
      * @param value whether debug mode is active.
      */
     void setDebug(bool value) { _debug = value; _debugnode->setVisible(value); }
-    
+
     /**
      * Returns true if the level is completed.
      *
@@ -341,7 +321,7 @@ public:
      * @return true if the level is completed.
      */
     bool isComplete( ) const { return _complete; }
-    
+
     /**
      * Sets whether the level is completed.
      *
@@ -368,12 +348,12 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
-    
+
     /**
     * Sets the level up for the next round.
     *
     * When called, the level will reset after a countdown.
-     
+
      @param reachedGoal whether the player has reached the goal.
     */
     void nextRound(bool reachedGoal = false);
@@ -421,7 +401,7 @@ public:
      */
     void update(float timestep) override;
 
-     
+
     /**
      * The method called to indicate the start of a deterministic loop.
      *
@@ -443,7 +423,7 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     void preUpdate(float dt);
-    
+
     /**
      * The method called to provide a deterministic application loop.
      *
@@ -534,7 +514,7 @@ public:
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
-    
+
     /**
      * Adds the physics object to the physics world and loosely couples it to the scene graph
      *
@@ -549,7 +529,7 @@ public:
      */
     void addInitObstacle(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
                      const std::shared_ptr<cugl::scene2::SceneNode>& node);
-    
+
     /**
      * This method links a scene node to the obstacle.
      *
@@ -557,11 +537,7 @@ public:
      */
     void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
         const std::shared_ptr<cugl::scene2::SceneNode>& node);
-    
-    
-    
+
   };
 
-
-
-#endif /* __PF_GAME_SCENE_H__ */
+#endif /* __SSB_GAME_CONTROLLER_H__ */

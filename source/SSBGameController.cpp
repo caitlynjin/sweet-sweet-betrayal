@@ -1,11 +1,11 @@
 //
-//  SSBGameScene.cpp
+//  SSBGameController.cpp
 //  SweetSweetBetrayal
 //
-//  Created by Grace Sawatyanon on 18/2/25.
+//  Created by Caitlyn Jin on 3/16/25.
 //
 
-#include "SSBGameScene.h"
+#include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
@@ -71,7 +71,7 @@ float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
  * This constructor does not allocate any objects or start the controller.
  * This allows us to use a controller without a heap pointer.
  */
-GameScene::GameScene() : Scene2(),
+SSBGameController::SSBGameController() : Scene2(),
     _worldnode(nullptr),
     _debugnode(nullptr),
     _world(nullptr),
@@ -97,7 +97,7 @@ GameScene::GameScene() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController)
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController)
 {
     return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController);
 }
@@ -120,7 +120,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets, std::shared_pt
  *
  * @return  true if the controller is initialized properly, false otherwise.
  */
-bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
                      const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController)
 {
     if (assets == nullptr)
@@ -131,10 +131,10 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         return false;
     }
-    
+
     _assets = assets;
     _networkController = networkController;
-    
+
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
@@ -147,19 +147,19 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         endContact(contact);
     };
     _world->update(FIXED_TIMESTEP_S);
-    
+
     //TODO: Maybe move to NetworkController
     //Make a std::function reference of the linkSceneToObs function in game scene for network controller
     std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
         this->linkSceneToObs(obs,node);
     };
-    
+
     // Init networking
     _network = networkController->getNetwork();
-    
+
     //TODO: Change this to all be handled in Network Controller
     _network->enablePhysics(_world, linkSceneToObsFunc);
-    
+
     // Set _world and _objects in networkController
     _networkController->setObjects(_objects);
     _networkController->setWorld(_world);
@@ -168,18 +168,18 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _buildingMode = true;
 
     // Start up the input handler
-    
-    _input.init(getBounds());
+    _input = std::make_shared<PlatformInput>();
+    _input->init(getBounds());
 
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
-    
+
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
-    
-    
+
+
 
     _backgroundScene.init();
 
@@ -196,6 +196,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _worldnode->setPosition(offset);
 
+    // TODO: UI Scene
     _debugnode = scene2::SceneNode::alloc();
     _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
     _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -203,18 +204,26 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     //initialize object controller
     _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode);
 
+    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
+
+    // Initialize build controller
+    _buildPhaseController = std::make_shared<BuildPhaseController>();
+    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
+
+    // TODO: UI Scene
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
     _winnode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
     _winnode->setForeground(WIN_COLOR);
     setComplete(false);
 
+    // TODO: UI Scene
     _losenode = scene2::Label::allocWithText(LOSE_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _losenode->setAnchor(Vec2::ANCHOR_CENTER);
     _losenode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
     _losenode->setForeground(LOSE_COLOR);
     setFailure(false);
-    
+
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
         std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
@@ -225,16 +234,19 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         _scoreImages.push_back(scoreNode);
     }
 
+    // TODO: UI Scene
     _leftnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_IMAGE));
     _leftnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_RIGHT);
     _leftnode->setScale(0.35f);
     _leftnode->setVisible(false);
 
+    // TODO: UI Scene
     _rightnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_IMAGE));
     _rightnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_LEFT);
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
 
+    // TODO: UI Scene
     std::shared_ptr<scene2::PolygonNode> jumpNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
     _jumpbutton = scene2::Button::alloc(jumpNode);
     _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
@@ -249,6 +261,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         }
     });
 
+    // TODO: UI Scene
     std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
@@ -263,17 +276,12 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
         }
     });
 
-
-    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
-
-    initInventory();
-
     _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
     _scrollpane->setInterior(getBounds() / 2);
     _scrollpane->setConstrained(false);
 
     // Set initial camera position
-    _camerapos = getCamera()->getPosition();
+    _initialCameraPos = getCamera()->getPosition();
 
     addChild(_worldnode);
     addChild(_debugnode);
@@ -285,7 +293,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     addChild(_gridManager->getGridNode());
     _ui.addChild(_jumpbutton);
     _ui.addChild(_glidebutton);
-    
+
     for (auto score : _scoreImages){
         _ui.addChild(score);
     }
@@ -305,12 +313,11 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
-void GameScene::dispose()
+void SSBGameController::dispose()
 {
     if (_active)
     {
-
-        _input.dispose();
+        _input->dispose();
         _backgroundScene.dispose();
         _world = nullptr;
         _worldnode = nullptr;
@@ -325,80 +332,9 @@ void GameScene::dispose()
         for (auto score : _scoreImages){
             score = nullptr;
         }
+        _buildPhaseController->dispose();
         _ui.dispose();
         Scene2::dispose();
-    }
-}
-
-#pragma mark -
-#pragma mark Build Mode
-
-/**
- * Initializes the grid layout on the screen for build mode.
- */
-void GameScene::initInventory()
-{
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
-
-    // Set the background
-    _inventoryBackground = scene2::PolygonNode::alloc();
-    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
-    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
-    _inventoryBackground->setColor(Color4(131,111,108));
-    _inventoryBackground->setVisible(true);
-    _ui.addChild(_inventoryBackground);
-
-    float yOffset = 0;
-    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
-    {
-        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
-        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
-        itemButton->setName(itemToString(inventoryItems[itemNo]));
-        itemButton->setVisible(true);
-        itemButton->activate();
-        itemButton->addListener([this, item = inventoryItems[itemNo]](const std::string &name, bool down) {
-            if (down & _buildingMode) {
-                _selectedItem = item;
-                _input.setInventoryStatus(PlatformInput::PLACING);
-            }
-        });
-        _inventoryButtons.push_back(itemButton);
-        _ui.addChild(itemButton);
-        yOffset += 80;
-    }
-
-    // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
-    _inventoryOverlay->setVisible(false);
-    _ui.addChild(_inventoryOverlay);
-}
-
-/**
- * Creates an item of type item and places it at the grid position.
- *
- *@return the object being placed and created
- *
- * @param gridPos   The grid position to place the item at
- * @param item  The type of the item to be placed/created
- */
-std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
-
-    switch (item) {
-        case (PLATFORM): {
-            return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _scale);
-        }
-        case (MOVING_PLATFORM):
-            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
-        case (WIND):
-            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
-        case (NONE):
-            return nullptr;
     }
 }
 
@@ -410,14 +346,16 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
  *
  * This method disposes of the world and creates a new one.
  */
-void GameScene::reset()
+void SSBGameController::reset()
 {
     // Reset all controllers --> not sure if necessary
     _networkController->reset();
-    
+
     _world->clear();
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
+
+    // TODO: MovePhaseController
     _localPlayer = nullptr;
     _goalDoor = nullptr;
 //    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
@@ -425,28 +363,25 @@ void GameScene::reset()
 //        _world->removeObstacle(_growingWall);
 //        _worldnode->removeChild(_growingWallNode);
 //    }
-//    
+//
 //    _growingWall = nullptr;
 //    _growingWallNode = nullptr;
 //    _growingWallWidth = 0.1f;
     _treasure = nullptr;
-
     _currRound = 1;
     _died = false;
     _reachedGoal = false;
 
+    // TODO: MovePhaseController
     setFailure(false);
     setComplete(false);
     setBuildingMode(true);
-    getCamera()->setPosition(_camerapos);
-    getCamera()->update();
-    for (size_t i = 0; i < _inventoryButtons.size(); i++)
-    {
-        _inventoryButtons[i]->activate();
-    }
-    _inventoryOverlay->setVisible(false);
-    //_readyButton->setVisible(true);
-    _itemsPlaced = 0;
+
+    _camera->setPosition(_initialCameraPos);
+    _camera->update();
+
+    _buildPhaseController->reset();
+
     _ui.reset();
 
     populate();
@@ -465,8 +400,9 @@ void GameScene::reset()
  * with your serialization loader, which would process a level file.
  */
 
-void GameScene::populate()
+void SSBGameController::populate()
 {
+// TODO: MovePhaseController
 #pragma mark : Goal door
 
     _goalDoor = _objectController->createGoalDoor(Vec2(GOAL_POS[0], GOAL_POS[1]));
@@ -485,9 +421,10 @@ void GameScene::populate()
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
+    // TODO: MovePhaseController
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
-    
+
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
 //    pos += Vec2(4, 5);
@@ -495,7 +432,7 @@ void GameScene::populate()
     if (_networkController->getLocalID() == 2){
         pos += Vec2(2, 0);
     }
-    
+
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
@@ -503,9 +440,9 @@ void GameScene::populate()
     // If I do not disable the player, collision filtering works after build phase ends, not sure why
     // TODO: Find a better solution, maybe only have players getting updated during movement phase
     _localPlayer->setEnabled(false);
-    
+
     _localPlayer->setDebugScene(_debugnode);
-    
+
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_networkController->getIsHost()){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
@@ -534,9 +471,8 @@ void GameScene::populate()
  *
  * @param timestep  The amount of time (in seconds) since the last frame
  */
-void GameScene::update(float timestep)
+void SSBGameController::update(float timestep)
 {
-    
 }
 
 /**
@@ -559,7 +495,7 @@ void GameScene::update(float timestep)
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void GameScene::preUpdate(float dt)
+void SSBGameController::preUpdate(float dt)
 {
     //TODO: Remove later
 //    if (_buildingMode){
@@ -568,169 +504,53 @@ void GameScene::preUpdate(float dt)
 //    else{
 //        _localPlayer->setAwake(true);
 //    }
-    
-    _networkController->preUpdate(dt);
-    
-    
-    _input.update(dt);
 
-    
+    _networkController->preUpdate(dt);
+
+    _input->update(dt);
+
     // Process Networking
     if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
         _networkController->setNumReady(0);
     }
-    
+
+    // TODO: MovePhaseController
     // Update objects
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
-    
-    if (_buildingMode)
+
+
+    if (!_buildingMode)
     {
-        /** The offset of finger placement to object indicator */
-        Vec2 dragOffset = Vec2(-1, 1);
+        // TODO: MovePhaseController
 
-        // Deactivate inventory buttons once all traps are placed
-        if (_itemsPlaced == 0){
-            for (size_t i = 0; i < _inventoryButtons.size(); i++)
-            {
-                _inventoryButtons[i]->activate();
-                _inventoryOverlay->setVisible(false);
-            }
-        }
-        
-        if (_input.isTouchDown() && (_input.getInventoryStatus() == PlatformInput::PLACING))
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-            Vec2 gridPosWithOffset = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);
-
-            // Show placing object indicator when dragging object
-            if (_selectedItem != NONE) {
-                CULog("Placing object");
-
-                if (_selectedObject) {
-                    // Set the current position of the object
-                    _prevPos = gridPos;
-
-                    // Move the existing object to new position
-                    _selectedObject->setPosition(gridPosWithOffset);
-
-                    // Trigger obstacle update listener
-                    if (_selectedObject->getObstacle()->getListener()) {
-                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                    }
-                } else {
-                    _gridManager->setObject(gridPosWithOffset, _selectedItem);
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::WAITING)
-        {
-            _gridManager->setSpriteInvisible();
-
-            if (_input.isTouchDown()) {
-                // Attempt to move object that exists on the grid
-                Vec2 screenPos = _input.getPosOnDrag();
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset), NONE);
-
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                
-                // If object exists
-                if (obj) {
-                    CULog("Selected existing object");
-                    _selectedObject = obj;
-                    _selectedItem = obj->getItemType();
-                    _input.setInventoryStatus(PlatformInput::PLACING);
-                }
-            }
-        }
-        else if (_input.getInventoryStatus() == PlatformInput::PLACED)
-        {
-            Vec2 screenPos = _input.getPosOnDrag();
-            Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-
-            if (_selectedObject) {
-                if (_gridManager->hasObject(gridPos)) {
-                    // Move the object back to its original position
-                    _selectedObject->setPosition(_prevPos);
-                    _gridManager->addObject(_prevPos, _selectedObject);
-                    _prevPos = Vec2(0, 0);
-                } else {
-                    // Move the existing object to new position
-                    CULog("Reposition object");
-                    _selectedObject->setPosition(gridPos);
-                    _gridManager->addObject(gridPos, _selectedObject);
-
-                    
-                }
-
-                // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-                }
-
-                // Reset selected object
-                _selectedObject = nullptr;
-            } else {
-                // Place new object on grid
-                Vec2 gridPos = snapToGrid(convertScreenToBox2d(screenPos, _scale, _offset) + dragOffset, _selectedItem);;
-
-                if (!_gridManager->hasObject(gridPos)) {
-                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addObject(gridPos, obj);
-
-                    _itemsPlaced += 1;
-
-                    // Update inventory UI
-                    if (_itemsPlaced >= 1)
-                    {
-                        for (size_t i = 0; i < _inventoryButtons.size(); i++)
-                        {
-                            _inventoryButtons[i]->deactivate();
-                        }
-                    }
-                }
-            }
-
-            // Reset selected item
-            _selectedItem = NONE;
-
-            // Darken inventory UI
-            _inventoryOverlay->setVisible(true);
-            _input.setInventoryStatus(PlatformInput::WAITING);
-        }
-
-    }
-    else
-    {
         // Process the toggled key commands
-        if (_input.didDebug())
+        if (_input->didDebug())
         {
             setDebug(!isDebug());
         }
-        if (_input.didReset())
+        if (_input->didReset())
         {
             reset();
         }
-        if (_input.didExit())
+        if (_input->didExit())
         {
             CULog("Shutting down");
             Application::get()->quit();
         }
 
         // Process the movement
-        if (_input.withJoystick())
+        if (_input->withJoystick())
         {
-            if (_input.getHorizontal() < 0)
+            if (_input->getHorizontal() < 0)
             {
                 _leftnode->setVisible(true);
                 _rightnode->setVisible(false);
             }
-            else if (_input.getHorizontal() > 0)
+            else if (_input->getHorizontal() > 0)
             {
                 _leftnode->setVisible(false);
                 _rightnode->setVisible(true);
@@ -740,8 +560,8 @@ void GameScene::preUpdate(float dt)
                 _leftnode->setVisible(false);
                 _rightnode->setVisible(false);
             }
-            _leftnode->setPosition(_input.getJoystick());
-            _rightnode->setPosition(_input.getJoystick());
+            _leftnode->setPosition(_input->getJoystick());
+            _rightnode->setPosition(_input->getJoystick());
         }
         else
         {
@@ -750,48 +570,42 @@ void GameScene::preUpdate(float dt)
         }
 
         //THE GLIDE BULLSHIT SECTION
-        if (_input.getRightTapped()) {
-            _input.setRightTapped(false);
+        if (_input->getRightTapped()) {
+            _input->setRightTapped(false);
             if (!_localPlayer->isGrounded())
             {
                 _localPlayer->setGlide(true);
             }
         }
-        else if (!_input.isRightDown()) {
+        else if (!_input->isRightDown()) {
             _localPlayer->setGlide(false);
         }
 
-//        if (_input.getRightTapped()) {
-//            _input.setRightTapped(false);
+//        if (_input->getRightTapped()) {
+//            _input->setRightTapped(false);
 //            if (!_avatar->isGrounded())
 //            {
 //                _avatar->setGlide(true);
 //            }
 //        }
-//        else if (!_input.isRightDown()) {
+//        else if (!_input->isRightDown()) {
 //            _avatar->setGlide(false);
 //
 //        }
         _localPlayer->setGlide(_didglide);
-
-
-        _localPlayer->setMovement(_input.getHorizontal() * _localPlayer->getForce());
+        _localPlayer->setMovement(_input->getHorizontal() * _localPlayer->getForce());
         _localPlayer->setJumping(_didjump);
         _localPlayer->applyForce();
 
-
         if (_localPlayer->isJumping() && _localPlayer->isGrounded())
         {
-
             std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
             AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
         }
-        
-        
+
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
             (*it)->update(dt);
         }
-
 
         if (_localPlayer->isGrounded() && !_glidebutton->isDown()){
             _jumpbutton->activate();
@@ -810,37 +624,24 @@ void GameScene::preUpdate(float dt)
 
     }
 
-    // TODO: Commented out camera code for now
+    // TODO: MovePhaseScene and BuildPhaseScene
     if (!_buildingMode){
         getCamera()->setPosition(Vec3(_localPlayer->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
     }
     getCamera()->update();
-    
+
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(dt);
 //    }
-    // increase growing wall
-    if (!_buildingMode)
-    {
+//    // increase growing wall
+//    if (!_buildingMode)
+//    {
 //        updateGrowingWall(dt);
-    }
+//    }
 
     _ui.preUpdate(dt);
-    if (_ui.getReadyDone() && !_readyMessageSent){
-//        CULog("send out event");
-        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
-        _readyMessageSent = true;
-    } else if (!_ui.getReadyDone()) {
-        _readyMessageSent = false;
-    }
-    if (_ui.getRightPressed() && _buildingMode){
-        getCamera()->translate(10, 0);
-        getCamera()->update();
-    }
-    if (_ui.getLeftPressed() && _buildingMode){
-        getCamera()->translate(-10, 0);
-        getCamera()->update();
-    }
+
+    _buildPhaseController->preUpdate(dt);
 }
 
 /**
@@ -869,17 +670,17 @@ void GameScene::preUpdate(float dt)
  *
  * @param step  The number of fixed seconds for this step
  */
-void GameScene::fixedUpdate(float step)
+void SSBGameController::fixedUpdate(float step)
 {
     // Turn the physics engine crank.
     _world->update(FIXED_TIMESTEP_S);
-    
+
     // Update all controller
     _networkController->fixedUpdate(step);
-    
+
     _ui.fixedUpdate(step);
 
-    
+
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
@@ -911,28 +712,32 @@ void GameScene::fixedUpdate(float step)
  *
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
-void GameScene::postUpdate(float remain)
+void SSBGameController::postUpdate(float remain)
 {
     // Since items may be deleted, garbage collect
     _world->garbageCollect();
-    
+
     // Update all controllers
     _networkController->fixedUpdate(remain);
 
+    // TODO: MovePhaseController
     // Record failure if necessary.
     if (!_failed && _localPlayer->getY() < 0)
     {
         setFailure(true);
     }
-    
+
+    // TODO: MovePhaseController
     if (!_failed && _died){
         setFailure(true);
     }
-    
+
+    // TODO: MovePhaseController
     if(_reachedGoal){
         nextRound(true);
     }
 
+    // TODO: MovePhaseController
     // Reset the game if we win or lose.
     if (_countdown > 0)
     {
@@ -942,9 +747,11 @@ void GameScene::postUpdate(float remain)
     {
         reset();
     }
+
     _ui.postUpdate(remain);
 }
 
+// TODO: MovePhaseController
 /**
  * Sets whether the level is completed.
  *
@@ -952,7 +759,7 @@ void GameScene::postUpdate(float remain)
  *
  * @param value whether the level is completed.
  */
-void GameScene::setComplete(bool value)
+void SSBGameController::setComplete(bool value)
 {
     bool change = _complete != value;
     _complete = value;
@@ -970,6 +777,7 @@ void GameScene::setComplete(bool value)
     }
 }
 
+// TODO: MovePhaseController
 /**
  * Sets whether the level is failed.
  *
@@ -977,18 +785,18 @@ void GameScene::setComplete(bool value)
  *
  * @param value whether the level is failed.
  */
-void GameScene::setFailure(bool value) {
+void SSBGameController::setFailure(bool value) {
     if (value) {
         // If next round available, do not fail
         if (_currRound < TOTAL_ROUNDS){
             if (_localPlayer->_hasTreasure){
                 _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
             }
-            
+
             nextRound();
             return;
         }
-        
+
         std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
         AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
         _losenode->setVisible(true);
@@ -1002,13 +810,14 @@ void GameScene::setFailure(bool value) {
     _failed = value;
 }
 
+// TODO: MovePhaseController
 /**
 * Sets the level up for the next round.
 *
 * When called, the level will reset after a countdown.
 *
 */
-void GameScene::nextRound(bool reachedGoal) {
+void SSBGameController::nextRound(bool reachedGoal) {
     // Check if player won before going to next round
     if (reachedGoal){
         if(_localPlayer->_hasTreasure){
@@ -1017,7 +826,7 @@ void GameScene::nextRound(bool reachedGoal) {
             _currGems += 1;
             // Update score image
             _scoreImages.at(_currGems-1)->setTexture(_assets->get<Texture>(FULL_IMAGE));
-            
+
             // Check if player won
             if (_currGems == TOTAL_GEMS){
                 setComplete(true);
@@ -1030,13 +839,13 @@ void GameScene::nextRound(bool reachedGoal) {
 
         }
     }
-    
+
     // Check if player lost
     if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
         setFailure(true);
         return;
     }
-    
+
     // Increment round
     _currRound += 1;
     // Update text
@@ -1051,22 +860,21 @@ void GameScene::nextRound(bool reachedGoal) {
 //    _roundsnode->setForeground(INFO_COLOR);
 //    _roundsnode->setVisible(true);
 //    addChild(_roundsnode);
-    
+
     setFailure(false);
-    
+
     // Reset player properties
     _localPlayer->setPosition(Vec2(DUDE_POS));
     _localPlayer->removeTreasure();
     _died = false;
     _reachedGoal = false;
-    
+
     // Reset growing wall
 //    _growingWallWidth = 0.1f;
 //    _growingWallNode->setVisible(false);
 
-    
+
     // Return to building mode
-    _itemsPlaced = 0;
     setBuildingMode(true);
 }
 
@@ -1075,25 +883,18 @@ void GameScene::nextRound(bool reachedGoal) {
  *
  * @param value whether the level is in building mode.
  */
-void GameScene::setBuildingMode(bool value) {
+void SSBGameController::setBuildingMode(bool value) {
     _buildingMode = value;
+    _buildPhaseController->setBuildingMode(value);
 
     _gridManager->getGridNode()->setVisible(value);
-    for (size_t i = 0; i < _inventoryButtons.size(); i++)
-    {
-        _inventoryButtons[i]->setVisible(value);
-    }
-    _inventoryOverlay->setVisible(value);
-    _inventoryBackground->setVisible(value);
-    _ui.visibleButtons(value);
 
-    _camera->setPosition(_camerapos);
+    _camera->setPosition(_initialCameraPos);
 
     if (value){
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _glidebutton->setVisible(false);
-        _ui.setReadyDone(false);
     }
     else{
         _jumpbutton->activate();
@@ -1101,6 +902,7 @@ void GameScene::setBuildingMode(bool value) {
     _jumpbutton->setVisible(!value);
 }
 
+// TODO: MovePhaseController
 #pragma mark -
 #pragma mark Collision Handling
 /**
@@ -1112,7 +914,7 @@ void GameScene::setBuildingMode(bool value) {
  *
  * @param  contact  The two bodies that collided
  */
-void GameScene::beginContact(b2Contact *contact)
+void SSBGameController::beginContact(b2Contact *contact)
 {
     b2Fixture *fix1 = contact->GetFixtureA();
     b2Fixture *fix2 = contact->GetFixtureB();
@@ -1128,7 +930,7 @@ void GameScene::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    
+
     // Check if both are players and disable contact
         if ((bd1->getName() == "player" && bd2->getName() == "player") ||
             (bd1 == _localPlayer.get() && bd2->getName() == "player") ||
@@ -1140,7 +942,7 @@ void GameScene::beginContact(b2Contact *contact)
     if (((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
         (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
     {
-        
+
         _localPlayer->setGrounded(true);
     }
 
@@ -1152,11 +954,11 @@ void GameScene::beginContact(b2Contact *contact)
 //        // Could have more than one ground
 //        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
 //    }
-    
+
     if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1 && bd1->getName() != "player") ||
         (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2 && bd2->getName() != "player")) {
         _localPlayer->setGrounded(true);
-        
+
         // Could have more than one ground
         _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
     }
@@ -1165,7 +967,7 @@ void GameScene::beginContact(b2Contact *contact)
     if((bd1 == _localPlayer.get()   && bd2 == _goalDoor.get()) ||
         (bd1 == _goalDoor.get() && bd2 == _localPlayer.get())) {
         _reachedGoal = true;
-        
+
     }
     // If we hit a spike, we are DEAD
     if ((bd1 == _localPlayer.get() && bd2->getName() == "spike") ||
@@ -1196,7 +998,7 @@ void GameScene::beginContact(b2Contact *contact)
             windPos = bd1->getPosition();
         }
         //Find the appropriate object
-        
+
         auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
         if (_gridManager->posToObjMap.count(p) > 0) {
             CULog("WIND FOUND!");
@@ -1204,7 +1006,7 @@ void GameScene::beginContact(b2Contact *contact)
             _localPlayer->addWind(thing->getTrajectory());
         }
     }
-    
+
 //    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
 //        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
 //    {
@@ -1245,6 +1047,7 @@ void GameScene::beginContact(b2Contact *contact)
     }
 }
 
+// TODO: MovePhaseController
 /**
  * Callback method for the start of a collision
  *
@@ -1252,7 +1055,7 @@ void GameScene::beginContact(b2Contact *contact)
  * is to determine when the characer is NOT on the ground.  This is how we prevent
  * double jumping.
  */
-void GameScene::endContact(b2Contact *contact)
+void SSBGameController::endContact(b2Contact *contact)
 {
     b2Fixture *fix1 = contact->GetFixtureA();
     b2Fixture *fix2 = contact->GetFixtureB();
@@ -1308,64 +1111,10 @@ void GameScene::endContact(b2Contact *contact)
 
 #pragma mark -
 #pragma mark Helpers
-
-/**
- * Converts from screen to Box2D coordinates.
- *
- * @return the Box2D position
- *
- * @param screenPos    The screen position
- * @param scale             The screen to world scale
- * @param offset           The offset of the scene to the world
- */
-Vec2 GameScene::convertScreenToBox2d(const Vec2 &screenPos, float scale, const Vec2 &offset)
-{
-    Vec2 adjusted = screenPos - offset;
-
-    // Adjust for camera position
-    Vec2 worldPos = adjusted + (_camera->getPosition() - _camerapos);
-
-    float xBox2D = worldPos.x / scale;
-    float yBox2D = worldPos.y / scale;
-
-    // Converts to the specific grid position
-    int xGrid = xBox2D;
-    int yGrid = yBox2D;
-
-    return Vec2(xGrid, yGrid);
-}
-
-/**
- * Snaps the Box2D position to within the bounds of the build phase grid.
- *
- * @return the grid position
- *
- * @param screenPos    The screen position
- * @param item               The selected item being snapped to the grid
- */
-Vec2 GameScene::snapToGrid(const Vec2 &gridPos, Item item) {
-    Size offset = itemToSize(item) - Vec2(1, 1);
-
-    int xGrid = gridPos.x;
-    int yGrid = gridPos.y;
-
-    // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
-
-    xGrid = xGrid < 0 ? 0 : xGrid;
-    yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
-    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
-
-    return Vec2(xGrid, yGrid);
-}
-
-
 /**
  * This method takes a MessageEvent and processes it.
  */
-void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+void SSBGameController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
     Message message = event->getMesage();
     switch (message) {
             case Message::BUILD_READY:
@@ -1373,7 +1122,7 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
                 // TODO: Find better way of handling
                 _networkController->setNumReady(_networkController->getNumReady() + 1);
                 break;
-            
+
             default:
                 // Handle unknown message types
                 std::cout << "Unknown message type received" << std::endl;
@@ -1381,21 +1130,22 @@ void GameScene::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
         }
 }
 
-
-void GameScene::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+void SSBGameController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
     _backgroundScene.setSpriteBatch(batch);
     Scene2::setSpriteBatch(batch);
     _ui.setSpriteBatch(batch);
+    _buildPhaseController->setSpriteBatch(batch);
 }
 
-void GameScene::render() {
+void SSBGameController::render() {
     _backgroundScene.render();
     Scene2::render();
     _ui.render();
+    _buildPhaseController->render();
 }
 
 
-void GameScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+void SSBGameController::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
     const std::shared_ptr<scene2::SceneNode>& node) {
 
     node->setPosition(obj->getPosition() * _scale);

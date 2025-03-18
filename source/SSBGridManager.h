@@ -4,6 +4,7 @@
 //
 //  Created by Caitlyn Jin on 2/22/25.
 //
+#ifndef __SSB_GRID_MANAGER_H__
 #define __SSB_GRID_MANAGER_H__
 
 #include <cugl/cugl.h>
@@ -153,3 +154,5 @@ public:
     bool hasObject(Vec2 cellPos);
 
 };
+
+#endif /* __SSB_GRID_MANAGER_H__ */

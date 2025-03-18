@@ -20,10 +20,7 @@ using namespace Constants;
 /** This is adjusted by screen aspect ratio to get the height */
 #define SCENE_WIDTH 1024
 #define SCENE_HEIGHT 576
-/** The image for the ready button */
-#define READY_BUTTON "ready_button"
-/** The image for the left button */
-#define LEFT_BUTTON "left_button"
+
 /** The color of the info labels */
 #define INFO_COLOR      Color4::WHITE
 /** The font for Round and Gem info */
@@ -59,11 +56,6 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
         return false;
     }
 
-    // Start in building mode
-    _isReady = false;
-    _rightpressed = false;
-    _leftpressed = false;
-
     _assets = assets;
 
     _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
@@ -73,61 +65,7 @@ bool UIScene::init(const std::shared_ptr<AssetManager>& assets)
     _roundsnode->setForeground(INFO_COLOR);
     _roundsnode->setVisible(true);
 
-    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    rightNode->setScale(0.8f);
-    _rightButton = scene2::Button::alloc(rightNode);
-    _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _rightButton->setPosition(_size.width * 0.6f, _size.height * 0.1f);
-    _rightButton->activate();
-    _rightButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
-            _rightpressed = true;
-        }
-        else{
-            _rightpressed = false;
-        }
-    });
-
-    std::shared_ptr<scene2::PolygonNode> leftNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_BUTTON));
-    leftNode->setScale(0.8f);
-    _leftButton = scene2::Button::alloc(leftNode);
-    _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _leftButton->setPosition(_size.width * 0.4f, _size.height * 0.1f);
-    _leftButton->activate();
-    _leftButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
-            _leftpressed = true;
-        }
-        else{
-            _leftpressed = false;
-        }
-    });
-
-    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    readyNode->setScale(0.8f);
-    _readyButton = scene2::Button::alloc(readyNode);
-    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
-    _readyButton->activate();
-    _readyButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
-            if (!_isReady){
-//                _readypressed = true;
-                setReadyDone(true);
-            }
-//            _readyButton->setVisible(false);
-//            _rightButton->setVisible(false);
-//            _leftButton->setVisible(false);
-        }
-        else{
-//            _readypressed = false;
-        }
-    });
-
     addChild(_roundsnode);
-    addChild(_rightButton);
-    addChild(_readyButton);
-    addChild(_leftButton);
 
     return true;
 }
@@ -136,9 +74,6 @@ void UIScene::dispose(){
     if (_active)
     {
         _roundsnode = nullptr;
-        _readyButton = nullptr;
-        _rightButton = nullptr;
-        _leftButton = nullptr;
         Scene2::dispose();
     }
 }
@@ -241,33 +176,6 @@ void UIScene::postUpdate(float remain){
  * Resets the status of the game so that we can play again.
  */
 void UIScene::reset(){
-    _readyButton->setVisible(true);
-    _rightButton->setVisible(true);
-    _leftButton->setVisible(true);
-}
-
-
-/**
-* @return true if the right button was pressed
-*/
-bool UIScene::getRightPressed() {
-    return _rightpressed;
-}
-
-/**
-* @return true if the left button was pressed
-*/
-bool UIScene::getLeftPressed() {
-    return _leftpressed;
-}
-
-/**
-* Makes the buttons in the building mode visible
-*/
-void UIScene::visibleButtons(bool isVisible) {
-    _readyButton->setVisible(isVisible);
-    _rightButton->setVisible(isVisible);
-    _leftButton->setVisible(isVisible);
 }
 
 /**
@@ -279,20 +187,3 @@ void UIScene::visibleButtons(bool isVisible) {
 void UIScene::updateRound(int cur, int total) {
     _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
-
-void UIScene::setReadyDone(bool isDone){
-    if (isDone){
-        _readyButton->setColor(Color4::GRAY);
-        _isReady = true;
-    }
-    else{
-        _readyButton->setColor(Color4::WHITE);
-        _isReady = false;
-    }
-}
-
-bool UIScene::getReadyDone(){
-    return _isReady;
-}
-
-
