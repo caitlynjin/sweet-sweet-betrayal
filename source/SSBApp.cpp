@@ -76,7 +76,7 @@ void SSBApp::onStartup() {
  */
 void SSBApp::onShutdown() {
     _loading.dispose();
-    _gameplay.dispose();
+    _gameController.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
@@ -201,7 +201,7 @@ void SSBApp::preUpdate(float dt) {
                 break;
                 
             case GAME:
-                _gameplay.preUpdate(dt);
+                _gameController.preUpdate(dt);
                 break;
                 
             default:
@@ -236,7 +236,7 @@ void SSBApp::fixedUpdate() {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep()/1000000.0f;
     if (_status == GAME) {
-        _gameplay.fixedUpdate(time);
+        _gameController.fixedUpdate(time);
     }
     if(_network){
         _network->updateNet();
@@ -270,7 +270,7 @@ void SSBApp::postUpdate(float dt) {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder()/1000000.0f;
     if (_status == GAME) {
-        _gameplay.postUpdate(time);
+        _gameController.postUpdate(time);
     }
    
 }
@@ -319,20 +319,20 @@ void SSBApp::updateMenuScene(float timestep) {
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network to gameplay
         _networkController->setIsHost(true);
-        _gameplay.init(_assets, _networkController);
-        _gameplay.setSpriteBatch(_batch);
+        _gameController.init(_assets, _networkController);
+        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME) {
         _hostgame.setActive(false);
-        _gameplay.setActive(true);
+        _gameController.setActive(true);
         _status = GAME;
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR) {
         _network->disconnect();
 		_hostgame.setActive(false);
 		_mainmenu.setActive(true);
-        _gameplay.dispose();
+        _gameController.dispose();
 		_status = MENU;
 	}
 }
@@ -356,20 +356,20 @@ void SSBApp::updateClientScene(float timestep) {
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
         //TODO: add network
         _networkController->setIsHost(false);
-        _gameplay.init(_assets, _networkController);
-        _gameplay.setSpriteBatch(_batch);
+        _gameController.init(_assets, _networkController);
+        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME) {
         _joingame.setActive(false);
-        _gameplay.setActive(true);
+        _gameController.setActive(true);
         _status = GAME;
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR) {
         _network->disconnect();
 		_joingame.setActive(false);
 		_mainmenu.setActive(true);
-        _gameplay.dispose();
+        _gameController.dispose();
 		_status = MENU;
 	}
 #pragma mark END SOLUTION
@@ -399,7 +399,7 @@ void SSBApp::draw() {
             _joingame.render();
             break;
         case GAME:
-            _gameplay.render();
+            _gameController.render();
         default:
             break;
     }
