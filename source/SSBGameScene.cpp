@@ -186,6 +186,7 @@ bool GameScene::init(const std::shared_ptr<AssetManager> &assets,
     {
         endContact(contact);
     };
+    
     _world->update(FIXED_TIMESTEP_S);
     
     //TODO: Maybe move to NetworkController
@@ -799,11 +800,21 @@ void GameScene::populate()
     _localPlayer->setEnabled(false);
     
     _localPlayer->setDebugScene(_debugnode);
+
+    auto callback = [this](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+        //this->ReportFixt
+        return ReportFixture(f, point, normal, fraction);
+
+        };
+
+    _world->rayCast(callback, Vec2(1, 1), Vec2(0, 0));
+ 
     
     _world->getOwnedObstacles().insert({_localPlayer,0});
     if (!_networkController->getIsHost()){
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
+    
 
 #pragma mark : Spikes
 
@@ -859,6 +870,8 @@ void GameScene::addObstacle(const std::shared_ptr<physics2::Obstacle> &obj,
             weak->setAngle(obs->getAngle()); });
     }
 }
+
+
 
 #pragma mark -
 #pragma mark Physics Handling
@@ -1439,6 +1452,11 @@ void GameScene::setBuildingMode(bool value) {
 
 #pragma mark -
 #pragma mark Collision Handling
+float GameScene::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
+    CULog("ray");
+    return 1.0f;
+}
+
 /**
  * Processes the start of a collision
  *
@@ -1580,7 +1598,6 @@ void GameScene::beginContact(b2Contact *contact)
         }
     }
 }
-
 /**
  * Callback method for the start of a collision
  *

@@ -96,11 +96,16 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 {
     Size nsize = size;
     nsize.width *= DUDE_HSHRINK;
-    nsize.height *= DUDE_VSHRINK;
+    nsize.height *= DUDE_VSHRINK*0.5;
     _drawScale = scale;
 
-
-    if (CapsuleObstacle::init(pos, nsize))
+    Vec2 adjusted_pos = pos;
+    Vec2 offset = Vec2(0.0f, 0.0f);
+   
+    adjusted_pos = pos+offset;
+    //CULog("(%f,%f)", nsize.width, nsize.height);
+    
+    if (CapsuleObstacle::init(adjusted_pos, nsize, poly2::Capsule::FULL))
     {
         setDensity(DUDE_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
@@ -123,6 +128,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         
         return true;
     }
+   
     return false;
 }
 
@@ -140,7 +146,7 @@ void DudeModel::createFixtures()
     {
         return;
     }
-
+    
     CapsuleObstacle::createFixtures();
     
     // Add collision filtering to the main body fixture first

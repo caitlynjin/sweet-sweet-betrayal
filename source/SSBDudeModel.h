@@ -77,7 +77,10 @@ using namespace Constants;
 /**Initial burst of speed when the player begins gliding or changes direction*/
 #define GLIDE_BOOST_FACTOR 2.5f
 /*Air friction*/
-#define AIR_DAMPING = 2.5f
+#define AIR_DAMPING 2.5f
+
+#define PLAYER_SIZE cugl::Size(1.0f, 0.8f);
+#define PLAYER_OFFSET -2.0f
 
 
 
@@ -127,7 +130,6 @@ protected:
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
-
 
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
