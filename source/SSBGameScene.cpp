@@ -514,12 +514,13 @@ void GameScene::populate()
 
 #pragma mark : Treasure
 
-    _treasure = std::dynamic_pointer_cast<Treasure>(
-        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0][0], TREASURE_POS[0][1]),
-                                                    Size(1, 1),
-                                                    _scale,
-                                                    false)
-    );
+    _treasure = _objectController->getTreasure();
+//    std::dynamic_pointer_cast<Treasure>(
+//        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0][0], TREASURE_POS[0][1]),
+//                                                    Size(1, 1),
+//                                                    _scale,
+//                                                    false)
+//    );
 
 
     // Play the background music on a loop.

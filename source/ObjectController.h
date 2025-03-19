@@ -24,6 +24,7 @@
 #include <cugl/cugl.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
+#include "NetworkController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -49,6 +50,9 @@ private:
     std::shared_ptr<scene2::PolygonNode> _growingWallNode;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
+   
+    std::shared_ptr<NetworkController> _networkController;
+
     
     
 public:
@@ -138,6 +142,11 @@ public:
     @param obj    The physics object to add
      **/
     void processLevelObject(std::shared_ptr<Object> obj);
+    void setNetworkController(std::shared_ptr<NetworkController> networkController) {
+        _networkController = networkController;
+    }
+    std::shared_ptr<Treasure> getTreasure() {return _treasure;}
+    
 
     
 //    /**

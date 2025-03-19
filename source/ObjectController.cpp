@@ -297,7 +297,9 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
         createSpike(std::dynamic_pointer_cast<Spike>(obj));
     }
     else if (key == "treasures") {
-        createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
+        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
+                                                            _scale,
+                                                            false)));
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));
