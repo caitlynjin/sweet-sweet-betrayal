@@ -20,7 +20,6 @@
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
-#include "UIScene.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
 

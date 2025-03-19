@@ -21,7 +21,6 @@
 #include "WindObstacle.h"
 #include "Treasure.h"
 #include "MessageEvent.h"
-#include "UIScene.h"
 #include "BuildPhaseController.h"
 #include "MovePhaseController.h"
 #include "NetworkController.h"
