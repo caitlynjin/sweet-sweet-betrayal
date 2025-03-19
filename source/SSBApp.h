@@ -1,7 +1,7 @@
 #ifndef __PF_APP_H__
 #define __PF_APP_H__
 #include <cugl/cugl.h>
-#include "SSBGameScene.h"
+#include "SSBGameController.h"
 #include "MenuScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
@@ -26,10 +26,6 @@ protected:
     /** The global asset manager */
     std::shared_ptr<cugl::AssetManager> _assets;
     
-    // Player modes
-    /** The primary controller for the game world */
-    GameScene _gameplay;
-    
     /**neworking scenes*/
     MenuScene _mainmenu;
     
@@ -41,10 +37,13 @@ protected:
     PlatformInput _input;
     /** The controller for the loading screen */
     cugl::scene2::LoadingScene _loading;
-    
+
+    /** The controller for handling gameplay */
+    SSBGameController _gameController;
+
     /** The controller for handling networking */
     std::shared_ptr<NetworkController> _networkController;
-    
+
     /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
 
