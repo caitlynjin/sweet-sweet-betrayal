@@ -57,6 +57,8 @@ protected:
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
 
+    std::function<void(bool)> _buildingModeCallback;
+
 public:
 #pragma mark -
 #pragma mark Constructors
@@ -100,12 +102,21 @@ public:
 #pragma mark -
 #pragma mark Helpers
     /**
-     * Sets whether mode is in building or play mode.
+     * Processes the change between modes (movement and building mode).
      *
      * @param value whether the level is in building mode.
      */
-    void setBuildingMode(bool value);
+    void processModeChange(bool value);
+    
+    /**
+     * Assigns a callback function that will be executed when `setBuildingMode` is called.
+     */
+    void setBuildingModeCallback(std::function<void(bool)> callback);
 
+    /**
+     * Triggers a change in building mode.
+     */
+    void setBuildingMode(bool value);
 
     /**
      * Creates an item of type item and places it at the grid position.

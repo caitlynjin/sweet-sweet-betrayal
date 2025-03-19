@@ -246,11 +246,11 @@ void BuildPhaseController::render() {
 #pragma mark -
 #pragma mark Helpers
 /**
- * Sets whether mode is in building or play mode.
+ * Processes the change between modes (movement and building mode).
  *
  * @param value whether the level is in building mode.
  */
-void BuildPhaseController::setBuildingMode(bool value) {
+void BuildPhaseController::processModeChange(bool value) {
     buildingMode = value;
 
     _buildPhaseScene.setVisible(value);
@@ -261,6 +261,22 @@ void BuildPhaseController::setBuildingMode(bool value) {
 
     if (value){
         _uiScene.setIsReady(false);
+    }
+}
+
+/**
+ * Assigns a callback function that will be executed when `setBuildingMode` is called.
+ */
+void BuildPhaseController::setBuildingModeCallback(std::function<void(bool)> callback) {
+    _buildingModeCallback = callback;
+}
+
+/**
+ * Triggers a change in building mode.
+ */
+void BuildPhaseController::setBuildingMode(bool value) {
+    if (_buildingModeCallback) {
+        _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
     }
 }
 

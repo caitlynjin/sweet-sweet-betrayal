@@ -49,20 +49,6 @@ using namespace Constants;
 
 #define FIXED_TIMESTEP_S 0.02f
 
-
-/** The goal door position */
-float GOAL_POS[] = { 31.0f, 6.0f };
-/** The initial position of the dude */
-
-float DUDE_POS[] = { 1.0f, 3.0f};
-
-/** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
-
-
-
-
-
 #pragma mark -
 #pragma mark Constructors
 /**
@@ -72,14 +58,7 @@ float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
  * This allows us to use a controller without a heap pointer.
  */
 SSBGameController::SSBGameController() : Scene2(),
-    _worldnode(nullptr),
-    _debugnode(nullptr),
-    _world(nullptr),
-    _localPlayer(nullptr),
-    _treasure(nullptr),
-    _complete(false),
-    _debug(false)
-
+    _world(nullptr)
 {
 }
 
@@ -134,35 +113,20 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _assets = assets;
     _networkController = networkController;
+    _network = networkController->getNetwork();
 
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
     _world->onBeginContact = [this](b2Contact *contact)
     {
-        beginContact(contact);
+        _movePhaseController->beginContact(contact);
     };
     _world->onEndContact = [this](b2Contact *contact)
     {
-        endContact(contact);
+        _movePhaseController->endContact(contact);
     };
     _world->update(FIXED_TIMESTEP_S);
-
-    //TODO: Maybe move to NetworkController
-    //Make a std::function reference of the linkSceneToObs function in game scene for network controller
-    std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
-        this->linkSceneToObs(obs,node);
-    };
-
-    // Init networking
-    _network = networkController->getNetwork();
-
-    //TODO: Change this to all be handled in Network Controller
-    _network->enablePhysics(_world, linkSceneToObsFunc);
-
-    // Set _world and _objects in networkController
-    _networkController->setObjects(_objects);
-    _networkController->setWorld(_world);
 
     // Start in building mode
     _buildingMode = true;
@@ -179,132 +143,35 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
-
-
+    // Initialize background
     _backgroundScene.init();
-
-    // TODO: Bring back background
     _background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BACKGROUND_TEXTURE));
     _background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _background->setPosition(Vec2(0,0));
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    // Create the scene graph
-    std::shared_ptr<Texture> image;
-    _worldnode = scene2::SceneNode::alloc();
-    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _worldnode->setPosition(offset);
-
-    // TODO: UI Scene
-    _debugnode = scene2::SceneNode::alloc();
-    _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
-    _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _debugnode->setPosition(offset);
-    //initialize object controller
-    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode);
-
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
-    // Initialize build controller
+    // Initialize movement phase controller
+    _movePhaseController = std::make_shared<MovePhaseController>();
+    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController);
+    _camera = _movePhaseController->getCamera();
+    _objectController = _movePhaseController->getObjectController();
+
+    // Initialize build phase controller
     _buildPhaseController = std::make_shared<BuildPhaseController>();
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
 
-    // TODO: UI Scene
-    _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
-    _winnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _winnode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
-    _winnode->setForeground(WIN_COLOR);
-    setComplete(false);
-
-    // TODO: UI Scene
-    _losenode = scene2::Label::allocWithText(LOSE_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
-    _losenode->setAnchor(Vec2::ANCHOR_CENTER);
-    _losenode->setPosition(_size.width / 2.0f, _size.height / 2.0f);
-    _losenode->setForeground(LOSE_COLOR);
-    setFailure(false);
-
-    float distance = _size.width * .05;
-    for (int i = 0; i < TOTAL_GEMS; i++){
-        std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
-        scoreNode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
-        scoreNode->setPosition(_size.width * .15 + (i*distance),_size.height * .9);
-        scoreNode->setScale(0.1f);
-        scoreNode->setVisible(true);
-        _scoreImages.push_back(scoreNode);
-    }
-
-    // TODO: UI Scene
-    _leftnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_IMAGE));
-    _leftnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_RIGHT);
-    _leftnode->setScale(0.35f);
-    _leftnode->setVisible(false);
-
-    // TODO: UI Scene
-    _rightnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_IMAGE));
-    _rightnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_LEFT);
-    _rightnode->setScale(0.35f);
-    _rightnode->setVisible(false);
-
-    // TODO: UI Scene
-    std::shared_ptr<scene2::PolygonNode> jumpNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
-    _jumpbutton = scene2::Button::alloc(jumpNode);
-    _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
-    _jumpbutton->setVisible(false);
-    _jumpbutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
-            _didjump = true;
-        }
-        else{
-            _didjump = false;
-        }
+    // Set up callbacks to transition between game modes
+    _buildPhaseController->setBuildingModeCallback([this](bool value) {
+        this->setBuildingMode(value);
+    });
+    _movePhaseController->setBuildingModeCallback([this](bool value) {
+        this->setBuildingMode(value);
     });
 
-    // TODO: UI Scene
-    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
-    _glidebutton = scene2::Button::alloc(glideNode);
-    _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
-    _glidebutton->setVisible(false);
-    _glidebutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
-            _didglide = true;
-        }
-        else{
-            _didglide = false;
-        }
-    });
-
-    _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
-    _scrollpane->setInterior(getBounds() / 2);
-    _scrollpane->setConstrained(false);
-
-    // Set initial camera position
-    _initialCameraPos = getCamera()->getPosition();
-
-    addChild(_worldnode);
-    addChild(_debugnode);
-    addChild(_winnode);
-    addChild(_losenode);
-    addChild(_leftnode);
-    addChild(_rightnode);
-    addChild(_scrollpane);
-    addChild(_gridManager->getGridNode());
-    _ui.addChild(_jumpbutton);
-    _ui.addChild(_glidebutton);
-
-    for (auto score : _scoreImages){
-        _ui.addChild(score);
-    }
-
-    _ui.init(assets);
-    populate();
     _active = true;
-    _complete = false;
-    setDebug(false);
-
-    // XNA nostalgia
     Application::get()->setClearColor(Color4f::CORNFLOWER);
 
     return true;
@@ -317,23 +184,13 @@ void SSBGameController::dispose()
 {
     if (_active)
     {
+        _world = nullptr;
+        _gridManager->getGridNode() = nullptr;
+
         _input->dispose();
         _backgroundScene.dispose();
-        _world = nullptr;
-        _worldnode = nullptr;
-        _debugnode = nullptr;
-        _winnode = nullptr;
-        _losenode = nullptr;
-        _leftnode = nullptr;
-        _rightnode = nullptr;
-        _gridManager->getGridNode() = nullptr;
-        _complete = false;
-        _debug = false;
-        for (auto score : _scoreImages){
-            score = nullptr;
-        }
         _buildPhaseController->dispose();
-        _ui.dispose();
+        _movePhaseController->dispose();
         Scene2::dispose();
     }
 }
@@ -348,118 +205,11 @@ void SSBGameController::dispose()
  */
 void SSBGameController::reset()
 {
-    // Reset all controllers --> not sure if necessary
     _networkController->reset();
-
     _world->clear();
-    _worldnode->removeAllChildren();
-    _debugnode->removeAllChildren();
-
-    // TODO: MovePhaseController
-    _localPlayer = nullptr;
-    _goalDoor = nullptr;
-//    if (_growingWall && _world->getObstacles().count(_growingWall) > 0)
-//    {
-//        _world->removeObstacle(_growingWall);
-//        _worldnode->removeChild(_growingWallNode);
-//    }
-//
-//    _growingWall = nullptr;
-//    _growingWallNode = nullptr;
-//    _growingWallWidth = 0.1f;
-    _treasure = nullptr;
-    _currRound = 1;
-    _died = false;
-    _reachedGoal = false;
-
-    // TODO: MovePhaseController
-    setFailure(false);
-    setComplete(false);
-    setBuildingMode(true);
-
-    _camera->setPosition(_initialCameraPos);
-    _camera->update();
-
     _buildPhaseController->reset();
-
-    _ui.reset();
-
-    populate();
+    _movePhaseController->reset();
 }
-
-
-/**
- * Lays out the game geography.
- *
- * Pay close attention to how we attach physics objects to a scene graph.
- * The simplest way is to make a subclass, like we do for the Dude.  However,
- * for simple objects you can just use a callback function to lightly couple
- * them.  This is what we do with the crates.
- *
- * This method is really, really long.  In practice, you would replace this
- * with your serialization loader, which would process a level file.
- */
-
-void SSBGameController::populate()
-{
-// TODO: MovePhaseController
-#pragma mark : Goal door
-
-    _goalDoor = _objectController->createGoalDoor(Vec2(GOAL_POS[0], GOAL_POS[1]));
-
-#pragma mark : Wind
-
-    shared_ptr<LevelModel> level = make_shared<LevelModel>();
-
-    // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
-    //
-   // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
-    std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
-    for (auto& obj : levelObjs) {
-        _objectController->processLevelObject(obj);
-    }
-    //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
-#pragma mark : Dude
-    // TODO: MovePhaseController
-    std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
-    std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
-
-    // HOST STARTS ON LEFT
-    Vec2 pos = DUDE_POS;
-//    pos += Vec2(4, 5);
-    // CLIENT STARTS ON RIGHT
-    if (_networkController->getLocalID() == 2){
-        pos += Vec2(2, 0);
-    }
-
-    _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
-    // This is set to false to counter race condition with collision filtering
-    // NetworkController sets this back to true once it sets collision filtering to all players
-    // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
-    // If I do not disable the player, collision filtering works after build phase ends, not sure why
-    // TODO: Find a better solution, maybe only have players getting updated during movement phase
-    _localPlayer->setEnabled(false);
-
-    _localPlayer->setDebugScene(_debugnode);
-
-    _world->getOwnedObstacles().insert({_localPlayer,0});
-    if (!_networkController->getIsHost()){
-        _network->getPhysController()->acquireObs(_localPlayer, 0);
-    }
-
-
-#pragma mark : Treasure
-
-    _objectController->createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
-
-
-    // Play the background music on a loop.
-    // TODO: Uncomment for music
-    //    std::shared_ptr<Sound> source = _assets->get<Sound>(GAME_MUSIC);
-    //    AudioEngine::get()->getMusicQueue()->play(source, true, MUSIC_VOLUME);
-}
-
 
 #pragma mark -
 #pragma mark Physics Handling
@@ -497,16 +247,7 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
-    //TODO: Remove later
-//    if (_buildingMode){
-//        _localPlayer->setAwake(false);
-//    }
-//    else{
-//        _localPlayer->setAwake(true);
-//    }
-
     _networkController->preUpdate(dt);
-
     _input->update(dt);
 
     // Process Networking
@@ -516,132 +257,8 @@ void SSBGameController::preUpdate(float dt)
         _networkController->setNumReady(0);
     }
 
-    // TODO: MovePhaseController
-    // Update objects
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
-
-
-    if (!_buildingMode)
-    {
-        // TODO: MovePhaseController
-
-        // Process the toggled key commands
-        if (_input->didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input->didReset())
-        {
-            reset();
-        }
-        if (_input->didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
-
-        // Process the movement
-        if (_input->withJoystick())
-        {
-            if (_input->getHorizontal() < 0)
-            {
-                _leftnode->setVisible(true);
-                _rightnode->setVisible(false);
-            }
-            else if (_input->getHorizontal() > 0)
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(true);
-            }
-            else
-            {
-                _leftnode->setVisible(false);
-                _rightnode->setVisible(false);
-            }
-            _leftnode->setPosition(_input->getJoystick());
-            _rightnode->setPosition(_input->getJoystick());
-        }
-        else
-        {
-            _leftnode->setVisible(false);
-            _rightnode->setVisible(false);
-        }
-
-        //THE GLIDE BULLSHIT SECTION
-        if (_input->getRightTapped()) {
-            _input->setRightTapped(false);
-            if (!_localPlayer->isGrounded())
-            {
-                _localPlayer->setGlide(true);
-            }
-        }
-        else if (!_input->isRightDown()) {
-            _localPlayer->setGlide(false);
-        }
-
-//        if (_input->getRightTapped()) {
-//            _input->setRightTapped(false);
-//            if (!_avatar->isGrounded())
-//            {
-//                _avatar->setGlide(true);
-//            }
-//        }
-//        else if (!_input->isRightDown()) {
-//            _avatar->setGlide(false);
-//
-//        }
-        _localPlayer->setGlide(_didglide);
-        _localPlayer->setMovement(_input->getHorizontal() * _localPlayer->getForce());
-        _localPlayer->setJumping(_didjump);
-        _localPlayer->applyForce();
-
-        if (_localPlayer->isJumping() && _localPlayer->isGrounded())
-        {
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
-        }
-
-        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-            (*it)->update(dt);
-        }
-
-        if (_localPlayer->isGrounded() && !_glidebutton->isDown()){
-            _jumpbutton->activate();
-            _jumpbutton->setVisible(true);
-            _glidebutton->deactivate();
-            _glidebutton->setVisible(false);
-            _didglide = false;
-        }
-        else if (!_localPlayer->isGrounded() && !_jumpbutton->isDown()){
-            _jumpbutton->deactivate();
-            _jumpbutton->setVisible(false);
-            _glidebutton->activate();
-            _glidebutton->setVisible(true);
-            _didjump = false;
-        }
-
-    }
-
-    // TODO: MovePhaseScene and BuildPhaseScene
-    if (!_buildingMode){
-        getCamera()->setPosition(Vec3(_localPlayer->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
-    }
-    getCamera()->update();
-
-//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-//        (*it)->update(dt);
-//    }
-//    // increase growing wall
-//    if (!_buildingMode)
-//    {
-//        updateGrowingWall(dt);
-//    }
-
-    _ui.preUpdate(dt);
-
     _buildPhaseController->preUpdate(dt);
+    _movePhaseController->preUpdate(dt);
 }
 
 /**
@@ -678,16 +295,12 @@ void SSBGameController::fixedUpdate(float step)
     // Update all controller
     _networkController->fixedUpdate(step);
 
-    _ui.fixedUpdate(step);
-
-
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             processMessageEvent(mEvent);
         }
     }
-
 }
 
 /**
@@ -719,163 +332,32 @@ void SSBGameController::postUpdate(float remain)
 
     // Update all controllers
     _networkController->fixedUpdate(remain);
+    _movePhaseController->postUpdate(remain);
 
-    // TODO: MovePhaseController
-    // Record failure if necessary.
-    if (!_failed && _localPlayer->getY() < 0)
-    {
-        setFailure(true);
-    }
-
-    // TODO: MovePhaseController
-    if (!_failed && _died){
-        setFailure(true);
-    }
-
-    // TODO: MovePhaseController
-    if(_reachedGoal){
-        nextRound(true);
-    }
-
-    // TODO: MovePhaseController
     // Reset the game if we win or lose.
-    if (_countdown > 0)
+    int countdown = _movePhaseController->getCountdown();
+    if (countdown > 0)
     {
-        _countdown--;
+        _movePhaseController->setCountdown(countdown - 1);
     }
-    else if (_countdown == 0)
+    else if (countdown == 0)
     {
         reset();
     }
-
-    _ui.postUpdate(remain);
 }
 
-// TODO: MovePhaseController
-/**
- * Sets whether the level is completed.
- *
- * If true, the level will advance after a countdown
- *
- * @param value whether the level is completed.
- */
-void SSBGameController::setComplete(bool value)
-{
-    bool change = _complete != value;
-    _complete = value;
-    if (value && change)
-    {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(WIN_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
-        _winnode->setVisible(true);
-        _countdown = EXIT_COUNT;
-    }
-    else if (!value)
-    {
-        _winnode->setVisible(false);
-        _countdown = -1;
-    }
+void SSBGameController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
+    _backgroundScene.setSpriteBatch(batch);
+    Scene2::setSpriteBatch(batch);
+    _movePhaseController->setSpriteBatch(batch);
+    _buildPhaseController->setSpriteBatch(batch);
 }
 
-// TODO: MovePhaseController
-/**
- * Sets whether the level is failed.
- *
- * If true, the level will reset after a countdown
- *
- * @param value whether the level is failed.
- */
-void SSBGameController::setFailure(bool value) {
-    if (value) {
-        // If next round available, do not fail
-        if (_currRound < TOTAL_ROUNDS){
-            if (_localPlayer->_hasTreasure){
-                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
-            }
-
-            nextRound();
-            return;
-        }
-
-        std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
-        _losenode->setVisible(true);
-        _countdown = EXIT_COUNT;
-    }
-    else
-    {
-        _losenode->setVisible(false);
-        _countdown = -1;
-    }
-    _failed = value;
-}
-
-// TODO: MovePhaseController
-/**
-* Sets the level up for the next round.
-*
-* When called, the level will reset after a countdown.
-*
-*/
-void SSBGameController::nextRound(bool reachedGoal) {
-    // Check if player won before going to next round
-    if (reachedGoal){
-        if(_localPlayer->_hasTreasure){
-            _localPlayer->removeTreasure();
-            // Increment total treasure collected
-            _currGems += 1;
-            // Update score image
-            _scoreImages.at(_currGems-1)->setTexture(_assets->get<Texture>(FULL_IMAGE));
-
-            // Check if player won
-            if (_currGems == TOTAL_GEMS){
-                setComplete(true);
-                return;
-            }
-            else{
-                // Set up next treasure if collected in prev round
-                _treasure->setPosition(Vec2(TREASURE_POS[_currGems]));
-            }
-
-        }
-    }
-
-    // Check if player lost
-    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
-        setFailure(true);
-        return;
-    }
-
-    // Increment round
-    _currRound += 1;
-    // Update text
-//   _roundsnode->setText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS));
-    _ui.updateRound(_currRound, TOTAL_ROUNDS);
-
-    // FIND BETTER SOLUTION LATER
-//    removeChild(_roundsnode);
-//    _roundsnode = scene2::Label::allocWithText("Round: " + std::to_string(_currRound) + "/" + std::to_string(TOTAL_ROUNDS), _assets->get<Font>(INFO_FONT));
-//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-//    _roundsnode->setForeground(INFO_COLOR);
-//    _roundsnode->setVisible(true);
-//    addChild(_roundsnode);
-
-    setFailure(false);
-
-    // Reset player properties
-    _localPlayer->setPosition(Vec2(DUDE_POS));
-    _localPlayer->removeTreasure();
-    _died = false;
-    _reachedGoal = false;
-
-    // Reset growing wall
-//    _growingWallWidth = 0.1f;
-//    _growingWallNode->setVisible(false);
-
-
-    // Return to building mode
-    setBuildingMode(true);
+void SSBGameController::render() {
+    _backgroundScene.render();
+    Scene2::render();
+    _movePhaseController->render();
+    _buildPhaseController->render();
 }
 
 /**
@@ -885,228 +367,12 @@ void SSBGameController::nextRound(bool reachedGoal) {
  */
 void SSBGameController::setBuildingMode(bool value) {
     _buildingMode = value;
-    _buildPhaseController->setBuildingMode(value);
+    _buildPhaseController->processModeChange(value);
 
     _gridManager->getGridNode()->setVisible(value);
-
     _camera->setPosition(_initialCameraPos);
 
-    if (value){
-        _jumpbutton->deactivate();
-        _glidebutton->deactivate();
-        _glidebutton->setVisible(false);
-    }
-    else{
-        _jumpbutton->activate();
-    }
-    _jumpbutton->setVisible(!value);
-}
-
-// TODO: MovePhaseController
-#pragma mark -
-#pragma mark Collision Handling
-/**
- * Processes the start of a collision
- *
- * This method is called when we first get a collision between two objects.  We use
- * this method to test if it is the "right" kind of collision.  In particular, we
- * use it to test if we make it to the win door.
- *
- * @param  contact  The two bodies that collided
- */
-void SSBGameController::beginContact(b2Contact *contact)
-{
-    b2Fixture *fix1 = contact->GetFixtureA();
-    b2Fixture *fix2 = contact->GetFixtureB();
-
-    contact->GetChildIndexA();
-
-    b2Body *body1 = fix1->GetBody();
-    b2Body *body2 = fix2->GetBody();
-
-    std::string *fd1 = reinterpret_cast<std::string *>(fix1->GetUserData().pointer);
-    std::string *fd2 = reinterpret_cast<std::string *>(fix2->GetUserData().pointer);
-
-    physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
-    physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
-
-
-    // Check if both are players and disable contact
-        if ((bd1->getName() == "player" && bd2->getName() == "player") ||
-            (bd1 == _localPlayer.get() && bd2->getName() == "player") ||
-            (bd2 == _localPlayer.get() && bd1->getName() == "player")) {
-            contact->SetEnabled(false);
-        }
-    // See if we have landed on the ground.
-
-    if (((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
-        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
-    {
-
-        _localPlayer->setGrounded(true);
-    }
-
-//    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
-//        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
-//    {
-//        _localPlayer->setGrounded(true);
-//
-//        // Could have more than one ground
-//        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
-//    }
-
-    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1 && bd1->getName() != "player") ||
-        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2 && bd2->getName() != "player")) {
-        _localPlayer->setGrounded(true);
-
-        // Could have more than one ground
-        _sensorFixtures.emplace(_localPlayer.get() == bd1 ? fix2 : fix1);
-    }
-
-    // If we hit the "win" door, we are done
-    if((bd1 == _localPlayer.get()   && bd2 == _goalDoor.get()) ||
-        (bd1 == _goalDoor.get() && bd2 == _localPlayer.get())) {
-        _reachedGoal = true;
-
-    }
-    // If we hit a spike, we are DEAD
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "spike") ||
-        (bd1->getName() == "spike" && bd2 == _localPlayer.get())) {
-        //        setFailure(true);
-        _died = true;
-    }
-
-
-    // If the player collides with the growing wall, game over
-
-//    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _localPlayer->addWind(thing->getTrajectory());
-        }
-    }
-
-//    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        // CULog("WIND");
-        _localPlayer->addWind(Vec2(0, 6));
-    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform" && _localPlayer->isGrounded()) ||
-        (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform" && _localPlayer->isGrounded()))
-    {
-//        CULog("moving platform");
-        _localPlayer->setOnMovingPlat(true);
-        _localPlayer->setMovingPlat(bd1 == _localPlayer.get() ? bd2 : bd1);
-
-        // If we hit a spike, we are DEAD
-        if ((bd1 == _localPlayer.get() && bd2->getName() == "spike") ||
-            (bd1->getName() == "spike" && bd2 == _localPlayer.get()))
-        {
-            _died = true;
-        }
-    }
-
-    // If we collide with a treasure, we pick it up
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "treasure") ||
-        (bd1->getName() == "treasure" && bd2 == _localPlayer.get()))
-    {
-        if (!_localPlayer->_hasTreasure)
-        {
-            _localPlayer->gainTreasure(_treasure);
-        }
-    }
-}
-
-// TODO: MovePhaseController
-/**
- * Callback method for the start of a collision
- *
- * This method is called when two objects cease to touch.  The main use of this method
- * is to determine when the characer is NOT on the ground.  This is how we prevent
- * double jumping.
- */
-void SSBGameController::endContact(b2Contact *contact)
-{
-    b2Fixture *fix1 = contact->GetFixtureA();
-    b2Fixture *fix2 = contact->GetFixtureB();
-
-    b2Body *body1 = fix1->GetBody();
-    b2Body *body2 = fix2->GetBody();
-
-    std::string *fd1 = reinterpret_cast<std::string *>(fix1->GetUserData().pointer);
-    std::string *fd2 = reinterpret_cast<std::string *>(fix2->GetUserData().pointer);
-
-    physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
-    physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
-
-    if ((_localPlayer->getSensorName() == fd2 && _localPlayer.get() != bd1) ||
-        (_localPlayer->getSensorName() == fd1 && _localPlayer.get() != bd2))
-    {
-        _sensorFixtures.erase(_localPlayer.get() == bd1 ? fix2 : fix1);
-        if (_sensorFixtures.empty())
-        {
-            _localPlayer->setGrounded(false);
-        }
-    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform") ||
-        (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform"))
-    {
-//        CULog("disable movement platform");
-        _localPlayer->setOnMovingPlat(false);
-        _localPlayer->setMovingPlat(nullptr);
-    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _localPlayer->addWind(-(thing->getTrajectory()));
-        }
-    }
+    _movePhaseController->processModeChange(value);
 }
 
 #pragma mark -
@@ -1117,49 +383,15 @@ void SSBGameController::endContact(b2Contact *contact)
 void SSBGameController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
     Message message = event->getMesage();
     switch (message) {
-            case Message::BUILD_READY:
-                // Increment number of players ready
-                // TODO: Find better way of handling
-                _networkController->setNumReady(_networkController->getNumReady() + 1);
-                break;
+        case Message::BUILD_READY:
+            // Increment number of players ready
+            // TODO: Find better way of handling
+            _networkController->setNumReady(_networkController->getNumReady() + 1);
+            break;
 
-            default:
-                // Handle unknown message types
-                std::cout << "Unknown message type received" << std::endl;
-                break;
-        }
-}
-
-void SSBGameController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
-    _backgroundScene.setSpriteBatch(batch);
-    Scene2::setSpriteBatch(batch);
-    _ui.setSpriteBatch(batch);
-    _buildPhaseController->setSpriteBatch(batch);
-}
-
-void SSBGameController::render() {
-    _backgroundScene.render();
-    Scene2::render();
-    _ui.render();
-    _buildPhaseController->render();
-}
-
-
-void SSBGameController::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
-    const std::shared_ptr<scene2::SceneNode>& node) {
-
-    node->setPosition(obj->getPosition() * _scale);
-    _worldnode->addChild(node);
-
-    // Dynamic objects need constant updating
-    if (obj->getBodyType() == b2_dynamicBody) {
-        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
-        obj->setListener([=,this](physics2::Obstacle* obs) {
-            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
-            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
-            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
-            weak->setPosition(pos * _scale);
-            weak->setAngle(angle);
-        });
+        default:
+            // Handle unknown message types
+            std::cout << "Unknown message type received" << std::endl;
+            break;
     }
 }

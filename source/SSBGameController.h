@@ -23,6 +23,7 @@
 #include "MessageEvent.h"
 #include "UIScene.h"
 #include "BuildPhaseController.h"
+#include "MovePhaseController.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
 //#include <cmath>
@@ -43,148 +44,34 @@ class SSBGameController : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
-
-    /** A list of all objects to be updated during each animation frame. */
-    std::vector<std::shared_ptr<Object>> _objects;
-
-    // CONTROLLERS
-    /** Controller for abstracting out input across multiple platforms */
     std::shared_ptr<PlatformInput> _input;
     std::shared_ptr<BuildPhaseController> _buildPhaseController;
-
-    // VIEW
-    /** Reference to the physics root of the scene graph */
-    std::shared_ptr<scene2::SceneNode> _worldnode;
-    /** Reference to the debug root of the scene graph */
-    std::shared_ptr<scene2::SceneNode> _debugnode;
-    /** Reference to the win message label */
-    std::shared_ptr<scene2::Label> _winnode;
-    /** Reference to the lose message label */
-    std::shared_ptr<scene2::Label> _losenode;
-    /** Reference to the rounds message label */
-    std::shared_ptr<scene2::Label> _roundsnode;
-    /** Reference to the gems message label */
-    std::shared_ptr<scene2::Label> _gemsnode;
-    /** Reference to the left joystick image */
-    std::shared_ptr<scene2::PolygonNode> _leftnode;
-    /** Reference to the right joystick image */
-    std::shared_ptr<scene2::PolygonNode> _rightnode;
-    /** The camera for this scene */
-    std::shared_ptr<scene2::ScrollPane> _scrollpane;
-    /** Reference to the ready button */
-    std::shared_ptr<cugl::scene2::Button> _readyButton;
-    /** Reference to the jump button */
-    std::shared_ptr<cugl::scene2::Button> _jumpbutton;
-    /** Reference to the glide button */
-    std::shared_ptr<cugl::scene2::Button> _glidebutton;
-//    /** Reference to build mode inventory buttons */
-//    std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
-    /** Reference to the grid manager */
-    std::shared_ptr<GridManager> _gridManager;
-
-    /** Reference to the label for counting rounds */
-    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
-
-    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
-
-    /** Reference to background scene */
-    scene2::Scene2 _backgroundScene;
-
-    /** Reference to the background */
-    std::shared_ptr<scene2::PolygonNode> _background;
-
-    /** The primary controller for the UI */
-    UIScene _ui;
-    /** The Box2D world */
-    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
-    /** The scale between the physics world and the screen (MUST BE UNIFORM) */
-    float _scale;
-    /** The offset from the world */
-    Vec2 _offset;
-
-    // Physics objects for the game
-    /** Reference to the goalDoor (for collision detection) */
-    std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
-    /** Reference to the local player */
-    std::shared_ptr<DudeModel> _localPlayer;
-
-    std::shared_ptr<Platform> _platformTest;
-
-    /** Reference to the treasure */
-    std::shared_ptr<Treasure> _treasure;
-
-    /** Whether the player is currently in the middle of a sling */
-    bool _slingInProgress;
-
-    cugl::Path2 _trajectoryPath;
-
-    cugl::Poly2 _trajectoryPoly;
-
-    std::shared_ptr<cugl::scene2::SceneNode>  _pathNode;
-
-    std::shared_ptr<cugl::scene2::SceneNode>  _pathNode2;
-
-
-    /** Whether we have completed this "game" */
-    bool _complete;
-    /** Whether or not debug mode is active */
-    bool _debug;
-    /** Whether we have failed at this world (and need a reset) */
-    bool _failed;
-    /** Whether the player has died */
-    bool _died = false;
-    /** Whether the player has reached the goal */
-    bool _reachedGoal = false;
-    /** Countdown active for winning or losing */
-    int _countdown;
-    /** Whether we are in build mode */
-    bool _buildingMode;
-    /** The initial camera position */
-    Vec2 _initialCameraPos;
-    /** Whether player is jumping */
-    bool _didjump;
-    /** Whether player is gliding */
-    bool _didglide;
-
-    /** The total amount of rounds */
-    int const TOTAL_ROUNDS = 5;
-    /** The total amount of gems */
-    int const TOTAL_GEMS = 3;
-    /** The current round the player is on */
-    int _currRound = 1;
-    /** How many gems the player collected and won */
-    int _currGems = 0;
-
-    /** Mark set to handle more sophisticated collision callbacks */
-    std::unordered_set<b2Fixture*> _sensorFixtures;
-
+    std::shared_ptr<MovePhaseController> _movePhaseController;
     std::shared_ptr<ObjectController> _objectController;
-
-
-#pragma mark Networking Variables
     /** The network controller */
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
+    /** Reference to the grid manager */
+    std::shared_ptr<GridManager> _gridManager;
 
+    /** Reference to background scene */
+    scene2::Scene2 _backgroundScene;
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
 
-private:
+    /** The Box2D world */
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
+    /** The scale between the physics world and the screen (MUST BE UNIFORM) */
+    float _scale;
+    /** The offset from the world */
+    Vec2 _offset;
+    /** The initial camera position */
+    Vec2 _initialCameraPos;
 
-
-    /**
-     * Lays out the game geography.
-     *
-     * Pay close attention to how we attach physics objects to a scene graph.
-     * The simplest way is to make a subclass, like we do for the dude.  However,
-     * for simple objects you can just use a callback function to lightly couple
-     * them.  This is what we do with the crates.
-     *
-     * This method is really, really long.  In practice, you would replace this
-     * with your serialization loader, which would process a level file.
-     *
-     */
-    void populate();
+    /** Whether we are in build mode */
+    bool _buildingMode;
 
 public:
 #pragma mark -
@@ -267,129 +154,6 @@ public:
               const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController);
 
 #pragma mark -
-#pragma mark Networking/Player
-
-    /**
-     * Initializes the players.
-     */
-    void initializePlayers();
-
-
-#pragma mark -
-#pragma mark Build Mode
-
-//    /**
-//     * Initializes the inventory for build mode.
-//     */
-//    void initInventory();
-
-//    /**
-//     * Creates an item of type item and places it at the grid position.
-//     *
-//     * @return the object being placed
-//     *
-//     * @param gridPos   The grid position to place the item at
-//     * @param item  The type of the item to be placed/created
-//     */
-//    std::shared_ptr<Object> placeItem(Vec2 gridPos, Item item);
-
-#pragma mark -
-#pragma mark State Access
-    /**
-     * Returns true if debug mode is active.
-     *
-     * If true, all objects will display their physics bodies.
-     *
-     * @return true if debug mode is active.
-     */
-    bool isDebug( ) const { return _debug; }
-
-    /**
-     * Sets whether debug mode is active.
-     *
-     * If true, all objects will display their physics bodies.
-     *
-     * @param value whether debug mode is active.
-     */
-    void setDebug(bool value) { _debug = value; _debugnode->setVisible(value); }
-
-    /**
-     * Returns true if the level is completed.
-     *
-     * If true, the level will advance after a countdown
-     *
-     * @return true if the level is completed.
-     */
-    bool isComplete( ) const { return _complete; }
-
-    /**
-     * Sets whether the level is completed.
-     *
-     * If true, the level will advance after a countdown
-     *
-     * @param value whether the level is completed.
-     */
-    void setComplete(bool value);
-
-    /**
-    * Returns true if the level is failed.
-    *
-    * If true, the level will reset after a countdown
-    *
-    * @return true if the level is failed.
-    */
-    bool isFailure() const { return _failed; }
-
-    /**
-    * Sets whether the level is failed.
-    *
-    * If true, the level will reset after a countdown
-    *
-    * @param value whether the level is failed.
-    */
-    void setFailure(bool value);
-
-    /**
-    * Sets the level up for the next round.
-    *
-    * When called, the level will reset after a countdown.
-
-     @param reachedGoal whether the player has reached the goal.
-    */
-    void nextRound(bool reachedGoal = false);
-
-     /**
-     * Sets whether mode is in building or play mode.
-     *
-     * @param value whether the level is in building mode.
-     */
-    void setBuildingMode(bool value);
-
-
-#pragma mark -
-#pragma mark Collision Handling
-    /**
-    * Processes the start of a collision
-    *
-    * This method is called when we first get a collision between two objects.  We use
-    * this method to test if it is the "right" kind of collision.  In particular, we
-    * use it to test if we make it to the win door.  We also us it to eliminate bullets.
-    *
-    * @param  contact  The two bodies that collided
-    */
-    void beginContact(b2Contact* contact);
-
-    /**
-    * Processes the end of a collision
-    *
-    * This method is called when we no longer have a collision between two objects.
-    * We use this method allow the character to jump again.
-    *
-    * @param  contact  The two bodies that collided
-    */
-    void endContact(b2Contact* contact);
-
-#pragma mark -
 #pragma mark Gameplay Handling
     /**
      * The method called to update the game mode.
@@ -400,7 +164,6 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void update(float timestep) override;
-
 
     /**
      * The method called to indicate the start of a deterministic loop.
@@ -476,7 +239,6 @@ public:
      */
     void postUpdate(float remain);
 
-
     /**
      * Resets the status of the game so that we can play again.
      */
@@ -486,6 +248,12 @@ public:
 
     void render() override;
 
+    /**
+     * Sets whether mode is in building or play mode.
+     *
+     * @param value whether the level is in building mode.
+     */
+    void setBuildingMode(bool value);
 
 #pragma mark -
 #pragma mark Helpers
@@ -501,42 +269,9 @@ public:
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
     /**
-     * Snaps the Box2D position to within the bounds of the build phase grid.
-     *
-     * @return the grid position
-     *
-     * @param screenPos    The screen position
-     * @param item               The selected item being snapped to the grid
-     */
-    Vec2 snapToGrid(const Vec2 &gridPos, Item item);
-
-    /**
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
-
-    /**
-     * Adds the physics object to the physics world and loosely couples it to the scene graph
-     *
-     * There are two ways to link a physics object to a scene graph node on the
-     * screen.  One way is to make a subclass of a physics object.
-     * The other is to use callback functions to loosely couple
-     * the two.  This function is an example of the latter.
-     * the two.  This function is an example of the latter.
-     *
-     * param obj    The physics object to add
-     * param node   The scene graph node to attach it to
-     */
-    void addInitObstacle(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
-                     const std::shared_ptr<cugl::scene2::SceneNode>& node);
-
-    /**
-     * This method links a scene node to the obstacle.
-     *
-     * This method adds a listener so that the sceneNode will move along with the obstacle.
-     */
-    void linkSceneToObs(const std::shared_ptr<cugl::physics2::Obstacle>& obj,
-        const std::shared_ptr<cugl::scene2::SceneNode>& node);
 
   };
 
