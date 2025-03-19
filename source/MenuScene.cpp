@@ -51,7 +51,7 @@ using namespace std;
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound) {
+bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
     if (assets == nullptr) {
        return false;
    }
