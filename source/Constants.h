@@ -28,6 +28,8 @@
 #pragma mark Object Textures
 /** The texture for the character avatar */
 #define DUDE_TEXTURE    "dude"
+/** The animation texture for when the player is idle */
+#define PLAYER_IDLE_TEXTURE    "player-idle"
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */

@@ -70,8 +70,14 @@
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define AIR_DAMPING 2.5f
+/** Define the time settings for animation */
+#define DURATION 1.0f
+#define WALKPACE 50
+#define ACT_KEY  "current"
+#define ALT_KEY  "slide"
 
 using namespace cugl;
+using namespace cugl::scene2;
 
 #pragma mark -
 #pragma mark Constructors
@@ -125,6 +131,48 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
     }
     return false;
 }
+
+#pragma mark -
+#pragma mark Animation
+
+void DudeModel::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _sprite = sprite;
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    auto move   = MoveBy::alloc(Vec2(WALKPACE,0));
+    auto idleSprite = AnimateSprite::alloc(forward);
+    _idleAction = idleSprite->attach<scene2::SpriteNode>(_sprite);
+}
+
+void DudeModel::playIdleAnimation() {
+    if (_idleAction && !_timeline->isActive(ACT_KEY)) {
+        _timeline->add(ACT_KEY, _idleAction, DURATION);
+    }
+}
+
+/**
+ * Performs a film strip action
+ *
+ * @param action The film strip action
+ * @param slide  The associated movement slide
+ */
+void DudeModel::doStrip(cugl::ActionFunction action) {
+    if (_timeline->isActive(ACT_KEY)) {
+        // NO OP
+    } else {
+        _timeline->add(ACT_KEY, action, DURATION);
+    }
+}
+
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -320,6 +368,11 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
+    
+    playIdleAnimation();
+
+    _timeline->update(dt);
+    
     // Check whether we are in glide mode
     
     

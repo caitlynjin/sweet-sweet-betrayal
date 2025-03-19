@@ -86,6 +86,9 @@
         },
         "left": {
             "file":  "textures/left_arrow.png"
+        },
+        "player-idle": {
+            "file": "textures/player-idle.png"
         }
     },
     "jsons": {

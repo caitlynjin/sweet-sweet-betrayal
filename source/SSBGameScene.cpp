@@ -485,9 +485,6 @@ void GameScene::populate()
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
-    std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
-    std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
-    
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
 //    pos += Vec2(4, 5);

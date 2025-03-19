@@ -141,6 +141,14 @@ protected:
 	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
 	float _drawScale;
 
+#pragma mark Animation Variables
+    /** Manager to process the animation actions */
+    std::shared_ptr<cugl::ActionTimeline> _timeline;
+    /** The player animation sprite */
+    std::shared_ptr<cugl::scene2::SpriteNode> _sprite;
+    /** The sprite animation actions */
+    cugl::ActionFunction _idleAction;
+    
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
 	*
@@ -358,6 +366,12 @@ public:
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
     }
+    
+    void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    void playIdleAnimation();
+    
+    void doStrip(cugl::ActionFunction action);
     
     /**
      * Called when the player obtains a treasure.
