@@ -1,13 +1,11 @@
 #include "SSBApp.h"
 #include "SSBInput.h"
 
-
 using namespace cugl;
 using namespace cugl::graphics;
 using namespace cugl::scene2;
 using namespace cugl::netcode;
 using namespace cugl::audio;
-
 
 #pragma mark -
 #pragma mark Application State
@@ -21,21 +19,21 @@ using namespace cugl::audio;
  * very last line.  This ensures that the state will transition to FOREGROUND,
  * causing the application to run.
  */
-void SSBApp::onStartup() {
+void SSBApp::onStartup()
+{
     _assets = AssetManager::alloc();
-    _batch  = SpriteBatch::alloc();
-    
-    
+    _batch = SpriteBatch::alloc();
+
     // Start-up basic input
 #ifdef CU_TOUCH_SCREEN
     Input::activate<Touchscreen>();
 #else
     Input::activate<Mouse>();
 #endif
-    
+
     Input::activate<Keyboard>();
     Input::activate<TextInput>();
-    
+
     _assets->attach<Font>(FontLoader::alloc()->getHook());
     _assets->attach<Texture>(TextureLoader::alloc()->getHook());
     _assets->attach<Sound>(SoundLoader::alloc()->getHook());
@@ -46,21 +44,18 @@ void SSBApp::onStartup() {
 
     // Create a "loading" screen
     _loaded = false;
-    _loading.init(_assets,"json/assets.json");
+    _loading.init(_assets, "json/assets.json");
     _loading.setSpriteBatch(_batch);
-    
+
     // Queue up the other assets
     _loading.start();
     _status = LOAD;
     AudioEngine::start();
-    
+
     NetworkLayer::start(NetworkLayer::Log::INFO);
     Application::onStartup(); // YOU MUST END with call to parent
-    
+
     setDeterministic(true);
-    
-    
-        
 }
 
 /**
@@ -74,28 +69,29 @@ void SSBApp::onStartup() {
  * very last line.  This ensures that the state will transition to NONE,
  * causing the application to be deleted.
  */
-void SSBApp::onShutdown() {
+void SSBApp::onShutdown()
+{
     _loading.dispose();
     _gameController.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
-    
+
     // Is this correct way of diposing networkController?
     _networkController->dispose();
     _networkController = nullptr;
     _assets = nullptr;
     _batch = nullptr;
-    
+
     // Shutdown input
 #ifdef CU_TOUCH_SCREEN
     Input::deactivate<Touchscreen>();
 #else
     Input::deactivate<Mouse>();
 #endif
-    
+
     AudioEngine::stop();
-    Application::onShutdown();  // YOU MUST END with call to parent
+    Application::onShutdown(); // YOU MUST END with call to parent
 }
 
 /**
@@ -109,7 +105,8 @@ void SSBApp::onShutdown() {
  * Otherwise, the audio thread may persist while the application is in
  * the background.
  */
-void SSBApp::onSuspend() {
+void SSBApp::onSuspend()
+{
     AudioEngine::get()->pause();
 }
 
@@ -123,10 +120,10 @@ void SSBApp::onSuspend() {
  * If you are using audio, you should use this method to resume any audio
  * paused before app suspension.
  */
-void SSBApp::onResume() {
+void SSBApp::onResume()
+{
     AudioEngine::get()->resume();
 }
-
 
 #pragma mark -
 #pragma mark Application Loop
@@ -142,9 +139,9 @@ void SSBApp::onResume() {
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void SSBApp::update(float dt) {
+void SSBApp::update(float dt)
+{
 }
-
 
 /**
  * The method called to indicate the start of a deterministic loop.
@@ -166,49 +163,55 @@ void SSBApp::update(float dt) {
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void SSBApp::preUpdate(float dt) {
-//    CULog("Status: %d", static_cast<int>(_status));
-    if (_status ==LOAD && _loading.isActive()) {
+void SSBApp::preUpdate(float dt)
+{
+    //    CULog("Status: %d", static_cast<int>(_status));
+    if (_status == LOAD && _loading.isActive())
+    {
         _loading.update(0.01f);
-    } else if (_status==LOAD) {
-        
+    }
+    else if (_status == LOAD)
+    {
+
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
-
+        _sound = SoundController::alloc(_assets);
 
         _loading.dispose();
-        _mainmenu.init(_assets);
+        _mainmenu.init(_assets, _sound);
         _mainmenu.setActive(true);
-        
+
         _mainmenu.setSpriteBatch(_batch);
-        _hostgame.init(_assets,_network);
+        _hostgame.init(_assets, _network, _sound);
         _hostgame.setSpriteBatch(_batch);
-        _joingame.init(_assets,_network);
+        _joingame.init(_assets, _network, _sound);
         _joingame.setSpriteBatch(_batch);
         _status = MENU;
-    } else {
-        switch (_status) {
-            case MENU:
-                updateMenuScene(dt);
-                
-                break;
-            case HOST:
-                updateHostScene(dt);
-                break;
-                
-            case CLIENT:
-                updateClientScene(dt);
-                break;
-                
-            case GAME:
-                _gameController.preUpdate(dt);
-                break;
-                
-            default:
-                break;
+    }
+    else
+    {
+        switch (_status)
+        {
+        case MENU:
+            updateMenuScene(dt);
+
+            break;
+        case HOST:
+            updateHostScene(dt);
+            break;
+
+        case CLIENT:
+            updateClientScene(dt);
+            break;
+
+        case GAME:
+            _gameController.preUpdate(dt);
+            break;
+
+        default:
+            break;
         }
     }
-
 }
 
 /**
@@ -232,13 +235,16 @@ void SSBApp::preUpdate(float dt) {
  * not be used to process user input (as no user input is recorded between
  * {@link #preUpdate} and {@link #postUpdate}) or to animate models.
  */
-void SSBApp::fixedUpdate() {
+void SSBApp::fixedUpdate()
+{
     // Compute time to report to game scene version of fixedUpdate
-    float time = getFixedStep()/1000000.0f;
-    if (_status == GAME) {
+    float time = getFixedStep() / 1000000.0f;
+    if (_status == GAME)
+    {
         _gameController.fixedUpdate(time);
     }
-    if(_network){
+    if (_network)
+    {
         _network->updateNet();
     }
 }
@@ -266,13 +272,14 @@ void SSBApp::fixedUpdate() {
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void SSBApp::postUpdate(float dt) {
+void SSBApp::postUpdate(float dt)
+{
     // Compute time to report to game scene version of postUpdate
-    float time = getFixedRemainder()/1000000.0f;
-    if (_status == GAME) {
+    float time = getFixedRemainder() / 1000000.0f;
+    if (_status == GAME)
+    {
         _gameController.postUpdate(time);
     }
-   
 }
 /**
  * Inidividualized update method for the menu scene.
@@ -282,22 +289,24 @@ void SSBApp::postUpdate(float dt) {
  *
  * @param timestep  The amount of time (in seconds) since the last frame
  */
-void SSBApp::updateMenuScene(float timestep) {
+void SSBApp::updateMenuScene(float timestep)
+{
     _mainmenu.update(timestep);
-    switch (_mainmenu.getChoice()) {
-        case MenuScene::Choice::HOST:
-            _mainmenu.setActive(false);
-            _hostgame.setActive(true);
-            _status = HOST;
-            break;
-        case MenuScene::Choice::JOIN:
-            _mainmenu.setActive(false);
-            _joingame.setActive(true);
-            _status = CLIENT;
-            break;
-        case MenuScene::Choice::NONE:
-            // DO NOTHING
-            break;
+    switch (_mainmenu.getChoice())
+    {
+    case MenuScene::Choice::HOST:
+        _mainmenu.setActive(false);
+        _hostgame.setActive(true);
+        _status = HOST;
+        break;
+    case MenuScene::Choice::JOIN:
+        _mainmenu.setActive(false);
+        _joingame.setActive(true);
+        _status = CLIENT;
+        break;
+    case MenuScene::Choice::NONE:
+        // DO NOTHING
+        break;
     }
 }
 
@@ -309,32 +318,37 @@ void SSBApp::updateMenuScene(float timestep) {
  *
  * @param timestep  The amount of time (in seconds) since the last frame
  */
- void SSBApp::updateHostScene(float timestep) {
+void SSBApp::updateHostScene(float timestep)
+{
     _hostgame.update(timestep);
-    if(_hostgame.getBackClicked()){
+    if (_hostgame.getBackClicked())
+    {
         _status = MENU;
         _hostgame.setActive(false);
         _mainmenu.setActive(true);
     }
-    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
-        //TODO: add network to gameplay
+    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
+    {
+        // TODO: add network to gameplay
         _networkController->setIsHost(true);
-        _gameController.init(_assets, _networkController);
+        _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
-    else if (_network->getStatus() == NetEventController::Status::INGAME) {
+    else if (_network->getStatus() == NetEventController::Status::INGAME)
+    {
         _hostgame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
     }
-    else if (_network->getStatus() == NetEventController::Status::NETERROR) {
+    else if (_network->getStatus() == NetEventController::Status::NETERROR)
+    {
         _network->disconnect();
-		_hostgame.setActive(false);
-		_mainmenu.setActive(true);
+        _hostgame.setActive(false);
+        _mainmenu.setActive(true);
         _gameController.dispose();
-		_status = MENU;
-	}
+        _status = MENU;
+    }
 }
 
 /**
@@ -345,33 +359,38 @@ void SSBApp::updateMenuScene(float timestep) {
  *
  * @param timestep  The amount of time (in seconds) since the last frame
  */
-void SSBApp::updateClientScene(float timestep) {
+void SSBApp::updateClientScene(float timestep)
+{
 #pragma mark SOLUTION
     _joingame.update(timestep);
-    if(_joingame.getBackClicked()){
+    if (_joingame.getBackClicked())
+    {
         _status = MENU;
         _joingame.setActive(false);
         _mainmenu.setActive(true);
     }
-    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID()) {
-        //TODO: add network
+    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
+    {
+        // TODO: add network
         _networkController->setIsHost(false);
-        _gameController.init(_assets, _networkController);
+        _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
-    else if (_network->getStatus() == NetEventController::Status::INGAME) {
+    else if (_network->getStatus() == NetEventController::Status::INGAME)
+    {
         _joingame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
     }
-    else if (_network->getStatus() == NetEventController::Status::NETERROR) {
+    else if (_network->getStatus() == NetEventController::Status::NETERROR)
+    {
         _network->disconnect();
-		_joingame.setActive(false);
-		_mainmenu.setActive(true);
+        _joingame.setActive(false);
+        _mainmenu.setActive(true);
         _gameController.dispose();
-		_status = MENU;
-	}
+        _status = MENU;
+    }
 #pragma mark END SOLUTION
 }
 
@@ -384,24 +403,25 @@ void SSBApp::updateClientScene(float timestep) {
  * When overriding this method, you do not need to call the parent method
  * at all. The default implmentation does nothing.
  */
-void SSBApp::draw() {
-    switch (_status) {
-        case LOAD:
-            _loading.render();
-            break;
-        case MENU:
-            _mainmenu.render();
-            break;
-        case HOST:
-            _hostgame.render();
-            break;
-        case CLIENT:
-            _joingame.render();
-            break;
-        case GAME:
-            _gameController.render();
-        default:
-            break;
+void SSBApp::draw()
+{
+    switch (_status)
+    {
+    case LOAD:
+        _loading.render();
+        break;
+    case MENU:
+        _mainmenu.render();
+        break;
+    case HOST:
+        _hostgame.render();
+        break;
+    case CLIENT:
+        _joingame.render();
+        break;
+    case GAME:
+        _gameController.render();
+    default:
+        break;
     }
 }
-

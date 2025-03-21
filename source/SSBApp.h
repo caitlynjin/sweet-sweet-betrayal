@@ -7,6 +7,7 @@
 #include "NPClientScene.h"
 #include "NPHostScene.h"
 #include "NetworkController.h"
+#include "SoundController.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 
 
@@ -45,6 +46,9 @@ protected:
 
     /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
+
+    /** The controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
     
     /** Whether or not we have finished loading all assets */
     bool _loaded;

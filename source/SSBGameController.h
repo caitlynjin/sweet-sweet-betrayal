@@ -24,6 +24,7 @@
 #include "BuildPhaseController.h"
 #include "MovePhaseController.h"
 #include "NetworkController.h"
+#include "SoundController.h"
 #include "ObjectController.h"
 //#include <cmath>
 
@@ -53,6 +54,8 @@ protected:
     std::shared_ptr<NetEventController> _network;
     /** Reference to the grid manager */
     std::shared_ptr<GridManager> _gridManager;
+    /** Controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
 
     /** Reference to background scene */
     scene2::Scene2 _backgroundScene;
@@ -111,7 +114,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -150,7 +153,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController);
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
 #pragma mark -
 #pragma mark Gameplay Handling

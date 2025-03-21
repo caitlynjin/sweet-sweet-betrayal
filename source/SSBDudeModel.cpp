@@ -104,7 +104,8 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
    
     adjusted_pos = pos+offset;
     //CULog("(%f,%f)", nsize.width, nsize.height);
-    
+    MovingPlat = nullptr;
+
     if (CapsuleObstacle::init(adjusted_pos, nsize, poly2::Capsule::FULL))
     {
         setDensity(DUDE_DENSITY);
