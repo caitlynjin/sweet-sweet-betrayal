@@ -196,7 +196,7 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-    if (_networkController->getLocalID() == 1) {
+    if (_networkController->getIsHost()) {
         _treasure = std::dynamic_pointer_cast<Treasure>(
             _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
         );
