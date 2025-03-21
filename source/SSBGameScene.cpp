@@ -389,6 +389,7 @@ void GameScene::initInventory()
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
+    
 
     switch (item) {
         case (PLATFORM): {
@@ -396,8 +397,27 @@ std::shared_ptr<Object> GameScene::placeItem(Vec2 gridPos, Item item) {
         }
         case (MOVING_PLATFORM):
             return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
-        case (WIND):
-            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+        case (WIND): {
+            /**Generates the wind object*/
+            Vec2 ray1 = gridPos + Vec2(0, 2);
+            std::shared_ptr<Object>  wind = _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+            std::shared_ptr<WindObstacle> wind_cast = std::dynamic_pointer_cast<WindObstacle>(wind);
+            /**Generates the appropriate callback function for this wind object*/
+            auto callback = [this, wind_cast](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+                string fixtureName = ReportFixture(f, point, normal, fraction);
+                CULog("ra1y");
+                _localPlayer->addWind(wind_cast->getTrajectory());
+
+                if (fixtureName != "player") {
+                    return fraction;
+                }
+                return wind_cast->getObDist();
+                };
+            /**Generates the appropriate raycasts to handle collision for this wind object*/
+            _world->rayCast(callback, gridPos, ray1);
+            //_world->rayCast(callback, gridPos + Vec2(1, 0), ray1 + Vec2(1, 0));
+            return wind;
+        }
         case (NONE):
             return nullptr;
     }
@@ -507,13 +527,7 @@ void GameScene::populate()
     
     _localPlayer->setDebugScene(_debugnode);
 
-    auto callback = [this](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
-        //this->ReportFixt
-        return ReportFixture(f, point, normal, fraction);
-
-        };
-
-    _world->rayCast(callback, Vec2(1, 1), Vec2(0, 0));
+    
  
     
     _world->getOwnedObstacles().insert({_localPlayer,0});
@@ -1116,9 +1130,17 @@ void GameScene::setBuildingMode(bool value) {
 
 #pragma mark -
 #pragma mark Collision Handling
-float GameScene::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
+string GameScene::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
     CULog("ray");
-    return 1.0f;
+
+    b2Body* body = contact->GetBody();
+    std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
+    physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
+
+    if (bd->getName() == "player") {
+        
+    }
+    return bd->getName();
 }
 
 /**
@@ -1190,52 +1212,7 @@ void GameScene::beginContact(b2Contact *contact)
         (bd1->getName() == "spike" && bd2 == _localPlayer.get())) {
         //        setFailure(true);
         _died = true;
-    }
-
-
-    // If the player collides with the growing wall, game over
-
-//    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-        
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _localPlayer->addWind(thing->getTrajectory());
-        }
-    }
-    
-//    if ((bd1 == _localPlayer.get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _localPlayer.get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        // CULog("WIND");
-        _localPlayer->addWind(Vec2(0, 6));
-    }
+    } 
 
     if ((bd1 == _localPlayer.get() && bd2->getName() == "movingPlatform" && _localPlayer->isGrounded()) ||
         (bd2 == _localPlayer.get() && bd1->getName() == "movingPlatform" && _localPlayer->isGrounded()))
@@ -1299,27 +1276,6 @@ void GameScene::endContact(b2Contact *contact)
 //        CULog("disable movement platform");
         _localPlayer->setOnMovingPlat(false);
         _localPlayer->setMovingPlat(nullptr);
-    }
-
-    if ((bd1 == _localPlayer.get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _localPlayer.get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _localPlayer->addWind(-(thing->getTrajectory()));
-        }
     }
 }
 

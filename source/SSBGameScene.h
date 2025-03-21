@@ -410,7 +410,7 @@ public:
     void endContact(b2Contact* contact);
 
     //fixture method thing
-    float ReportFixture(b2Fixture *contact, const Vec2 &point, const Vec2& normal, float fraction);
+    string ReportFixture(b2Fixture *contact, const Vec2 &point, const Vec2& normal, float fraction);
 
 #pragma mark -
 #pragma mark Gameplay Handling

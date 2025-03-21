@@ -14,11 +14,18 @@ private:
 
 	/*The direction of where the wind gust will push you*/
 	Vec2 _gustDir;
+	/**This stores the distnace of the closest non-player object touching the wind gust ray*/
+	float _obstacleDist;
 
 public:
 	WindObstacle() : Object() {}
 
 	WindObstacle(Vec2 pos) : Object(pos) {}
+
+	/**Set and get the distnace of the obstacle*/
+	void setObDist(float dist) { _obstacleDist = dist; };
+
+	float getObDist() { return _obstacleDist; };
 
     /**
      * Sets the position

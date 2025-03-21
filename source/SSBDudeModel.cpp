@@ -96,7 +96,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 {
     Size nsize = size;
     nsize.width *= DUDE_HSHRINK;
-    nsize.height *= DUDE_VSHRINK*0.5;
+    nsize.height *= DUDE_VSHRINK;
     _drawScale = scale;
 
     Vec2 adjusted_pos = pos;
