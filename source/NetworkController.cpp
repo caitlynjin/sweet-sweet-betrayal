@@ -243,6 +243,7 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
     if (boxObstacle) {
         std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
         _objects->push_back(treasure);
+        _treasure = treasure;
         return treasure;
     } else {
         CULog("Error: Expected a BoxObstacle but got a different type");

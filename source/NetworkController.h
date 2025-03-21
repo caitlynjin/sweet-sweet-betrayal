@@ -270,6 +270,9 @@ protected:
     
     /** The network controller */
     std::shared_ptr<NetEventController> _network;
+
+    /** Reference to the treasure */
+    std::shared_ptr<Treasure> _treasure;
     
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
@@ -345,6 +348,10 @@ public:
      * @return true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets);
+    
+    std::shared_ptr<Treasure> getTreasure() const {
+        return _treasure;
+    }
 
 
 #pragma mark -
