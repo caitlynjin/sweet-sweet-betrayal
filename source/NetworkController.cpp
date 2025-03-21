@@ -233,6 +233,7 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
     }
 }
 std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken) {
+    CULog("creating treasure");
     auto params = _treasureFact->serializeParams(pos, size, scale, taken);
     auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
 

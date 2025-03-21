@@ -91,7 +91,7 @@ void MovePhaseScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
     if (assets == nullptr)
     {
         return false;
@@ -106,6 +106,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     _networkController = networkController;
     _network = networkController->getNetwork();
     _initialCameraPos = getCamera()->getPosition();
+    _objects = objects;
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
     _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
@@ -197,7 +198,7 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     _treasure = _objectController->getTreasure();
 
-    // _objectController->createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
+    _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false);
 }
 
 

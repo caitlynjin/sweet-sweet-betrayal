@@ -78,7 +78,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     
 
     // Initialize move phase scene
-    _movePhaseScene.init(assets, world, gridManager, networkController);
+    _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
 
