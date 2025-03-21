@@ -5,7 +5,7 @@
 //  Created by jessie jia on 3/13/25.
 //
 
-#include "SSBGameScene.h"
+#include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
