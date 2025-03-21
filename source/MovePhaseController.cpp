@@ -50,7 +50,7 @@ MovePhaseController::MovePhaseController() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
     if (assets == nullptr)
     {
         return false;
@@ -80,6 +80,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _movePhaseScene.init(assets, world, gridManager, networkController);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
+    _sound = sound;
 
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
@@ -197,8 +198,7 @@ void MovePhaseController::preUpdate(float dt) {
 
         if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
         {
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+            _sound->playSound("jump");
         }
 
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
@@ -302,8 +302,7 @@ void MovePhaseController::setComplete(bool value)
     _complete = value;
     if (value && change)
     {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(WIN_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("win");
         _uiScene.setWinVisible(true);
         _countdown = EXIT_COUNT;
     }
@@ -333,8 +332,7 @@ void MovePhaseController::setFailure(bool value) {
             return;
         }
 
-        std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("lose");
         _uiScene.setLoseVisible(true);
         _countdown = EXIT_COUNT;
     }
