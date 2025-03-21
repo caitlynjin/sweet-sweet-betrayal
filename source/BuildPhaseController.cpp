@@ -176,6 +176,12 @@ void BuildPhaseController::preUpdate(float dt) {
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
+                    if (_selectedObject->getItemType()== Item::PLATFORM) {
+                        auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
+                        if (platform) {
+                            platform->updateMoving(gridPos);
+                        }
+                    }
                     _gridManager->addObject(gridPos, _selectedObject);
                 }
                 
@@ -293,7 +299,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (PLATFORM):
             return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _buildPhaseScene.getScale());
         case (MOVING_PLATFORM):
-            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
+            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (NONE):

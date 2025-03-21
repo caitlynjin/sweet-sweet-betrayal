@@ -73,11 +73,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     //TODO: Change this to all be handled in Network Controller
     _network->enablePhysics(_world, linkSceneToObsFunc);
 
-    _networkController->setObjects(_objects);
+    _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
+    
 
     // Initialize move phase scene
-    _movePhaseScene.init(assets, world, gridManager, networkController);
+    _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
     _sound = sound;
@@ -537,6 +538,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     {
         if (!_movePhaseScene.getLocalPlayer()->_hasTreasure)
         {
+            _movePhaseScene.getTreasure()->setTaken(true);
             _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
         }
     }
