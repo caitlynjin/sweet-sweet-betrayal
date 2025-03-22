@@ -230,11 +230,17 @@ void BuildPhaseController::preUpdate(float dt) {
         _buildPhaseScene.getCamera()->update();
     }
 
-    if (_uiScene.getIsReady() && !_readyMessageSent){
+    if (_uiScene.getIsReady() && !_readyMessageSent && !_isLevelEditor){
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
-    } else if (!_uiScene.getIsReady()) {
+    }
+    else if (_uiScene.getIsReady() && _isLevelEditor) {
+        shared_ptr<LevelModel> level = make_shared<LevelModel>();
+        level->createJsonFromLevel("NewLevel.json", Size(100, 100), _objectController->getObjects());
+
+    }
+    else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
     }
 }
@@ -284,6 +290,13 @@ void BuildPhaseController::setBuildingMode(bool value) {
     if (_buildingModeCallback) {
         _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
     }
+}
+
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void BuildPhaseController::setLevelEditor(bool value) {
+    _isLevelEditor = value;
 }
 
 /**

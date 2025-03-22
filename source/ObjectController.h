@@ -62,6 +62,15 @@ public:
                      const std::shared_ptr<scene2::SceneNode> world_node,
                      const std::shared_ptr<scene2::SceneNode> debug_node,
                      std::vector<std::shared_ptr<Object>>* gameObjects);
+
+
+    /** Returns the list of objects. 
+    *
+    * @return the list of objects
+    */
+    std::vector<std::shared_ptr<Object>>* getObjects() {
+        return _gameObjects;
+    }
     /**
      * Creates a platform.
      *

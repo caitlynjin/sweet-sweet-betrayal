@@ -215,6 +215,13 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _readyButton->setVisible(value);
 }
 
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void BuildPhaseUIScene::setLevelEditor(bool value) {
+    _isLevelEditor = value;
+}
+
 /**
  * Whether to activate the inventory.
  */

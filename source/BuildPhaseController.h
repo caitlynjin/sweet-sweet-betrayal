@@ -56,6 +56,8 @@ protected:
     int _itemsPlaced = 0;
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
+    /** Whether we are in level editor mode */
+    bool _isLevelEditor = false;
 
     std::function<void(bool)> _buildingModeCallback;
 
@@ -117,6 +119,11 @@ public:
      * Triggers a change in building mode.
      */
     void setBuildingMode(bool value);
+
+    /** Sets whether or not we are in level editor mode. 
+    * By default, we are not.
+    */
+    void setLevelEditor(bool value);
 
     /**
      * Creates an item of type item and places it at the grid position.

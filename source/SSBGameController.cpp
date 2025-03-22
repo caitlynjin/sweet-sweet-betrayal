@@ -78,7 +78,7 @@ SSBGameController::SSBGameController() : Scene2(),
  */
 bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound, false);
 }
 
 
@@ -100,7 +100,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::s
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
 {
     if (assets == nullptr)
     {
@@ -131,6 +131,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     // Start in building mode
     _buildingMode = true;
+
+    _isLevelEditor = levelEditing;
 
     // Start up the input handler
     _input = std::make_shared<PlatformInput>();
@@ -163,7 +165,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // Initialize build phase controller
     _buildPhaseController = std::make_shared<BuildPhaseController>();
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
-
+    _buildPhaseController->setLevelEditor(_isLevelEditor);
     // Set up callbacks to transition between game modes
     _buildPhaseController->setBuildingModeCallback([this](bool value) {
         this->setBuildingMode(value);
@@ -374,6 +376,13 @@ void SSBGameController::setBuildingMode(bool value) {
     _camera->setPosition(_initialCameraPos);
 
     _movePhaseController->processModeChange(value);
+}
+
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void SSBGameController::setLevelEditor(bool value) {
+    _isLevelEditor = value;
 }
 
 #pragma mark -

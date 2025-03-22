@@ -62,13 +62,13 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 	jsonWriter->writeJson(json);
 }
 
-void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<shared_ptr<Object>>& objects) {
+void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<shared_ptr<Object>>* objects) {
 	vector<shared_ptr<Platform>> platforms;
 	vector<shared_ptr<Spike>> spikes;
 	vector<shared_ptr<WindObstacle>> windObstacles;
 	vector<shared_ptr<Treasure>> treasures;
 	string key;
-	for (auto it = objects.begin(); it != objects.end(); ++it) {
+	for (auto it = (*objects).begin(); it != (*objects).end(); ++it) {
 		key = (*it)->getJsonKey();
 		// Apparently you can't use a switch statement with strings in C++...
 		if (key == "platforms") {

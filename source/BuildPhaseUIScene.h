@@ -54,6 +54,8 @@ protected:
     bool _rightpressed = false;
     /** Whether left camera button is being pressed */
     bool _leftpressed = false;
+    /** Whether we are in level editor mode */
+    bool _isLevelEditor = false;
 
 public:
 #pragma mark -
@@ -136,6 +138,11 @@ public:
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */
     void setIsReady(bool isDone);
+
+    /** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+    void setLevelEditor(bool value);
 
     /**
      * Gets the inventory buttons.

@@ -38,6 +38,8 @@ protected:
     Vec2 _offset;
     /** The initial position of the camera */
     Vec2 _cameraInitialPos;
+    /** Whether we are in level editor mode */
+    bool _isLevelEditor = false;
 
 
 public:
@@ -107,6 +109,11 @@ public:
      * Set whether the elements of this scene are visible or not
      */
     void setVisible(bool value);
+
+    /** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+    void setLevelEditor(bool value);
 
     /**
      * Resets the camera position to the initial state.

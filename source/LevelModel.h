@@ -37,7 +37,7 @@ public:
 	* @param size The size (width, height) of the level.
 	* @param objects A list of all objects in the level.
 	*/
-	void createJsonFromLevel(string fileName, Size size, vector<shared_ptr<Object>>& objects);
+	void createJsonFromLevel(string fileName, Size size, vector<shared_ptr<Object>>* objects);
 
 	/** Initializes the in-game level based on the JSON file specifying it.
 	* This method creates the objects in the level and defines its size.

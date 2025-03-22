@@ -121,6 +121,13 @@ void BuildPhaseScene::preUpdate(float dt) {
 void BuildPhaseScene::setVisible(bool value) {
     
 }
+
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void BuildPhaseScene::setLevelEditor(bool value) {
+    _isLevelEditor = value;
+}
 /**
  * Resets the camera position to the initial state.
  */
