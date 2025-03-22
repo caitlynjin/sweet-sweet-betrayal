@@ -1,0 +1,82 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [0, 0],
+            "size": [1306, 576],
+            "angle": 0,
+            "position": [0, 0],
+            "visible": true
+        },
+        "children": {
+            "background": {
+                "type": "Image",
+                "data": {
+                    "texture": "background",
+                    "anchor": [0, 1],
+                    "size": [1306, 576],
+                    "angle": 0,
+                    "position": [0, 0],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": true,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "button_container": {
+                "type": "Node",
+                "format": {
+                    "type": "Float",
+                    "orientation": "horizontal",
+                    "x_alignment": "center",
+                    "y_alignment": "middle",
+                    "absolute": false,
+                    "x_anchor": "left",
+                    "y_anchor": "top"
+                },
+                "data": {
+                    "anchor": [0, 0],
+                    "size": [1306, 576],
+                    "position": [0, 0],
+                    "visible": true
+                },
+                "children": {
+                    "host": {
+                        "type": "Widget",
+                        "data": {
+                            "key": "textbutton2",
+                            "variables": {
+                                "text": "Create"
+                            }
+                        },
+                        "layout": {
+                            "priority": 1,
+                            "padding": [0, 0, 0, 0]
+                        }
+                    },
+                    "join": {
+                        "type": "Widget",
+                        "data": {
+                            "key": "textbutton2",
+                            "variables": {
+                                "text": "Join"
+                            }
+                        },
+                        "layout": {
+                            "priority": 1,
+                            "padding": [0, 0, 0, 0]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

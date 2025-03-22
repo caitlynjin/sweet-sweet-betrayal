@@ -1,0 +1,127 @@
+{
+    "variables": {
+        "text"   : ["children","up","children","Create","data","text"]
+    },
+    "contents": {
+        "type": "Button",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                240,
+                60
+            ],
+            "angle": 0,
+            "position": [
+                379,
+                258
+            ],
+            "visible": true,
+            "upnode": "up"
+        },
+        "children": {
+            "up": {
+                "type": "Node",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        240,
+                        60
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        0
+                    ],
+                    "visible": true
+                },
+                "children": {
+                    "greybutton": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "greybutton",
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                195,
+                                49
+                            ],
+                            "angle": 0,
+                            "position": [
+                                22,
+                                6
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "fill",
+                            "y_anchor": "fill",
+                            "absolute": false,
+                            "x_offset": 0.09,
+                            "y_offset": 0.1
+                        }
+                    },
+                    "Create": {
+                        "type": "Label",
+                        "data": {
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                155,
+                                30
+                            ],
+                            "position": [
+                                42,
+                                15
+                            ],
+                            "angle": 0,
+                            "visible": true,
+                            "font": "gyparodyHeavy25",
+                            "text": "Create",
+                            "foreground": "#ffffffff",
+                            "background": "#00000000",
+                            "padding": [
+                                0,
+                                0,
+                                0,
+                                0
+                            ],
+                            "valign": "top",
+                            "halign": "center"
+                        },
+                        "children": {},
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.18,
+                            "y_offset": -0.25
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            }
+        }
+    }
+}
