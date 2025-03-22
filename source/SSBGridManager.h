@@ -41,7 +41,12 @@ private:
     /** The number of rows in the grid */
     float _rows;
     /** The size of the cell in Box2d units */
+#ifndef CU_TOUCH_SCREEN
+    const float CELL_SIZE = 2.0f;
+#else
     const float CELL_SIZE = 1.0f;
+#endif
+
 
 protected:
     /** The sprite node that moves between grid cells */
