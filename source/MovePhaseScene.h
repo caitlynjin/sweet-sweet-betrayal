@@ -53,6 +53,8 @@ protected:
     std::shared_ptr<DudeModel> _localPlayer;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
+    /** Whether or not we are in level editor mode */
+    bool _isLevelEditor = false;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -167,6 +169,11 @@ public:
      * Set whether the debug node is visible
      */
     void setDebugVisible(bool value);
+
+    /** Sets whether or not we are in level editor mode.
+* By default, we are not.
+*/
+    void setLevelEditor(bool value);
 
     /**
      * Resets the camera position to the initial state.

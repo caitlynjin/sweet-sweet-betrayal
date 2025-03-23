@@ -56,6 +56,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 	innerArray->appendChild(createJsonObjectList("platforms", platforms));
 	innerArray->appendChild(createJsonObjectList("spikes", spikes));
 	innerArray->appendChild(createJsonObjectList("treasures", treasures));
+	innerArray->appendChild(createJsonObjectList("windObstacles", windObstacles));
 	json->appendChild("objectTypes", innerArray);
 
 	shared_ptr<JsonWriter> jsonWriter = JsonWriter::alloc(fileName);
@@ -89,6 +90,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 
 /**
 * Creates a level and returns the objects within it.
+* 
 * These objects have NOT been added to the physics world, and need to be added there after this method is called for them to show up.
 * @param fileName The name of the JSON file containing the level information
 */

@@ -16,6 +16,8 @@
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the treasure texture */
+#define TREASURE_TEXTURE "treasure"
 
 namespace Constants {
 
@@ -37,6 +39,19 @@ std::string jsonTypeToString(JsonType type) {
     }
 }
 
+/*
+    * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
+    *
+    * @return The scale difference for mobile vs desktop
+    */
+float getSystemScale() {
+#ifdef CU_TOUCH_SCREEN
+    return 1.0f;
+#else
+    return 2.0f;
+#endif
+}
+
 /**
  * Convert an Item enum to the corresponding string.
  */
@@ -48,6 +63,10 @@ std::string itemToString(Item item) {
             return "moving platform";
         case WIND:
             return "wind";
+        case SPIKE:
+            return "spike";
+        case TREASURE:
+            return "treasure";
         default:
             return "unknown";
     }
@@ -63,6 +82,10 @@ cugl::Size itemToSize(Item item) {
         case MOVING_PLATFORM:
             return cugl::Size(3, 1);
         case WIND:
+            return cugl::Size(1, 1);
+        case SPIKE:
+            return cugl::Size(1, 1);
+        case TREASURE:
             return cugl::Size(1, 1);
         case NONE:
             return cugl::Size(1, 1);
@@ -84,6 +107,10 @@ std::string itemToAssetName(Item item) {
             return GLIDING_LOG_TEXTURE;
         case (WIND):
             return WIND_TEXTURE;
+        case (SPIKE):
+            return SPIKE_TILE_TEXTURE;
+        case (TREASURE):
+            return TREASURE_TEXTURE;
         case (NONE):
             return nullptr;
     }

@@ -331,8 +331,8 @@ void SSBApp::updateHostScene(float timestep)
     {
         // TODO: add network to gameplay
         _networkController->setIsHost(true);
-        _gameController.init(_assets, _networkController, _sound);
-        _gameController.setLevelEditor(false);
+        _gameController.init(_assets, _networkController, _sound, true);
+        _gameController.setLevelEditor(true);
         _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }

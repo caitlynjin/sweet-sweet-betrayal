@@ -224,6 +224,11 @@ public:
     */
     void setFailure(bool value);
 
+    /* Sets whether or not the move scene should be in level editor mode.
+    * This method is necessary because object processing logic is in MovePhaseScene.
+    */
+    void setLevelEditorForMoveScene(bool value);
+
     /**
     * Sets the level up for the next round.
     *

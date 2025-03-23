@@ -99,7 +99,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
  * @param size The dimensions (width, height) of the platform.
  */
 std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, string jsonType) {
-
+    CULog("MADE PLATFORM");
     std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
 
     return createPlatform(plat);
@@ -287,7 +287,7 @@ void ObjectController::addObstacle(const std::shared_ptr<physics2::Obstacle> &ob
             weak->setAngle(obs->getAngle()); });
     }
 }
-void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
+void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool levelEditing) {
     std::string key = obj->getJsonKey();
 
     if (key == "platforms") {
@@ -297,9 +297,16 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
         createSpike(std::dynamic_pointer_cast<Spike>(obj));
     }
     else if (key == "treasures") {
-        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
-                                                            _scale,
-                                                            false)));
+        // Required because it crashes if you try to set up a networked treasure during build mode
+        if (!levelEditing) {
+            _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
+                _scale,
+                false)));
+        }
+        else {
+            createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
+        }
+        
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));

@@ -573,6 +573,10 @@ void PlatformInput::buttonDownCB(const cugl::MouseEvent& event, Uint8 clicks, bo
 void PlatformInput::buttonUpCB(const cugl::MouseEvent& event, Uint8 clicks, bool focus) {
     // Only recognize the left mouse button
     if (_mouseDown && event.buttons.hasLeft()) {
+        if (_inventoryStatus == PLACING) {
+            _inventoryStatus = PLACED;
+            _placedPos = mouse2Screen(event.position);
+        }
     }
 }
 

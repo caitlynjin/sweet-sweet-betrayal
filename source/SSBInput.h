@@ -274,19 +274,6 @@ public:
      */
     cugl::Vec2 getPlacedPos() { return _placedPos; }
 
-    /*
-    * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
-    *
-    * @return The scale difference for mobile vs desktop
-    */
-    float getSystemScale() const {
-#ifdef CU_TOUCH_SCREEN
-        return 1.0f;
-#else
-        return 2.0f;
-#endif
-    }
-
     cugl::Vec2 getSystemDragOffset() const {
 #ifdef CU_TOUCH_SCREEN
         return cugl::Vec2(-1, 1);
@@ -461,7 +448,13 @@ public:
      *
      * @return true if touch is down
      */
-    bool isTouchDown() const { return _touchDown; }
+    bool isTouchDown() const { 
+#ifdef CU_TOUCH_SCREEN
+        return _touchDown;
+#else
+        return _mouseDown;
+#endif 
+    }
 
     /**Returns true if touch is down on the right*/
     bool isRightDown() const { return _holdRight; }

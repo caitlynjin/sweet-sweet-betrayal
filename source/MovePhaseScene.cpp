@@ -109,6 +109,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     _objects = objects;
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
+    _scale /= getSystemScale();
     _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
 
     // Create the scene graph
@@ -162,9 +163,9 @@ void MovePhaseScene::populate() {
     //
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/NewLevel.json");
     for (auto& obj : levelObjs) {
-        _objectController->processLevelObject(obj);
+        _objectController->processLevelObject(obj, _isLevelEditor);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 
@@ -196,9 +197,9 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-    _treasure = std::dynamic_pointer_cast<Treasure>(
-        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
-    );
+    //_treasure = std::dynamic_pointer_cast<Treasure>(
+    //    _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+    //);
 
 }
 
@@ -242,6 +243,13 @@ void MovePhaseScene::preUpdate(float dt) {
  */
 void MovePhaseScene::setDebugVisible(bool value) {
     _debugnode->setVisible(value);
+}
+
+/** Sets whether or not we are in level editor mode.
+* By default, we are not.
+*/
+void MovePhaseScene::setLevelEditor(bool value) {
+    _isLevelEditor = value;
 }
 
 /**

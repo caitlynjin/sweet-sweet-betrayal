@@ -76,9 +76,9 @@ SSBGameController::SSBGameController() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound, false);
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound, levelEditing);
 }
 
 
@@ -142,7 +142,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
-    _scale *= _input->getSystemScale();
+    _scale *= getSystemScale();
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
@@ -156,16 +156,17 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
-    // Initialize movement phase controller
     _movePhaseController = std::make_shared<MovePhaseController>();
+    _buildPhaseController = std::make_shared<BuildPhaseController>();
+    setLevelEditor(levelEditing);
+
+    // Initialize movement phase controller
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
 
     // Initialize build phase controller
-    _buildPhaseController = std::make_shared<BuildPhaseController>();
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
-    _buildPhaseController->setLevelEditor(_isLevelEditor);
     // Set up callbacks to transition between game modes
     _buildPhaseController->setBuildingModeCallback([this](bool value) {
         this->setBuildingMode(value);
@@ -383,6 +384,8 @@ void SSBGameController::setBuildingMode(bool value) {
     */
 void SSBGameController::setLevelEditor(bool value) {
     _isLevelEditor = value;
+    _buildPhaseController->setLevelEditor(value);
+    _movePhaseController->setLevelEditorForMoveScene(value);
 }
 
 #pragma mark -

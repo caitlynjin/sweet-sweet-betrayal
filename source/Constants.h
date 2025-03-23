@@ -176,6 +176,13 @@ enum JsonType {
  */
 std::string jsonTypeToString(JsonType type);
 
+/*
+    * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
+    *
+    * @return The scale difference for mobile vs desktop
+    */
+float getSystemScale();
+
 enum Item {
     /** A standard platform */
     PLATFORM,
@@ -183,6 +190,10 @@ enum Item {
     MOVING_PLATFORM,
     /** A wind object */
     WIND,
+    /** A spike */
+    SPIKE,
+    /** A treasure */
+    TREASURE,
     /** No type */
     NONE
 };

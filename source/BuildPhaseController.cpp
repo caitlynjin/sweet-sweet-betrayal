@@ -63,8 +63,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     // Initalize UI Scene
     _uiScene.init(assets);
     
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE};
+    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE};
     _uiScene.initInventory(inventoryItems, assetNames);
 
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
@@ -117,13 +117,12 @@ void BuildPhaseController::preUpdate(float dt) {
         if (_input->isTouchDown() && (_input->getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()), NONE);
-            Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);
+            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
+            Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
             
-            CULog("%f %f", screenPos.x, screenPos.y);
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
-                CULog("Placing object");
+                //CULog("Placing object");
                 
                 if (_selectedObject) {
                     // Set the current position of the object
@@ -148,7 +147,7 @@ void BuildPhaseController::preUpdate(float dt) {
             if (_input->isTouchDown()) {
                 // Attempt to move object that exists on the grid
                 Vec2 screenPos = _input->getPosOnDrag();
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()), NONE);
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
                 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
                 
@@ -165,7 +164,7 @@ void BuildPhaseController::preUpdate(float dt) {
         else if (_input->getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);;
+            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
                 if (_gridManager->hasObject(gridPos)) {
@@ -195,10 +194,11 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);;
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
                 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                    //obj->setTexture(_assets->get<Texture>(itemToAssetName(_selectedItem)));
                     _gridManager->addObject(gridPos, obj);
                     
                     _itemsPlaced += 1;
@@ -206,13 +206,14 @@ void BuildPhaseController::preUpdate(float dt) {
                     // Update inventory UI
                     if (_itemsPlaced >= 1)
                     {
-                        _uiScene.activateInventory(false);
+                        _uiScene.activateInventory(_isLevelEditor);
                     }
                 }
             }
             
             // Reset selected item
             _selectedItem = NONE;
+            _selectedObject = nullptr;
             
             // Darken inventory UI
             _uiScene.getInventoryOverlay()->setVisible(true);
@@ -311,11 +312,22 @@ void BuildPhaseController::setLevelEditor(bool value) {
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _buildPhaseScene.getScale());
+            if (_isLevelEditor) {
+                return _objectController->createPlatform(gridPos, Size(3, 1), "log");
+            }
+            else {
+                return _networkController->createPlatformNetworked(gridPos, Size(3, 1), "log", _buildPhaseScene.getScale() / getSystemScale());
+            }
         case (MOVING_PLATFORM):
-            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
+            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+        case (SPIKE):
+            return _objectController->createSpike(gridPos, Size(1, 1), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
+        case (TREASURE):
+            // For now, assuming that players won't be able to place treasure.
+            // No need to make it networked here since this code should only run in the level editor.
+            return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), Size(1, 1), "default");
         case (NONE):
             return nullptr;
     }

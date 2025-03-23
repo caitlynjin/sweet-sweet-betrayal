@@ -150,7 +150,7 @@ public:
     /**called in Game Scene to create the corresponding object type
     @param obj    The physics object to add
      **/
-    void processLevelObject(std::shared_ptr<Object> obj);
+    void processLevelObject(std::shared_ptr<Object> obj, bool levelEditing = false);
     void setNetworkController(std::shared_ptr<NetworkController> networkController) {
         _networkController = networkController;
     }

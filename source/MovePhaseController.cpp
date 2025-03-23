@@ -288,6 +288,13 @@ void MovePhaseController::setBuildingMode(bool value) {
     }
 }
 
+/* Sets whether or not the move scene should be in level editor mode.
+    * This method is necessary because object processing logic is in MovePhaseScene.
+    */
+void MovePhaseController::setLevelEditorForMoveScene(bool value) {
+    _movePhaseScene.setLevelEditor(value);
+}
+
 #pragma mark -
 #pragma mark State Access
 /**
