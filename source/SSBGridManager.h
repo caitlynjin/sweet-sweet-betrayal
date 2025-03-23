@@ -158,7 +158,7 @@ public:
      * @return false if there exists an object
      *
      * @param cellPos    the cell position
-     * @param size          the size of the object being placed
+     * @param size          the amount of area this object takes up (including its movement)
      */
     bool canPlace(Vec2 cellPos, Size size);
 

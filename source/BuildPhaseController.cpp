@@ -153,7 +153,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
-                    
+
                     // Set the current position of the object
                     _prevPos = _selectedObject->getPosition();
 
@@ -167,7 +167,7 @@ void BuildPhaseController::preUpdate(float dt) {
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToSize(_selectedItem))) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
@@ -196,7 +196,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
                 
-                if (_gridManager->canPlace(gridPos, itemToSize(_selectedItem))) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     _gridManager->addMoveableObject(gridPos, obj);
                     
@@ -297,11 +297,11 @@ void BuildPhaseController::setBuildingMode(bool value) {
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _buildPhaseScene.getScale());
+            return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale());
         case (MOVING_PLATFORM):
-            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
+            return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
         case (WIND):
-            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+            return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 1.0), "default");
         case (NONE):
             return nullptr;
     }
@@ -316,7 +316,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
  * @param item               The selected item being snapped to the grid
  */
 Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
-    Size offset = itemToSize(item) - Vec2(1, 1);
+    Size offset = itemToGridSize(item) - Vec2(1, 1);
 
     int xGrid = gridPos.x;
     int yGrid = gridPos.y;

@@ -104,10 +104,11 @@ void GridManager::setSpriteInvisible(){
  */
 void GridManager::addObject(std::shared_ptr<Object> obj) {
     Vec2 cellPos = obj->getPosition();
+    Size size = itemToGridSize(obj->getItemType());
 
     // Add the object to every position it exists in
-    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
-        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
             hasObjMap[posPair] = true;
@@ -123,6 +124,7 @@ void GridManager::addObject(std::shared_ptr<Object> obj) {
  */
 void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
+    Size size = itemToGridSize(obj->getItemType());
 
     std::string x = std::to_string(cellPos.x);
     std::string y = std::to_string(cellPos.y);
@@ -132,8 +134,8 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     objToPosMap[obj] = originPosPair;
 
     // Add the object to every position it exists in
-    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
-        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
             posToObjMap[posPair] = obj;
@@ -161,13 +163,14 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
     }
 
     std::shared_ptr<Object> obj = it->second;
+    Size size = itemToGridSize(obj->getItemType());
 
     // Clear all positions the object occupies
     auto originPosX = objToPosMap[obj].first;
     auto originPosY = objToPosMap[obj].second;
 
-    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
-        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(originPosX + i, originPosY + j);
             posToObjMap.erase(posPair);
@@ -187,7 +190,7 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
  * @return false if there exists an object
  *
  * @param cellPos    the cell position
- * @param size          the size of the object being placed
+ * @param size          the amount of area this object takes up (including its movement)
  */
 bool GridManager::canPlace(Vec2 cellPos, Size size) {
     for (int i = 0; i < size.getIWidth(); i++) {
