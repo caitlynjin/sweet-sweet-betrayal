@@ -49,12 +49,12 @@ public:
     */
     static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, string jsonType) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position + size/2, size, jsonType) ? result : nullptr);
+        return (result->init(position, size, jsonType) ? result : nullptr);
     }
 
     static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position + size/2, size) ? result : nullptr);
+        return (result->init(position, size) ? result : nullptr);
     }
     
     static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
@@ -65,11 +65,11 @@ public:
     // New alloc method for moving platform.
     static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->initMoving(position + size/2, size, start + size/2, end, speed) ? result : nullptr);
+        return (result->initMoving(position, size, start, end, speed) ? result : nullptr);
     }
     static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->initMoving(position + size/2, size, start + size/2, end+size/2, speed, box) ? result : nullptr);
+        return (result->initMoving(position, size, start, end, speed, box) ? result : nullptr);
     }
 
 

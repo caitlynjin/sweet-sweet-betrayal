@@ -34,6 +34,7 @@ protected:
     /** The Box2D world */
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     std::shared_ptr<ObjectController> _objectController;
+    std::shared_ptr<GridManager> _gridManager;
     /** The network controller */
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */

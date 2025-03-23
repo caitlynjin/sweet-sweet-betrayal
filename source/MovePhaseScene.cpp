@@ -103,6 +103,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     _assets = assets;
     _world = world;
+    _gridManager = gridManager;
     _networkController = networkController;
     _network = networkController->getNetwork();
     _initialCameraPos = getCamera()->getPosition();
@@ -165,6 +166,8 @@ void MovePhaseScene::populate() {
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
+        _gridManager->addObject(obj);
+        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 

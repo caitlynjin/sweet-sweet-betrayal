@@ -122,12 +122,9 @@ void BuildPhaseController::preUpdate(float dt) {
             
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
-                CULog("Placing object");
+//                CULog("Placing object");
                 
                 if (_selectedObject) {
-                    // Set the current position of the object
-                    _prevPos = gridPos;
-                    
                     // Move the existing object to new position
                     _selectedObject->setPosition(gridPosWithOffset);
                     
@@ -149,14 +146,17 @@ void BuildPhaseController::preUpdate(float dt) {
                 Vec2 screenPos = _input->getPosOnDrag();
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos), NONE);
                 
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                
+                std::shared_ptr<Object> obj = _gridManager->moveObject(gridPos);
+
                 // If object exists
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
+                    
+                    // Set the current position of the object
+                    _prevPos = _selectedObject->getPosition();
+
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -167,10 +167,10 @@ void BuildPhaseController::preUpdate(float dt) {
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
-                if (_gridManager->hasObject(gridPos)) {
+                if (!_gridManager->canPlace(gridPos, itemToSize(_selectedItem))) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
-                    _gridManager->addObject(_prevPos, _selectedObject);
+                    _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
@@ -182,7 +182,7 @@ void BuildPhaseController::preUpdate(float dt) {
                             platform->updateMoving(gridPos);
                         }
                     }
-                    _gridManager->addObject(gridPos, _selectedObject);
+                    _gridManager->addMoveableObject(gridPos, _selectedObject);
                 }
                 
                 // Trigger listener
@@ -196,9 +196,9 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
                 
-                if (!_gridManager->hasObject(gridPos)) {
+                if (_gridManager->canPlace(gridPos, itemToSize(_selectedItem))) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addObject(gridPos, obj);
+                    _gridManager->addMoveableObject(gridPos, obj);
                     
                     _itemsPlaced += 1;
                     
