@@ -199,8 +199,7 @@ bool GridManager::canPlace(Vec2 cellPos, Size size) {
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
             if (hasObjMap.find(posPair) != hasObjMap.end()) {
-                // If unable to find object
-                return false;
+                return false;   // Object exists in position
             }
         }
     }
