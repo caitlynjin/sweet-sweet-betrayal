@@ -109,17 +109,18 @@ void BuildPhaseController::reset() {
 void BuildPhaseController::preUpdate(float dt) {
     if (buildingMode) {
         /** The offset of finger placement to object indicator */
-        Vec2 dragOffset = Vec2(-1, 1);
+        Vec2 dragOffset = _input->getSystemDragOffset();
 
         // Deactivate inventory buttons once all traps are placed
-        _uiScene.activateInventory(_itemsPlaced == 0);
+        _uiScene.activateInventory(_itemsPlaced == 0 || _isLevelEditor);
 
         if (_input->isTouchDown() && (_input->getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos), NONE);
-            Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);
+            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()), NONE);
+            Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);
             
+            CULog("%f %f", screenPos.x, screenPos.y);
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
                 CULog("Placing object");
@@ -147,7 +148,7 @@ void BuildPhaseController::preUpdate(float dt) {
             if (_input->isTouchDown()) {
                 // Attempt to move object that exists on the grid
                 Vec2 screenPos = _input->getPosOnDrag();
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos), NONE);
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()), NONE);
                 
                 std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
                 
@@ -164,7 +165,7 @@ void BuildPhaseController::preUpdate(float dt) {
         else if (_input->getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
+            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
                 if (_gridManager->hasObject(gridPos)) {
@@ -194,7 +195,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, _input->getSystemScale()) + dragOffset, _selectedItem);;
                 
                 if (!_gridManager->hasObject(gridPos)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);

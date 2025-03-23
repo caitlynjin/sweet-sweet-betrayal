@@ -129,6 +129,16 @@ public:
      */
     Vec2 convertScreenToBox2d(const Vec2 &screenPos);
 
+    /**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @return the Box2D position
+ *
+ * @param screenPos    The screen position
+ * @param systemScale The scale to differentiate mobile from desktop
+ */
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float systemScale);
+
 
 };
 

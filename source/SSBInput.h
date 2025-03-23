@@ -80,6 +80,7 @@ public:
     cugl::Vec2 originalPosition;
     cugl::Vec2 finalPosition;
     bool _touchDown;
+    bool _mouseDown;
     
 
 #pragma mark glide bullshit
@@ -113,7 +114,10 @@ protected:
     float _horizontal;
     /** Touch position on screen */
     cugl::Vec2 _touchPosForDrag;
-    
+    /** Touch position on screen */
+    cugl::Vec2 _mousePosForDrag;
+    /** The key for the mouse listeners */
+    Uint32 _mouseKey;
     
     // INVENTORY
     /** Whether the player is placing an item in build mode */
@@ -223,6 +227,8 @@ protected:
      */
     cugl::Vec2 touch2Screen(const cugl::Vec2 pos) const;
 
+    cugl::Vec2 mouse2Screen(const cugl::Vec2 pos) const;
+
     /**
      * Processes movement for the floating joystick.
      *
@@ -267,6 +273,27 @@ public:
      * @return the screen position to place the selected item
      */
     cugl::Vec2 getPlacedPos() { return _placedPos; }
+
+    /*
+    * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
+    *
+    * @return The scale difference for mobile vs desktop
+    */
+    float getSystemScale() const {
+#ifdef CU_TOUCH_SCREEN
+        return 1.0f;
+#else
+        return 2.0f;
+#endif
+    }
+
+    cugl::Vec2 getSystemDragOffset() const {
+#ifdef CU_TOUCH_SCREEN
+        return cugl::Vec2(-1, 1);
+#else
+        return cugl::Vec2(0, 0);
+#endif
+    }
     
 #pragma mark -
 #pragma mark Constructors
@@ -309,7 +336,13 @@ public:
      *
      * @return the location of the last touch drag position
      */
-    cugl::Vec2 getPosOnDrag(){ return _touchPosForDrag; }
+    cugl::Vec2 getPosOnDrag() {
+#ifdef CU_TOUCH_SCREEN
+        return _touchPosForDrag;
+#else
+        return _mousePosForDrag;
+#endif
+    }
     
     
 #pragma mark -
@@ -461,6 +494,42 @@ public:
      * @param focus	Whether the listener currently has focus
      */
     void touchesMovedCB(const cugl::TouchEvent& event, const cugl::Vec2& previous, bool focus);
+
+    /**
+     * Call back to execute when a mouse button is first pressed.
+     *
+     * This function will record a press only if the left button is pressed.
+     *
+     * @param event     The event with the mouse information
+     * @param clicks    The number of clicks (for double clicking)
+     * @param focus     Whether this device has focus (UNUSED)
+     */
+    void buttonDownCB(const cugl::MouseEvent& event, Uint8 clicks, bool focus);
+
+    /**
+     * Call back to execute when a mouse button is first released.
+     *
+     * This function will record a release for the left mouse button.
+     *
+     * @param event     The event with the mouse information
+     * @param clicks    The number of clicks (for double clicking)
+     * @param focus     Whether this device has focus (UNUSED)
+     */
+    void buttonUpCB(const cugl::MouseEvent& event, Uint8 clicks, bool focus);
+
+    /**
+     * Call back to execute when the mouse moves.
+     *
+     * This input controller sets the pointer awareness only to monitor a mouse
+     * when it is dragged (moved with button down), not when it is moved. This
+     * cuts down on spurious inputs. In addition, this method only pays attention
+     * to drags initiated with the left mouse button.
+     *
+     * @param event     The event with the mouse information
+     * @param previous  The previously reported mouse location
+     * @param focus     Whether this device has focus (UNUSED)
+     */
+    void motionCB(const cugl::MouseEvent& event, const cugl::Vec2 previous, bool focus);
   
 };
 

@@ -159,3 +159,28 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
     return Vec2(xGrid, yGrid);
 }
 
+/**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @return the Box2D position
+ *
+ * @param screenPos    The screen position
+ * @param systemScale The scale to differentiate mobile from desktop
+ */
+Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemScale)
+{
+    Vec2 adjusted = screenPos * systemScale - _offset;
+
+    // Adjust for camera position
+    Vec2 worldPos = adjusted + (_camera->getPosition() - _cameraInitialPos);
+
+    float xBox2D = worldPos.x / _scale;
+    float yBox2D = worldPos.y / _scale;
+
+    // Converts to the specific grid position
+    int xGrid = xBox2D;
+    int yGrid = yBox2D;
+
+    return Vec2(xGrid, yGrid);
+}
+

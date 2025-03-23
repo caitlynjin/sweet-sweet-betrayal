@@ -90,7 +90,8 @@ _rightTapped(false),
 _currDown(false),
 _prevDown(false),
 _prev2Down(false),
-
+_mouseKey(0),
+_mouseDown(false),
 _holdRight(false),
 _canGlide(false){
 }
@@ -105,6 +106,13 @@ void PlatformInput::dispose() {
     if (_active) {
 #ifndef CU_TOUCH_SCREEN
         Input::deactivate<Keyboard>();
+        Mouse* mouse = Input::get<Mouse>();
+        if (mouse) {
+            mouse->removePressListener(_mouseKey);
+            mouse->removeReleaseListener(_mouseKey);
+            mouse->removeDragListener(_mouseKey);
+            mouse->setPointerAwareness(Mouse::PointerAwareness::BUTTON);
+        }
 #else
         Touchscreen* touch = Input::get<Touchscreen>();
         touch->removeBeginListener(LISTENER_KEY);
@@ -140,6 +148,26 @@ bool PlatformInput::init(const Rect bounds) {
     
 #ifndef CU_TOUCH_SCREEN
     success = Input::activate<Keyboard>();
+    Mouse* mouse = Input::get<Mouse>();
+    if (mouse) {
+        mouse->setPointerAwareness(Mouse::PointerAwareness::DRAG);
+        _mouseKey = mouse->acquireKey();
+        mouse->addPressListener(_mouseKey, [=, this](const cugl::MouseEvent& event, Uint8 clicks, bool focus) {
+            this->buttonDownCB(event, clicks, focus);
+            _mouseDown = true;
+            _mousePosForDrag = mouse2Screen(event.position);
+            });
+        mouse->addReleaseListener(_mouseKey, [=, this](const cugl::MouseEvent& event, Uint8 clicks, bool focus) {
+            this->buttonUpCB(event, clicks, focus);
+            _mouseDown = false;
+            });
+        mouse->addDragListener(_mouseKey, [=, this](const cugl::MouseEvent& event, const Vec2 previous, bool focus) {
+            this->motionCB(event, previous, focus);
+            _mouseDown = true;
+            _mousePosForDrag = mouse2Screen(event.position);
+            });
+        _active = true;
+    }
 #else
     Touchscreen* touch = Input::get<Touchscreen>();
     touch->addBeginListener(LISTENER_KEY,[=](const TouchEvent& event, bool focus) {
@@ -292,6 +320,23 @@ Vec2 PlatformInput::touch2Screen(const Vec2 pos) const {
     return result;
 }
 
+/**
+ * Returns the scene location of a mouse click. This is identical to touch2Screen, but named again for programming clarity.
+ *
+ * Mouse coordinates are inverted, with y origin in the top-left
+ * corner. This method corrects for this and scales the screen
+ * coordinates down on to the scene graph size.
+ *
+ * @return the scene location of a mouse click.
+ */
+Vec2 PlatformInput::mouse2Screen(const Vec2 pos) const {
+    float px = pos.x / _tbounds.size.width - _tbounds.origin.x;
+    float py = pos.y / _tbounds.size.height - _tbounds.origin.y;
+    Vec2 result;
+    result.x = px * _sbounds.size.width + _sbounds.origin.x;
+    result.y = (1 - py) * _sbounds.size.height + _sbounds.origin.y;
+    return result;
+}
 /**
  * Processes movement for the floating joystick.
  *
@@ -497,6 +542,54 @@ void PlatformInput::touchesMovedCB(const TouchEvent& event, const Vec2& previous
         } else if (swipe == -1) {
             _keyExit = true;
         }
+    }
+}
+
+#pragma mark Mouse Callbacks
+/**
+ * Call back to execute when a mouse button is first pressed.
+ *
+ * This function will record a press only if the left button is pressed.
+ *
+ * @param event     The event with the mouse information
+ * @param clicks    The number of clicks (for double clicking)
+ * @param focus     Whether this device has focus (UNUSED)
+ */
+void PlatformInput::buttonDownCB(const cugl::MouseEvent& event, Uint8 clicks, bool focus) {
+    // Only recognize the left mouse button
+    if (!_mouseDown && event.buttons.hasLeft()) {
+    }
+}
+
+/**
+ * Call back to execute when a mouse button is first released.
+ *
+ * This function will record a release for the left mouse button.
+ *
+ * @param event     The event with the mouse information
+ * @param clicks    The number of clicks (for double clicking)
+ * @param focus     Whether this device has focus (UNUSED)
+ */
+void PlatformInput::buttonUpCB(const cugl::MouseEvent& event, Uint8 clicks, bool focus) {
+    // Only recognize the left mouse button
+    if (_mouseDown && event.buttons.hasLeft()) {
+    }
+}
+
+/**
+ * Call back to execute when the mouse moves.
+ *
+ * This input controller sets the pointer awareness only to monitor a mouse
+ * when it is dragged (moved with button down), not when it is moved. This
+ * cuts down on spurious inputs. In addition, this method only pays attention
+ * to drags initiated with the left mouse button.
+ *
+ * @param event     The event with the mouse information
+ * @param previous  The previously reported mouse location
+ * @param focus     Whether this device has focus (UNUSED)
+ */
+void PlatformInput::motionCB(const cugl::MouseEvent& event, const Vec2 previous, bool focus) {
+    if (_mouseDown) {
     }
 }
 

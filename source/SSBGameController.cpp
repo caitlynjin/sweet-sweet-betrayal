@@ -142,7 +142,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
-
+    _scale *= _input->getSystemScale();
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
