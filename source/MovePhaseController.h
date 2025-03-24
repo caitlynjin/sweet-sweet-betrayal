@@ -79,6 +79,8 @@ protected:
     bool _died = false;
     /** Whether the player has reached the goal */
     bool _reachedGoal = false;
+    /** Whether or not in level editor mode */
+    bool _isLevelEditor = false;
 
     std::function<void(bool)> _buildingModeCallback;
 

@@ -251,11 +251,13 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
-    _networkController->preUpdate(dt);
+    if (!_isLevelEditor) {
+        _networkController->preUpdate(dt);
+    }
     _input->update(dt);
 
     // Process Networking
-    if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
+    if (_buildingMode && !_isLevelEditor &&(_networkController->getNumReady() >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
         _networkController->setNumReady(0);

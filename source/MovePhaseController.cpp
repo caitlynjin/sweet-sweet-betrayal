@@ -71,10 +71,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     };
 
     //TODO: Change this to all be handled in Network Controller
-    _network->enablePhysics(_world, linkSceneToObsFunc);
+    if (!_isLevelEditor) {
+        _network->enablePhysics(_world, linkSceneToObsFunc);
 
-    _networkController->setObjects(&_objects);
-    _networkController->setWorld(_world);
+        _networkController->setObjects(&_objects);
+        _networkController->setWorld(_world);
+    }
     
 
     // Initialize move phase scene
@@ -234,6 +236,9 @@ void MovePhaseController::preUpdate(float dt) {
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void MovePhaseController::postUpdate(float remain) {
+    if (_isLevelEditor) {
+        return;
+    }
     // Record failure if necessary.
     if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
     {
@@ -292,6 +297,7 @@ void MovePhaseController::setBuildingMode(bool value) {
     * This method is necessary because object processing logic is in MovePhaseScene.
     */
 void MovePhaseController::setLevelEditorForMoveScene(bool value) {
+    _isLevelEditor = value;
     _movePhaseScene.setLevelEditor(value);
 }
 

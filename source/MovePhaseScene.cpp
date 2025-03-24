@@ -181,19 +181,21 @@ void MovePhaseScene::populate() {
         pos += Vec2(2, 0);
     }
 
-    _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
+    if (!_isLevelEditor) {
+        _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
 
-    // This is set to false to counter race condition with collision filtering
-    // NetworkController sets this back to true once it sets collision filtering to all players
-    // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
-    // If I do not disable the player, collision filtering works after build phase ends, not sure why
-    // TODO: Find a better solution, maybe only have players getting updated during movement phase
-    _localPlayer->setEnabled(false);
+        // This is set to false to counter race condition with collision filtering
+        // NetworkController sets this back to true once it sets collision filtering to all players
+        // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
+        // If I do not disable the player, collision filtering works after build phase ends, not sure why
+        // TODO: Find a better solution, maybe only have players getting updated during movement phase
+        _localPlayer->setEnabled(false);
 
-    _localPlayer->setDebugScene(_debugnode);
-    _world->getOwnedObstacles().insert({_localPlayer,0});
-    if (!_networkController->getIsHost()){
-        _network->getPhysController()->acquireObs(_localPlayer, 0);
+        _localPlayer->setDebugScene(_debugnode);
+        _world->getOwnedObstacles().insert({ _localPlayer,0 });
+        if (!_networkController->getIsHost()) {
+            _network->getPhysController()->acquireObs(_localPlayer, 0);
+        }
     }
 
 #pragma mark : Treasure
