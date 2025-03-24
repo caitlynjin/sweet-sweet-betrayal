@@ -203,6 +203,12 @@ std::string itemToString(Item item);
 cugl::Size itemToSize(Item item);
 
 /**
+ * Gets the grid size of this item.
+ * e.g. if the obstacle moves, the size will account for entire width/height of its movement as well.
+ */
+cugl::Size itemToGridSize(Item item);
+
+/**
  * Returns the corresponding asset name to the item.
  *
  * @return the item's asset name

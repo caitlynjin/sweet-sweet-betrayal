@@ -24,6 +24,7 @@
 #include <cugl/cugl.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
+#include "NetworkController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -36,7 +37,7 @@ private:
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     float _scale;
     /** A list of all objects to be updated during each animation frame. */
-    std::vector<std::shared_ptr<Object>> _objects;
+    std::vector<std::shared_ptr<Object>>* _gameObjects;
     /** Reference to the physics root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _worldnode;
     /** Reference to the debug root of the scene graph */
@@ -49,6 +50,9 @@ private:
     std::shared_ptr<scene2::PolygonNode> _growingWallNode;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
+   
+    std::shared_ptr<NetworkController> _networkController;
+
     
     
 public:
@@ -56,7 +60,8 @@ public:
                      const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
                      float scale,
                      const std::shared_ptr<scene2::SceneNode> world_node,
-                     const std::shared_ptr<scene2::SceneNode> debug_node);
+                     const std::shared_ptr<scene2::SceneNode> debug_node,
+                     std::vector<std::shared_ptr<Object>>* gameObjects);
     /**
      * Creates a platform.
      *
@@ -133,10 +138,18 @@ public:
     void addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
                          const std::shared_ptr<scene2::SceneNode>& node,
                          bool useObjPosition=true);
+
     /**called in Game Scene to create the corresponding object type
     @param obj    The physics object to add
      **/
     void processLevelObject(std::shared_ptr<Object> obj);
+
+    void setNetworkController(std::shared_ptr<NetworkController> networkController) {
+        _networkController = networkController;
+    }
+
+    std::shared_ptr<Treasure> getTreasure() {return _treasure;}
+    
 
     
 //    /**

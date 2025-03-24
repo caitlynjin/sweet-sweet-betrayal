@@ -61,8 +61,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets);
-    
+    _uiScene.init(assets, _gridManager);
+
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
     std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
     _uiScene.initInventory(inventoryItems, assetNames);
@@ -122,12 +122,9 @@ void BuildPhaseController::preUpdate(float dt) {
             
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
-                CULog("Placing object");
+//                CULog("Placing object");
                 
                 if (_selectedObject) {
-                    // Set the current position of the object
-                    _prevPos = gridPos;
-                    
                     // Move the existing object to new position
                     _selectedObject->setPosition(gridPosWithOffset);
                     
@@ -149,14 +146,17 @@ void BuildPhaseController::preUpdate(float dt) {
                 Vec2 screenPos = _input->getPosOnDrag();
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos), NONE);
                 
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                
+                std::shared_ptr<Object> obj = _gridManager->moveObject(gridPos);
+
                 // If object exists
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
+
+                    // Set the current position of the object
+                    _prevPos = _selectedObject->getPosition();
+
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -167,16 +167,22 @@ void BuildPhaseController::preUpdate(float dt) {
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
-                if (_gridManager->hasObject(gridPos)) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
-                    _gridManager->addObject(_prevPos, _selectedObject);
+                    _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPosition(gridPos);
-                    _gridManager->addObject(gridPos, _selectedObject);
+                    if (_selectedObject->getItemType()== Item::PLATFORM) {
+                        auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
+                        if (platform) {
+                            platform->updateMoving(gridPos);
+                        }
+                    }
+                    _gridManager->addMoveableObject(gridPos, _selectedObject);
                 }
                 
                 // Trigger listener
@@ -190,9 +196,9 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos) + dragOffset, _selectedItem);;
                 
-                if (!_gridManager->hasObject(gridPos)) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addObject(gridPos, obj);
+                    _gridManager->addMoveableObject(gridPos, obj);
                     
                     _itemsPlaced += 1;
                     
@@ -291,11 +297,11 @@ void BuildPhaseController::setBuildingMode(bool value) {
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            return _networkController->createPlatformNetworked(gridPos, Size(3,1), "log", _buildPhaseScene.getScale());
+            return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale());
         case (MOVING_PLATFORM):
-            return _objectController->createMovingPlatform(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1);
+            return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
         case (WIND):
-            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+            return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 1.0), "default");
         case (NONE):
             return nullptr;
     }
@@ -310,7 +316,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
  * @param item               The selected item being snapped to the grid
  */
 Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
-    Size offset = itemToSize(item) - Vec2(1, 1);
+    Size offset = itemToGridSize(item) - Vec2(1, 1);
 
     int xGrid = gridPos.x;
     int yGrid = gridPos.y;

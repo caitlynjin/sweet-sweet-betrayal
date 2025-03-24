@@ -99,6 +99,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
     nsize.height *= DUDE_VSHRINK;
     _drawScale = scale;
 
+    MovingPlat = nullptr;
 
     if (CapsuleObstacle::init(pos, nsize))
     {

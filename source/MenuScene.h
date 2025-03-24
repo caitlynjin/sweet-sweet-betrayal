@@ -17,6 +17,7 @@
 #include "Platform.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
+#include "SoundController.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -49,6 +50,8 @@ public:
 protected:
     /** The asset manager for this scene. */
     std::shared_ptr<cugl::AssetManager> _assets;
+
+    std::shared_ptr<SoundController> _sound;
     
     /** Controller for abstracting out input across multiple platforms */
     PlatformInput _input;
@@ -95,10 +98,11 @@ public:
      * That is why we have the method {@link #setActive}.
      *
      * @param assets    The (loaded) assets for this game mode
+     * @param sound     The sound controller
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound);
     
     /**
      * Sets whether the scene is currently active

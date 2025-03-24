@@ -91,7 +91,7 @@ void MovePhaseScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
     if (assets == nullptr)
     {
         return false;
@@ -103,9 +103,11 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     _assets = assets;
     _world = world;
+    _gridManager = gridManager;
     _networkController = networkController;
     _network = networkController->getNetwork();
     _initialCameraPos = getCamera()->getPosition();
+    _objects = objects;
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
     _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
@@ -124,7 +126,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     addChild(_debugnode);
 
     // Initialize object controller
-    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode);
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, _objects);
 
     addChild(gridManager->getGridNode());
 
@@ -159,6 +161,8 @@ void MovePhaseScene::populate() {
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
+        _gridManager->addObject(obj);
+        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 
@@ -190,7 +194,10 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-    _objectController->createTreasure(Vec2(TREASURE_POS[0]), Size(1, 1), "default");
+    _treasure = std::dynamic_pointer_cast<Treasure>(
+        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+    );
+
 }
 
 
