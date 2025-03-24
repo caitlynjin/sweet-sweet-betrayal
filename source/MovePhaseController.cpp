@@ -87,6 +87,9 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
     _uiScene.init(assets);
 
+    _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
+    _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
+
     setComplete(false);
     setFailure(false);
     _complete = false;
@@ -215,6 +218,16 @@ void MovePhaseController::preUpdate(float dt) {
             _uiScene.setDidJump(false);
         }
 
+        float player_pos = _movePhaseScene.getLocalPlayer()->getPosition().x;
+        if (player_pos < _playerStart){
+            _uiScene.setRedIcon(0, _levelWidth);
+        }
+        else if (player_pos > _playerStart){
+            _uiScene.setRedIcon(_levelWidth, _levelWidth);
+        }
+        else{
+            _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+        }
     }
 
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
