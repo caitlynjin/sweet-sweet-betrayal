@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "Mushroom.h"
 
 #include <ctime>
 #include <string>
@@ -198,6 +199,9 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     _treasure = std::dynamic_pointer_cast<Treasure>(
         _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+    );
+    std::dynamic_pointer_cast<Mushroom>(
+        _networkController->createMushroomNetworked(Vec2(10.5f, 4.5f), Size(2, 1), _scale)
     );
 
 }

@@ -40,6 +40,9 @@
         "treasure": {
             "file":     "textures/strawberry-jewel.png"
         },
+        "mushroom": {
+            "file":     "textures/mushroom.png"
+        },
         "spinner": {
             "file":     "textures/barrier.png"
         },
