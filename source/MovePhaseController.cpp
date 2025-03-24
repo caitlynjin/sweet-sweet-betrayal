@@ -221,7 +221,7 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     if (!buildingMode){
-        getCamera()->setPosition(Vec3(_movePhaseScene.getLocalPlayer()->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
+        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
     }
 
     _movePhaseScene.preUpdate(dt);
