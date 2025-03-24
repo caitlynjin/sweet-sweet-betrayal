@@ -48,6 +48,8 @@ std::string itemToString(Item item) {
             return "moving platform";
         case WIND:
             return "wind";
+        case MUSHROOM:
+            return "mushroom";
         default:
             return "unknown";
     }
@@ -64,6 +66,8 @@ cugl::Size itemToSize(Item item) {
             return cugl::Size(3, 1);
         case WIND:
             return cugl::Size(1, 1);
+        case MUSHROOM:
+            return cugl::Size(2, 1);
         case NONE:
             return cugl::Size(1, 1);
     }
@@ -84,6 +88,8 @@ std::string itemToAssetName(Item item) {
             return GLIDING_LOG_TEXTURE;
         case (WIND):
             return WIND_TEXTURE;
+        case (MUSHROOM):
+            return MUSHROOM_TEXTURE;
         case (NONE):
             return nullptr;
     }

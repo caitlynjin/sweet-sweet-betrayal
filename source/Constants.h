@@ -38,6 +38,8 @@
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the mushroom texture*/
+#define MUSHROOM_TEXTURE "mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
@@ -183,6 +185,8 @@ enum Item {
     MOVING_PLATFORM,
     /** A wind object */
     WIND,
+    /** A mushroom */
+    MUSHROOM,
     /** No type */
     NONE
 };

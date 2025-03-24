@@ -63,8 +63,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     // Initalize UI Scene
     _uiScene.init(assets);
     
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND, MUSHROOM};
+    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, MUSHROOM_TEXTURE};
     _uiScene.initInventory(inventoryItems, assetNames);
 
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
@@ -302,6 +302,9 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+        case (MUSHROOM):
+            return _networkController->createMushroomNetworked(gridPos, Size(1, 2), _buildPhaseScene.getScale());
+
         case (NONE):
             return nullptr;
     }
