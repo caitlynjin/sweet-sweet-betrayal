@@ -98,40 +98,61 @@ void GridManager::setSpriteInvisible(){
 #pragma mark Object Handling
 
 /**
- * Adds the object to the object map to this location.
+ * Adds the non-moveable object's position to the position has object map.
+ *
+ *@param obj    the object
+ */
+void GridManager::addObject(std::shared_ptr<Object> obj) {
+    Vec2 cellPos = obj->getPosition();
+    Size size = obj->getSize();
+
+    // Add the object to every position it exists in
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
+            hasObjMap[posPair] = true;
+        }
+    }
+};
+
+/**
+ * Adds the moveable object to the object map to this location.
  *
  *@param cellPos    the cell position
  *@param obj    the object
  */
-void GridManager::addObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
+void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
+    Size size = itemToGridSize(obj->getItemType());
 
     std::string x = std::to_string(cellPos.x);
     std::string y = std::to_string(cellPos.y);
     CULog("%s", x.c_str());
     CULog("%s", y.c_str());
     // Add the origin position of the object
-    objToOriginPosMap[obj] = originPosPair;
+    objToPosMap[obj] = originPosPair;
 
     // Add the object to every position it exists in
-    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
-        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
             posToObjMap[posPair] = obj;
+            hasObjMap[posPair] = true;
         }
     }
 };
 
 /**
- * Removes the object from the object map, if it exists.
+ * Removes the moveable object from the object map, if it exists.
  *
  *@return   the object removed, or `nullptr` if it does not exist.
  *
  *@param cellPos    the cell position
  *@param col    the cell column to add the object to
  */
-std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
+std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
     // Find object in object map
     auto posPair = std::make_pair(cellPos.x, cellPos.y);
 
@@ -142,42 +163,45 @@ std::shared_ptr<Object> GridManager::removeObject(Vec2 cellPos) {
     }
 
     std::shared_ptr<Object> obj = it->second;
-    // TODO: Remove this
-//    posToObjectMap.erase(it);
+    Size size = itemToGridSize(obj->getItemType());
 
     // Clear all positions the object occupies
-    auto originPosX = objToOriginPosMap[obj].first;
-    auto originPosY = objToOriginPosMap[obj].second;
+    auto originPosX = objToPosMap[obj].first;
+    auto originPosY = objToPosMap[obj].second;
 
-    for (int i = 0; i < obj->getSize().getIWidth(); i++) {
-        for (int j = 0; j < obj->getSize().getIHeight(); j++) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(originPosX + i, originPosY + j);
             posToObjMap.erase(posPair);
+            hasObjMap.erase(posPair);
         }
     }
 
     // Clear the origin position of the object
-    objToOriginPosMap.erase(obj);
+    objToPosMap.erase(obj);
 
     return obj;
 };
 
 /**
- * Checks if there's an object in this grid position.
+ * Checks whether we can place the object in the cell position.
  *
- * @return true if there exists an object
+ * @return false if there exists an object
  *
  * @param cellPos    the cell position
+ * @param size          the amount of area this object takes up (including its movement)
  */
-bool GridManager::hasObject(Vec2 cellPos) {
-    // Find object in object map
-    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+bool GridManager::canPlace(Vec2 cellPos, Size size) {
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // Find object in object map
+            auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
-    auto it = posToObjMap.find(posPair);
-    if (it == posToObjMap.end()) {
-        // If unable to find object
-        return false;
+            if (hasObjMap.find(posPair) != hasObjMap.end()) {
+                return false;   // Object exists in position
+            }
+        }
     }
 
     return true;

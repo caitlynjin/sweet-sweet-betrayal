@@ -138,13 +138,16 @@ public:
     void addObstacle(const std::shared_ptr<physics2::Obstacle>& obj,
                          const std::shared_ptr<scene2::SceneNode>& node,
                          bool useObjPosition=true);
+
     /**called in Game Scene to create the corresponding object type
     @param obj    The physics object to add
      **/
     void processLevelObject(std::shared_ptr<Object> obj);
+
     void setNetworkController(std::shared_ptr<NetworkController> networkController) {
         _networkController = networkController;
     }
+
     std::shared_ptr<Treasure> getTreasure() {return _treasure;}
     
 

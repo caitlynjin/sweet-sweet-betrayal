@@ -287,6 +287,7 @@ void ObjectController::addObstacle(const std::shared_ptr<physics2::Obstacle> &ob
             weak->setAngle(obs->getAngle()); });
     }
 }
+
 void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
     std::string key = obj->getJsonKey();
 
