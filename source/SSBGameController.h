@@ -267,10 +267,7 @@ public:
      */
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
-    /**
-     * This method takes a MessageEvent and processes it.
-     */
-    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+    
 
   };
 

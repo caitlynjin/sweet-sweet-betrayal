@@ -251,11 +251,20 @@ void SSBGameController::preUpdate(float dt)
     _input->update(dt);
 
     // Process Networking
-    if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
+    // Check if can switch to movement phase
+    if (_buildingMode && _networkController->canSwitchToMove()){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
-        _networkController->setNumReady(0);
+        //TODO: Implement switching to movement mode logic in networkcontroller
+        _networkController->reset();
     }
+    
+    // Check if can switch to build phase
+    if (!_buildingMode && _networkController->canSwitchToBuild()){
+        setBuildingMode(!_buildingMode);
+        _networkController->reset();
+    }
+    
 
     _buildPhaseController->preUpdate(dt);
     _movePhaseController->preUpdate(dt);
@@ -294,13 +303,14 @@ void SSBGameController::fixedUpdate(float step)
 
     // Update all controller
     _networkController->fixedUpdate(step);
-
-    if(_network->isInAvailable()){
-        auto e = _network->popInEvent();
-        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            processMessageEvent(mEvent);
-        }
-    }
+    
+    // TODO: Move to networkcontroller
+//    if(_network->isInAvailable()){
+//        auto e = _network->popInEvent();
+//        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+//            processMessageEvent(mEvent);
+//        }
+//    }
 }
 
 /**
@@ -377,21 +387,4 @@ void SSBGameController::setBuildingMode(bool value) {
 
 #pragma mark -
 #pragma mark Helpers
-/**
- * This method takes a MessageEvent and processes it.
- */
-void SSBGameController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
-    Message message = event->getMesage();
-    switch (message) {
-        case Message::BUILD_READY:
-            // Increment number of players ready
-            // TODO: Find better way of handling
-            _networkController->setNumReady(_networkController->getNumReady() + 1);
-            break;
 
-        default:
-            // Handle unknown message types
-            std::cout << "Unknown message type received" << std::endl;
-            break;
-    }
-}

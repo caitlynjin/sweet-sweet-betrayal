@@ -103,6 +103,14 @@ void NetworkController::preUpdate(float dt){
     if (!_filtersSet){
         trySetFilters();
     }
+    
+    // Process messaging events
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+    }
 }
 
 /**
@@ -166,12 +174,37 @@ void NetworkController::postUpdate(float remain){
  * Resets the status of the game so that we can play again.
  */
 void NetworkController::reset(){
-    // TODO: Might need to add reset logic
-//    _readyButton->setVisible(true);
-//    _rightButton->setVisible(true);
-//    _leftButton->setVisible(true);
+    _numReady = 0;
+    _numReset = 0;
+
 }
 
+
+
+#pragma mark -
+#pragma mark Process Network Events
+/**
+ * This method takes a MessageEvent and processes it.
+ */
+void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+    Message message = event->getMesage();
+    switch (message) {
+        case Message::BUILD_READY:
+            // Increment number of players ready
+            _numReady++;
+            break;
+        
+        case Message::MOVEMENT_END:
+            // Increment number of players needed to be reset
+            _numReset++;
+            break;
+
+        default:
+            // Handle unknown message types
+            std::cout << "Unknown message type received" << std::endl;
+            break;
+    }
+}
 
 
 #pragma mark -

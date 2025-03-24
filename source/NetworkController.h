@@ -152,8 +152,10 @@ protected:
     /** The network controller */
     std::shared_ptr<NetEventController> _network;
     
-    /** The number of players ready to proceed from BuildPhase */
+    /** The number of players ready to proceed from BuildPhase into MovementPhase */
     float _numReady = 0;
+    /** The number of players ready to proceed from MovementPhase into BuildPhase */
+    float _numReset = 0;
     /** Whether the player is the host */
     bool _isHost;
     /** Whether the message has been sent */
@@ -302,6 +304,31 @@ public:
      * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
      */
     void trySetFilters();
+    
+    /**
+     * Returns whether game can switch to movement mode for all players.
+     */
+    bool canSwitchToMove(){
+        return _numReady >= _network->getNumPlayers();
+    }
+    
+    /**
+     * Returns whether game can switch to movement mode for all players.
+     */
+    bool canSwitchToBuild(){
+        return _numReset >= _network->getNumPlayers();
+    }
+    
+    
+#pragma mark -
+#pragma mark Message Handling
+    
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+    
+    
     
 #pragma mark -
 #pragma mark Create Networked Objects
