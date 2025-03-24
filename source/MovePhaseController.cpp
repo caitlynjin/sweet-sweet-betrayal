@@ -483,8 +483,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
             b2Vec2 impulse(0.0f, 20.0f);
             playerBody->ApplyLinearImpulseToCenter(impulse, true);
 
-            _mushroomCooldown = 5;
-            CULog("Mushroom bounce triggered; cooldown set to 5 frames.");
+            _mushroomCooldown = 10;
+            CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
         }
     }
 
