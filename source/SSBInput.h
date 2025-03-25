@@ -80,10 +80,6 @@ public:
     cugl::Vec2 originalPosition;
     cugl::Vec2 finalPosition;
     bool _touchDown;
-    /** Whether the movement joystick is held. */
-    bool _joystickHeld;
-    /** Returns whether the movement joystick is held. */
-    bool getJoystickHeld() { return _joystickHeld; };
 
 #pragma mark glide bullshit
     //Here is the glide bullshit

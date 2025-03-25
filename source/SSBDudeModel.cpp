@@ -146,7 +146,7 @@ void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
         _node->setColor(Color4(255, 255, 255, 0));
     }
     _idleSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _idleSpriteNode->setPosition(Vec2::ZERO);
+    _idleSpriteNode->setPosition(Vec2(-13.0f, 0.0f));
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
     
@@ -173,7 +173,7 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
         _node->setColor(Color4(255, 255, 255, 0));
     }
     _walkSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _walkSpriteNode->setPosition(Vec2::ZERO);
+    _walkSpriteNode->setPosition(Vec2(-13.0f, 0.0f));
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
     
@@ -314,18 +314,17 @@ void DudeModel::setMovement(float value)
     }
 
     // Change facing
-    scene2::TexturedNode* image = dynamic_cast<scene2::TexturedNode*>(_node.get());
-    if (image != nullptr)
-    {
-
-        image->flipHorizontal(!image->isFlipHorizontal());
-    }
-
-    if (_faceRight != face) {
-        _justFlipped = true;
-    }
-
     _faceRight = face;
+    
+    float flipValue = _faceRight ? 1.0f : -1.0f;
+    if (_idleSpriteNode) {
+        _idleSpriteNode->setScale(flipValue, 1.0f);
+    }
+    if (_walkSpriteNode) {
+        _walkSpriteNode->setScale(flipValue, 1.0f);
+    }
+
+    _justFlipped = true;
 }
 /**
  * Applies the force to the body of this dude
@@ -404,7 +403,7 @@ void DudeModel::update(float dt)
     // ANIMATION
     _timeline->update(dt);
     
-    if (getMovement() == 0 && _idleAction) {
+    if (getMovement() <= 5 && getMovement() >= -5 && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);

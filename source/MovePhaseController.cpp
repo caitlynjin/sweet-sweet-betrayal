@@ -196,12 +196,6 @@ void MovePhaseController::preUpdate(float dt) {
 //
 //        }
         
-        if(_input->getJoystickHeld()){
-            _movePhaseScene.getLocalPlayer()->setIdle(false);
-        } else{
-            _movePhaseScene.getLocalPlayer()->setIdle(true);
-        }
-        
         _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
         _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
