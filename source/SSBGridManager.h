@@ -4,6 +4,7 @@
 //
 //  Created by Caitlyn Jin on 2/22/25.
 //
+#ifndef __SSB_GRID_MANAGER_H__
 #define __SSB_GRID_MANAGER_H__
 
 #include <cugl/cugl.h>
@@ -20,10 +21,12 @@ using namespace cugl::graphics;
 */
 class GridManager {
 public:
-    /** Maps grid positions to world objects */
+    /** Maps grid positions to moveable world objects */
     std::map<std::pair<int, int>, std::shared_ptr<Object>> posToObjMap;
-    /** Maps world objects to bottom left position of objects */
-    std::map<std::shared_ptr<Object>, std::pair<int, int>> objToOriginPosMap;
+    /** Maps grid positions to whether there exists an object (moveable or non-moveable) that contains the grid box */
+    std::map<std::pair<int, int>, bool> hasObjMap;
+    /** Maps moveable world objects to bottom left position of objects */
+    std::map<std::shared_ptr<Object>, std::pair<int, int>> objToPosMap;
 
 private:
     /** Reference to building mode grid */
@@ -125,6 +128,12 @@ public:
 
 #pragma mark -
 #pragma mark Object Handling
+    /**
+     * Adds the non-moveable object's position to the position has object map.
+     *
+     *@param obj    the object
+     */
+    void addObject(std::shared_ptr<Object> obj);
 
     /**
      * Adds the object to the object map.
@@ -132,7 +141,7 @@ public:
      *@param cellPos    the cell position
      *@param obj    the object
      */
-    void addObject(Vec2 cellPos, std::shared_ptr<Object> obj);
+    void addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj);
 
     /**
      * Removes the object from the object map, if it exists.
@@ -141,15 +150,18 @@ public:
      *
      *@param cellPos    the cell position
      */
-    std::shared_ptr<Object> removeObject(Vec2 cellPos);
+    std::shared_ptr<Object> moveObject(Vec2 cellPos);
 
     /**
-     * Checks if there's an object in this grid position.
+     * Checks whether we can place the object in the cell position.
      *
-     * @return true if there exists an object
+     * @return false if there exists an object
      *
      * @param cellPos    the cell position
+     * @param size          the amount of area this object takes up (including its movement)
      */
-    bool hasObject(Vec2 cellPos);
+    bool canPlace(Vec2 cellPos, Size size);
 
 };
+
+#endif /* __SSB_GRID_MANAGER_H__ */

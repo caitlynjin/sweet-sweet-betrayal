@@ -1,62 +1,80 @@
 //
-// Created by chvel on 3/5/2025.
+//  SSBGameController.h
+//  SweetSweetBetrayal
+//
+//  Created by Caitlyn Jin on 3/16/25.
 //
 
-#ifndef SWEETSWEETBETRAYAL_UISCENE_H
-#define SWEETSWEETBETRAYAL_UISCENE_H
+#ifndef __SSB_GAME_CONTROLLER_H__
+#define __SSB_GAME_CONTROLLER_H__
 #include <cugl/cugl.h>
+#include <box2d/b2_world_callbacks.h>
+#include <box2d/b2_fixture.h>
+#include <unordered_set>
+#include <vector>
 #include "Constants.h"
-#include "Platform.h"
 #include "SSBInput.h"
+#include "SSBDudeModel.h"
+#include "SSBGridManager.h"
+#include "Platform.h"
+
+#include "WindObstacle.h"
+#include "Treasure.h"
+#include "MessageEvent.h"
+#include "BuildPhaseController.h"
+#include "MovePhaseController.h"
+#include "NetworkController.h"
+#include "SoundController.h"
+#include "ObjectController.h"
+//#include <cmath>
 
 using namespace cugl;
 using namespace Constants;
+using namespace cugl::physics2::distrib;
+
 
 /**
- * This class is the scene for the UI of the game.
+ * This class is the primary gameplay constroller for the demo.
  *
- * Since the game itself has a camera that moves along with the player,
- * this class makes it so that the UI always stays on screen.
- *
+ * A world has its own objects, assets, and input controller.  Thus this is
+ * really a mini-GameEngine in its own right.  As in 3152, we separate it out
+ * so that we can have a separate mode for the loading screen.
  */
-class UIScene : public scene2::Scene2 {
+class SSBGameController : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    std::shared_ptr<PlatformInput> _input;
+    std::shared_ptr<BuildPhaseController> _buildPhaseController;
+    std::shared_ptr<MovePhaseController> _movePhaseController;
+    std::shared_ptr<ObjectController> _objectController;
+    /** The network controller */
+    std::shared_ptr<NetworkController> _networkController;
+    /** The network  */
+    std::shared_ptr<NetEventController> _network;
+    /** Reference to the grid manager */
+    std::shared_ptr<GridManager> _gridManager;
+    /** Controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
 
-    /** A list of all objects to be updated during each animation frame. */
-    std::vector<std::shared_ptr<Object>> _objects;
+    /** Reference to background scene */
+    scene2::Scene2 _backgroundScene;
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
 
-    // CONTROLLERS
-    /** Controller for abstracting out input across multiple platforms */
-    PlatformInput _input;
+    /** The Box2D world */
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
-    /** Reference to the ready button */
-    std::shared_ptr<cugl::scene2::Button> _readyButton;
-    /** Reference to the right button */
-    std::shared_ptr<cugl::scene2::Button> _rightButton;
-    /** Reference to the left button */
-    std::shared_ptr<cugl::scene2::Button> _leftButton;
+    /** The scale between the physics world and the screen (MUST BE UNIFORM) */
+    float _scale;
+    /** The offset from the world */
+    Vec2 _offset;
+    /** The initial camera position */
+    Vec2 _initialCameraPos;
 
-    /** The total amount of rounds */
-    int const TOTAL_ROUNDS = 5;
+    /** Whether we are in build mode */
+    bool _buildingMode;
 
-    /** Reference to the label for counting rounds */
-    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
-
-    /** Reference to the rounds message label */
-    std::shared_ptr<scene2::Label> _roundsnode;
-    
-    /** Whether the player is ready to proceed to movement phase */
-    bool _isReady;
-
-    /** Whether right camera button is being pressed */
-    bool _rightpressed;
-
-    /** Whether left camera button is being pressed */
-    bool _leftpressed;
-
-    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
 public:
 #pragma mark -
 #pragma mark Constructors
@@ -67,7 +85,7 @@ public:
      * This constructor does not allocate any objects or start the controller.
      * This allows us to use a controller without a heap pointer.
      */
-    UIScene();
+    SSBGameController();
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -75,12 +93,12 @@ public:
      * This method is different from dispose() in that it ALSO shuts off any
      * static resources, like the input controller.
      */
-    ~UIScene() { dispose(); }
+    ~SSBGameController() { dispose(); }
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */
-    void dispose();
+    void dispose() override;
 
     /**
      * Initializes the controller contents, and starts the game
@@ -96,41 +114,46 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
     /**
-     * @return true if the right button was pressed
+     * Initializes the controller contents, and starts the game
+     *
+     * The constructor does not allocate any objects or memory.  This allows
+     * us to have a non-pointer reference to this controller, reducing our
+     * memory allocation.  Instead, allocation happens in this method.
+     *
+     * The game world is scaled so that the screen coordinates do not agree
+     * with the Box2d coordinates.  The bounds are in terms of the Box2d
+     * world, not the screen.
+     *
+     * @param assets    The (loaded) assets for this game mode
+     * @param rect      The game bounds in Box2d coordinates
+     *
+     * @return  true if the controller is initialized properly, false otherwise.
      */
-    bool getRightPressed();
+    bool init(const std::shared_ptr<AssetManager>& assets,
+              const Rect& rect);
 
     /**
-     * @return true if the left button was pressed
+     * Initializes the controller contents, and starts the game
+     *
+     * The constructor does not allocate any objects or memory.  This allows
+     * us to have a non-pointer reference to this controller, reducing our
+     * memory allocation.  Instead, allocation happens in this method.
+     *
+     * The game world is scaled so that the screen coordinates do not agree
+     * with the Box2d coordinates.  The bounds are in terms of the Box2d
+     * world, not the screen.
+     *
+     * @param assets    The (loaded) assets for this game mode
+     * @param rect      The game bounds in Box2d coordinates
+     * @param gravity   The gravitational force on this Box2d world
+     *
+     * @return  true if the controller is initialized properly, false otherwise.
      */
-    bool getLeftPressed();
-    
-    
-    /**
-     * @return true if the ready button was pressed
-     */
-    bool getReadyDone();
-
-    /**
-     * Makes the buttons in the building mode visible
-     */
-    void visibleButtons(bool isVisible);
-    
-    /**
-     * Sets whether the player has pressed the ready button to indicate they are done with build phase.
-     */
-    void setReadyDone(bool isDone);
-
-    /**
-    * Updates round counter
-    *
-    * @param cur       The current round number
-    * @param total     The total number of rounds
-    */
-    void updateRound(int cur, int total);
+    bool init(const std::shared_ptr<AssetManager>& assets,
+              const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -142,8 +165,7 @@ public:
      *
      * @param timestep  The amount of time (in seconds) since the last frame
      */
-    void update(float timestep);
-
+    void update(float timestep) override;
 
     /**
      * The method called to indicate the start of a deterministic loop.
@@ -219,13 +241,40 @@ public:
      */
     void postUpdate(float remain);
 
-
     /**
      * Resets the status of the game so that we can play again.
      */
-    void reset();
+    void reset() override;
 
-};
+    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
+    void render() override;
 
-#endif //SWEETSWEETBETRAYAL_UISCENE_H
+    /**
+     * Sets whether mode is in building or play mode.
+     *
+     * @param value whether the level is in building mode.
+     */
+    void setBuildingMode(bool value);
+
+#pragma mark -
+#pragma mark Helpers
+    /**
+     * Converts from screen to Box2D coordinates.
+     *
+     * @return the Box2D position
+     *
+     * @param screenPos    The screen position
+     * @param scale             The screen to world scale
+     * @param offset           The offset of the scene to the world
+     */
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
+
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+
+  };
+
+#endif /* __SSB_GAME_CONTROLLER_H__ */

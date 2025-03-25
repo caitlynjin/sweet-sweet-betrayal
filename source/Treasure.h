@@ -20,6 +20,8 @@ class Treasure : public Object {
 private:
     /** The BoxObstacle wrapped by this Treasure object */
     std::shared_ptr<cugl::physics2::BoxObstacle> _box;
+    /**owned by a player**/
+    bool _taken = false;
     
 protected:
     /** The texture for the treasure */
@@ -31,6 +33,7 @@ protected:
     std::shared_ptr<scene2::SceneNode> _node;
 
 public:
+    
     Treasure() : Object() {}
 
     Treasure(Vec2 pos) : Object(pos) {}
@@ -62,10 +65,18 @@ public:
         std::shared_ptr<Treasure> result = std::make_shared<Treasure>();
         return (result->init(position, size, scale, jsonType) ? result : nullptr);
     }
+    /** for networking */
+    static std::shared_ptr<Treasure> alloc(const Vec2 position, const Size size, float scale, bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+        std::shared_ptr<Treasure> result = std::make_shared<Treasure>();
+        return (result->init(position, size, scale, taken, box) ? result : nullptr);
+    }
 
     bool init(const Vec2 pos, const Size size, float scale);
 
     bool init(const Vec2 pos, const Size size, float scale, string jsonType);
+
+    /** for networking */
+    bool init(const Vec2 pos, const Size size, float scale, bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box);
     
     /**
      * Sets the scene graph node representing this Treasure.
@@ -82,7 +93,19 @@ public:
     }
 
     std::map<std::string, std::any> getMap() override;
-    
+    /**
+     * Sets the taken status of the treasure.
+     * @param taken Whether the treasure has been taken by a player.
+     */
+    void setTaken(bool taken) { _taken = taken; }
+
+    /**
+     * Returns whether the treasure has been taken by a player.
+     * @return True if taken, false otherwise.
+     */
+    bool isTaken() const {
+        CULog("treasure taken");
+        return _taken; }
 };
 
 

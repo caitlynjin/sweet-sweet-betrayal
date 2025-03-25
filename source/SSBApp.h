@@ -1,12 +1,13 @@
 #ifndef __PF_APP_H__
 #define __PF_APP_H__
 #include <cugl/cugl.h>
-#include "SSBGameScene.h"
+#include "SSBGameController.h"
 #include "MenuScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
 #include "NPHostScene.h"
 #include "NetworkController.h"
+#include "SoundController.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 
 
@@ -25,10 +26,6 @@ protected:
     /** The global asset manager */
     std::shared_ptr<cugl::AssetManager> _assets;
     
-    // Player modes
-    /** The primary controller for the game world */
-    GameScene _gameplay;
-    
     /**neworking scenes*/
     MenuScene _mainmenu;
     
@@ -40,12 +37,18 @@ protected:
     PlatformInput _input;
     /** The controller for the loading screen */
     cugl::scene2::LoadingScene _loading;
-    
+
+    /** The controller for handling gameplay */
+    SSBGameController _gameController;
+
     /** The controller for handling networking */
     std::shared_ptr<NetworkController> _networkController;
-    
+
     /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
+
+    /** The controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
     
     /** Whether or not we have finished loading all assets */
     bool _loaded;

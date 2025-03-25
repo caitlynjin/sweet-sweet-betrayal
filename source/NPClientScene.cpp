@@ -57,7 +57,7 @@ static std::string dec2hex(const std::string dec) {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetEventController> network) {
+bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetEventController> network, std::shared_ptr<SoundController> sound) {
     // Initialize the scene to a locked height
     if (assets == nullptr) {
            return false;
@@ -71,6 +71,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     // Start up the input handler
     _assets = assets;
     _network = network;
+    _sound = sound;
     
     // Acquire the scene built by the asset loader and resize it the scene
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("client");

@@ -5,7 +5,7 @@
 //  Created by jessie jia on 3/13/25.
 //
 
-#include "SSBGameScene.h"
+#include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
@@ -40,13 +40,15 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
                                    const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
                                    float scale,
                                    const std::shared_ptr<scene2::SceneNode> world_node,
-                                   const std::shared_ptr<scene2::SceneNode> debug_node) {
+                                   const std::shared_ptr<scene2::SceneNode> debug_node,
+                                   std::vector<std::shared_ptr<Object>>* gameObjects) {
     // Constructor body (initialize additional members if needed)
     _assets = assets;
     _world = world;
     _scale = scale;
     _worldnode = world_node;
     _debugnode = debug_node;
+    _gameObjects = gameObjects;
 };
 std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
@@ -84,7 +86,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
     
     
-    _objects.push_back(plat);
+    _gameObjects->push_back(plat);
 
     return plat;
 }
@@ -113,6 +115,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, st
  * @param speed The speed at which the platform moves.
  */
 std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
+    CULog("creating moving platform");
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
@@ -139,7 +142,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
 
     addObstacle(plat->getObstacle(), sprite, 1);
-    _objects.push_back(plat);
+    _gameObjects->push_back(plat);
 
     return plat;
 }
@@ -169,7 +172,7 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
     spk->setSceneNode(sprite, spk->getAngle());
     addObstacle(spk->getObstacle(), sprite);
-    _objects.push_back(spk);
+    _gameObjects->push_back(spk);
     return spk;
 }
 /**
@@ -195,7 +198,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
 
-    _objects.push_back(wind);
+    _gameObjects->push_back(wind);
 
     return wind;
 }
@@ -218,7 +221,7 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
 
     _treasure->setPosition(pos);
-    _objects.push_back(_treasure);
+    _gameObjects->push_back(_treasure);
     return _treasure;
 }
 
@@ -284,6 +287,7 @@ void ObjectController::addObstacle(const std::shared_ptr<physics2::Obstacle> &ob
             weak->setAngle(obs->getAngle()); });
     }
 }
+
 void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
     std::string key = obj->getJsonKey();
 
@@ -294,7 +298,9 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
         createSpike(std::dynamic_pointer_cast<Spike>(obj));
     }
     else if (key == "treasures") {
-        createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
+        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
+                                                            _scale,
+                                                            false)));
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));

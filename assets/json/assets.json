@@ -92,6 +92,15 @@
         },
         "player-walk": {
             "file": "textures/red-walk.png"
+        },
+        "progress-bar": {
+            "file":  "textures/progress-bar.png"
+        },
+        "red-icon": {
+            "file":  "textures/red.png"
+        },
+        "treasure-icon": {
+            "file":  "textures/treasure.png"
         }
     },
     "jsons": {
