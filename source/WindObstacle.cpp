@@ -22,22 +22,20 @@ void WindObstacle::update(float timestep) {
     for (auto it = 0; it != RAYS; ++it) {
         if (_playerDist[it]<_rayDist[it]) {
             _playerHits++;
-            CULog("HIT!");
         }
     }
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
-    std::fill(_playerDist, _rayDist + RAYS, 600);
+    std::fill(_rayDist, _rayDist + RAYS, 600);
 }
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
-    CULog("ray");
     b2Body* body = contact->GetBody();
     std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
     physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
 
     if (bd->getName() == "player") {
-        
+
     }
     return bd->getName();
 }
@@ -54,10 +52,8 @@ using namespace cugl;
 #pragma mark Constructors
 
 bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
-
     float _rayDist[RAYS + 1];
     float _playerDist[RAYS + 1];
-
     return WindObstacle::init(pos, size, gust, "default");
 }
 /**
@@ -69,6 +65,9 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
 bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string jsonType) {
+    float _rayDist[RAYS + 1];
+    float _playerDist[RAYS + 1];
+
     Size nsize = size;
     _size = size;
     _itemType = WIND;
@@ -93,7 +92,9 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string
 
     _gustDir = gust;
 
-    
+
+
+    setTrajectory(Vec2(0, 15.0f));
     return true;
     
 }

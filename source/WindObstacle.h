@@ -96,7 +96,9 @@ public:
 	void setRayDist(int x, float y) { _rayDist[x] = y; }
 	void setPlayerDist(int x, float y) { _playerDist[x] = y; }
 
+	/*Getter for player hits**/
 
+	const int getPlayerHits() { return _playerHits; }
 	
 	std::map<std::string, std::any> getMap() override;
 
