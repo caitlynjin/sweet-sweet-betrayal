@@ -194,6 +194,8 @@ enum Item {
     SPIKE,
     /** A treasure */
     TREASURE,
+    /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
+    TILE_ALPHA,
     /** No type */
     NONE
 };

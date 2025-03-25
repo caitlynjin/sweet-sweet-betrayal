@@ -68,12 +68,12 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     // Eh it'll probably be useful to have this if-statement once ArtObjects are finished
     // This way we can make them only accessible in level editor mode
     if (_isLevelEditor) {
-        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE };
-        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE };
+        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA};
+        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
     }
     else {
-        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE };
-        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE };
+        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE};
+        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE };
     }
     
     _uiScene.initInventory(inventoryItems, assetNames);
@@ -91,6 +91,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _uiScene.activateInventory(true);
     if (_isLevelEditor) {
         _uiScene.getSaveTextField()->activate();
+        _uiScene.getLoadTextField()->activate();
     }
 
     return true;
@@ -254,15 +255,22 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (_uiScene.getIsReady() && _isLevelEditor) {
         // Save the level to a file
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        //level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
-        _objectController->getObjects()->clear();
-        vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getSaveFileName() + ".json");
-        for (auto& obj : objects) {
-            _objectController->processLevelObject(obj, _isLevelEditor);
-        }
+        level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
+    }
+
+    if (_uiScene.getLoadClicked() && _isLevelEditor) {
+        // Load the level stored in this file
+
+        // TODO (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
+        _objectController->getObjects()->clear();
+        shared_ptr<LevelModel> level = make_shared<LevelModel>();
+        vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
+        for (auto& obj : objects) {
+            _objectController->processLevelObject(obj, _isLevelEditor);
+        }
     }
 }
 
@@ -318,6 +326,7 @@ void BuildPhaseController::setBuildingMode(bool value) {
     */
 void BuildPhaseController::setLevelEditor(bool value) {
     _isLevelEditor = value;
+    _uiScene.setLevelEditor(value);
 }
 
 /**
@@ -347,6 +356,9 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), Size(1, 1), "default");
+        case (TILE_ALPHA):
+            // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
+            return _objectController->createPlatform(gridPos, Size(1, 1), "tile");
         case (NONE):
             return nullptr;
     }

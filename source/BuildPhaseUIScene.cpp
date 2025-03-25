@@ -114,14 +114,32 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
             setIsReady(true);
         }
     });
-    std::shared_ptr<scene2::PolygonNode> textNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    std::shared_ptr<scene2::PolygonNode> loadNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    loadNode->setScale(0.8f);
+    _loadButton = scene2::Button::alloc(loadNode);
+    _loadButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _loadButton->setPosition(_size.width * 0.06f, _size.height * 0.1f);
+    _loadButton->activate();
+    _loadButton->addListener([this](const std::string& name, bool down) {
+        if (down && !_isTimeToLoad) {
+            setLoadClicked(true);
+        }
+        });
     _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
     _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
     _fileSaveText->setPosition(_size.width * 0.5f, _size.height * 0.1f);
+
+    _fileLoadText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
+    _fileLoadText->setAnchor(Vec2::ANCHOR_CENTER);
+    _fileLoadText->setPosition(_size.width * 0.5f, _size.height * 0.8f);
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
-    addChild(_fileSaveText);
+    if (_isLevelEditor) {
+        addChild(_fileSaveText);
+        addChild(_fileLoadText);
+        addChild(_loadButton);
+    }
 
     return true;
 }
@@ -224,6 +242,11 @@ void BuildPhaseUIScene::setVisible(bool value) {
     */
 void BuildPhaseUIScene::setLevelEditor(bool value) {
     _isLevelEditor = value;
+}
+
+/** Sets whether or not the load button was pressed. */
+void BuildPhaseUIScene::setLoadClicked(bool value) {
+    _isTimeToLoad = value;
 }
 
 /**

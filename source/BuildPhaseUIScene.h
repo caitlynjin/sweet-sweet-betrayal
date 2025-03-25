@@ -43,12 +43,16 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
+    /** Reference to the level editor load button */
+    std::shared_ptr<cugl::scene2::Button> _loadButton;
     /** Reference to the right button */
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
     std::shared_ptr<cugl::scene2::Button> _leftButton;
-    /** The text input for the file name in level select mode. */
+    /** The text input for the file name to save to in level select mode. */
     std::shared_ptr<cugl::scene2::TextField> _fileSaveText;
+    /** The text input for the file name to load in level select mode. */
+    std::shared_ptr<cugl::scene2::TextField> _fileLoadText;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -58,6 +62,8 @@ protected:
     bool _leftpressed = false;
     /** Whether we are in level editor mode */
     bool _isLevelEditor = false;
+    /** Whether or not the level editor load button was clicked */
+    bool _isTimeToLoad = false;
 
 public:
 #pragma mark -
@@ -140,11 +146,28 @@ public:
     std::string getSaveFileName() {
         return _fileSaveText->getText();
     }
+    /** Returns the text that the user input for the file to load into level editor mode. */
+    std::string getLoadFileName() {
+        return _fileLoadText->getText();
+    }
 
     /** Returns the text object itself for the user's save file input. */
     std::shared_ptr<cugl::scene2::TextField> getSaveTextField() {
         return _fileSaveText;
     }
+
+    /** Returns the text object itself for the user's load file input. */
+    std::shared_ptr<cugl::scene2::TextField> getLoadTextField() {
+        return _fileLoadText;
+    }
+
+    /** Gets whether or not the load button was clicked. */
+    bool getLoadClicked() {
+        return _isTimeToLoad;
+    }
+    
+    /** Sets whether or not the load button was clicked. */
+    void setLoadClicked(bool value);
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */

@@ -67,6 +67,8 @@ std::string itemToString(Item item) {
             return "spike";
         case TREASURE:
             return "treasure";
+        case TILE_ALPHA:
+            return "tile";
         default:
             return "unknown";
     }
@@ -86,6 +88,8 @@ cugl::Size itemToSize(Item item) {
         case SPIKE:
             return cugl::Size(1, 1);
         case TREASURE:
+            return cugl::Size(1, 1);
+        case TILE_ALPHA:
             return cugl::Size(1, 1);
         case NONE:
             return cugl::Size(1, 1);
@@ -111,6 +115,8 @@ std::string itemToAssetName(Item item) {
             return SPIKE_TILE_TEXTURE;
         case (TREASURE):
             return TREASURE_TEXTURE;
+        case (TILE_ALPHA):
+            return TILE_TEXTURE;
         case (NONE):
             return nullptr;
     }
