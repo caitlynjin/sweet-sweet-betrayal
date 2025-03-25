@@ -205,6 +205,34 @@ void MovePhaseController::preUpdate(float dt) {
         }
 
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+
+            /**If we created a wind object, create a bunch of raycasts.*/
+            if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
+                int i = 0;
+                std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
+
+                for (auto it = lst.begin(); it != wind_cast->getRayOrigins().end(); ++it) {
+                    Vec2 rayEnd = *it + (wind_cast->getDir());
+                    
+                    /**Generates the appropriate callback function for this wind object*/
+                    
+                    auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+                        string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
+                        CULog("ra1y");
+                        _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
+
+                        if (fixtureName != "player") {
+                            return fraction;
+                        }
+                        return wind_cast->getRayDist(i);
+                        };
+                    /**Generates the appropriate raycasts to handle collision for this wind object*/
+
+                    _world->rayCast(callback, *it, rayEnd);
+                    ++i;
+                }
+            }
+
             (*it)->update(dt);
         }
 

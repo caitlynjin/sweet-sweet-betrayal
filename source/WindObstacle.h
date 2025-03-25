@@ -5,6 +5,8 @@
 
 using namespace cugl;
 using namespace std;
+/**How many raycasting points we generate plus one*/
+constexpr int RAYS = 3;
 
 class WindObstacle : public Object {
 
@@ -14,6 +16,19 @@ private:
 
 	/*The direction of where the wind gust will push you*/
 	Vec2 _gustDir;
+	/**Orientation of the casted rays Should be same as gustdir, but we could try something funky. */
+	Vec2 _windDir = Vec2(0,1);
+
+	/**How many of the rays we have hit the player with.*/
+	int _playerHits;
+
+	/**The points where we are raycasting from. */
+
+	std::vector<Vec2> _rayOrigins;
+
+	/**Vectors that stores the raycasting data for each update. stores info for obstacle and player distance from rays respectively.*/
+	float _rayDist[RAYS+1];
+	float _playerDist[RAYS + 1];
 
 public:
 	WindObstacle() : Object() {}
@@ -34,6 +49,7 @@ public:
   * Every derived class should override this
   */
 	string getJsonKey() override;
+
 
 	/** Disposal */
 	~WindObstacle(void) override { dispose(); }
@@ -62,10 +78,30 @@ public:
 
 	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, string jsonType);
 
+	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
+
 	/*Return the wind vector*/
 	const Vec2 gustDir() { return _gustDir; };
 
+	/**Returns the list of wind origins*/
+
+	const std::vector<Vec2> getRayOrigins(){return _rayOrigins;};
+
+	const Vec2 getDir() { return _windDir; }
+
+	/**Getter and setters for player and ray distancearrays*/
+	const float getRayDist(int x) { return _rayDist[x]; }
+	const float getPlayerDist(int x) { return _playerDist[x]; }
+
+	void setRayDist(int x, float y) { _rayDist[x] = y; }
+	void setPlayerDist(int x, float y) { _playerDist[x] = y; }
+
+
+	
 	std::map<std::string, std::any> getMap() override;
+
+
+
 };
 
 

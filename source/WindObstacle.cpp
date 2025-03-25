@@ -17,6 +17,29 @@ void WindObstacle::setPosition(const cugl::Vec2& position) {
 }
 
 void WindObstacle::update(float timestep) {
+    _playerHits = 0;
+
+    for (auto it = 0; it != RAYS; ++it) {
+        if (_playerDist[it]<_rayDist[it]) {
+            _playerHits++;
+            CULog("HIT!");
+        }
+    }
+    /*Reset all the arrays**/
+    std::fill(_playerDist, _playerDist+RAYS,600);
+    std::fill(_playerDist, _rayDist + RAYS, 600);
+}
+
+string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
+    CULog("ray");
+    b2Body* body = contact->GetBody();
+    std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
+    physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
+
+    if (bd->getName() == "player") {
+        
+    }
+    return bd->getName();
 }
 
 string WindObstacle::getJsonKey() {
@@ -31,6 +54,10 @@ using namespace cugl;
 #pragma mark Constructors
 
 bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
+
+    float _rayDist[RAYS + 1];
+    float _playerDist[RAYS + 1];
+
     return WindObstacle::init(pos, size, gust, "default");
 }
 /**
@@ -56,6 +83,14 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string
     _gust->setSensor(true);
     _gust->setName("gust");
     
+    /**Intialize wind specific variables*/
+
+    for (int it = 0; it != RAYS; it++) {
+        Vec2 origin = pos + Vec2(0, 0.1f + _size.height / 2) + Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
+
+        _rayOrigins.push_back(origin);
+    }
+
     _gustDir = gust;
 
     
