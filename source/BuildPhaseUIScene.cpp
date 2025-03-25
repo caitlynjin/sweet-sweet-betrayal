@@ -114,10 +114,14 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
             setIsReady(true);
         }
     });
-
+    std::shared_ptr<scene2::PolygonNode> textNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
+    _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
+    _fileSaveText->setPosition(_size.width * 0.5f, _size.height * 0.1f);
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
+    addChild(_fileSaveText);
 
     return true;
 }
