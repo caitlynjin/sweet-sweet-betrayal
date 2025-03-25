@@ -772,6 +772,11 @@ void GameScene::preUpdate(float dt)
         _localPlayer->setGlide(_didglide);
 
 
+        if(_input.getJoystickHeld()){
+            _localPlayer->setIdle(false);
+        } else{
+            _localPlayer->setIdle(true);
+        }
         _localPlayer->setMovement(_input.getHorizontal() * _localPlayer->getForce());
         _localPlayer->setJumping(_didjump);
         _localPlayer->applyForce();

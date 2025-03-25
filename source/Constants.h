@@ -30,6 +30,8 @@
 #define DUDE_TEXTURE    "dude"
 /** The animation texture for when the player is idle */
 #define PLAYER_IDLE_TEXTURE    "player-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_WALK_TEXTURE    "player-walk"
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */

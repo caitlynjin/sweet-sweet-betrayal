@@ -113,6 +113,8 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
         setName("player");
         setDebugColor(Color4::YELLOW);
+        
+        _node = scene2::SpriteNode::alloc();
 
         // Gameplay attributes
         _isGrounded = false;
@@ -135,8 +137,16 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 #pragma mark -
 #pragma mark Animation
 
-void DudeModel::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
-    _sprite = sprite;
+void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _idleSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    
+    _node->addChild(_idleSpriteNode);
+    _idleSpriteNode->setVisible(true);
+    
     _timeline = ActionTimeline::alloc();
     
     const int span = 3;
@@ -148,15 +158,33 @@ void DudeModel::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     forward.push_back(0);
 
     // Create animations
-    auto move   = MoveBy::alloc(Vec2(WALKPACE,0));
-    auto idleSprite = AnimateSprite::alloc(forward);
-    _idleAction = idleSprite->attach<scene2::SpriteNode>(_sprite);
+    _idleAnimateSprite = AnimateSprite::alloc(forward);
+    _idleAction = _idleAnimateSprite->attach<scene2::SpriteNode>(_idleSpriteNode);
 }
 
-void DudeModel::playIdleAnimation() {
-    if (_idleAction && !_timeline->isActive(ACT_KEY)) {
-        _timeline->add(ACT_KEY, _idleAction, DURATION);
+void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _walkSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
     }
+    
+    _node->addChild(_walkSpriteNode);
+    _walkSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _walkAnimateSprite = AnimateSprite::alloc(forward);
+    _walkAction = _walkAnimateSprite->attach<scene2::SpriteNode>(_walkSpriteNode);
 }
 
 /**
@@ -320,7 +348,6 @@ void DudeModel::applyForce()
             b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
             if (!_isGliding) {
                 if (!_body){
-                    CULog("NO BODYYY");
                     return;
                 }
                 _body->ApplyForce(force, _body->GetPosition(), true);
@@ -368,10 +395,23 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
-    
-    playIdleAnimation();
 
+    // ANIMATION
     _timeline->update(dt);
+    
+    if (getMovement() == 0 && _idleAction) {
+        if (!_idleSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(true);
+            _walkSpriteNode->setVisible(false);
+        }
+        doStrip(_idleAction);
+    } else if (_walkAction) {
+        if (!_walkSpriteNode->isVisible()) {
+            _walkSpriteNode->setVisible(true);
+            _idleSpriteNode->setVisible(false);
+        }
+        doStrip(_walkAction);
+    }
     
     // Check whether we are in glide mode
     

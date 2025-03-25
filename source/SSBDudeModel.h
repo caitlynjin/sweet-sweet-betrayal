@@ -116,6 +116,8 @@ protected:
     bool _onMovingPlat;
     /** points to moving platform standing on*/
     physics2::Obstacle* MovingPlat;
+    /** Whether the player is idle – the player is not touching the movement joystick; mainly used for animation*/
+    bool _isIdle;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
@@ -136,23 +138,29 @@ protected:
 	/** The node for debugging the sensor */
 	std::shared_ptr<scene2::WireNode> _sensorNode;
 
-	/** The scene graph node for the Dude. */
-	std::shared_ptr<scene2::SceneNode> _node;
+	/** The scene graph node for the Dude. This holds the animation sprite  */
+    std::shared_ptr<scene2::SceneNode> _node;
 	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
 	float _drawScale;
 
 #pragma mark Animation Variables
     /** Manager to process the animation actions */
     std::shared_ptr<cugl::ActionTimeline> _timeline;
-    /** The player animation sprite */
-    std::shared_ptr<cugl::scene2::SpriteNode> _sprite;
-    /** The sprite animation actions */
+    
+    std::shared_ptr<AnimateSprite> _idleAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _idleSpriteNode;
+    std::shared_ptr<AnimateSprite> _walkAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _walkSpriteNode;
     cugl::ActionFunction _idleAction;
+    cugl::ActionFunction _walkAction;
     
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
 	*
 	* The debug node is use to outline the fixtures attached to this object.
+    *
+    * Also adds scene node children to it (used for animations). Removes all children and adds the node if it already exists.
+    *
 	* This is very useful when the fixtures have a very different shape than
 	* the texture (e.g. a circular shape attached to a square texture).
 	*/
@@ -362,15 +370,23 @@ public:
      *
      * @param node  The scene graph node representing this DudeModel, which has been added to the world node already.
      */
-	void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
-        _node = node;
+	void setSceneNode(const std::shared_ptr<scene2::SpriteNode>& node) {
+        if (!_node){
+            _node = scene2::SceneNode::alloc();
+        } else{
+            _node->removeAllChildren();
+        }
+        _node->addChild(node);
         _node->setPosition(getPosition() * _drawScale);
     }
     
-    void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
+    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
-    void playIdleAnimation();
+    /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
+    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
+    /** Increments an animation film strip */
     void doStrip(cugl::ActionFunction action);
     
     /**
@@ -522,6 +538,20 @@ public:
 
     /**Sets whether we are trying to glide or not.*/
     void setGlide(bool value) { if (!_isGliding && _isGliding != value) { _justGlided = true; };_isGliding = value; }
+    
+    /**
+     * Returns true if the player is idle. This means they are not touching the movement joycons at all.
+     *
+     * @return true if the player is idle.
+     */
+    bool isIdle() const { return _isIdle; }
+    
+    /**
+     * Sets whether the player is idle. This means they are not touching the movement joycons at all.
+     *
+     * @param value whether the player is idle.
+     */
+    void setIdle(bool value) { _isIdle = value; }
     
 
     

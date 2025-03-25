@@ -481,6 +481,7 @@ void PlatformInput::touchesMovedCB(const TouchEvent& event, const Vec2& previous
     }
     // Only check for swipes in the main zone if there is more than one finger.
     if (_ltouch.touchids.find(event.touch) != _ltouch.touchids.end()) {
+        _joystickHeld = true;
         processJoystick(pos);
     } else if (_rtouch.touchids.find(event.touch) != _rtouch.touchids.end()) {
         if (!_hasJumped) {
