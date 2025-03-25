@@ -35,7 +35,7 @@
             "file": "textures/strawberry.png"
         },
         "dude": {
-            "file":     "textures/red.png"
+            "file":     "textures/red-single.png"
         },
         "treasure": {
             "file":     "textures/strawberry-jewel.png"
