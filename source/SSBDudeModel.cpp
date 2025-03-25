@@ -63,9 +63,9 @@
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
-#define DUDE_DENSITY 0.7f
+#define DUDE_DENSITY 0.9f
 /** The impulse for the character jump */
-#define DUDE_JUMP 13.25f
+#define DUDE_JUMP 25.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -142,8 +142,10 @@ void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     if (!_node) {
         _node = scene2::SceneNode::alloc();
+        _node->setColor(Color4(255, 255, 255, 0));
     }
-    
+    _idleSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _idleSpriteNode->setPosition(Vec2::ZERO);
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
     
@@ -167,8 +169,10 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     if (!_node) {
         _node = scene2::SceneNode::alloc();
+        _node->setColor(Color4(255, 255, 255, 0));
     }
-    
+    _walkSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _walkSpriteNode->setPosition(Vec2::ZERO);
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
     

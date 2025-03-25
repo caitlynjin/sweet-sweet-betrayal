@@ -373,6 +373,7 @@ public:
 	void setSceneNode(const std::shared_ptr<scene2::SpriteNode>& node) {
         if (!_node){
             _node = scene2::SceneNode::alloc();
+            _node->setColor(Color4(255, 255, 255, 0));
         } else{
             _node->removeAllChildren();
         }
