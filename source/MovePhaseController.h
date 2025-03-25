@@ -69,6 +69,10 @@ protected:
     int _currGems = 0;
     /** Countdown active for winning or losing */
     int _countdown;
+    /** Level width */
+    float _levelWidth;
+    /** Starting player position */
+    float _playerStart;
 
     /** Whether we have completed this "game" */
     bool _complete;

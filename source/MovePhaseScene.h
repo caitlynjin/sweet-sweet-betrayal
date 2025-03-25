@@ -34,6 +34,7 @@ protected:
     /** The Box2D world */
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     std::shared_ptr<ObjectController> _objectController;
+    std::shared_ptr<GridManager> _gridManager;
     /** The network controller */
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
@@ -45,8 +46,6 @@ protected:
     std::shared_ptr<scene2::SceneNode> _worldnode;
     /** Reference to the debug root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _debugnode;
-    /** The camera for this scene */
-    std::shared_ptr<scene2::ScrollPane> _scrollpane;
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
     /** Reference to the local player */

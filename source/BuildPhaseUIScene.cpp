@@ -71,7 +71,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
+bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager) {
     if (assets == nullptr)
     {
         return false;
@@ -82,6 +82,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
     }
 
     _assets = assets;
+    _gridManager = gridManager;
 
     std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
     rightNode->setScale(0.8f);
@@ -112,6 +113,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down && !_isReady) {
             setIsReady(true);
+            _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
     });
 

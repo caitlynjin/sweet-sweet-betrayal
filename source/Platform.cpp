@@ -19,7 +19,7 @@ void Platform::setPosition(const cugl::Vec2& position) {
 void Platform::update(float timestep) {
     if (!_moving) return;
     Vec2 pos = _box->getPosition();
-    Vec2 target = _forward ? _endPos- _size/2 : _startPos-_size/2;
+    Vec2 target = _forward ? _endPos+_size/2 : _startPos+_size/2;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
 //    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
@@ -27,8 +27,8 @@ void Platform::update(float timestep) {
 
 
     Vec2 direction = toTarget;
-            direction.normalize();
-            Vec2 step = direction * (_speed * timestep);
+    direction.normalize();
+    Vec2 step = direction * (_speed * timestep);
 
     //if next step will move over the end_pos
     if (distance < _speed * timestep || toTarget.dot(_box->getLinearVelocity() * timestep) < 0) {
@@ -36,7 +36,7 @@ void Platform::update(float timestep) {
         pos = target;
         _box->setPosition(pos);
         _forward = !_forward;
-        Vec2 newTarget = _forward ? _endPos-_size/2 : _startPos-_size/2;
+        Vec2 newTarget = _forward ? _endPos+_size/2 : _startPos+_size/2;
         Vec2 direction = newTarget - pos;
         direction.normalize();         
         Vec2 velocity = direction * _speed;
@@ -71,7 +71,7 @@ bool Platform::init(const Vec2 pos, const Size size) {
 }
 bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, nsize.height));
+    _box = cugl::physics2::BoxObstacle::alloc(pos + size/2, Size(nsize.width, nsize.height));
     _size = size;
     _itemType = Item::PLATFORM;
     _jsonType = jsonType;
@@ -96,7 +96,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     if (!init(pos, size)) return false;
     _moving = true;
     _startPos = start;
-    _endPos   = end+ Vec2(size.width/2, size.height/2);
+    _endPos   = end;
     _speed    = speed;
     _forward  = true;
     _position = pos;

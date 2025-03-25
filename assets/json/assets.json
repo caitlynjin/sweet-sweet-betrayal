@@ -89,6 +89,15 @@
         },
         "left": {
             "file":  "textures/left_arrow.png"
+        },
+        "progress-bar": {
+            "file":  "textures/progress-bar.png"
+        },
+        "red-icon": {
+            "file":  "textures/red.png"
+        },
+        "treasure-icon": {
+            "file":  "textures/treasure.png"
         }
     },
     "jsons": {
