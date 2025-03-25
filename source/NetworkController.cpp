@@ -648,7 +648,6 @@ MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
     
     auto mushroom = Mushroom::alloc(pos, size, scale);
-    mushroom->setSceneNode(sprite);
     mushroom->getObstacle()->setBodyType(b2_dynamicBody);
     mushroom->getObstacle()->setDensity(BASIC_DENSITY);
     mushroom->getObstacle()->setFriction(BASIC_FRICTION);

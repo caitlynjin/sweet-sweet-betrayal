@@ -8,10 +8,8 @@ using namespace cugl::graphics;
 
 
 void Mushroom::setPosition(const cugl::Vec2 &position){
-    _box->setPosition(position);
-    if (_node != nullptr) {
-        _node->setPosition(position*_drawScale);
-    }
+  _position = position;
+  _box->setPosition(position);
 }
 
 void Mushroom::dispose() {}
@@ -22,21 +20,19 @@ void Mushroom::dispose() {}
 
 
 bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
-  _mushroomTexture = "";   
   _position = pos;         
-  _size = size;         
-  _drawScale = scale;
-  _box = cugl::physics2::BoxObstacle::alloc(pos, size);
+  _size = size;     
+  _itemType = Item::MUSHROOM;    
+  Size nsize = size;
+  _box = cugl::physics2::BoxObstacle::alloc(pos, Size(nsize.width, nsize.height));
   _box->setSensor(true);
   return true;
 }
 
 // For networking: using an already-created BoxObstacle.
 bool Mushroom::init(const Vec2 pos, const Size size, float scale, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-  _mushroomTexture = "";
   _position = pos;
   _size = size;
-  _drawScale = scale;
   _box = box;   
   return true;
 }

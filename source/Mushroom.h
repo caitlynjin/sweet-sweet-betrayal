@@ -12,19 +12,12 @@ class Mushroom : public Object {
 
 private:
     std::shared_ptr<cugl::physics2::BoxObstacle> _box;
-    
-protected:
-    std::string _mushroomTexture;
-    
-    float _drawScale;
-    std::shared_ptr<scene2::SceneNode> _node;
-    
 
 public:
     
     Mushroom() : Object() {}
 
-    Mushroom(Vec2 pos) : Object(pos) {}
+    Mushroom(Vec2 pos) : Object(pos, Item::MUSHROOM) {}
 
     // void update(float timestep) override;
 
@@ -53,20 +46,6 @@ public:
 
     /** for networking */
     bool init(const Vec2 pos, const Size size, float scale, std::shared_ptr<cugl::physics2::BoxObstacle> box);
-    
-    /**
-     * Sets the scene graph node representing this Mushroom.
-     *
-     * By storing a reference to the scene graph node, the model can update
-     * the node to be in sync with the physics info. It does this via the
-     * {@link Obstacle#update(float)} method.
-     *
-     * @param node  The scene graph node representing this DudeModel, which has been added to the world node already.
-     */
-    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
-        _node = node;
-        _node->setPosition(getPosition() * _drawScale);
-    }
    
 };
 
