@@ -147,12 +147,20 @@ protected:
     /** Manager to process the animation actions */
     std::shared_ptr<cugl::ActionTimeline> _timeline;
     
+    /** Idle animation variables */
     std::shared_ptr<AnimateSprite> _idleAnimateSprite;
     std::shared_ptr<cugl::scene2::SpriteNode> _idleSpriteNode;
+    cugl::ActionFunction _idleAction;
+    
+    /** Walk animation variables */
     std::shared_ptr<AnimateSprite> _walkAnimateSprite;
     std::shared_ptr<cugl::scene2::SpriteNode> _walkSpriteNode;
-    cugl::ActionFunction _idleAction;
     cugl::ActionFunction _walkAction;
+    
+    /** Glide animation variables */
+    std::shared_ptr<AnimateSprite> _glideAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _glideSpriteNode;
+    cugl::ActionFunction _glideAction;
     
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
@@ -373,7 +381,6 @@ public:
 	void setSceneNode(const std::shared_ptr<scene2::SpriteNode>& node) {
         if (!_node){
             _node = scene2::SceneNode::alloc();
-            _node->setColor(Color4(255, 255, 255, 0));
         } else{
             _node->removeAllChildren();
         }
@@ -386,6 +393,9 @@ public:
     
     /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
     void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
+    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
     /** Increments an animation film strip */
     void doStrip(cugl::ActionFunction action);

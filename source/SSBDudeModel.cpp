@@ -143,10 +143,9 @@ void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     if (!_node) {
         _node = scene2::SceneNode::alloc();
-        _node->setColor(Color4(255, 255, 255, 0));
     }
     _idleSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _idleSpriteNode->setPosition(Vec2(-13.0f, 0.0f));
+    _idleSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
     
@@ -170,10 +169,9 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     if (!_node) {
         _node = scene2::SceneNode::alloc();
-        _node->setColor(Color4(255, 255, 255, 0));
     }
     _walkSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _walkSpriteNode->setPosition(Vec2(-13.0f, 0.0f));
+    _walkSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
     
@@ -190,6 +188,32 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     // Create animations
     _walkAnimateSprite = AnimateSprite::alloc(forward);
     _walkAction = _walkAnimateSprite->attach<scene2::SpriteNode>(_walkSpriteNode);
+}
+
+void DudeModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _glideSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _glideSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _glideSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_glideSpriteNode);
+    _glideSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _glideAnimateSprite = AnimateSprite::alloc(forward);
+    _glideAction = _glideAnimateSprite->attach<scene2::SpriteNode>(_glideSpriteNode);
 }
 
 /**
@@ -317,11 +341,18 @@ void DudeModel::setMovement(float value)
     _faceRight = face;
     
     float flipValue = _faceRight ? 1.0f : -1.0f;
+    float offsetValue = _faceRight ? -13.0f : 13.0f;
     if (_idleSpriteNode) {
         _idleSpriteNode->setScale(flipValue, 1.0f);
+        _idleSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
     }
     if (_walkSpriteNode) {
         _walkSpriteNode->setScale(flipValue, 1.0f);
+        _walkSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
+    if (_glideSpriteNode) {
+        _glideSpriteNode->setScale(flipValue, 1.0f);
+        _glideSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
     }
 
     _justFlipped = true;
@@ -403,16 +434,25 @@ void DudeModel::update(float dt)
     // ANIMATION
     _timeline->update(dt);
     
-    if (getMovement() <= 5 && getMovement() >= -5 && _idleAction) {
+    if (!_isGrounded && _glideAction){
+        if (!_glideSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(true);
+        }
+        doStrip(_glideAction);
+    } else if (getMovement() <= 5 && getMovement() >= -5 && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
         }
         doStrip(_idleAction);
     } else if (_walkAction) {
         if (!_walkSpriteNode->isVisible()) {
             _walkSpriteNode->setVisible(true);
             _idleSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
         }
         doStrip(_walkAction);
     }

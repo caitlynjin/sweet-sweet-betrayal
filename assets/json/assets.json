@@ -93,6 +93,12 @@
         "player-walk": {
             "file": "textures/red-walk.png"
         },
+        "player-glide": {
+            "file": "textures/red-glide.png"
+        },
+        "player-jump": {
+            "file": "textures/red-jump.png"
+        },
         "progress-bar": {
             "file":  "textures/progress-bar.png"
         },
