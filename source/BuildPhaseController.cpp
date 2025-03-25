@@ -303,7 +303,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (WIND):
             return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
         case (MUSHROOM):
-            return _networkController->createMushroomNetworked(gridPos + Vec2(1.0f, 0.5f), Size(1, 2), _buildPhaseScene.getScale());
+            return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _buildPhaseScene.getScale());
 
         case (NONE):
             return nullptr;

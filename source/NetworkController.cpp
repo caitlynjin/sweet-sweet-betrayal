@@ -251,14 +251,14 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
 }
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
-    auto params = _mushroomFact->serializeParams(pos, size, scale);
+    auto params = _mushroomFact->serializeParams(pos+size/2, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
     std::shared_ptr<scene2::SceneNode> sprite = pair.second;
     
     if (boxObstacle) {
-        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos, size, scale, boxObstacle);
+        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos+size/2, size, scale, boxObstacle);
         _objects->push_back(mushroom);
         return mushroom;
     } else {
