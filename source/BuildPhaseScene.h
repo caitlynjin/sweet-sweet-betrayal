@@ -38,8 +38,12 @@ protected:
     Vec2 _offset;
     /** The initial position of the camera */
     Vec2 _cameraInitialPos;
+
     /** Whether we are in level editor mode */
     bool _isLevelEditor = false;
+
+    /** The camera for this scene */
+    std::shared_ptr<scene2::ScrollPane> _scrollPane;
 
 
 public:

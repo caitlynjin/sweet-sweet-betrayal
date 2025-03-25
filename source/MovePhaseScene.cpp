@@ -103,6 +103,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     _assets = assets;
     _world = world;
+    _gridManager = gridManager;
     _networkController = networkController;
     _network = networkController->getNetwork();
     _initialCameraPos = getCamera()->getPosition();
@@ -127,11 +128,6 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     // Initialize object controller
     _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, _objects);
-
-    _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
-    _scrollpane->setInterior(getBounds() / 2);
-    _scrollpane->setConstrained(false);
-    addChild(_scrollpane);
 
     addChild(gridManager->getGridNode());
 
@@ -165,8 +161,11 @@ void MovePhaseScene::populate() {
     std::string key;
     _objectController->setNetworkController(_networkController);
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/NewLevel.json");
+    _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, _isLevelEditor);
+        _gridManager->addObject(obj);
+        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 

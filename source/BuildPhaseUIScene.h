@@ -34,6 +34,8 @@ class BuildPhaseUIScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    /** The grid manager */
+    std::shared_ptr<GridManager> _gridManager;
 
     /** Reference to the background of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
@@ -43,12 +45,18 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
+    /** Reference to the level editor load button */
+    std::shared_ptr<cugl::scene2::Button> _loadButton;
+    /** Reference to the level editor paintbrush button */
+    std::shared_ptr<cugl::scene2::Button> _paintButton;
     /** Reference to the right button */
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
     std::shared_ptr<cugl::scene2::Button> _leftButton;
-    /** The text input for the file name in level select mode. */
+    /** The text input for the file name to save to in level select mode. */
     std::shared_ptr<cugl::scene2::TextField> _fileSaveText;
+    /** The text input for the file name to load in level select mode. */
+    std::shared_ptr<cugl::scene2::TextField> _fileLoadText;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -58,6 +66,18 @@ protected:
     bool _leftpressed = false;
     /** Whether we are in level editor mode */
     bool _isLevelEditor = false;
+    /** Whether or not the level editor load button was clicked */
+    bool _isTimeToLoad = false;
+    /** Whether or not the level editor is currently in paintbrush mode.
+    * Paintbrush mode makes it so that instead of dragging an object into place and releasing to create it,
+    * you can simply drag your mouse over several tiles at once, placing a copy of the object
+    * in all of those grid locations.
+    * This is particularly useful for 1x1 tile placement.
+    */
+    bool _inPaintMode = false;
+
+    /** Whether or not the paint BUTTON is currently down. */
+    bool _paintButtonDown = false;
 
 public:
 #pragma mark -
@@ -90,7 +110,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager);
 
     /**
      * Initializes the grid layout on the screen for build mode.
@@ -140,11 +160,34 @@ public:
     std::string getSaveFileName() {
         return _fileSaveText->getText();
     }
+    /** Returns the text that the user input for the file to load into level editor mode. */
+    std::string getLoadFileName() {
+        return _fileLoadText->getText();
+    }
 
     /** Returns the text object itself for the user's save file input. */
     std::shared_ptr<cugl::scene2::TextField> getSaveTextField() {
         return _fileSaveText;
     }
+
+    /** Returns the text object itself for the user's load file input. */
+    std::shared_ptr<cugl::scene2::TextField> getLoadTextField() {
+        return _fileLoadText;
+    }
+
+    /** Gets whether or not the load button was clicked. */
+    bool getLoadClicked() {
+        return _isTimeToLoad;
+    }
+    
+    /** Sets whether or not the load button was clicked. */
+    void setLoadClicked(bool value);
+
+    /** Gets whether or not we are currently in paint mode */
+    bool isPaintMode() {
+        return _inPaintMode;
+    }
+
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */

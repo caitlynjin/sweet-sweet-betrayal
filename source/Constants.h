@@ -70,6 +70,10 @@
 #define JUMP_BUTTON "jump-button"
 /** The image for the glide button */
 #define GLIDE_BUTTON "glide-button"
+/** The image for the progress bar */
+#define PROGRESS_BAR "progress-bar"
+/** The image for the red icon */
+#define RED_ICON "red-icon"
 
 
 #pragma mark -
@@ -194,6 +198,8 @@ enum Item {
     SPIKE,
     /** A treasure */
     TREASURE,
+    /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
+    TILE_ALPHA,
     /** No type */
     NONE
 };
@@ -212,6 +218,12 @@ std::string itemToString(Item item);
  * Gets the default size of this Item..
  */
 cugl::Size itemToSize(Item item);
+
+/**
+ * Gets the grid size of this item.
+ * e.g. if the obstacle moves, the size will account for entire width/height of its movement as well.
+ */
+cugl::Size itemToGridSize(Item item);
 
 /**
  * Returns the corresponding asset name to the item.
