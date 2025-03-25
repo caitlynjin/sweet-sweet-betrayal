@@ -125,6 +125,27 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
             setLoadClicked(true);
         }
         });
+
+    std::shared_ptr<scene2::PolygonNode> paintNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    paintNode->setScale(0.8f);
+    _paintButton = scene2::Button::alloc(paintNode);
+    _paintButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _paintButton->setPosition(_size.width * 0.06f, _size.height * 0.5f);
+    _paintButton->activate();
+    _paintButton->addListener([this](const std::string& name, bool down) {
+        if (down) {
+            // If the paint button was just pressed
+            if (down && !_paintButtonDown) {
+                _inPaintMode = true;
+            }
+            // If the paint button was just released
+            else if (!down && _paintButtonDown) {
+                _inPaintMode = false;
+            }
+            _paintButtonDown = down;
+            
+        }
+        });
     _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
     _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
     _fileSaveText->setPosition(_size.width * 0.5f, _size.height * 0.1f);
@@ -139,6 +160,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
         addChild(_fileSaveText);
         addChild(_fileLoadText);
         addChild(_loadButton);
+        addChild(_paintButton);
     }
 
     return true;

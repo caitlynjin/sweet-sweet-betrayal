@@ -543,6 +543,7 @@ void PlatformInput::touchesMovedCB(const TouchEvent& event, const Vec2& previous
             _keyExit = true;
         }
     }
+    _placedPos = touch2Screen(event.position);
 }
 
 #pragma mark Mouse Callbacks
@@ -594,6 +595,7 @@ void PlatformInput::buttonUpCB(const cugl::MouseEvent& event, Uint8 clicks, bool
  */
 void PlatformInput::motionCB(const cugl::MouseEvent& event, const Vec2 previous, bool focus) {
     if (_mouseDown) {
+        _placedPos = mouse2Screen(event.position);
     }
 }
 
