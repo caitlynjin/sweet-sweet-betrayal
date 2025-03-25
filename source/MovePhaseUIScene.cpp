@@ -62,6 +62,8 @@ void MovePhaseUIScene::dispose() {
         _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
+        _progressBar = nullptr;
+        _redIcon = nullptr;
         for (auto score : _scoreImages){
             score = nullptr;
         }
@@ -162,6 +164,20 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
     });
     addChild(_glidebutton);
 
+    _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
+    _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
+    _progressBar->setScale(0.4f);
+    _progressBar->setPosition(_size.width * 0.5f, _size.height * 0.9f);
+    _progressBar->setVisible(false);
+    addChild(_progressBar);
+
+    _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
+    _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    _redIcon->setScale(0.05f);
+    _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _redIcon->setVisible(false);
+    addChild(_redIcon);
+
     return true;
 }
 
@@ -191,6 +207,8 @@ void MovePhaseUIScene::preUpdate(float dt) {
  */
 void MovePhaseUIScene::setBuildingMode(bool value) {
     _roundsnode->setVisible(value);
+    _progressBar->setVisible(!value);
+    _redIcon->setVisible(!value);
 
     if (value){
         _jumpbutton->deactivate();
@@ -317,5 +335,10 @@ void MovePhaseUIScene::setScoreImageFull(int index) {
  */
 void MovePhaseUIScene::updateRound(int cur, int total) {
     _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
+}
+
+void MovePhaseUIScene::setRedIcon(float pos, float width) {
+    float cur = (pos * _redIcon->getWidth()) / width;
+    _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
 }
 

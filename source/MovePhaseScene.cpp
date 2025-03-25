@@ -128,11 +128,6 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     // Initialize object controller
     _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, _objects);
 
-    _scrollpane = scene2::ScrollPane::allocWithBounds(getBounds() / 2);
-    _scrollpane->setInterior(getBounds() / 2);
-    _scrollpane->setConstrained(false);
-    addChild(_scrollpane);
-
     addChild(gridManager->getGridNode());
 
     _active = true;

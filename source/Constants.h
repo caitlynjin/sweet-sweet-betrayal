@@ -70,6 +70,10 @@
 #define JUMP_BUTTON "jump-button"
 /** The image for the glide button */
 #define GLIDE_BUTTON "glide-button"
+/** The image for the progress bar */
+#define PROGRESS_BAR "progress-bar"
+/** The image for the red icon */
+#define RED_ICON "red-icon"
 
 
 #pragma mark -

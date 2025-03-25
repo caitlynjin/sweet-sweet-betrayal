@@ -53,6 +53,10 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _jumpbutton;
     /** Reference to the glide button */
     std::shared_ptr<cugl::scene2::Button> _glidebutton;
+    /** Reference to the progress bar */
+    std::shared_ptr<cugl::scene2::PolygonNode> _progressBar;
+    /** Reference to the red icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
 
     /** Total numer of rounds */
     int _totalRounds;
@@ -211,6 +215,14 @@ public:
      * Set the score image at this gem index to full.
      */
     void setScoreImageFull(int index);
+
+    /**
+     * Sets current position of red player icon
+     *
+     * @param pos       The position of the player relative to where the icon will be
+     * @param width     The width of the level
+     */
+    void setRedIcon(float pos, float width);
 
     /**
      * Updates round counter

@@ -46,8 +46,6 @@ protected:
     std::shared_ptr<scene2::SceneNode> _worldnode;
     /** Reference to the debug root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _debugnode;
-    /** The camera for this scene */
-    std::shared_ptr<scene2::ScrollPane> _scrollpane;
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
     /** Reference to the local player */
