@@ -47,6 +47,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
     std::shared_ptr<cugl::scene2::Button> _leftButton;
+    /** The text input for the file name in level select mode. */
+    std::shared_ptr<cugl::scene2::TextField> _fileSaveText;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -134,6 +136,15 @@ public:
         return _isReady;
     }
 
+    /** Returns the text that the user input for the save file in level editor mode. */
+    std::string getSaveFileName() {
+        return _fileSaveText->getText();
+    }
+
+    /** Returns the text object itself for the user's save file input. */
+    std::shared_ptr<cugl::scene2::TextField> getSaveTextField() {
+        return _fileSaveText;
+    }
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */

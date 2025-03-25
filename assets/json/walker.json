@@ -81,42 +81,6 @@
 					"width":	3,
 					"x":	11.500000,
 					"y":	0.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	5.500000,
-					"y":	6.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	4.500000,
-					"y":	5.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	2.500000,
-					"y":	7.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	12.500000,
-					"y":	7.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	13.500000,
-					"y":	6.500000
-				}, {
-					"height":	1,
-					"type":	"log",
-					"width":	3,
-					"x":	2.500000,
-					"y":	6.500000
 				}]
 		}, {
 			"name":	"spikes",
@@ -152,38 +116,6 @@
 					"width":	1,
 					"x":	13,
 					"y":	1
-				}, {
-					"angle":	0,
-					"height":	1,
-					"scale":	64,
-					"type":	"",
-					"width":	1,
-					"x":	2,
-					"y":	3
-				}, {
-					"angle":	0,
-					"height":	1,
-					"scale":	64,
-					"type":	"",
-					"width":	1,
-					"x":	4,
-					"y":	3
-				}, {
-					"angle":	0,
-					"height":	1,
-					"scale":	64,
-					"type":	"",
-					"width":	1,
-					"x":	3,
-					"y":	3
-				}, {
-					"angle":	0,
-					"height":	1,
-					"scale":	64,
-					"type":	"",
-					"width":	1,
-					"x":	7,
-					"y":	3
 				}]
 		}, {
 			"name":	"treasures",
@@ -306,20 +238,6 @@
 					"width":	1,
 					"x":	8.500000,
 					"y":	1.500000
-				}, {
-					"height":	1,
-					"scale":	64,
-					"type":	"default",
-					"width":	1,
-					"x":	7.500000,
-					"y":	1.500000
-				}, {
-					"height":	1,
-					"scale":	64,
-					"type":	"default",
-					"width":	1,
-					"x":	6.500000,
-					"y":	3.500000
 				}]
 		}, {
 			"name":	"windObstacles",
@@ -403,30 +321,6 @@
 					"width":	1,
 					"x":	13,
 					"y":	3
-				}, {
-					"gustDirX":	0,
-					"gustDirY":	1,
-					"height":	1,
-					"type":	"default",
-					"width":	1,
-					"x":	9,
-					"y":	2
-				}, {
-					"gustDirX":	0,
-					"gustDirY":	1,
-					"height":	1,
-					"type":	"default",
-					"width":	1,
-					"x":	9,
-					"y":	3
-				}, {
-					"gustDirX":	0,
-					"gustDirY":	1,
-					"height":	1,
-					"type":	"default",
-					"width":	1,
-					"x":	10,
-					"y":	8
 				}]
 		}]
 }

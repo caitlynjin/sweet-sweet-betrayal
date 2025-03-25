@@ -62,9 +62,20 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 
     // Initalize UI Scene
     _uiScene.init(assets);
+    std::vector<Item> inventoryItems;
+    std::vector<std::string> assetNames;
+
+    // Eh it'll probably be useful to have this if-statement once ArtObjects are finished
+    // This way we can make them only accessible in level editor mode
+    if (_isLevelEditor) {
+        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE };
+        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE };
+    }
+    else {
+        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE };
+        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE };
+    }
     
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE};
-    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE};
     _uiScene.initInventory(inventoryItems, assetNames);
 
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
@@ -78,6 +89,9 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     }
 
     _uiScene.activateInventory(true);
+    if (_isLevelEditor) {
+        _uiScene.getSaveTextField()->activate();
+    }
 
     return true;
 };
@@ -238,9 +252,14 @@ void BuildPhaseController::preUpdate(float dt) {
         _readyMessageSent = true;
     }
     else if (_uiScene.getIsReady() && _isLevelEditor) {
+        // Save the level to a file
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        level->createJsonFromLevel("NewLevel.json", Size(100, 100), _objectController->getObjects());
-
+        //level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
+        _objectController->getObjects()->clear();
+        vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getSaveFileName() + ".json");
+        for (auto& obj : objects) {
+            _objectController->processLevelObject(obj, _isLevelEditor);
+        }
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;

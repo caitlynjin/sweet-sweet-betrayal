@@ -183,7 +183,7 @@
                     },
                     "layout": {
                         "priority": 1,
-                        "padding": [ 0, 0, 0, 0 ]
+                        "padding": [ 0, 50, 0, 0 ]
                     }
                 },
                 "levelEditor": {
@@ -198,7 +198,7 @@
                     },
                     "layout": {
                         "priority": 1,
-                        "padding": [ 0, 50, 0, 0 ]
+                        "padding": [ 0, 0, 0, 0 ]
                     }
                 }
             }
