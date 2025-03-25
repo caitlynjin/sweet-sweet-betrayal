@@ -370,6 +370,13 @@ void DudeModel::setMovement(float value)
     // Change facing
     _faceRight = face;
     
+    updateFacing();
+}
+
+/**
+ * Update the visual direction the dude is facing
+ */
+void DudeModel::updateFacing(){
     float flipValue = _faceRight ? 1.0f : -1.0f;
     float offsetValue = _faceRight ? -13.0f : 13.0f;
     if (_idleSpriteNode) {
@@ -643,4 +650,13 @@ void DudeModel::setFilterData() {
         fixture->SetFilterData(filter);
         fixture = fixture->GetNext();
     }
+}
+
+/** Resets the player's movements in between rounds by setting it all to zero and to face the right */
+void DudeModel::resetMovement(){
+    setVX(0);
+    setVY(0);
+    setMovement(0);
+    _faceRight = true;
+    updateFacing();
 }

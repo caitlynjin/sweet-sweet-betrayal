@@ -116,8 +116,6 @@ protected:
     bool _onMovingPlat;
     /** points to moving platform standing on*/
     physics2::Obstacle* MovingPlat;
-    /** Whether the player is idle – the player is not touching the movement joystick; mainly used for animation*/
-    bool _isIdle;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
@@ -448,6 +446,11 @@ public:
      * @param value left/right movement of this character.
      */
     void setMovement(float value);
+    
+    /**
+     * Update the visual direction the dude is facing
+     */
+    void updateFacing();
 
     /**
     Applies a certain amount of wind velocity to the player
@@ -558,20 +561,6 @@ public:
     /**Sets whether we are trying to glide or not.*/
     void setGlide(bool value) { if (!_isGliding && _isGliding != value) { _justGlided = true; };_isGliding = value; }
     
-    /**
-     * Returns true if the player is idle. This means they are not touching the movement joycons at all.
-     *
-     * @return true if the player is idle.
-     */
-    bool isIdle() const { return _isIdle; }
-    
-    /**
-     * Sets whether the player is idle. This means they are not touching the movement joycons at all.
-     *
-     * @param value whether the player is idle.
-     */
-    void setIdle(bool value) { _isIdle = value; }
-    
 
     
 #pragma mark -
@@ -623,6 +612,8 @@ public:
     */
     void windUpdate(float dt);
 
+    /** Reset the player's movements in between rounds by setting it all to zero and to face the right */
+    void resetMovement();
 	
 };
 
