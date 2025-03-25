@@ -634,25 +634,20 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
 
-    float blendingOffset = 0.01f;
+    // float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+    // Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
 
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
+    // EarclipTriangulator triangulator;
+    // triangulator.set(poly.vertices);
+    // triangulator.calculate();
+    // poly.setIndices(triangulator.getTriangulation());
+    // triangulator.clear();
     
-    
-
     std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
-    
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
     
     auto mushroom = Mushroom::alloc(pos, size, scale);
-    
     mushroom->setSceneNode(sprite);
     mushroom->getObstacle()->setBodyType(b2_dynamicBody);
     mushroom->getObstacle()->setDensity(BASIC_DENSITY);

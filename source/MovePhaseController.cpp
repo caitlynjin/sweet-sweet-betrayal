@@ -480,7 +480,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
         if (_mushroomCooldown == 0) {
             b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
-            b2Vec2 impulse(0.0f, 20.0f);
+            b2Vec2 impulse(0.0f, 15.0f);
             playerBody->ApplyLinearImpulseToCenter(impulse, true);
 
             _mushroomCooldown = 10;
