@@ -61,7 +61,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets);
+    _uiScene.init(assets, _gridManager);
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
 
@@ -137,12 +137,8 @@ void BuildPhaseController::preUpdate(float dt) {
             
             // Show placing object indicator when dragging object
             if (_selectedItem != NONE) {
-                //CULog("Placing object");
                 
                 if (_selectedObject) {
-                    // Set the current position of the object
-                    _prevPos = gridPos;
-                    
                     // Move the existing object to new position
                     _selectedObject->setPosition(gridPosWithOffset);
                     
@@ -154,6 +150,19 @@ void BuildPhaseController::preUpdate(float dt) {
                     _gridManager->setObject(gridPosWithOffset, _selectedItem);
                 }
             }
+            //if (_uiScene.isPaintMode() && _gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                /*std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                // might go back to addObject() for levelEditor??? just keep this in mind
+                _gridManager->addMoveableObject(gridPos, obj);
+
+                _itemsPlaced += 1;
+
+                // Update inventory UI
+                if (_itemsPlaced >= 1)
+                {
+                    _uiScene.activateInventory(_isLevelEditor);
+                }*/
+            //}
         }
         else if (_input->getInventoryStatus() == PlatformInput::WAITING)
         {
@@ -164,14 +173,17 @@ void BuildPhaseController::preUpdate(float dt) {
                 Vec2 screenPos = _input->getPosOnDrag();
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
                 
-                std::shared_ptr<Object> obj = _gridManager->removeObject(gridPos);
-                
-                
+                std::shared_ptr<Object> obj = _gridManager->moveObject(gridPos);
+
                 // If object exists
                 if (obj) {
                     CULog("Selected existing object");
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
+
+                    // Set the current position of the object
+                    _prevPos = _selectedObject->getPosition();
+
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -182,10 +194,10 @@ void BuildPhaseController::preUpdate(float dt) {
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
             
             if (_selectedObject) {
-                if (_gridManager->hasObject(gridPos)) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
-                    _gridManager->addObject(_prevPos, _selectedObject);
+                    _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
@@ -197,7 +209,7 @@ void BuildPhaseController::preUpdate(float dt) {
                             platform->updateMoving(gridPos);
                         }
                     }
-                    _gridManager->addObject(gridPos, _selectedObject);
+                    _gridManager->addMoveableObject(gridPos, _selectedObject);
                 }
                 
                 // Trigger listener
@@ -211,10 +223,10 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
                 
-                if (!_gridManager->hasObject(gridPos)) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    //obj->setTexture(_assets->get<Texture>(itemToAssetName(_selectedItem)));
-                    _gridManager->addObject(gridPos, obj);
+                    // might go back to addObject() for levelEditor??? just keep this in mind
+                    _gridManager->addMoveableObject(gridPos, obj);
                     
                     _itemsPlaced += 1;
                     
@@ -341,24 +353,25 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
     switch (item) {
         case (PLATFORM):
             if (_isLevelEditor) {
-                return _objectController->createPlatform(gridPos, Size(3, 1), "log");
+                return _objectController->createPlatform(gridPos, itemToSize(item), "log");
             }
             else {
-                return _networkController->createPlatformNetworked(gridPos, Size(3, 1), "log", _buildPhaseScene.getScale() / getSystemScale());
+                return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
             }
         case (MOVING_PLATFORM):
-            return _networkController->createMovingPlatformNetworked(gridPos, Size(3, 1), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
+            return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
         case (WIND):
-            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+            return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 1.0), "default");
         case (SPIKE):
-            return _objectController->createSpike(gridPos, Size(1, 1), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
+            return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.
-            return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), Size(1, 1), "default");
+            // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
+            return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
         case (TILE_ALPHA):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            return _objectController->createPlatform(gridPos, Size(1, 1), "tile");
+            return _objectController->createPlatform(gridPos, itemToSize(item), "tile");
         case (NONE):
             return nullptr;
     }
@@ -373,7 +386,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
  * @param item               The selected item being snapped to the grid
  */
 Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
-    Size offset = itemToSize(item) - Vec2(1, 1);
+    Size offset = itemToGridSize(item) - Vec2(1, 1);
 
     int xGrid = gridPos.x;
     int yGrid = gridPos.y;

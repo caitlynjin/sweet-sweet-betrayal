@@ -34,6 +34,8 @@ class BuildPhaseUIScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    /** The grid manager */
+    std::shared_ptr<GridManager> _gridManager;
 
     /** Reference to the background of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
@@ -108,7 +110,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager);
 
     /**
      * Initializes the grid layout on the screen for build mode.
