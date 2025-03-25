@@ -334,8 +334,11 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
     player->setWalkAnimation(walkSpriteNode);
     
-    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_JUMP_TEXTURE), 1, 5, 5);
+    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GLIDE_TEXTURE), 1, 4, 4);
     player->setGlideAnimation(glideSpriteNode);
+    
+    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_JUMP_TEXTURE), 1, 5, 5);
+    player->setJumpAnimation(jumpSpriteNode);
     
     return std::make_pair(player, player->getSceneNode());
 }

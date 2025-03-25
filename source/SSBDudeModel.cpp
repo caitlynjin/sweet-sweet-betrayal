@@ -138,6 +138,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 #pragma mark -
 #pragma mark Animation
 
+/** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
 void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _idleSpriteNode = sprite;
     
@@ -164,6 +165,7 @@ void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _idleAction = _idleAnimateSprite->attach<scene2::SpriteNode>(_idleSpriteNode);
 }
 
+/** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
 void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _walkSpriteNode = sprite;
     
@@ -190,6 +192,7 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _walkAction = _walkAnimateSprite->attach<scene2::SpriteNode>(_walkSpriteNode);
 }
 
+/** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
 void DudeModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _glideSpriteNode = sprite;
     
@@ -214,6 +217,33 @@ void DudeModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     // Create animations
     _glideAnimateSprite = AnimateSprite::alloc(forward);
     _glideAction = _glideAnimateSprite->attach<scene2::SpriteNode>(_glideSpriteNode);
+}
+
+/** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
+void DudeModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _jumpSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _jumpSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _jumpSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_jumpSpriteNode);
+    _jumpSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _jumpAnimateSprite = AnimateSprite::alloc(forward);
+    _jumpAction = _jumpAnimateSprite->attach<scene2::SpriteNode>(_jumpSpriteNode);
 }
 
 /**
@@ -354,6 +384,10 @@ void DudeModel::setMovement(float value)
         _glideSpriteNode->setScale(flipValue, 1.0f);
         _glideSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
     }
+    if (_jumpSpriteNode) {
+        _jumpSpriteNode->setScale(flipValue, 1.0f);
+        _jumpSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
 
     _justFlipped = true;
 }
@@ -434,18 +468,28 @@ void DudeModel::update(float dt)
     // ANIMATION
     _timeline->update(dt);
     
-    if (!_isGrounded && _glideAction){
+    if (!_isGrounded && _isGliding && _glideAction){
         if (!_glideSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(true);
+            _jumpSpriteNode->setVisible(false);
         }
         doStrip(_glideAction);
+    } else if (!_isGrounded && _jumpAction){
+        if (!_jumpSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(true);
+        }
+        doStrip(_jumpAction);
     } else if (getMovement() <= 5 && getMovement() >= -5 && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(false);
         }
         doStrip(_idleAction);
     } else if (_walkAction) {
@@ -453,6 +497,7 @@ void DudeModel::update(float dt)
             _walkSpriteNode->setVisible(true);
             _idleSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(false);
         }
         doStrip(_walkAction);
     }

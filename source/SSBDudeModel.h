@@ -162,6 +162,11 @@ protected:
     std::shared_ptr<cugl::scene2::SpriteNode> _glideSpriteNode;
     cugl::ActionFunction _glideAction;
     
+    /** Jump animation variables */
+    std::shared_ptr<AnimateSprite> _jumpAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _jumpSpriteNode;
+    cugl::ActionFunction _jumpAction;
+    
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
 	*
@@ -396,6 +401,9 @@ public:
     
     /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
     void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
+    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
     /** Increments an animation film strip */
     void doStrip(cugl::ActionFunction action);
