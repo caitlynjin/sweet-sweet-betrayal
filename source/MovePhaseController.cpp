@@ -210,6 +210,7 @@ void MovePhaseController::preUpdate(float dt) {
 //            _avatar->setGlide(false);
 //
 //        }
+        
         _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
         _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
@@ -285,6 +286,9 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     _movePhaseScene.preUpdate(dt);
+    if (_mushroomCooldown > 0) {
+        _mushroomCooldown--;
+    }
 }
 
 /**
@@ -530,6 +534,28 @@ void MovePhaseController::beginContact(b2Contact *contact)
         //        setFailure(true);
         _died = true;
     }
+    //ounce if we hit a mushroom
+    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "mushroom") ||
+    (bd1->getName() == "mushroom" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
+
+        if (_mushroomCooldown == 0) {
+            b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
+            b2Vec2 impulse(0.0f, 20.0f);
+            playerBody->ApplyLinearImpulseToCenter(impulse, true);
+
+            // Clip velocity AFTER impulse is applied
+            b2Vec2 newVelocity = playerBody->GetLinearVelocity();
+            if (newVelocity.y > 15.0f) {
+                newVelocity.y = 15.0f;
+                playerBody->SetLinearVelocity(newVelocity);
+                CULog("Player vertical velocity clipped to 10.0f after bounce.");
+            }
+
+            _mushroomCooldown = 10;
+            CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
+        }
+    }
+
 
 
     // If the player collides with the growing wall, game over

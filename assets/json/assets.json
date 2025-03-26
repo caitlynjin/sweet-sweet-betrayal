@@ -35,10 +35,13 @@
             "file": "textures/strawberry.png"
         },
         "dude": {
-            "file":     "textures/strawberry-glider.png"
+            "file":     "textures/red-single.png"
         },
         "treasure": {
             "file":     "textures/strawberry-jewel.png"
+        },
+        "mushroom": {
+            "file":     "textures/mushroom.png"
         },
         "spinner": {
             "file":     "textures/barrier.png"
@@ -86,6 +89,18 @@
         },
         "left": {
             "file":  "textures/left_arrow.png"
+        },
+        "player-idle": {
+            "file": "textures/red-idle.png"
+        },
+        "player-walk": {
+            "file": "textures/red-walk.png"
+        },
+        "player-glide": {
+            "file": "textures/red-glide.png"
+        },
+        "player-jump": {
+            "file": "textures/red-jump.png"
         },
         "progress-bar": {
             "file":  "textures/progress-bar.png"

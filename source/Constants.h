@@ -28,6 +28,14 @@
 #pragma mark Object Textures
 /** The texture for the character avatar */
 #define DUDE_TEXTURE    "dude"
+/** The animation texture for when the player is idle */
+#define PLAYER_IDLE_TEXTURE    "player-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_WALK_TEXTURE    "player-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_GLIDE_TEXTURE    "player-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_JUMP_TEXTURE    "player-jump"
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */
@@ -38,6 +46,8 @@
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the mushroom texture*/
+#define MUSHROOM_TEXTURE "mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
@@ -191,6 +201,8 @@ enum Item {
     MOVING_PLATFORM,
     /** A wind object */
     WIND,
+    /** A mushroom */
+    MUSHROOM,
     /** No type */
     NONE
 };

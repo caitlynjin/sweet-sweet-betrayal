@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "Mushroom.h"
 
 #include <ctime>
 #include <string>
@@ -254,6 +255,7 @@ void MovePhaseScene::resetCameraPos() {
  */
 void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->setPosition(Vec2(DUDE_POS));
+    _localPlayer->resetMovement();
     _localPlayer->removeTreasure();
 
 }
