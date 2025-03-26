@@ -297,6 +297,9 @@ protected:
     /** The network controller */
     std::shared_ptr<NetEventController> _network;
     
+    /** The treasure */
+    std::shared_ptr<Treasure> _treasure;
+    
     /** The number of players ready to proceed from BuildPhase into MovementPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -421,6 +424,22 @@ public:
      */
     void setObjects(std::vector<std::shared_ptr<Object>>* objects){
         _objects = objects;
+    }
+    
+    /**
+     * Sets the networked treasure
+     *
+     * @param treasure the treasure to be networked
+     */
+    void setTreasure(std::shared_ptr<Treasure> treasure){
+        _treasure = treasure;
+    }
+    
+    /**
+     * Returns the networked treasure
+     */
+    std::shared_ptr<Treasure> getTreasure(){
+        return _treasure;
     }
     
     /**

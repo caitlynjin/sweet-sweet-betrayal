@@ -208,16 +208,16 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
 }
 
-std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
+std::shared_ptr<Object> ObjectController::createTreasureClient(Vec2 pos, Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
     image = _assets->get<Texture>("treasure");
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale, false, box);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(),sprite);
-    _treasure->getObstacle()->setName("treasure");
+//    addObstacle(_treasure->getObstacle(),sprite);
+//    _treasure->getObstacle()->setName("treasure");
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
 
     _treasure->setPosition(pos);
@@ -225,9 +225,9 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
     return _treasure;
 }
 
-std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
-}
+//std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
+//    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
+//}
 
 std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
@@ -298,9 +298,9 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
         createSpike(std::dynamic_pointer_cast<Spike>(obj));
     }
     else if (key == "treasures") {
-        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
-                                                            _scale,
-                                                            false)));
+//        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
+//                                                            _scale,
+//                                                            false)));
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));

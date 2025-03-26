@@ -132,6 +132,8 @@ void MovePhaseController::resetRound() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseController::preUpdate(float dt) {
+    
+    
     // Process the toggled key commands
     if (_input->didDebug())
     {
@@ -552,9 +554,10 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "treasure") ||
         (bd1->getName() == "treasure" && bd2 == _movePhaseScene.getLocalPlayer().get()))
     {
-        if (!_movePhaseScene.getLocalPlayer()->_hasTreasure)
+        if (!_movePhaseScene.getLocalPlayer()->_hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
         {
-            _movePhaseScene.getTreasure()->setTaken(true);
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
+//            _movePhaseScene.getTreasure()->setTaken(true);
             _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
         }
     }

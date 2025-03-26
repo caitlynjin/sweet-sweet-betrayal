@@ -176,6 +176,7 @@ void NetworkController::postUpdate(float remain){
 void NetworkController::reset(){
     _numReady = 0;
     _numReset = 0;
+    _treasure->setTaken(false);
 
 }
 
@@ -198,7 +199,11 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Increment number of players needed to be reset
             _numReset++;
             break;
-
+            
+        case Message::TREASURE_TAKEN:
+            // Increment number of players needed to be reset
+            _treasure->setTaken(true);
+            break;
         default:
             // Handle unknown message types
             std::cout << "Unknown message type received" << std::endl;

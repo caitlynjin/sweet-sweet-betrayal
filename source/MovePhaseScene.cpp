@@ -60,7 +60,7 @@ float GOAL_POS[] = { 31.0f, 6.0f };
 float DUDE_POS[] = { 1.0f, 3.0f};
 
 /** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
+float TREASURE_POS[3][2] = { {6.5f, 4.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
 #pragma mark -
 #pragma mark Constructors
@@ -195,9 +195,12 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-    _treasure = std::dynamic_pointer_cast<Treasure>(
-        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
-    );
+    if(_networkController->getIsHost()){
+        _treasure = std::dynamic_pointer_cast<Treasure>(
+            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+        );
+        _networkController->setTreasure(_treasure);
+    }
 
 }
 
@@ -229,8 +232,21 @@ void MovePhaseScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseScene::preUpdate(float dt) {
-    // Update objects    
+    // Set up treasure for non-host player
+    if (_treasure == nullptr && !_networkController->getIsHost()){
+        const auto& obstacles = _world->getObstacles();
+        for (const auto& obstacle : obstacles) {
+            if (obstacle->getName() == "treasure"){
+                CULog("treasure is set for client");
+                std::shared_ptr<cugl::physics2::BoxObstacle> hitbox = std::dynamic_pointer_cast<BoxObstacle>(obstacle);
+                _treasure = std::dynamic_pointer_cast<Treasure>(_objectController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), hitbox));
+                _networkController->setTreasure(_treasure);
+            }
+        }
+    }
+
     _camera->update();
+    
 }
 
 
