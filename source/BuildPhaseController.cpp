@@ -72,8 +72,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
         assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
     }
     else {
-        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE};
-        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE };
+        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM};
+        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
     }
     
     _uiScene.initInventory(inventoryItems, assetNames);
@@ -286,11 +286,13 @@ void BuildPhaseController::preUpdate(float dt) {
 
     _buildPhaseScene.preUpdate(dt);
 
-    if (_uiScene.getRightPressed() && buildingMode){
+    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
+
+    if (_uiScene.getRightPressed() && buildingMode && _buildPhaseScene.getCamera()->getPosition().x <= 2240){
         _buildPhaseScene.getCamera()->translate(10, 0);
         _buildPhaseScene.getCamera()->update();
     }
-    if (_uiScene.getLeftPressed() && buildingMode){
+    if (_uiScene.getLeftPressed() && buildingMode && _buildPhaseScene.getCamera()->getPosition().x >= 0){
         _buildPhaseScene.getCamera()->translate(-10, 0);
         _buildPhaseScene.getCamera()->update();
     }
@@ -400,6 +402,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0),  "default");
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
+        case (MUSHROOM):
+            return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _buildPhaseScene.getScale());
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

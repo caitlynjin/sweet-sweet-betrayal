@@ -32,6 +32,7 @@ class MovePhaseController {
 public:
     /** Whether we are in build mode */
     bool buildingMode = true;
+    int _mushroomCooldown = 0;
 
 protected:
     /** The asset manager for this game mode. */
@@ -72,6 +73,10 @@ protected:
     float _levelWidth;
     /** Starting player position */
     float _playerStart;
+    /** Number of players */
+    int _numPlayers;
+    /** List of players */
+    std::vector<std::shared_ptr<DudeModel>> playerList;
 
     /** Whether we have completed this "game" */
     bool _complete;
