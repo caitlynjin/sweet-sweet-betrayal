@@ -149,6 +149,11 @@ public:
      * Triggers a change in building mode.
      */
     void setBuildingMode(bool value);
+    
+    /**
+     * Kills the player for the round.
+     */
+    void killPlayer();
 
 #pragma mark -
 #pragma mark Attribute Functions

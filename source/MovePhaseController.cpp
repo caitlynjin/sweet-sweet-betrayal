@@ -115,13 +115,10 @@ void MovePhaseController::dispose() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::reset() {
-    _currRound = 1;
-    _died = false;
-    _reachedGoal = false;
-    
-    setFailure(false);
-    setComplete(false);
-    setBuildingMode(true);
+//    setFailure(false);
+//    setComplete(false);
+    _movePhaseScene.getLocalPlayer()->reset();
+
 
     _movePhaseScene.reset();
     _uiScene.reset();
@@ -248,10 +245,10 @@ void MovePhaseController::preUpdate(float dt) {
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void MovePhaseController::postUpdate(float remain) {
-    // Record failure if necessary.
+    // Check for player death by falling into void
     if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
     {
-        setFailure(true);
+        killPlayer();
     }
 
     if (!_failed && _died){
@@ -413,6 +410,18 @@ void MovePhaseController::nextRound(bool reachedGoal) {
     setBuildingMode(true);
 }
 
+
+void MovePhaseController::killPlayer(){
+    std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();
+    // Send message to network that the player has ended their movement phase
+    if (!player->isDead()){
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        
+        player->setDead();
+    }
+    
+}
+
 #pragma mark -
 #pragma mark Collision Handling
 /**
@@ -483,7 +492,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
         //        setFailure(true);
-        _died = true;
+//        _died = true;
+        killPlayer();
     }
 
 
@@ -542,7 +552,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
         if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
             (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get()))
         {
-            _died = true;
+            killPlayer();
         }
     }
 

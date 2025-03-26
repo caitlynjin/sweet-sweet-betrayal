@@ -114,6 +114,8 @@ protected:
 	bool _isShooting;
     /** if standing on moving platform */
     bool _onMovingPlat;
+    /** Whether is dead  */
+    bool _isDead = false;
     /** points to moving platform standing on*/
     physics2::Obstacle* MovingPlat;
 
@@ -425,6 +427,20 @@ public:
         _hasTreasure = false;
         _treasure = nullptr;
     };
+    
+    /**
+     * Sets the player as dead.
+     */
+    void setDead(){
+        _isDead = true;
+    }
+    
+    /**
+     * Returns whether the player is dead
+     */
+    bool isDead(){
+        return _isDead;
+    }
 
     
 #pragma mark -
@@ -612,6 +628,9 @@ public:
     */
     void windUpdate(float dt);
 
+    /** Reset the player */
+    void reset();
+    
     /** Reset the player's movements in between rounds by setting it all to zero and to face the right */
     void resetMovement();
 	

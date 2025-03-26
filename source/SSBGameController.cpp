@@ -264,6 +264,7 @@ void SSBGameController::preUpdate(float dt)
     if (!_buildingMode && _networkController->canSwitchToBuild()){
         setBuildingMode(!_buildingMode);
         _networkController->reset();
+        _movePhaseController->reset();
     }
     
 

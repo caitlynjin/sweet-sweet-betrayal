@@ -162,7 +162,7 @@ void MovePhaseScene::populate() {
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
         _gridManager->addObject(obj);
-        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
+//        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 

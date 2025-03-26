@@ -471,7 +471,6 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
-
     // ANIMATION
     _timeline->update(dt);
     
@@ -511,58 +510,61 @@ void DudeModel::update(float dt)
     
     // Check whether we are in glide mode
     
+    if (!_isDead){
+        windUpdate(dt);
+        //Set Justflipped and justglided to instantly deactivate
+        if (_justFlipped == true) {
+            _justFlipped = false;
+        }
+        if (_justGlided == true) {
+            _justGlided = false;
+        }
+        
+        // Apply cooldowns
+        if (isJumping())
+        {
+            _jumpCooldown = JUMP_COOLDOWN;
+        }
+        else
+        {
+            // Only cooldown while grounded
+            _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
+        }
+
+        if (isShooting())
+        {
+            _shootCooldown = SHOOT_COOLDOWN;
+        }
+        else
+        {
+            _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
+        }
+
+        if (_onMovingPlat && MovingPlat != nullptr)
+        {
+            Vec2 platformVel = MovingPlat->getLinearVelocity();
+            setPosition(getPosition() + platformVel * dt);
+        }
+
+        glideUpdate(dt);
+
+        CapsuleObstacle::update(dt);
+
+        if (_node != nullptr)
+        {
+            _node->setPosition(getPosition() * _drawScale);
+            _node->setAngle(getAngle());
+        }
+
+        // If the player has a treasure, update the position of the treasure such that
+        // it follows the player
+        if (_treasure != nullptr)
+        {
+            _treasure->setPosition(getPosition());
+        }
+    }
     
-    windUpdate(dt);
-    //Set Justflipped and justglided to instantly deactivate 
-    if (_justFlipped == true) {
-        _justFlipped = false;
-    }
-    if (_justGlided == true) {
-        _justGlided = false;
-    }
     
-    // Apply cooldowns
-    if (isJumping())
-    {
-        _jumpCooldown = JUMP_COOLDOWN;
-    }
-    else
-    {
-        // Only cooldown while grounded
-        _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
-    }
-
-    if (isShooting())
-    {
-        _shootCooldown = SHOOT_COOLDOWN;
-    }
-    else
-    {
-        _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
-    }
-
-    if (_onMovingPlat && MovingPlat != nullptr)
-    {
-        Vec2 platformVel = MovingPlat->getLinearVelocity();
-        setPosition(getPosition() + platformVel * dt);
-    }
-
-    glideUpdate(dt);
-
-    CapsuleObstacle::update(dt);
-
-    if (_node != nullptr)
-    {
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(getAngle());
-    }
-
-    // If the player has a treasure, update the position of the treasure such that
-    // it follows the player
-    if (_treasure != nullptr)
-    {
-        _treasure->setPosition(getPosition());
-    }
 }
 // Based on the player motion, check if we are falling.
 // If the player is falling for more than the glidetimer, set player into glide mode
@@ -650,6 +652,12 @@ void DudeModel::setFilterData() {
         fixture->SetFilterData(filter);
         fixture = fixture->GetNext();
     }
+}
+
+void DudeModel::reset(){
+    _isDead = false;
+    removeTreasure();
+    resetMovement();
 }
 
 /** Resets the player's movements in between rounds by setting it all to zero and to face the right */
