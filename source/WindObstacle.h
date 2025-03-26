@@ -102,9 +102,6 @@ public:
 	const int getPlayerHits() { return _playerHits; }
 	
 	std::map<std::string, std::any> getMap() override;
-
-
-
 };
 
 
