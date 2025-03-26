@@ -86,8 +86,11 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
     _cameraInitialPos = getCamera()->getPosition();
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
+#ifdef CU_TOUCH_SCREEN 
+    _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
+#else
     _offset = Vec2((_size.width * SCENE_WIDTH / 1024 - SCENE_WIDTH) * 0.8f, (_size.height * SCENE_HEIGHT / 576 - SCENE_HEIGHT) * 0.8f);
-
+#endif
     return true;
 }
 
