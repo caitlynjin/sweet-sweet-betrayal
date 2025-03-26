@@ -1,0 +1,107 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [0, 0],
+            "size": [1306, 576],
+            "angle": 0,
+            "visible": true
+        },
+        "children": {
+            "background": {
+                "type": "Image",
+                "data": {
+                    "texture": "start-background",
+                    "anchor": [0.5, 0.5],
+                    "size": [1306, 576],
+                    "angle": 0,
+                    "position": [0, 0],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "fill",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "button_container": {
+                "type": "Node",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [0.5, 0.5],
+                    "size": [400, 100],
+                    "position": [0, 0],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": -0.35
+                },
+                "children": {
+                    "start": {
+                        "type": "Widget",
+                        "data": {
+                            "key": "textbutton2",
+                            "variables": {
+                                "text": "START",
+                                "textshadow": "START"
+                            }
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "bottom",
+                            "absolute": false,
+                            "x_offset": -0.6,
+                            "y_offset": 0
+                        }
+                    },
+                    "settings": {
+                        "type": "Widget",
+                        "data": {
+                            "key": "textbutton2",
+                            "variables": {
+                                "text": "SETTINGS",
+                                "textshadow": "SETTINGS"
+                            }
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "bottom",
+                            "absolute": false,
+                            "x_offset": 0.6,
+                            "y_offset": 0
+                        }
+                    },
+                    "help": {
+                        "type": "Widget",
+                        "data": {
+                            "key": "textbutton2",
+                            "variables": {
+                                "text": "HELP",
+                                "textshadow": "HELP"
+                            }
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "bottom",
+                            "absolute": false,
+                            "x_offset": 0.6,
+                            "y_offset": 0
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

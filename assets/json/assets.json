@@ -81,6 +81,9 @@
         "host-join-background":{
             "file": "textures/host-join-background.png"
         },
+        "start-background":{
+            "file": "textures/start-background.png"
+        },
         "button": {
             "file":  "textures/button.png"
         },
@@ -116,6 +119,9 @@
         },
         "greybutton": {
             "file": "textures/vineButton.png"
+        },
+        "redbutton": {
+            "file": "textures/start-button.png"
         }
     },
     "jsons": {
@@ -176,6 +182,10 @@
         "super waterRegular66": {
             "file": "fonts/SuperWater-PVoOm.ttf",
             "size": 66
+        },
+        "yeasty flavorsRegular37.317073822021484": {
+            "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
+            "size": 37.317073822021484
         }
     },
     "widgets": {
@@ -184,9 +194,20 @@
         "textfield" : "widgets/textfield.json",
         "labelbox" : "widgets/labelbox.json",
         "create_join" : "widgets/create_join.json",
-        "textbutton2" : "widgets/textbutton2.json"
+        "textbutton2" : "widgets/textbutton2.json",
+        "start" : "widgets/start.json",
+        "startbutton" : "widgets/textbutton.json"
     },
     "scene2s" : {
+        "start": {
+            "type"      : "Widget",
+            "format"    : {
+                "type"        : "Anchored"
+            },
+            "data" : {
+                "key" : "start"
+            }
+        },
         "menu": {
             "type"      : "Widget",
             "format"    : {

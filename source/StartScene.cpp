@@ -50,18 +50,18 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _sound = sound;
     
     // Acquire the scene built by the asset loader and resize it the scene
-    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("menu");
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("start");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
-    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.start"));
-    _settingsbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.settings"));
-    _helpbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.help"));
+    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.start"));
+    _settingsbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.settings"));
+    _helpbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
     
     // Program the buttons
     _startbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
-            _choice = Choice::HOST;
+            _choice = Choice::START;
         }
     });
     CULog("scene");

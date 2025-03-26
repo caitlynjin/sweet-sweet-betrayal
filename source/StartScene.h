@@ -29,10 +29,8 @@ public:
     enum Choice {
         /** User has not yet made a choice */
         NONE,
-        /** User wants to host a game */
-        HOST,
-        /** User wants to join a game */
-        JOIN
+        /** User wants to start a game */
+        START
     };
 
 protected:
