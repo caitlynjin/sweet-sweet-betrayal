@@ -49,6 +49,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _loadButton;
     /** Reference to the level editor paintbrush button */
     std::shared_ptr<cugl::scene2::Button> _paintButton;
+    /** Reference to the level editor eraser button */
+    std::shared_ptr<cugl::scene2::Button> _eraserButton;
     /** Reference to the right button */
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
@@ -76,8 +78,14 @@ protected:
     */
     bool _inPaintMode = false;
 
+    /** Whether or not the level editor is in eraser mode to erase placed objects. */
+    bool _inEraserMode = false;
+
     /** Whether or not the paint BUTTON is currently down. */
     bool _paintButtonDown = false;
+
+    /** Whether or not the eraser mode BUTTON is currently down. */
+    bool _eraserButtonDown = false;
 
 public:
 #pragma mark -
@@ -187,6 +195,12 @@ public:
     bool isPaintMode() {
         return _inPaintMode;
     }
+
+    /** Gets whether or not we are currently in paint mode */
+    bool isEraserMode() {
+        return _inEraserMode;
+    }
+
 
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.

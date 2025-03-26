@@ -40,6 +40,10 @@ using namespace Constants;
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
+/** The image for the brush button */
+#define BRUSH_BUTTON "brush_button"
+/** The image for the eraser button */
+#define ERASER_BUTTON "eraser_button"
 
 #pragma mark -
 #pragma mark Constructors
@@ -108,7 +112,15 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     readyNode->setScale(0.8f);
     _readyButton = scene2::Button::alloc(readyNode);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+    if (!_isLevelEditor) {
+        // Sorry, I used this as the save button. Probably shouldn't have done that, but too late now.
+        // Might refactor later. Might not.
+        _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+    }
+    else {
+        _readyButton->setPosition(_size.width * 0.1f, _size.height * 0.2f);
+    }
+    
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down && !_isReady) {
@@ -120,7 +132,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     loadNode->setScale(0.8f);
     _loadButton = scene2::Button::alloc(loadNode);
     _loadButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _loadButton->setPosition(_size.width * 0.06f, _size.height * 0.1f);
+    _loadButton->setPosition(_size.width * 0.1f, _size.height * 0.9f);
     _loadButton->activate();
     _loadButton->addListener([this](const std::string& name, bool down) {
         if (down && !_isTimeToLoad) {
@@ -128,33 +140,50 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         }
         });
 
-    std::shared_ptr<scene2::PolygonNode> paintNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    std::shared_ptr<scene2::PolygonNode> paintNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BRUSH_BUTTON));
     paintNode->setScale(0.8f);
     _paintButton = scene2::Button::alloc(paintNode);
     _paintButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _paintButton->setPosition(_size.width * 0.06f, _size.height * 0.5f);
+    _paintButton->setPosition(_size.width * 0.06f, _size.height * 0.6f);
     _paintButton->activate();
     _paintButton->addListener([this](const std::string& name, bool down) {
-        if (down) {
-            // If the paint button was just pressed
-            if (down && !_paintButtonDown) {
-                _inPaintMode = true;
-            }
-            // If the paint button was just released
-            else if (!down && _paintButtonDown) {
-                _inPaintMode = false;
-            }
-            _paintButtonDown = down;
-            
+        // If the paint button was just pressed
+        if (down && !_paintButtonDown) {
+            _inPaintMode = true;
+            _paintButtonDown = !_paintButtonDown;
+        }
+        // If the paint button was just released
+        else if (down && _paintButtonDown) {
+            _inPaintMode = false;
         }
         });
-    _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
-    _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
-    _fileSaveText->setPosition(_size.width * 0.5f, _size.height * 0.1f);
 
-    _fileLoadText = scene2::TextField::allocWithTextBox(Size(200, 100), "testText", _assets->get<Font>("marker"));
+    std::shared_ptr<scene2::PolygonNode> eraserNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(ERASER_BUTTON));
+    eraserNode->setScale(0.8f);
+    _eraserButton = scene2::Button::alloc(eraserNode);
+    _eraserButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _eraserButton->setPosition(_size.width * 0.06f, _size.height * 0.4f);
+
+    // TODO: make this actually work
+    //_eraserButton->activate();
+    _eraserButton->addListener([this](const std::string& name, bool down) {
+        // If the paint button was just pressed
+        if (down && !_eraserButtonDown) {
+            _inEraserMode = true;
+            _eraserButtonDown = !_eraserButtonDown;
+        }
+        // If the paint button was just released
+        else if (down && _eraserButtonDown) {
+            _inEraserMode = false;
+        }
+        });
+    _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "save", _assets->get<Font>("marker"));
+    _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
+    _fileSaveText->setPosition(_size.width * 0.13f, _size.height * 0.03f);
+
+    _fileLoadText = scene2::TextField::allocWithTextBox(Size(200, 100), "load", _assets->get<Font>("marker"));
     _fileLoadText->setAnchor(Vec2::ANCHOR_CENTER);
-    _fileLoadText->setPosition(_size.width * 0.5f, _size.height * 0.8f);
+    _fileLoadText->setPosition(_size.width * 0.13f, _size.height * 0.73f);
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
@@ -163,6 +192,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         addChild(_fileLoadText);
         addChild(_loadButton);
         addChild(_paintButton);
+        //addChild(_eraserButton);
     }
 
     return true;

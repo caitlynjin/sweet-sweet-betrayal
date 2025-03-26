@@ -47,7 +47,7 @@ protected:
     BuildPhaseUIScene _uiScene;
 
     /** The selected item in build mode (new object) */
-    Item _selectedItem;
+    Item _selectedItem = NONE;
     /** The selected object in build mode (object being moved) */
     std::shared_ptr<Object> _selectedObject;
     /** Previous position of object in build phase */

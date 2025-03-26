@@ -159,15 +159,20 @@ void MovePhaseScene::populate() {
     //
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/NewLevel.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, _isLevelEditor);
-        _gridManager->addObject(obj);
+        if (_isLevelEditor) {
+            // This is necessary to remove the object with the eraser.
+            _gridManager->addMoveableObject(obj->getPosition(), obj);
+        }
+        else {
+            _gridManager->addObject(obj);
+        }
         CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
-
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);

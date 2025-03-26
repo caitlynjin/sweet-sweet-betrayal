@@ -113,7 +113,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 			if ((*it)->get("name")->_stringValue == string("platforms")) {
 				Size theSize = Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat());
 				allLevelObjects.push_back(Platform::alloc(
-					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()) - theSize / 2,
+					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					theSize,
 					(*it2)->get("type")->asString()
 				));
