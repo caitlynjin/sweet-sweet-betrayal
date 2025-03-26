@@ -85,6 +85,8 @@ cugl::Size itemToGridSize(Item item) {
             return cugl::Size(6, 1);
         case WIND:
             return cugl::Size(1, 1);
+        case MUSHROOM:
+            return cugl::Size(2, 1);
         case NONE:
             return cugl::Size(1, 1);
     }
