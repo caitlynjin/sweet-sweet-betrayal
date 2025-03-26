@@ -491,7 +491,7 @@ void DudeModel::update(float dt)
             _jumpSpriteNode->setVisible(true);
         }
         doStrip(_jumpAction);
-    } else if (getVX() <= 0 && _idleAction) {
+    } else if (getVX() == 0  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);
