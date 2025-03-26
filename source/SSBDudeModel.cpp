@@ -107,7 +107,7 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
 
     MovingPlat = nullptr;
 
-    if (CapsuleObstacle::init(pos, nsize))
+    if (CapsuleObstacle::init(pos, nsize*0.5))
     {
         setDensity(DUDE_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
@@ -145,7 +145,7 @@ void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _idleSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _idleSpriteNode->setAnchor(0.6,0.3);
     _idleSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
@@ -172,7 +172,7 @@ void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _walkSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _walkSpriteNode->setAnchor(0.6,0.3);
     _walkSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
@@ -199,7 +199,7 @@ void DudeModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _glideSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _glideSpriteNode->setAnchor(0.6,0.3);
     _glideSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_glideSpriteNode);
     _glideSpriteNode->setVisible(false);
@@ -226,7 +226,7 @@ void DudeModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _jumpSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _jumpSpriteNode->setAnchor(0.6,0.3);
     _jumpSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_jumpSpriteNode);
     _jumpSpriteNode->setVisible(false);
