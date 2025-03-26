@@ -27,7 +27,7 @@
 #pragma mark -
 #pragma mark Object Textures
 /** The texture for the character avatar */
-#define DUDE_TEXTURE    "dude"
+#define PLAYER_TEXTURE    "dude"
 /** The animation texture for when the player is idle */
 #define PLAYER_IDLE_TEXTURE    "player-idle"
 /** The animation texture for when the player is walking */

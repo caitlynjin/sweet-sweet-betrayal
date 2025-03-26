@@ -275,10 +275,10 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
  *
  * @param The player being created (that has not yet been added to the physics world).
  */
-std::shared_ptr<DudeModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale){
+std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale){
     auto params = _dudeFact->serializeParams(pos, scale);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
-    return std::dynamic_pointer_cast<DudeModel>(localPair.first);
+    return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
 }
 
 
@@ -294,7 +294,7 @@ void NetworkController::trySetFilters(){
     // First, count how many players are in the world
     // We only want to set filters once all players are represented in the world
     int numPlayers = 0;
-    std::vector<std::shared_ptr<DudeModel>> playerList;
+    std::vector<std::shared_ptr<PlayerModel>> playerList;
     const auto& obstacles = _world->getObstacles();
     
     for (const auto& obstacle : obstacles) {
@@ -302,7 +302,7 @@ void NetworkController::trySetFilters(){
             numPlayers += 1;
             
             // Try to cast to DudeModel and add to our list if successful
-            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
                 playerList.push_back(playerModel);
             } else {
@@ -338,9 +338,9 @@ void NetworkController::trySetFilters(){
  * Generate a pair of Obstacle and SceneNode using the given parameters
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
-    auto image = _assets->get<Texture>(DUDE_TEXTURE);
+    auto image = _assets->get<Texture>(PLAYER_TEXTURE);
 
-    auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
+    auto player = PlayerModel::alloc(pos, image->getSize() / scale, scale);
     
     player->setShared(true);
     player->setDebugColor(DEBUG_COLOR);

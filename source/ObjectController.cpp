@@ -12,7 +12,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"

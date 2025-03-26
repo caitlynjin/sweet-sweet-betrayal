@@ -13,7 +13,7 @@
 #include <vector>
 #include "Constants.h"
 #include "SSBInput.h"
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "Platform.h"
 #include "WindObstacle.h"
 #include "Treasure.h"

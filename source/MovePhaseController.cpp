@@ -12,7 +12,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
@@ -91,7 +91,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
         if (obstacle->getName() == "player") {
             _numPlayers += 1;
             // Try to cast to DudeModel and add to our list if successful
-            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
                 playerList.push_back(playerModel);
             } else {

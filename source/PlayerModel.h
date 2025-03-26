@@ -41,8 +41,8 @@
 //  Author:  Walker White and Anthony Perello
 //  Version: 2/9/21
 //
-#ifndef __PF_DUDE_MODEL_H__
-#define __PF_DUDE_MODEL_H__
+#ifndef __PF_PLAYER_MODEL_H__
+#define __PF_PLAYER_MODEL_H__
 #include <cugl/cugl.h>
 #include "Treasure.h"
 #include "Constants.h"
@@ -60,11 +60,11 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Physics Constants
 /** The factor to multiply by the input */
-#define DUDE_FORCE      20.0f
+#define PLAYER_FORCE      20.0f
 /** The amount to slow the character down in the air */
-#define DUDE_DAMPING    10.0f
+#define PLAYER_DAMPING    10.0f
 /** The maximum character speed */
-#define DUDE_MAXSPEED   5.0f
+#define PLAYER_MAXSPEED   5.0f
 /**How much the player speed should be dampened during gliding*/
 #define GLIDE_DAMPING 2.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -82,7 +82,7 @@ using namespace Constants;
 
 
 #pragma mark -
-#pragma mark Dude Model
+#pragma mark Player Model
 /**
 * Player avatar for the plaform game.
 *
@@ -90,10 +90,10 @@ using namespace Constants;
 * experience, using a rectangular shape for a character will regularly snag
 * on a platform.  The round shapes on the end caps lead to smoother movement.
 */
-class DudeModel : public physics2::CapsuleObstacle {
+class PlayerModel : public physics2::CapsuleObstacle {
 private:
 	/** This macro disables the copy constructor (not allowed on physics objects) */
-	CU_DISALLOW_COPY_AND_ASSIGN(DudeModel);
+	CU_DISALLOW_COPY_AND_ASSIGN(PlayerModel);
     
     std::shared_ptr<Treasure> _treasure;
 
@@ -188,12 +188,12 @@ public:
      * This constructor does not initialize any of the dude values beyond
      * the defaults.  To use a DudeModel, you must call init().
      */
-    DudeModel() : CapsuleObstacle(), _sensorName(SENSOR_NAME) { }
+    PlayerModel() : CapsuleObstacle(), _sensorName(SENSOR_NAME) { }
     
     /**
      * Destroys this DudeModel, releasing all resources.
      */
-    virtual ~DudeModel(void) { dispose(); }
+    virtual ~PlayerModel(void) { dispose(); }
     
     /**
      * Disposes all resources and assets of this DudeModel
@@ -284,8 +284,8 @@ public:
 	 *
 	 * @return  A newly allocated DudeModel at the origin
 	 */
-	static std::shared_ptr<DudeModel> alloc() {
-		std::shared_ptr<DudeModel> result = std::make_shared<DudeModel>();
+	static std::shared_ptr<PlayerModel> alloc() {
+		std::shared_ptr<PlayerModel> result = std::make_shared<PlayerModel>();
 		return (result->init() ? result : nullptr);
 	}
 
@@ -303,8 +303,8 @@ public:
 	 *
 	 * @return  A newly allocated DudeModel at the given position
 	 */
-	static std::shared_ptr<DudeModel> alloc(const Vec2& pos) {
-		std::shared_ptr<DudeModel> result = std::make_shared<DudeModel>();
+	static std::shared_ptr<PlayerModel> alloc(const Vec2& pos) {
+		std::shared_ptr<PlayerModel> result = std::make_shared<PlayerModel>();
 		return (result->init(pos) ? result : nullptr);
 	}
 
@@ -323,8 +323,8 @@ public:
 	 *
 	 * @return  A newly allocated DudeModel at the given position with the given scale
 	 */
-	static std::shared_ptr<DudeModel> alloc(const Vec2& pos, const Size& size) {
-		std::shared_ptr<DudeModel> result = std::make_shared<DudeModel>();
+	static std::shared_ptr<PlayerModel> alloc(const Vec2& pos, const Size& size) {
+		std::shared_ptr<PlayerModel> result = std::make_shared<PlayerModel>();
 		return (result->init(pos, size) ? result : nullptr);
 	}
 
@@ -344,8 +344,8 @@ public:
 	 *
 	 * @return  A newly allocated DudeModel at the given position with the given scale
 	 */
-	static std::shared_ptr<DudeModel> alloc(const Vec2& pos, const Size& size, float scale) {
-		std::shared_ptr<DudeModel> result = std::make_shared<DudeModel>();
+	static std::shared_ptr<PlayerModel> alloc(const Vec2& pos, const Size& size, float scale) {
+		std::shared_ptr<PlayerModel> result = std::make_shared<PlayerModel>();
 		return (result->init(pos, size, scale) ? result : nullptr);
 	}
     
@@ -505,14 +505,14 @@ public:
      *
      * @return how much force to apply to get the dude moving
      */
-    float getForce() const { return DUDE_FORCE; }
+    float getForce() const { return PLAYER_FORCE; }
     
     /**
      * Returns ow hard the brakes are applied to get a dude to stop moving
      *
      * @return ow hard the brakes are applied to get a dude to stop moving
      */
-    float getDamping() const { return DUDE_DAMPING; }
+    float getDamping() const { return PLAYER_DAMPING; }
     
     /**
      * Returns the upper limit on dude left-right movement.
@@ -521,7 +521,7 @@ public:
      *
      * @return the upper limit on dude left-right movement.
      */
-    float getMaxSpeed() const { return DUDE_MAXSPEED; }
+    float getMaxSpeed() const { return PLAYER_MAXSPEED; }
     
     /**
      * Returns the name of the ground sensor
@@ -617,4 +617,4 @@ public:
 	
 };
 
-#endif /* __PF_DUDE_MODEL_H__ */
+#endif /* __PF_PLAYER_MODEL_H__ */
