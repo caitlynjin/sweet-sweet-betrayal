@@ -325,13 +325,22 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
     auto player = DudeModel::alloc(pos, image->getSize() / scale, scale);
     
-
     player->setShared(true);
-    
-    auto sprite = scene2::PolygonNode::allocWithTexture(image);
     player->setDebugColor(DEBUG_COLOR);
     
-    return std::make_pair(player, sprite);
+    auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_IDLE_TEXTURE), 1, 7, 7);
+    player->setIdleAnimation(idleSpriteNode);
+    
+    auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
+    player->setWalkAnimation(walkSpriteNode);
+    
+    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GLIDE_TEXTURE), 1, 4, 4);
+    player->setGlideAnimation(glideSpriteNode);
+    
+    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_JUMP_TEXTURE), 1, 5, 5);
+    player->setJumpAnimation(jumpSpriteNode);
+    
+    return std::make_pair(player, player->getSceneNode());
 }
 
 /**

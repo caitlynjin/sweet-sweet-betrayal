@@ -80,8 +80,8 @@ public:
     cugl::Vec2 originalPosition;
     cugl::Vec2 finalPosition;
     bool _touchDown;
+  
     bool _mouseDown;
-    
 
 #pragma mark glide bullshit
     //Here is the glide bullshit

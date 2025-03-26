@@ -63,15 +63,21 @@
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
-#define DUDE_DENSITY 0.7f
+#define DUDE_DENSITY 0.9f
 /** The impulse for the character jump */
-#define DUDE_JUMP 13.25f
+#define DUDE_JUMP 27.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define AIR_DAMPING 2.5f
+/** Define the time settings for animation */
+#define DURATION 1.0f
+#define WALKPACE 50
+#define ACT_KEY  "current"
+#define ALT_KEY  "slide"
 
 using namespace cugl;
+using namespace cugl::scene2;
 
 #pragma mark -
 #pragma mark Constructors
@@ -108,6 +114,8 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
         setName("player");
         setDebugColor(Color4::YELLOW);
+        
+        _node = scene2::SpriteNode::alloc();
 
         // Gameplay attributes
         _isGrounded = false;
@@ -126,6 +134,132 @@ bool DudeModel::init(const Vec2 &pos, const Size &size, float scale)
     }
     return false;
 }
+
+#pragma mark -
+#pragma mark Animation
+
+/** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
+void DudeModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _idleSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _idleSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _idleSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_idleSpriteNode);
+    _idleSpriteNode->setVisible(true);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _idleAnimateSprite = AnimateSprite::alloc(forward);
+    _idleAction = _idleAnimateSprite->attach<scene2::SpriteNode>(_idleSpriteNode);
+}
+
+/** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
+void DudeModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _walkSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _walkSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _walkSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_walkSpriteNode);
+    _walkSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _walkAnimateSprite = AnimateSprite::alloc(forward);
+    _walkAction = _walkAnimateSprite->attach<scene2::SpriteNode>(_walkSpriteNode);
+}
+
+/** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
+void DudeModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _glideSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _glideSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _glideSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_glideSpriteNode);
+    _glideSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _glideAnimateSprite = AnimateSprite::alloc(forward);
+    _glideAction = _glideAnimateSprite->attach<scene2::SpriteNode>(_glideSpriteNode);
+}
+
+/** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
+void DudeModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _jumpSpriteNode = sprite;
+    
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _jumpSpriteNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _jumpSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _node->addChild(_jumpSpriteNode);
+    _jumpSpriteNode->setVisible(false);
+    
+    _timeline = ActionTimeline::alloc();
+    
+    const int span = 3;
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _jumpAnimateSprite = AnimateSprite::alloc(forward);
+    _jumpAction = _jumpAnimateSprite->attach<scene2::SpriteNode>(_jumpSpriteNode);
+}
+
+/**
+ * Performs a film strip action
+ *
+ * @param action The film strip action
+ * @param slide  The associated movement slide
+ */
+void DudeModel::doStrip(cugl::ActionFunction action) {
+    if (_timeline->isActive(ACT_KEY)) {
+        // NO OP
+    } else {
+        _timeline->add(ACT_KEY, action, DURATION);
+    }
+}
+
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -234,18 +368,35 @@ void DudeModel::setMovement(float value)
     }
 
     // Change facing
-    scene2::TexturedNode* image = dynamic_cast<scene2::TexturedNode*>(_node.get());
-    if (image != nullptr)
-    {
-
-        image->flipHorizontal(!image->isFlipHorizontal());
-    }
-
-    if (_faceRight != face) {
-        _justFlipped = true;
-    }
-
     _faceRight = face;
+    
+    updateFacing();
+}
+
+/**
+ * Update the visual direction the dude is facing
+ */
+void DudeModel::updateFacing(){
+    float flipValue = _faceRight ? 1.0f : -1.0f;
+    float offsetValue = _faceRight ? -13.0f : 13.0f;
+    if (_idleSpriteNode) {
+        _idleSpriteNode->setScale(flipValue, 1.0f);
+        _idleSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
+    if (_walkSpriteNode) {
+        _walkSpriteNode->setScale(flipValue, 1.0f);
+        _walkSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
+    if (_glideSpriteNode) {
+        _glideSpriteNode->setScale(flipValue, 1.0f);
+        _glideSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
+    if (_jumpSpriteNode) {
+        _jumpSpriteNode->setScale(flipValue, 1.0f);
+        _jumpSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
+    }
+
+    _justFlipped = true;
 }
 /**
  * Applies the force to the body of this dude
@@ -273,7 +424,6 @@ void DudeModel::applyForce()
             b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
             if (!_isGliding) {
                 if (!_body){
-                    CULog("NO BODYYY");
                     return;
                 }
                 _body->ApplyForce(force, _body->GetPosition(), true);
@@ -321,6 +471,44 @@ void DudeModel::applyForce()
  */
 void DudeModel::update(float dt)
 {
+
+    // ANIMATION
+    _timeline->update(dt);
+    
+    if ((getVY() != 0) && _isGliding && _glideAction){
+        if (!_glideSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(true);
+            _jumpSpriteNode->setVisible(false);
+        }
+        doStrip(_glideAction);
+    } else if (getVY() != 0 && _jumpAction){
+        if (!_jumpSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(true);
+        }
+        doStrip(_jumpAction);
+    } else if (getVX() == 0  && _idleAction) {
+        if (!_idleSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(true);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(false);
+        }
+        doStrip(_idleAction);
+    } else if (_walkAction) {
+        if (!_walkSpriteNode->isVisible()) {
+            _walkSpriteNode->setVisible(true);
+            _idleSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(false);
+        }
+        doStrip(_walkAction);
+    }
+    
     // Check whether we are in glide mode
     
     
@@ -462,4 +650,13 @@ void DudeModel::setFilterData() {
         fixture->SetFilterData(filter);
         fixture = fixture->GetNext();
     }
+}
+
+/** Resets the player's movements in between rounds by setting it all to zero and to face the right */
+void DudeModel::resetMovement(){
+    setVX(0);
+    setVY(0);
+    setMovement(0);
+    _faceRight = true;
+    updateFacing();
 }
