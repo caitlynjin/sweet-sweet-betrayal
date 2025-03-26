@@ -30,7 +30,8 @@ public:
         /** User has not yet made a choice */
         NONE,
         /** User wants to start a game */
-        START
+        START,
+        LEVEL_EDITOR
     };
 
 protected:
@@ -46,7 +47,7 @@ protected:
     
     std::shared_ptr<cugl::scene2::Button> _startbutton;
     std::shared_ptr<cugl::scene2::Button> _settingsbutton;
-    std::shared_ptr<cugl::scene2::Button> _helpbutton;
+    std::shared_ptr<cugl::scene2::Button> _leveleditorbutton;
     /** The player start screen choice */
     Choice _choice;
 
