@@ -1,24 +1,17 @@
 //
-//  MainMenu.cpp
+//  StartScene.cpp
 //  SweetSweetBetrayal
 //
-//  Created by jessie jia on 3/5/25.
+//  Created by Grace Sawatyanon on 25/3/25.
 //
 
 #include <cugl/cugl.h>
 #include <iostream>
 #include <sstream>
 
-#include "MenuScene.h"
+#include "StartScene.h"
 #include "SSBGameController.h"
 #include "Constants.h"
-#include "Platform.h"
-#include "Spike.h"
-#include <box2d/b2_world.h>
-#include <box2d/b2_contact.h>
-#include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
-#include "WindObstacle.h"
 #include "SoundController.h"
 
 #include <ctime>
@@ -33,25 +26,11 @@ using namespace std;
 
 #define SCENE_WIDTH 1024
 #define SCENE_HEIGHT 576
+
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
 
-#pragma mark Constructors
-/**
- * Initializes the controller contents, and starts the game
- *
- * In previous labs, this method "started" the scene.  But in this
- * case, we only use to initialize the scene user interface.  We
- * do not activate the user interface yet, as an active user
- * interface will still receive input EVEN WHEN IT IS HIDDEN.
- *
- * That is why we have the method {@link #setActive}.
- *
- * @param assets    The (loaded) assets for this game mode
- *
- * @return true if the controller is initialized properly, false otherwise.
- */
-bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
+bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
     if (assets == nullptr) {
        return false;
    }
@@ -75,18 +54,14 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
-    _hostbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.host"));
-    _joinbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.join"));
+    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.start"));
+    _settingsbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.settings"));
+    _helpbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.button_container.help"));
     
     // Program the buttons
-    _hostbutton->addListener([this](const std::string& name, bool down) {
+    _startbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
             _choice = Choice::HOST;
-        }
-    });
-    _joinbutton->addListener([this](const std::string& name, bool down) {
-        if (down) {
-            _choice = Choice::JOIN;
         }
     });
     CULog("scene");
@@ -95,11 +70,10 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     return true;
 
 }
-
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
-void MenuScene::dispose() {
+void StartScene::dispose() {
     if (_active) {
         removeAllChildren();
         _background = nullptr;
@@ -116,22 +90,16 @@ void MenuScene::dispose() {
  *
  * @param value whether the scene is currently active
  */
-void MenuScene::setActive(bool value) {
+void StartScene::setActive(bool value) {
     if (isActive() != value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
-            _hostbutton->activate();
-            _joinbutton->activate();
+            _startbutton->activate();
         } else {
-            _hostbutton->deactivate();
-            _joinbutton->deactivate();
+            _startbutton->deactivate();
             // If any were pressed, reset them
-            _hostbutton->setDown(false);
-            _joinbutton->setDown(false);
+            _startbutton->setDown(false);
         }
     }
 }
-
-
-

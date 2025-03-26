@@ -78,6 +78,9 @@
         "background": {
             "file":     "textures/background.png"
         },
+        "host-join-background":{
+            "file": "textures/host-join-background.png"
+        },
         "button": {
             "file":  "textures/button.png"
         },
@@ -107,6 +110,12 @@
         },
         "treasure-icon": {
             "file":  "textures/treasure.png"
+        },
+        "back": {
+            "file": "textures/back.png"
+        },
+        "greybutton": {
+            "file": "textures/vineButton.png"
         }
     },
     "jsons": {
@@ -159,54 +168,32 @@
         "gyparody": {
             "file":     "fonts/gyparody-hv.ttf",
             "size":     48
+        },
+        "yeasty flavorsRegular48.83721160888672": {
+            "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
+            "size": 48.83721160888672
+        },
+        "super waterRegular66": {
+            "file": "fonts/SuperWater-PVoOm.ttf",
+            "size": 66
         }
     },
     "widgets": {
         "colorbutton" : "widgets/colorbutton.json",
         "textbutton" : "widgets/textbutton.json",
         "textfield" : "widgets/textfield.json",
-        "labelbox" : "widgets/labelbox.json"
+        "labelbox" : "widgets/labelbox.json",
+        "create_join" : "widgets/create_join.json",
+        "textbutton2" : "widgets/textbutton2.json"
     },
     "scene2s" : {
         "menu": {
-            "type"      : "Node",
+            "type"      : "Widget",
             "format"    : {
-                "type"        : "Float",
-                "orientation" : "vertical",
-                "x_alignment" : "center",
-                "y_alignment" : "middle"
+                "type"        : "Anchored"
             },
-            "children":  {
-               "host": {
-                    "type"   : "Widget",
-                    "data"   : {
-                        "key"     : "textbutton",
-                        "variables" : {
-                            "size": [400,100],
-                            "text": "Host Game",
-                            "color": "#000088"
-                        }
-                    },
-                    "layout" : {
-                        "priority" : 1,
-                        "padding"  : [0,50,0,0]
-                    }
-                },
-               "join": {
-                    "type"   : "Widget",
-                    "data"   : {
-                        "key"     : "textbutton",
-                        "variables" : {
-                            "size": [400,100],
-                            "text": "Join Game",
-                            "color": "#000088"
-                        }
-                    },
-                    "layout" : {
-                        "priority" : 1,
-                        "padding"  : [0,0,0,0]
-                    }
-                }
+            "data" : {
+                "key" : "create_join"
             }
         },
         "host": {
