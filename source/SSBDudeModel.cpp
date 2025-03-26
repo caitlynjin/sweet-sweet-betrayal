@@ -475,7 +475,7 @@ void DudeModel::update(float dt)
     // ANIMATION
     _timeline->update(dt);
     
-    if (!_isGrounded && _isGliding && _glideAction){
+    if ((getVY() != 0) && _isGliding && _glideAction){
         if (!_glideSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
@@ -483,7 +483,7 @@ void DudeModel::update(float dt)
             _jumpSpriteNode->setVisible(false);
         }
         doStrip(_glideAction);
-    } else if (!_isGrounded && _jumpAction){
+    } else if (getVY() != 0 && _jumpAction){
         if (!_jumpSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
@@ -491,7 +491,7 @@ void DudeModel::update(float dt)
             _jumpSpriteNode->setVisible(true);
         }
         doStrip(_jumpAction);
-    } else if (getMovement() <= 5 && getMovement() >= -5 && _idleAction) {
+    } else if (getVX() <= 0 && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);
