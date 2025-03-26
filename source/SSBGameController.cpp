@@ -33,8 +33,8 @@ using namespace Constants;
 #pragma mark Level Geography
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
-#define SCENE_HEIGHT 576
+#define SCENE_WIDTH 2048
+#define SCENE_HEIGHT 1152
 
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
@@ -45,7 +45,7 @@ using namespace Constants;
 /** Width of the game world in Box2d units */
 #define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT) * 2
 /** Height of the game world in Box2d units */
-#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
+#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT) * 1
 
 #define FIXED_TIMESTEP_S 0.02f
 
