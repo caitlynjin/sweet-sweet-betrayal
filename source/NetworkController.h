@@ -15,6 +15,7 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "Treasure.h"
+#include "Mushroom.h"
 
 using namespace cugl;
 using namespace cugl::netcode;
@@ -248,6 +249,31 @@ public:
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
     createObstacle(const std::vector<std::byte>& params) override;
 };
+/**
+ * The factory class for mushroom objects.
+ */
+class MushroomFactory : public ObstacleFactory {
+    public:
+        std::shared_ptr<AssetManager> _assets;
+        LWSerializer _serializer;
+        LWDeserializer _deserializer;
+    
+        static std::shared_ptr<MushroomFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+            auto f = std::make_shared<MushroomFactory>();
+            f->init(assets);
+            return f;
+        }
+    
+        void init(std::shared_ptr<AssetManager>& assets) {
+            _assets = assets;
+        }
+        
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale);
+
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale);
+        
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+    };
 
 
 /**
@@ -300,6 +326,10 @@ protected:
 
     std::shared_ptr<TreasureFactory> _treasureFact;
     Uint32 _treasureFactID;
+
+    /** Variables for Mushroom Factory (external, not nested) */
+    std::shared_ptr<MushroomFactory> _mushroomFact;
+    Uint32 _mushroomFactID;
 
 public:
 #pragma mark -
@@ -380,6 +410,8 @@ public:
         _treasureFact = TreasureFactory::alloc(_assets);
         _treasureFactID = _network->getPhysController()->attachFactory(_treasureFact);
 
+        _mushroomFact = MushroomFactory::alloc(_assets);
+        _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
     }
     
     /**
@@ -495,6 +527,13 @@ public:
      * @return the treasure being created
      */
     std::shared_ptr<Object> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
+
+    /**
+     * Creates a networked mushroom.
+     *
+     * @return the mushroom being created
+     */
+    std::shared_ptr<Object> createMushroomNetworked(Vec2 pos, Size size, float scale);
     
     /**
      * The method called to update the game mode.

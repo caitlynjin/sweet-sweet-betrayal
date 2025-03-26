@@ -282,6 +282,23 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
         return nullptr;
     }
 }
+std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
+    CULog("creating mushroom");
+    auto params = _mushroomFact->serializeParams(pos+size/2, size, scale);
+    auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
+
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+    
+    if (boxObstacle) {
+        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos+size/2, size, scale, boxObstacle);
+        _objects->push_back(mushroom);
+        return mushroom;
+    } else {
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
 
 
 /**
@@ -651,4 +668,67 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
     bool taken = _deserializer.readBool();
     
     return createObstacle(pos, size, scale, taken);
+}
+
+#pragma mark -
+#pragma mark Mushroom Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
+
+    // float blendingOffset = 0.01f;
+
+    // Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
+
+    // EarclipTriangulator triangulator;
+    // triangulator.set(poly.vertices);
+    // triangulator.calculate();
+    // poly.setIndices(triangulator.getTriangulation());
+    // triangulator.clear();
+    
+    std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
+    
+    auto mushroom = Mushroom::alloc(pos, size, scale);
+    mushroom->getObstacle()->setBodyType(b2_dynamicBody);
+    mushroom->getObstacle()->setDensity(BASIC_DENSITY);
+    mushroom->getObstacle()->setFriction(BASIC_FRICTION);
+    mushroom->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    mushroom->getObstacle()->setName("mushroom");
+    mushroom->getObstacle()->setDebugColor(Color4::YELLOW);
+    mushroom->setPosition(pos);
+    mushroom->getObstacle()->setShared(true);
+    
+    return std::make_pair(mushroom->getObstacle(), sprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+MushroomFactory::serializeParams(Vec2 pos, Size size, float scale) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeFloat(scale);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+MushroomFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+    
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+    
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+    
+    float scale = _deserializer.readFloat();
+    
+    return createObstacle(pos, size, scale);
 }
