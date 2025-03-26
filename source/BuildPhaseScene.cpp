@@ -33,8 +33,8 @@ using namespace Constants;
 #pragma mark Scene Constants
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
-#define SCENE_HEIGHT 576
+#define SCENE_WIDTH 2048
+#define SCENE_HEIGHT 1152
 
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
