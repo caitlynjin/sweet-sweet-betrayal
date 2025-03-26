@@ -93,6 +93,9 @@
         "red-icon": {
             "file":  "textures/red.png"
         },
+        "blue-icon": {
+            "file":  "textures/blue.png"
+        },
         "treasure-icon": {
             "file":  "textures/treasure.png"
         }
