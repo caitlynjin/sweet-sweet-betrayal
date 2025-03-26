@@ -111,7 +111,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
     _scale /= getSystemScale();
-    _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
+    _offset = Vec2((_size.width - SCENE_WIDTH) / getSystemScale(), (_size.height - SCENE_HEIGHT)) / getSystemScale();
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -159,7 +159,7 @@ void MovePhaseScene::populate() {
     //
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, _isLevelEditor);
