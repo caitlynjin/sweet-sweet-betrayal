@@ -143,13 +143,13 @@
 					"y":	0
 				}, {
 					"height":	1,
-					"type":	"log",
+					"type":	"platform",
 					"width":	3,
 					"x":	14,
 					"y":	4
 				}, {
 					"height":	1,
-					"type":	"log",
+					"type":	"platform",
 					"width":	3,
 					"x":	13,
 					"y":	6
@@ -167,7 +167,7 @@
 					"y":	0
 				}, {
 					"height":	1,
-					"type":	"log",
+					"type":	"platform",
 					"width":	3,
 					"x":	4,
 					"y":	3
@@ -377,7 +377,7 @@
 					"y":	1
 				}, {
 					"height":	1,
-					"type":	"log",
+					"type":	"platform",
 					"width":	3,
 					"x":	32,
 					"y":	6
@@ -389,7 +389,7 @@
 					"y":	5
 				}, {
 					"height":	1,
-					"type":	"log",
+					"type":	"platform",
 					"width":	3,
 					"x":	37,
 					"y":	1
