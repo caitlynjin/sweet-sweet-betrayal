@@ -57,7 +57,6 @@ protected:
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
 
-    std::function<void(bool)> _buildingModeCallback;
 
 public:
 #pragma mark -
@@ -108,10 +107,6 @@ public:
      */
     void processModeChange(bool value);
     
-    /**
-     * Assigns a callback function that will be executed when `setBuildingMode` is called.
-     */
-    void setBuildingModeCallback(std::function<void(bool)> callback);
 
     /**
      * Triggers a change in building mode.

@@ -167,10 +167,6 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _buildPhaseController = std::make_shared<BuildPhaseController>();
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
 
-    // Set up callbacks to transition between game modes
-    _buildPhaseController->setBuildingModeCallback([this](bool value) {
-        this->setBuildingMode(value);
-    });
 
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
