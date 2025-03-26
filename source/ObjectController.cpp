@@ -81,7 +81,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     plat->getObstacle()->setName("platform");
 
     poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
     
