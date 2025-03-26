@@ -38,6 +38,8 @@ protected:
     Vec2 _offset;
     /** The initial position of the camera */
     Vec2 _cameraInitialPos;
+    /** The camera for this scene */
+    std::shared_ptr<scene2::ScrollPane> _scrollPane;
 
 
 public:

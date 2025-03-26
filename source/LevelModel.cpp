@@ -55,6 +55,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 	//json->appendArray("objects");
 	innerArray->appendChild(createJsonObjectList("platforms", platforms));
 	innerArray->appendChild(createJsonObjectList("spikes", spikes));
+	innerArray->appendChild(createJsonObjectList("treasures", treasures));
 	json->appendChild("objectTypes", innerArray);
 
 	shared_ptr<JsonWriter> jsonWriter = JsonWriter::alloc(fileName);

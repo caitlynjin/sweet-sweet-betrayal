@@ -136,15 +136,42 @@ protected:
 	/** The node for debugging the sensor */
 	std::shared_ptr<scene2::WireNode> _sensorNode;
 
-	/** The scene graph node for the Dude. */
-	std::shared_ptr<scene2::SceneNode> _node;
+	/** The scene graph node for the Dude. This holds the animation sprite  */
+    std::shared_ptr<scene2::SceneNode> _node;
 	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
 	float _drawScale;
 
+#pragma mark Animation Variables
+    /** Manager to process the animation actions */
+    std::shared_ptr<cugl::ActionTimeline> _timeline;
+    
+    /** Idle animation variables */
+    std::shared_ptr<AnimateSprite> _idleAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _idleSpriteNode;
+    cugl::ActionFunction _idleAction;
+    
+    /** Walk animation variables */
+    std::shared_ptr<AnimateSprite> _walkAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _walkSpriteNode;
+    cugl::ActionFunction _walkAction;
+    
+    /** Glide animation variables */
+    std::shared_ptr<AnimateSprite> _glideAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _glideSpriteNode;
+    cugl::ActionFunction _glideAction;
+    
+    /** Jump animation variables */
+    std::shared_ptr<AnimateSprite> _jumpAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _jumpSpriteNode;
+    cugl::ActionFunction _jumpAction;
+    
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
 	*
 	* The debug node is use to outline the fixtures attached to this object.
+    *
+    * Also adds scene node children to it (used for animations). Removes all children and adds the node if it already exists.
+    *
 	* This is very useful when the fixtures have a very different shape than
 	* the texture (e.g. a circular shape attached to a square texture).
 	*/
@@ -354,10 +381,30 @@ public:
      *
      * @param node  The scene graph node representing this DudeModel, which has been added to the world node already.
      */
-	void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
-        _node = node;
+	void setSceneNode(const std::shared_ptr<scene2::SpriteNode>& node) {
+        if (!_node){
+            _node = scene2::SceneNode::alloc();
+        } else{
+            _node->removeAllChildren();
+        }
+        _node->addChild(node);
         _node->setPosition(getPosition() * _drawScale);
     }
+    
+    /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
+    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
+    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
+    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
+    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
+    /** Increments an animation film strip */
+    void doStrip(cugl::ActionFunction action);
     
     /**
      * Called when the player obtains a treasure.
@@ -399,6 +446,11 @@ public:
      * @param value left/right movement of this character.
      */
     void setMovement(float value);
+    
+    /**
+     * Update the visual direction the dude is facing
+     */
+    void updateFacing();
 
     /**
     Applies a certain amount of wind velocity to the player
@@ -560,6 +612,8 @@ public:
     */
     void windUpdate(float dt);
 
+    /** Reset the player's movements in between rounds by setting it all to zero and to face the right */
+    void resetMovement();
 	
 };
 

@@ -50,7 +50,7 @@ MovePhaseController::MovePhaseController() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
     if (assets == nullptr)
     {
         return false;
@@ -73,17 +73,22 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     //TODO: Change this to all be handled in Network Controller
     _network->enablePhysics(_world, linkSceneToObsFunc);
 
-    _networkController->setObjects(_objects);
+    _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
+    
 
     // Initialize move phase scene
-    _movePhaseScene.init(assets, world, gridManager, networkController);
+    _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
+    _sound = sound;
 
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
     _uiScene.init(assets);
+
+    _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
+    _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
     setComplete(false);
     setFailure(false);
@@ -190,6 +195,7 @@ void MovePhaseController::preUpdate(float dt) {
 //            _avatar->setGlide(false);
 //
 //        }
+        
         _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
         _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
@@ -197,8 +203,7 @@ void MovePhaseController::preUpdate(float dt) {
 
         if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
         {
-            std::shared_ptr<Sound> source = _assets->get<Sound>(JUMP_EFFECT);
-            AudioEngine::get()->play(JUMP_EFFECT, source, false, EFFECT_VOLUME);
+            _sound->playSound("jump");
         }
 
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
@@ -214,6 +219,16 @@ void MovePhaseController::preUpdate(float dt) {
             _uiScene.setDidJump(false);
         }
 
+        float player_pos = _movePhaseScene.getLocalPlayer()->getPosition().x;
+        if (player_pos < _playerStart){
+            _uiScene.setRedIcon(0, _levelWidth);
+        }
+        else if (player_pos > _playerStart){
+            _uiScene.setRedIcon(_levelWidth, _levelWidth);
+        }
+        else{
+            _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+        }
     }
 
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
@@ -221,7 +236,7 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     if (!buildingMode){
-        getCamera()->setPosition(Vec3(_movePhaseScene.getLocalPlayer()->getPosition().x * 51 + SCENE_WIDTH / 3.0f, getCamera()->getPosition().y, 0));
+        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
     }
 
     _movePhaseScene.preUpdate(dt);
@@ -302,8 +317,7 @@ void MovePhaseController::setComplete(bool value)
     _complete = value;
     if (value && change)
     {
-        std::shared_ptr<Sound> source = _assets->get<Sound>(WIN_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("win");
         _uiScene.setWinVisible(true);
         _countdown = EXIT_COUNT;
     }
@@ -333,8 +347,7 @@ void MovePhaseController::setFailure(bool value) {
             return;
         }
 
-        std::shared_ptr<Sound> source = _assets->get<Sound>(LOSE_MUSIC);
-        AudioEngine::get()->getMusicQueue()->play(source, false, MUSIC_VOLUME);
+        _sound->playMusic("lose");
         _uiScene.setLoseVisible(true);
         _countdown = EXIT_COUNT;
     }
@@ -539,6 +552,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     {
         if (!_movePhaseScene.getLocalPlayer()->_hasTreasure)
         {
+            _movePhaseScene.getTreasure()->setTaken(true);
             _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
         }
     }

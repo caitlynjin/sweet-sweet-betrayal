@@ -28,6 +28,14 @@
 #pragma mark Object Textures
 /** The texture for the character avatar */
 #define DUDE_TEXTURE    "dude"
+/** The animation texture for when the player is idle */
+#define PLAYER_IDLE_TEXTURE    "player-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_WALK_TEXTURE    "player-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_GLIDE_TEXTURE    "player-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_JUMP_TEXTURE    "player-jump"
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */
@@ -70,6 +78,10 @@
 #define JUMP_BUTTON "jump-button"
 /** The image for the glide button */
 #define GLIDE_BUTTON "glide-button"
+/** The image for the progress bar */
+#define PROGRESS_BAR "progress-bar"
+/** The image for the red icon */
+#define RED_ICON "red-icon"
 
 
 #pragma mark -
@@ -201,6 +213,12 @@ std::string itemToString(Item item);
  * Gets the default size of this Item..
  */
 cugl::Size itemToSize(Item item);
+
+/**
+ * Gets the grid size of this item.
+ * e.g. if the obstacle moves, the size will account for entire width/height of its movement as well.
+ */
+cugl::Size itemToGridSize(Item item);
 
 /**
  * Returns the corresponding asset name to the item.

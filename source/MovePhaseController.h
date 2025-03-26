@@ -19,6 +19,7 @@
 #include "ObjectController.h"
 #include "MovePhaseScene.h"
 #include "MovePhaseUIScene.h"
+#include "SoundController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -45,6 +46,8 @@ protected:
     std::shared_ptr<NetEventController> _network;
     /** Controller for abstracting out input across multiple platforms */
     std::shared_ptr<PlatformInput> _input;
+    /** Controller for sound */
+    std::shared_ptr<SoundController> _sound;
     /** Camera for the move phase scene */
     std::shared_ptr<Camera> _camera;
     MovePhaseScene _movePhaseScene;
@@ -65,6 +68,10 @@ protected:
     int _currGems = 0;
     /** Countdown active for winning or losing */
     int _countdown;
+    /** Level width */
+    float _levelWidth;
+    /** Starting player position */
+    float _playerStart;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -94,7 +101,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.

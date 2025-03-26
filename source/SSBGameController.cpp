@@ -76,9 +76,9 @@ SSBGameController::SSBGameController() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController)
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController);
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
 }
 
 
@@ -100,7 +100,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::s
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
 {
     if (assets == nullptr)
     {
@@ -114,6 +114,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _assets = assets;
     _networkController = networkController;
     _network = networkController->getNetwork();
+    _sound = sound;
 
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
@@ -155,7 +156,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     // Initialize movement phase controller
     _movePhaseController = std::make_shared<MovePhaseController>();
-    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController);
+    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
 
