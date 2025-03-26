@@ -76,7 +76,7 @@ protected:
     /** Number of players */
     int _numPlayers;
     /** List of players */
-    std::vector<std::shared_ptr<DudeModel>> playerList;
+    std::vector<std::shared_ptr<PlayerModel>> playerList;
 
     /** Whether we have completed this "game" */
     bool _complete;

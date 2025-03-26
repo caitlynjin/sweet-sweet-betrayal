@@ -12,7 +12,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
@@ -176,7 +176,7 @@ void MovePhaseScene::populate() {
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
-    std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(PLAYER_TEXTURE);
 
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
