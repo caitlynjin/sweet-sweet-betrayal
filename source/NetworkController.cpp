@@ -176,7 +176,6 @@ void NetworkController::postUpdate(float remain){
 void NetworkController::reset(){
     _numReady = 0;
     _numReset = 0;
-    _treasure->setTaken(false);
 
 }
 
