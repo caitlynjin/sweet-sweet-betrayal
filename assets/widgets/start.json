@@ -88,8 +88,8 @@
                         "data": {
                             "key": "textbutton2",
                             "variables": {
-                                "text": "HELP",
-                                "textshadow": "HELP"
+                                "text": "LVL EDIT",
+                                "textshadow": "LVL EDIT"
                             }
                         },
                         "layout": {

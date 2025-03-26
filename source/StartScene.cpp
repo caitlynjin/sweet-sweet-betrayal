@@ -56,12 +56,19 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _choice = Choice::NONE;
     _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.start"));
     _settingsbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.settings"));
-    _helpbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
+    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
     
     // Program the buttons
     _startbutton->addListener([this](const std::string& name, bool down) {
         if (down) {
             _choice = Choice::START;
+        }
+    });
+    
+    _leveleditorbutton->addListener([this](const std::string& name, bool down) {
+        //INSERT LEVEL EDITING
+        if (down) {
+            CULog("LEVEL EDITOR PRESSED");
         }
     });
     CULog("scene");
@@ -96,10 +103,13 @@ void StartScene::setActive(bool value) {
         if (value) {
             _choice = NONE;
             _startbutton->activate();
+            _leveleditorbutton->activate();
         } else {
             _startbutton->deactivate();
+            _leveleditorbutton->deactivate();
             // If any were pressed, reset them
             _startbutton->setDown(false);
+            _leveleditorbutton->setDown(false);
         }
     }
 }
