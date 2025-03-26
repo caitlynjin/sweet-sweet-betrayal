@@ -107,13 +107,18 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose();
+    
+    /**
+     * Resets the controller
+     */
+    void reset();
 
 #pragma mark -
 #pragma mark Gameplay Handling
     /**
      * Resets the status of the game so that we can play again.
      */
-    void reset();
+    void resetRound();
 
     /**
      * The method called to indicate the start of a deterministic loop.
@@ -132,23 +137,6 @@ public:
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render();
-
-    /**
-     * Processes the change between modes (movement and building mode).
-     *
-     * @param value whether the level is in building mode.
-     */
-    void processModeChange(bool value);
-
-    /**
-     * Assigns a callback function that will be executed when `setBuildingMode` is called.
-     */
-    void setBuildingModeCallback(std::function<void(bool)> callback);
-
-    /**
-     * Triggers a change in building mode.
-     */
-    void setBuildingMode(bool value);
     
     /**
      * Kills the player for the round.
@@ -176,6 +164,13 @@ public:
      * Sets the current countdown count
      */
     void setCountdown(int value) { _countdown = value; };
+    
+    /**
+     * Gets the object list
+     */
+    std::vector<std::shared_ptr<Object>> getObjects(){
+        return _objects; 
+    };
 
 #pragma mark -
 #pragma mark State Access

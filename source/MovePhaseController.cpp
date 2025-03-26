@@ -64,13 +64,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController = networkController;
     _network = networkController->getNetwork();
 
+    // Init network
     // TODO: Maybe move to network controller
     //Make a std::function reference of the linkSceneToObs function in game scene for network controller
     std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
         this->_movePhaseScene.linkSceneToObs(obs,node);
     };
-
-    //TODO: Change this to all be handled in Network Controller
     _network->enablePhysics(_world, linkSceneToObsFunc);
 
     _networkController->setObjects(&_objects);
@@ -109,19 +108,22 @@ void MovePhaseController::dispose() {
     _uiScene.dispose();
 }
 
+void MovePhaseController::reset() {
+}
+
 #pragma mark -
 #pragma mark Gameplay Handling
 /**
  * Resets the status of the game so that we can play again.
  */
-void MovePhaseController::reset() {
+void MovePhaseController::resetRound() {
 //    setFailure(false);
 //    setComplete(false);
-    _movePhaseScene.getLocalPlayer()->reset();
-
-
-    _movePhaseScene.reset();
-    _uiScene.reset();
+    _movePhaseScene.resetPlayerProperties();
+    _movePhaseScene.resetCameraPos();
+    
+//    _movePhaseScene.reset();
+//    _uiScene.reset();
 }
 
 /**
@@ -130,8 +132,6 @@ void MovePhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseController::preUpdate(float dt) {
-    if (!buildingMode)
-    {
         // Process the toggled key commands
         if (_input->didDebug())
         {
@@ -203,9 +203,9 @@ void MovePhaseController::preUpdate(float dt) {
             _sound->playSound("jump");
         }
 
-        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-            (*it)->update(dt);
-        }
+//        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//            (*it)->update(dt);
+//        }
 
         if (_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isGlideDown()){
             _uiScene.setJumpButtonActive();
@@ -226,11 +226,11 @@ void MovePhaseController::preUpdate(float dt) {
         else{
             _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
         }
-    }
+    
 
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-        (*it)->update(dt);
-    }
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(dt);
+//    }
 
     if (!buildingMode){
         getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
@@ -255,9 +255,9 @@ void MovePhaseController::postUpdate(float remain) {
         setFailure(true);
     }
 
-    if(_reachedGoal){
-        nextRound(true);
-    }
+//    if(_reachedGoal){
+//        nextRound(true);
+//    }
 }
 
 void MovePhaseController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
@@ -270,34 +270,12 @@ void MovePhaseController::render() {
     _uiScene.render();
 }
 
-/**
- * Processes the change between modes (movement and building mode).
- *
- * @param value whether the level is in building mode.
- */
-void MovePhaseController::processModeChange(bool value) {
-    buildingMode = value;
 
-    _movePhaseScene.resetCameraPos();
-
-    _uiScene.setVisible(value);
-    _uiScene.setBuildingMode(value);
-}
-/**
- * Assigns a callback function that will be executed when `setBuildingMode` is called.
- */
-void MovePhaseController::setBuildingModeCallback(std::function<void(bool)> callback) {
-    _buildingModeCallback = callback;
-}
 
 /**
  * Triggers a change in building mode.
  */
-void MovePhaseController::setBuildingMode(bool value) {
-    if (_buildingModeCallback) {
-        _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
-    }
-}
+
 
 #pragma mark -
 #pragma mark State Access
@@ -340,7 +318,7 @@ void MovePhaseController::setFailure(bool value) {
                 _movePhaseScene.setNextTreasure(_currGems);
             }
 
-            nextRound();
+//            nextRound();
             return;
         }
 
@@ -406,8 +384,6 @@ void MovePhaseController::nextRound(bool reachedGoal) {
     // Reset growing wall
 //    _growingWallWidth = 0.1f;
 //    _growingWallNode->setVisible(false);
-
-    setBuildingMode(true);
 }
 
 

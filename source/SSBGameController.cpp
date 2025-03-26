@@ -128,6 +128,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
         _movePhaseController->endContact(contact);
     };
     _world->update(FIXED_TIMESTEP_S);
+    
+    
+    _objects = _movePhaseController->getObjects();
 
     // Start in building mode
     _buildingMode = true;
@@ -166,9 +169,6 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     // Set up callbacks to transition between game modes
     _buildPhaseController->setBuildingModeCallback([this](bool value) {
-        this->setBuildingMode(value);
-    });
-    _movePhaseController->setBuildingModeCallback([this](bool value) {
         this->setBuildingMode(value);
     });
 
@@ -264,7 +264,7 @@ void SSBGameController::preUpdate(float dt)
     if (!_buildingMode && _networkController->canSwitchToBuild()){
         setBuildingMode(!_buildingMode);
         _networkController->reset();
-        _movePhaseController->reset();
+        _movePhaseController->resetRound();
     }
     
 
@@ -384,7 +384,6 @@ void SSBGameController::setBuildingMode(bool value) {
     _gridManager->getGridNode()->setVisible(value);
     _camera->setPosition(_initialCameraPos);
 
-    _movePhaseController->processModeChange(value);
 }
 
 #pragma mark -

@@ -45,6 +45,10 @@ protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
     std::shared_ptr<PlatformInput> _input;
+    /** The Box2D world */
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
+    std::vector<std::shared_ptr<Object>> _objects;
+    
     std::shared_ptr<BuildPhaseController> _buildPhaseController;
     std::shared_ptr<MovePhaseController> _movePhaseController;
     std::shared_ptr<ObjectController> _objectController;
