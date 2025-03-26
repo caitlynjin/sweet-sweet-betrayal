@@ -83,9 +83,24 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _objectController = _movePhaseScene.getObjectController();
     _sound = sound;
 
+    const auto& obstacles = _world->getObstacles();
+    _numPlayers = 0;
+    for (const auto& obstacle : obstacles) {
+        if (obstacle->getName() == "player") {
+            _numPlayers += 1;
+            // Try to cast to DudeModel and add to our list if successful
+            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            if (playerModel) {
+                playerList.push_back(playerModel);
+            } else {
+                CULog("Found player but casting failed");
+            }
+        }
+    }
+
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
-    _uiScene.init(assets);
+    _uiScene.init(assets, _numPlayers);
 
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
@@ -219,15 +234,41 @@ void MovePhaseController::preUpdate(float dt) {
             _uiScene.setDidJump(false);
         }
 
-        float player_pos = _movePhaseScene.getLocalPlayer()->getPosition().x;
-        if (player_pos < _playerStart){
-            _uiScene.setRedIcon(0, _levelWidth);
-        }
-        else if (player_pos > _playerStart){
-            _uiScene.setRedIcon(_levelWidth, _levelWidth);
-        }
-        else{
-            _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+        int player_index = 0;
+        for (auto& player : playerList){
+            float player_pos = player->getPosition().x;
+            if (player_pos < _playerStart){
+                if (player_index == 0){
+                    _uiScene.setRedIcon(0, _levelWidth);
+                }
+                else{
+                    _uiScene.setBlueIcon(0, _levelWidth);
+                }
+            }
+            else if (player_pos > _levelWidth){
+                if (player_index == 0){
+                    _uiScene.setRedIcon(_levelWidth, _levelWidth);
+                }
+                else{
+                    _uiScene.setBlueIcon(_levelWidth, _levelWidth);
+                }
+            }
+            else{
+                if (player_index == 0){
+                    _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+                }
+                else{
+                    _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
+                }
+            }
+
+            if (player->_hasTreasure){
+                _uiScene.setTreasureIcon(true, player_index);
+            }
+            else{
+                _uiScene.setTreasureIcon(false, player_index);
+            }
+            player_index += 1;
         }
     }
 
@@ -236,10 +277,18 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     if (!buildingMode){
-        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
+        if (getCamera()->getPosition().x >= 0 && getCamera()->getPosition().x <= 2240){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+                                                                       (_movePhaseScene.getLocalPlayer()->getPosition().x *
+                                                                        56 + SCENE_WIDTH / 3.0f -
+                                                                        getCamera()->getPosition().x),
+                                        getCamera()->getPosition().y, 0));
+        }
     }
 
     _movePhaseScene.preUpdate(dt);
+    if (_mushroomCooldown > 0) {
+        _mushroomCooldown--;
+    }
 }
 
 /**
@@ -485,6 +534,28 @@ void MovePhaseController::beginContact(b2Contact *contact)
         //        setFailure(true);
         _died = true;
     }
+    //ounce if we hit a mushroom
+    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "mushroom") ||
+    (bd1->getName() == "mushroom" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
+
+        if (_mushroomCooldown == 0) {
+            b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
+            b2Vec2 impulse(0.0f, 20.0f);
+            playerBody->ApplyLinearImpulseToCenter(impulse, true);
+
+            // Clip velocity AFTER impulse is applied
+            b2Vec2 newVelocity = playerBody->GetLinearVelocity();
+            if (newVelocity.y > 15.0f) {
+                newVelocity.y = 15.0f;
+                playerBody->SetLinearVelocity(newVelocity);
+                CULog("Player vertical velocity clipped to 10.0f after bounce.");
+            }
+
+            _mushroomCooldown = 10;
+            CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
+        }
+    }
+
 
 
     // If the player collides with the growing wall, game over

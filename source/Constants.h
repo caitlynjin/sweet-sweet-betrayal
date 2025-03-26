@@ -46,6 +46,8 @@
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the mushroom texture*/
+#define MUSHROOM_TEXTURE "mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
@@ -82,6 +84,10 @@
 #define PROGRESS_BAR "progress-bar"
 /** The image for the red icon */
 #define RED_ICON "red-icon"
+/** The image for the blue icon */
+#define BLUE_ICON "blue-icon"
+/** The image for the treasure icon */
+#define TREASURE_ICON "treasure-icon"
 
 
 #pragma mark -
@@ -195,6 +201,8 @@ enum Item {
     MOVING_PLATFORM,
     /** A wind object */
     WIND,
+    /** A mushroom */
+    MUSHROOM,
     /** No type */
     NONE
 };

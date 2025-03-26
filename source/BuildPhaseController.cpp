@@ -63,8 +63,9 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     // Initalize UI Scene
     _uiScene.init(assets, _gridManager);
 
-    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND};
-    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE};
+    std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND, MUSHROOM};
+    std::vector<std::string> assetNames = {LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, MUSHROOM_TEXTURE};
+
     _uiScene.initInventory(inventoryItems, assetNames);
 
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
@@ -221,11 +222,13 @@ void BuildPhaseController::preUpdate(float dt) {
 
     _buildPhaseScene.preUpdate(dt);
 
-    if (_uiScene.getRightPressed() && buildingMode){
+    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
+
+    if (_uiScene.getRightPressed() && buildingMode && _buildPhaseScene.getCamera()->getPosition().x <= 2240){
         _buildPhaseScene.getCamera()->translate(10, 0);
         _buildPhaseScene.getCamera()->update();
     }
-    if (_uiScene.getLeftPressed() && buildingMode){
+    if (_uiScene.getLeftPressed() && buildingMode && _buildPhaseScene.getCamera()->getPosition().x >= 0){
         _buildPhaseScene.getCamera()->translate(-10, 0);
         _buildPhaseScene.getCamera()->update();
     }
@@ -301,7 +304,10 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (MOVING_PLATFORM):
             return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale());
         case (WIND):
-            return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 1.0), "default");
+
+            return _objectController->createWindObstacle(gridPos, Size(1, 1), Vec2(0, 1.0), "default");
+        case (MUSHROOM):
+            return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _buildPhaseScene.getScale());
         case (NONE):
             return nullptr;
     }

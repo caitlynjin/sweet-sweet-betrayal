@@ -64,6 +64,8 @@ void MovePhaseUIScene::dispose() {
         _rightnode = nullptr;
         _progressBar = nullptr;
         _redIcon = nullptr;
+        _blueIcon = nullptr;
+        _treasureIcon = nullptr;
         for (auto score : _scoreImages){
             score = nullptr;
         }
@@ -78,7 +80,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players) {
     if (assets == nullptr)
     {
         return false;
@@ -178,6 +180,22 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets) {
     _redIcon->setVisible(false);
     addChild(_redIcon);
 
+    _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
+    _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    _blueIcon->setScale(0.05f);
+    _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _blueIcon->setVisible(false);
+    addChild(_blueIcon);
+
+    _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
+    _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    _treasureIcon->setScale(0.025f);
+    _treasureIcon->setPosition(_redIcon->getPosition());
+    _treasureIcon->setVisible(false);
+    addChild(_treasureIcon);
+
+    _numPlayers = players;
+
     return true;
 }
 
@@ -209,6 +227,9 @@ void MovePhaseUIScene::setBuildingMode(bool value) {
     _roundsnode->setVisible(value);
     _progressBar->setVisible(!value);
     _redIcon->setVisible(!value);
+    if (_numPlayers > 1){
+        _blueIcon->setVisible(!value);
+    }
 
     if (value){
         _jumpbutton->deactivate();
@@ -338,7 +359,21 @@ void MovePhaseUIScene::updateRound(int cur, int total) {
 }
 
 void MovePhaseUIScene::setRedIcon(float pos, float width) {
-    float cur = (pos * _redIcon->getWidth()) / width;
+    float cur = (pos * _progressBar->getWidth()) / width;
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
 }
+
+void MovePhaseUIScene::setBlueIcon(float pos, float width) {
+    float cur = (pos * _progressBar->getWidth()) / width;
+    _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+}
+
+void MovePhaseUIScene::setTreasureIcon(bool has, int color) {
+    if (color == 0 && has) {
+        _treasureIcon->setPosition(_redIcon->getPosition());
+    }
+    _treasureIcon->setVisible(has);
+}
+
+
 
