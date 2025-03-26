@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "Mushroom.h"
 
 #include <ctime>
 #include <string>

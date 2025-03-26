@@ -32,6 +32,7 @@ class MovePhaseController {
 public:
     /** Whether we are in build mode */
     bool buildingMode = true;
+    int _mushroomCooldown = 0;
 
 protected:
     /** The asset manager for this game mode. */
