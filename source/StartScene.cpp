@@ -66,9 +66,8 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     });
     
     _leveleditorbutton->addListener([this](const std::string& name, bool down) {
-        //INSERT LEVEL EDITING
         if (down) {
-            CULog("LEVEL EDITOR PRESSED");
+            _choice = Choice::LEVEL_EDITOR;
         }
     });
     CULog("scene");

@@ -44,9 +44,7 @@ public:
         /** User wants to host a game */
         HOST,
         /** User wants to join a game */
-        JOIN,
-        /** User wants to use the level editor */
-        LEVEL_EDITOR
+        JOIN
     };
 
 protected:
@@ -63,8 +61,6 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _hostbutton;
        /** The menu button for joining a game */
     std::shared_ptr<cugl::scene2::Button> _joinbutton;
-    /** The menu button for entering level editor mode */
-    std::shared_ptr<cugl::scene2::Button> _leveleditorbutton;
     /** The player menu choice */
     Choice _choice;
 
