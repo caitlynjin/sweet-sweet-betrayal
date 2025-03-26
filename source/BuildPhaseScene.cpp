@@ -86,7 +86,7 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
     _cameraInitialPos = getCamera()->getPosition();
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
-    _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
+    _offset = Vec2((_size.width * SCENE_WIDTH / 1024 - SCENE_WIDTH) * 0.8f, (_size.height * SCENE_HEIGHT / 576 - SCENE_HEIGHT) * 0.8f);
 
     return true;
 }
@@ -172,14 +172,14 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemSc
     Vec2 adjusted = screenPos * systemScale - _offset;
 
     // Adjust for camera position
-    Vec2 worldPos = adjusted + (_camera->getPosition() - _cameraInitialPos);
+    Vec2 worldPos = (adjusted + (_camera->getPosition() * systemScale * systemScale - _cameraInitialPos));
 
     float xBox2D = worldPos.x / _scale;
     float yBox2D = worldPos.y / _scale;
 
     // Converts to the specific grid position
-    int xGrid = xBox2D;
-    int yGrid = yBox2D;
+    int xGrid = xBox2D / systemScale;
+    int yGrid = yBox2D / systemScale;
 
     return Vec2(xGrid, yGrid);
 }
