@@ -38,6 +38,10 @@ protected:
     Vec2 _offset;
     /** The initial position of the camera */
     Vec2 _cameraInitialPos;
+
+    /** Whether we are in level editor mode */
+    bool _isLevelEditor = false;
+
     /** The camera for this scene */
     std::shared_ptr<scene2::ScrollPane> _scrollPane;
 
@@ -110,6 +114,11 @@ public:
      */
     void setVisible(bool value);
 
+    /** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+    void setLevelEditor(bool value);
+
     /**
      * Resets the camera position to the initial state.
      */
@@ -123,6 +132,16 @@ public:
      * @param screenPos    The screen position
      */
     Vec2 convertScreenToBox2d(const Vec2 &screenPos);
+
+    /**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @return the Box2D position
+ *
+ * @param screenPos    The screen position
+ * @param systemScale The scale to differentiate mobile from desktop
+ */
+    Vec2 convertScreenToBox2d(const Vec2& screenPos, float systemScale);
 
 
 };

@@ -33,8 +33,8 @@ using namespace Constants;
 #pragma mark Level Geography
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
-#define SCENE_HEIGHT 576
+#define SCENE_WIDTH 2048
+#define SCENE_HEIGHT 1152
 
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
@@ -45,7 +45,7 @@ using namespace Constants;
 /** Width of the game world in Box2d units */
 #define DEFAULT_WIDTH (SCENE_WIDTH / BOX2D_UNIT) * 2
 /** Height of the game world in Box2d units */
-#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT)
+#define DEFAULT_HEIGHT (SCENE_HEIGHT / BOX2D_UNIT) * 1
 
 #define FIXED_TIMESTEP_S 0.02f
 
@@ -76,9 +76,9 @@ SSBGameController::SSBGameController() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
 {
-    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
+    return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound, levelEditing);
 }
 
 
@@ -100,7 +100,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::s
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
 {
     if (assets == nullptr)
     {
@@ -132,6 +132,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // Start in building mode
     _buildingMode = true;
 
+    _isLevelEditor = levelEditing;
+
     // Start up the input handler
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
@@ -140,7 +142,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // This means that we cannot change the aspect ratio of the physics world
     // Shift to center if a bad fit
     _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
-
+    _scale *= getSystemScale();
     Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
     _offset = offset;
 
@@ -154,16 +156,17 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
 
-    // Initialize movement phase controller
     _movePhaseController = std::make_shared<MovePhaseController>();
+    _buildPhaseController = std::make_shared<BuildPhaseController>();
+    setLevelEditor(levelEditing);
+
+    // Initialize movement phase controller
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
 
     // Initialize build phase controller
-    _buildPhaseController = std::make_shared<BuildPhaseController>();
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
-
     // Set up callbacks to transition between game modes
     _buildPhaseController->setBuildingModeCallback([this](bool value) {
         this->setBuildingMode(value);
@@ -248,11 +251,13 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
-    _networkController->preUpdate(dt);
+    if (!_isLevelEditor) {
+        _networkController->preUpdate(dt);
+    }
     _input->update(dt);
 
     // Process Networking
-    if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
+    if (_buildingMode && !_isLevelEditor &&(_networkController->getNumReady() >= _network->getNumPlayers())){
         // Exit build mode and switch to movement phase
         setBuildingMode(!_buildingMode);
         _networkController->setNumReady(0);
@@ -374,6 +379,15 @@ void SSBGameController::setBuildingMode(bool value) {
     _camera->setPosition(_initialCameraPos);
 
     _movePhaseController->processModeChange(value);
+}
+
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void SSBGameController::setLevelEditor(bool value) {
+    _isLevelEditor = value;
+    _buildPhaseController->setLevelEditor(value);
+    _movePhaseController->setLevelEditorForMoveScene(value);
 }
 
 #pragma mark -

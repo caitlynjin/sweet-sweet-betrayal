@@ -3,9 +3,12 @@
 
 #define JSON_KEY "windObstacles"
 
+
 using namespace cugl;
 using namespace cugl::graphics;
 
+
+#define OFFSET 0.1f
 /**
  * Sets the position
  *
@@ -17,6 +20,27 @@ void WindObstacle::setPosition(const cugl::Vec2& position) {
 }
 
 void WindObstacle::update(float timestep) {
+    _playerHits = 0;
+
+    for (auto it = 0; it != RAYS; ++it) {
+        if (_playerDist[it]<_rayDist[it]) {
+            _playerHits++;
+        }
+    }
+    /*Reset all the arrays**/
+    std::fill(_playerDist, _playerDist+RAYS,600);
+    std::fill(_rayDist, _rayDist + RAYS, 600);
+}
+
+string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
+    b2Body* body = contact->GetBody();
+    std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
+    physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
+
+    if (bd->getName() == "player") {
+
+    }
+    return bd->getName();
 }
 
 string WindObstacle::getJsonKey() {
@@ -30,18 +54,22 @@ using namespace cugl;
 #pragma mark -
 #pragma mark Constructors
 
-bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust) {
-    return WindObstacle::init(pos, size, gust, "default");
+bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirection, const Vec2 windStrength) {
+    return WindObstacle::init(pos, size, windDirection, windStrength, "default");
 }
 /**
  * Initializes a new WindObstacle at the given position.
  *
  * @param pos   Initial position in world coordinates
  * @param size  The size of the dude in world units
- *
+ * @param windDirection the endpoint of the wind projected out-determines both range and direction
+ * @param windStrength How strongly the wind blows the player.
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string jsonType) {
+bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
+    float _rayDist[RAYS + 1];
+    float _playerDist[RAYS + 1];
+
     Size nsize = size;
     _size = size;
     _itemType = WIND;
@@ -56,9 +84,18 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 gust, string
     _gust->setSensor(true);
     _gust->setName("gust");
     
-    _gustDir = gust;
+    /**Intialize wind specific variables*/
+    /**Here we intialize the origins of the ray tracers*/
+    for (int it = 0; it != RAYS; it++) {
+        Vec2 origin = pos + Vec2(OFFSET, OFFSET + _size.height / 2) + 
+            ((size.width-2*OFFSET)/(_size.width))*Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
 
-    
+        _rayOrigins.push_back(origin);
+    }
+    /*Here we intialize the direction and trajectory*/
+    _windDirection = windDirection;
+    _windForce = windStrength;
+    setTrajectory(Vec2(0, 3.0f));
     return true;
     
 }
@@ -69,8 +106,8 @@ std::map<std::string, std::any> WindObstacle::getMap() {
         {"y", double(_position.y)},
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
-        {"gustDirX", double(_gustDir.x)},
-        {"gustDirY", double(_gustDir.y)},
+        {"gustDirX", double(_windForce.x)},
+        {"gustDirY", double(_windForce.y)},
          {"type", std::string(_jsonType)}
     };
     return m;

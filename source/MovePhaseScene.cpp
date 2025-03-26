@@ -111,7 +111,8 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     _objects = objects;
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
-    _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
+    _scale /= getSystemScale();
+    _offset = Vec2((_size.width - SCENE_WIDTH) / getSystemScale(), (_size.height - SCENE_HEIGHT)) / getSystemScale();
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
@@ -159,14 +160,20 @@ void MovePhaseScene::populate() {
     //
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test2.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
+    _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
-        _objectController->processLevelObject(obj);
-        _gridManager->addObject(obj);
+        _objectController->processLevelObject(obj, _isLevelEditor);
+        if (_isLevelEditor) {
+            // This is necessary to remove the object with the eraser.
+            _gridManager->addMoveableObject(obj->getPosition(), obj);
+        }
+        else {
+            _gridManager->addObject(obj);
+        }
         CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
     //level->createJsonFromLevel("level2ndTest.json", level->getLevelSize(), theObjects);
-
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
     std::shared_ptr<Texture> image = _assets->get<Texture>(DUDE_TEXTURE);
@@ -179,25 +186,29 @@ void MovePhaseScene::populate() {
         pos += Vec2(2, 0);
     }
 
-    _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
+    if (!_isLevelEditor) {
+        _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
 
-    // This is set to false to counter race condition with collision filtering
-    // NetworkController sets this back to true once it sets collision filtering to all players
-    // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
-    // If I do not disable the player, collision filtering works after build phase ends, not sure why
-    // TODO: Find a better solution, maybe only have players getting updated during movement phase
-    _localPlayer->setEnabled(false);
+        // This is set to false to counter race condition with collision filtering
+        // NetworkController sets this back to true once it sets collision filtering to all players
+        // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
+        // If I do not disable the player, collision filtering works after build phase ends, not sure why
+        // TODO: Find a better solution, maybe only have players getting updated during movement phase
+        _localPlayer->setEnabled(false);
 
-    _localPlayer->setDebugScene(_debugnode);
-    _world->getOwnedObstacles().insert({_localPlayer,0});
-    if (!_networkController->getIsHost()){
-        _network->getPhysController()->acquireObs(_localPlayer, 0);
+        _localPlayer->setDebugScene(_debugnode);
+        _world->getOwnedObstacles().insert({ _localPlayer,0 });
+        if (!_networkController->getIsHost()) {
+            _network->getPhysController()->acquireObs(_localPlayer, 0);
+        }
     }
 
 #pragma mark : Treasure
+#ifdef CU_TOUCH_SCREEN
     _treasure = std::dynamic_pointer_cast<Treasure>(
         _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
     );
+#endif
 
 }
 
@@ -241,6 +252,13 @@ void MovePhaseScene::preUpdate(float dt) {
  */
 void MovePhaseScene::setDebugVisible(bool value) {
     _debugnode->setVisible(value);
+}
+
+/** Sets whether or not we are in level editor mode.
+* By default, we are not.
+*/
+void MovePhaseScene::setLevelEditor(bool value) {
+    _isLevelEditor = value;
 }
 
 /**

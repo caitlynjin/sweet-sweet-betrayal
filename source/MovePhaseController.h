@@ -88,6 +88,8 @@ protected:
     bool _died = false;
     /** Whether the player has reached the goal */
     bool _reachedGoal = false;
+    /** Whether or not in level editor mode */
+    bool _isLevelEditor = false;
 
     std::function<void(bool)> _buildingModeCallback;
 
@@ -232,6 +234,11 @@ public:
     * @param value whether the level is failed.
     */
     void setFailure(bool value);
+
+    /* Sets whether or not the move scene should be in level editor mode.
+    * This method is necessary because object processing logic is in MovePhaseScene.
+    */
+    void setLevelEditorForMoveScene(bool value);
 
     /**
     * Sets the level up for the next round.

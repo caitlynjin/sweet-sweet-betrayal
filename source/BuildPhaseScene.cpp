@@ -33,8 +33,8 @@ using namespace Constants;
 #pragma mark Scene Constants
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
-#define SCENE_HEIGHT 576
+#define SCENE_WIDTH 2048
+#define SCENE_HEIGHT 1152
 
 /** This is the aspect ratio for physics */
 #define SCENE_ASPECT 9.0 / 16.0
@@ -86,8 +86,11 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
     _cameraInitialPos = getCamera()->getPosition();
 
     _scale = _size.width == SCENE_WIDTH ? _size.width / DEFAULT_WIDTH : _size.height / DEFAULT_HEIGHT;
-    _offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
-
+#ifdef CU_TOUCH_SCREEN 
+    _offset = Vec2((_size.width - SCENE_WIDTH) * 2.0f, 448);
+#else
+    _offset = Vec2((_size.width * SCENE_WIDTH / 1024 - SCENE_WIDTH) * 0.8f, (_size.height * SCENE_HEIGHT / 576 - SCENE_HEIGHT) * 0.8f);
+#endif
     return true;
 }
 
@@ -121,6 +124,13 @@ void BuildPhaseScene::preUpdate(float dt) {
 void BuildPhaseScene::setVisible(bool value) {
     
 }
+
+/** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+void BuildPhaseScene::setLevelEditor(bool value) {
+    _isLevelEditor = value;
+}
 /**
  * Resets the camera position to the initial state.
  */
@@ -148,6 +158,31 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
     // Converts to the specific grid position
     int xGrid = xBox2D;
     int yGrid = yBox2D;
+
+    return Vec2(xGrid, yGrid);
+}
+
+/**
+ * Converts from screen to Box2D coordinates.
+ *
+ * @return the Box2D position
+ *
+ * @param screenPos    The screen position
+ * @param systemScale The scale to differentiate mobile from desktop
+ */
+Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemScale)
+{
+    Vec2 adjusted = screenPos * systemScale - _offset;
+
+    // Adjust for camera position
+    Vec2 worldPos = (adjusted + (_camera->getPosition() * 2 * systemScale - _cameraInitialPos));
+
+    float xBox2D = worldPos.x / _scale;
+    float yBox2D = worldPos.y / _scale;
+
+    // Converts to the specific grid position
+    int xGrid = xBox2D / 2;
+    int yGrid = yBox2D / 2;
 
     return Vec2(xGrid, yGrid);
 }

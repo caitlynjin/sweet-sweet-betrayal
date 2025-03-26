@@ -71,10 +71,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     };
 
     //TODO: Change this to all be handled in Network Controller
-    _network->enablePhysics(_world, linkSceneToObsFunc);
+    if (!_isLevelEditor) {
+        _network->enablePhysics(_world, linkSceneToObsFunc);
 
-    _networkController->setObjects(&_objects);
-    _networkController->setWorld(_world);
+        _networkController->setObjects(&_objects);
+        _networkController->setWorld(_world);
+    }
     
 
     // Initialize move phase scene
@@ -100,10 +102,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
 
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
-    _uiScene.init(assets, _numPlayers);
 
-    _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
-    _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
+    _uiScene.init(assets, _numPlayers);
+    if (!_isLevelEditor) {
+        _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
+        _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
+    }
 
     setComplete(false);
     setFailure(false);
@@ -222,6 +226,44 @@ void MovePhaseController::preUpdate(float dt) {
         }
 
         for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+
+            /**If we created a wind object, create a bunch of raycasts.*/
+            if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
+                int i = 0;
+                std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
+
+                for (auto it = lst.begin(); it != lst.end(); ++it) {
+                    Vec2 rayEnd = *it + (wind_cast->getWindDirection());
+                    
+                    /**Generates the appropriate callback function for this wind object*/
+                    
+                    auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+                        string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
+                        //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
+                        if (fixtureName == "player") {
+                            CULog("plyr Callback!");
+                            wind_cast->setPlayerDist(i, fraction);
+                            return wind_cast->getRayDist(i);
+                        }
+                        else if (fixtureName == "gust") {
+                            return wind_cast->getRayDist(i);
+                        }
+                        wind_cast->setRayDist(i, fraction);
+                        return fraction;
+                        };
+                    /**Generates the appropriate raycasts to handle collision for this wind object*/
+
+                    _world->rayCast(callback, *it, rayEnd);
+                    ++i;
+
+                }
+                wind_cast->update(dt);
+                if (wind_cast->getPlayerHits()> 0 ) {
+                    CULog("hit");
+                    _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getWindForce());
+                }
+            }
+
             (*it)->update(dt);
         }
 
@@ -297,6 +339,9 @@ void MovePhaseController::preUpdate(float dt) {
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void MovePhaseController::postUpdate(float remain) {
+    if (_isLevelEditor) {
+        return;
+    }
     // Record failure if necessary.
     if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
     {
@@ -349,6 +394,14 @@ void MovePhaseController::setBuildingMode(bool value) {
     if (_buildingModeCallback) {
         _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
     }
+}
+
+/* Sets whether or not the move scene should be in level editor mode.
+    * This method is necessary because object processing logic is in MovePhaseScene.
+    */
+void MovePhaseController::setLevelEditorForMoveScene(bool value) {
+    _isLevelEditor = value;
+    _movePhaseScene.setLevelEditor(value);
 }
 
 #pragma mark -
@@ -501,7 +554,6 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
         (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
     {
-
         _movePhaseScene.getLocalPlayer()->setGrounded(true);
     }
 
@@ -514,10 +566,10 @@ void MovePhaseController::beginContact(b2Contact *contact)
 //        _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 //    }
 
-    if ((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1 && bd1->getName() != "player") ||
-        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2 && bd2->getName() != "player")) {
+    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1 && bd1->getName() != "player") ||
+        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2 && bd2->getName() != "player")
+        ) && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
         _movePhaseScene.getLocalPlayer()->setGrounded(true);
-
         // Could have more than one ground
         _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
     }
@@ -557,55 +609,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
     }
 
 
-
-    // If the player collides with the growing wall, game over
-
-//    if ((bd1 == _avatar.get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _avatar.get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _movePhaseScene.getLocalPlayer().get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _movePhaseScene.getLocalPlayer()->addWind(thing->getTrajectory());
-        }
-    }
-
-//    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2 == _growingWall.get()) ||
-//        (bd1 == _growingWall.get() && bd2 == _movePhaseScene.getLocalPlayer().get()))
-//    {
-//        _died = true;
-//
-//    }
-
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _movePhaseScene.getLocalPlayer().get()))
-    {
-        // CULog("WIND");
-        _movePhaseScene.getLocalPlayer()->addWind(Vec2(0, 6));
-    }
-
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "movingPlatform" && _movePhaseScene.getLocalPlayer()->isGrounded()) ||
         (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "movingPlatform" && _movePhaseScene.getLocalPlayer()->isGrounded()))
     {
-//        CULog("moving platform");
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(true);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(bd1 == _movePhaseScene.getLocalPlayer().get() ? bd2 : bd1);
 
@@ -663,29 +669,7 @@ void MovePhaseController::endContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "movingPlatform") ||
         (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "movingPlatform"))
     {
-//        CULog("disable movement platform");
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(false);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(nullptr);
-    }
-
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "gust") ||
-        (bd1->getName() == "gust" && bd2 == _movePhaseScene.getLocalPlayer().get()))
-    {
-        //determine which of bd1 or bd2 is the wind object
-        Vec2 windPos = Vec2();
-        if (bd2->getName() == "gust") {
-            windPos = bd2->getPosition();
-        }
-        else {
-            windPos = bd1->getPosition();
-        }
-        //Find the appropriate object
-
-        auto p = std::make_pair(floor(windPos.x), floor(windPos.y));
-        if (_gridManager->posToObjMap.count(p) > 0) {
-            CULog("WIND FOUND!");
-            std::shared_ptr<Object> thing = _gridManager->posToObjMap[p];
-            _movePhaseScene.getLocalPlayer()->addWind(-(thing->getTrajectory()));
-        }
     }
 }

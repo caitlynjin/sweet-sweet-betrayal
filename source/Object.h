@@ -139,6 +139,8 @@ public:
 		cugl::Size size);
 
 	virtual std::map<std::string, std::any> getMap();
+
+	friend bool operator==(Object self, Object other);
 };
 
 

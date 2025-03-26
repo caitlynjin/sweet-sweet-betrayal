@@ -609,6 +609,8 @@ void DudeModel::windUpdate(float dt)
     vel.x += _windvel.x * mult;
     vel.y += _windvel.y * mult;
     _body->SetLinearVelocity(vel);
+
+    _windvel = Vec2(0, 0);
 }
 
 #pragma mark -

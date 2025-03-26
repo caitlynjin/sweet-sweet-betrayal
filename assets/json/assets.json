@@ -70,7 +70,13 @@
             "file":     "textures/ready_button.png"
         },
         "left_button": {
-          "file":     "textures/left_button.png"
+            "file": "textures/left_button.png"
+        },
+        "brush_button": {
+            "file": "textures/brush_button.png"
+        },
+        "eraser_button": {
+            "file":  "textures/eraser_button.png"
         },
         "jump-button": {
           "file":     "textures/jump-button.PNG"

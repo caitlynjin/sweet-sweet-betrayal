@@ -330,12 +330,12 @@ void SSBApp::updateStartScene(float timestep)
     case StartScene::Choice::LEVEL_EDITOR:
             _mainmenu.setActive(false);
             _networkController->setIsHost(true);
-//            _gameController.init(_assets, _networkController, _sound, true);
-//            _gameController.setActive(true);
-//            _gameController.setLevelEditor(true);
-//            _gameController.setSpriteBatch(_batch);
-//            _status = GAME;
-//            _network->markReady();
+           _gameController.init(_assets, _networkController, _sound, true);
+           _gameController.setActive(true);
+           _gameController.setLevelEditor(true);
+           _gameController.setSpriteBatch(_batch);
+           _status = GAME;
+           _network->markReady();
             break;
     case StartScene::Choice::NONE:
         // DO NOTHING
@@ -364,8 +364,9 @@ void SSBApp::updateHostScene(float timestep)
     {
         // TODO: add network to gameplay
         _networkController->setIsHost(true);
-//        _gameController.init(_assets, _networkController, _sound, false);
-//        _gameController.setLevelEditor(false);
+        _gameController.init(_assets, _networkController, _sound, false);
+        _gameController.setLevelEditor(false);
+        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)

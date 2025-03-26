@@ -81,7 +81,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     plat->getObstacle()->setName("platform");
 
     poly *= _scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
     
@@ -99,7 +99,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
  * @param size The dimensions (width, height) of the platform.
  */
 std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, string jsonType) {
-
+    CULog("MADE PLATFORM");
     std::shared_ptr<Platform> plat = Platform::alloc(pos, size, jsonType);
 
     return createPlatform(plat);
@@ -183,17 +183,17 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, Vec2 gust, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
 
     // Allow movement of obstacle
     wind->getObstacle()->setBodyType(b2_dynamicBody);
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    wind->setTrajectory(gust);
+    //wind->setTrajectory(gust);
     wind->setPosition(pos);
 
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
@@ -205,7 +205,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
 std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
+    return createWindObstacle(wind->getPosition(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
 }
 
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
@@ -287,8 +287,7 @@ void ObjectController::addObstacle(const std::shared_ptr<physics2::Obstacle> &ob
             weak->setAngle(obs->getAngle()); });
     }
 }
-
-void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
+void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool levelEditing) {
     std::string key = obj->getJsonKey();
 
     if (key == "platforms") {
@@ -298,9 +297,16 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj) {
         createSpike(std::dynamic_pointer_cast<Spike>(obj));
     }
     else if (key == "treasures") {
-        _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
-                                                            _scale,
-                                                            false)));
+        // Required because it crashes if you try to set up a networked treasure during build mode
+        if (!levelEditing) {
+            _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
+                _scale,
+                false)));
+        }
+        else {
+            createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
+        }
+        
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));

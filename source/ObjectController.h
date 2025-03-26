@@ -62,6 +62,15 @@ public:
                      const std::shared_ptr<scene2::SceneNode> world_node,
                      const std::shared_ptr<scene2::SceneNode> debug_node,
                      std::vector<std::shared_ptr<Object>>* gameObjects);
+
+
+    /** Returns the list of objects. 
+    *
+    * @return the list of objects
+    */
+    std::vector<std::shared_ptr<Object>>* getObjects() {
+        return _gameObjects;
+    }
     /**
      * Creates a platform.
      *
@@ -109,7 +118,7 @@ public:
     * @param size The dimensions (width, height) of the platform.
     */
 
-   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir, std::string jsonType);
+   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, std::string jsonType);
 
    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
     
@@ -142,7 +151,7 @@ public:
     /**called in Game Scene to create the corresponding object type
     @param obj    The physics object to add
      **/
-    void processLevelObject(std::shared_ptr<Object> obj);
+    void processLevelObject(std::shared_ptr<Object> obj, bool levelEditing = false);
 
     void setNetworkController(std::shared_ptr<NetworkController> networkController) {
         _networkController = networkController;
