@@ -57,6 +57,10 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _progressBar;
     /** Reference to the red icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
+    /** Reference to the blue icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
+    /** Reference to the treasure icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
 
     /** Total numer of rounds */
     int _totalRounds;
@@ -64,6 +68,8 @@ protected:
     int const TOTAL_ROUNDS = 5;
     /** The total amount of gems */
     int const TOTAL_GEMS = 3;
+    /** The number of players */
+    int _numPlayers;
 
     /** Whether player is jumping */
     bool _didjump;
@@ -98,10 +104,11 @@ public:
      * Initializes the scene contents
      *
      * @param assets    The (loaded) assets for this game mode
+     * @param players   The number of players
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets);
+    bool init(const std::shared_ptr<AssetManager>& assets, int players);
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -223,6 +230,22 @@ public:
      * @param width     The width of the level
      */
     void setRedIcon(float pos, float width);
+
+    /**
+     * Sets current position of blue player icon
+     *
+     * @param pos       The position of the player relative to where the icon will be
+     * @param width     The width of the level
+     */
+    void setBlueIcon(float pos, float width);
+
+    /**
+     * Has treasure icon appear in player icon on progress bar if player collects it
+     *
+     * @param has       Whether or not the player has the treasure
+     * @param color     Which color icon the treasure will appear on top of
+     */
+    void setTreasureIcon(bool has, int color);
 
     /**
      * Updates round counter

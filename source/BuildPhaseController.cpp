@@ -222,11 +222,13 @@ void BuildPhaseController::preUpdate(float dt) {
 
     _buildPhaseScene.preUpdate(dt);
 
-    if (_uiScene.getRightPressed()){
+
+    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= 2240){
         _buildPhaseScene.getCamera()->translate(10, 0);
         _buildPhaseScene.getCamera()->update();
     }
-    if (_uiScene.getLeftPressed()){
+    if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 0){
+
         _buildPhaseScene.getCamera()->translate(-10, 0);
         _buildPhaseScene.getCamera()->update();
     }

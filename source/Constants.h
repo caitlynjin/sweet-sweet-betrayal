@@ -84,6 +84,10 @@
 #define PROGRESS_BAR "progress-bar"
 /** The image for the red icon */
 #define RED_ICON "red-icon"
+/** The image for the blue icon */
+#define BLUE_ICON "blue-icon"
+/** The image for the treasure icon */
+#define TREASURE_ICON "treasure-icon"
 
 
 #pragma mark -

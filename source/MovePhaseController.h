@@ -73,6 +73,10 @@ protected:
     float _levelWidth;
     /** Starting player position */
     float _playerStart;
+    /** Number of players */
+    int _numPlayers;
+    /** List of players */
+    std::vector<std::shared_ptr<DudeModel>> playerList;
 
     /** Whether we have completed this "game" */
     bool _complete;

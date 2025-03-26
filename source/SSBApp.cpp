@@ -73,6 +73,7 @@ void SSBApp::onShutdown()
 {
     _loading.dispose();
     _gameController.dispose();
+    _startscreen.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
@@ -178,23 +179,27 @@ void SSBApp::preUpdate(float dt)
         _sound = SoundController::alloc(_assets);
 
         _loading.dispose();
-        _mainmenu.init(_assets, _sound);
-        _mainmenu.setActive(true);
+        _startscreen.init(_assets, _sound);
+        _startscreen.setActive(true);
 
+        _startscreen.setSpriteBatch(_batch);
+        _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets, _network, _sound);
         _hostgame.setSpriteBatch(_batch);
         _joingame.init(_assets, _network, _sound);
         _joingame.setSpriteBatch(_batch);
-        _status = MENU;
+        _status = START;
     }
     else
     {
         switch (_status)
         {
+        case START:
+            updateStartScene(dt);
+            break;
         case MENU:
             updateMenuScene(dt);
-
             break;
         case HOST:
             updateHostScene(dt);
@@ -310,6 +315,24 @@ void SSBApp::updateMenuScene(float timestep)
     }
 }
 
+void SSBApp::updateStartScene(float timestep)
+{
+    CULog("StartScene Choice: %d", static_cast<int>(_startscreen.getChoice()));
+    _startscreen.update(timestep);
+    switch (_startscreen.getChoice())
+    {
+    case StartScene::Choice::START:
+        CULog("Transitioning to MENU scene!");
+        _startscreen.setActive(false);
+        _mainmenu.setActive(true);
+        _status = MENU;
+        break;
+    case StartScene::Choice::NONE:
+        // DO NOTHING
+        break;
+    }
+}
+
 /**
  * Inidividualized update method for the host scene.
  *
@@ -409,6 +432,9 @@ void SSBApp::draw()
     {
     case LOAD:
         _loading.render();
+        break;
+    case START:
+        _startscreen.render();
         break;
     case MENU:
         _mainmenu.render();

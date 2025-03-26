@@ -2,6 +2,7 @@
 #define __PF_APP_H__
 #include <cugl/cugl.h>
 #include "SSBGameController.h"
+#include "StartScene.h"
 #include "MenuScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
@@ -18,13 +19,15 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, MENU, HOST, CLIENT, GAME
+        LOAD, START, MENU, HOST, CLIENT, GAME
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
     std::shared_ptr<cugl::graphics::SpriteBatch> _batch;
     /** The global asset manager */
     std::shared_ptr<cugl::AssetManager> _assets;
+    
+    StartScene _startscreen;
     
     /**neworking scenes*/
     MenuScene _mainmenu;
@@ -223,6 +226,8 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void updateMenuScene(float timestep);
+    
+    void updateStartScene(float timestep);
     
     /**
      * Inidividualized update method for the host scene.
