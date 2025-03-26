@@ -75,3 +75,7 @@ std::map<std::string, std::any> Object::getMap() {
 	};
 	return m;
 }
+
+bool operator==(Object self, Object other) {
+	return self.getPosition() == other.getPosition() && self.getSize() == other.getSize();
+}
