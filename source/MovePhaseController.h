@@ -236,6 +236,10 @@ public:
      @param reachedGoal whether the player has reached the goal.
     */
     void nextRound(bool reachedGoal = false);
+    
+    void setCameraMove(){
+        _movePhaseScene.resetCameraPos();
+    }
 
 #pragma mark -
 #pragma mark Collision Handling

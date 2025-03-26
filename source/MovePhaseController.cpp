@@ -132,54 +132,54 @@ void MovePhaseController::resetRound() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseController::preUpdate(float dt) {
-        // Process the toggled key commands
-        if (_input->didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input->didReset())
-        {
-            reset();
-        }
-        if (_input->didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
+    // Process the toggled key commands
+    if (_input->didDebug())
+    {
+        setDebug(!isDebug());
+    }
+    if (_input->didReset())
+    {
+        reset();
+    }
+    if (_input->didExit())
+    {
+        CULog("Shutting down");
+        Application::get()->quit();
+    }
 
-        // Process the movement
-        if (_input->withJoystick())
+    // Process the movement
+    if (_input->withJoystick())
+    {
+        if (_input->getHorizontal() < 0)
         {
-            if (_input->getHorizontal() < 0)
-            {
-                _uiScene.setLeftVisible();
-            }
-            else if (_input->getHorizontal() > 0)
-            {
-                _uiScene.setRightVisible();
-            }
-            else
-            {
-                _uiScene.setJoystickHidden();
-            }
-            _uiScene.setJoystickPosition(_input->getJoystick());
+            _uiScene.setLeftVisible();
+        }
+        else if (_input->getHorizontal() > 0)
+        {
+            _uiScene.setRightVisible();
         }
         else
         {
             _uiScene.setJoystickHidden();
         }
+        _uiScene.setJoystickPosition(_input->getJoystick());
+    }
+    else
+    {
+        _uiScene.setJoystickHidden();
+    }
 
-        //THE GLIDE BULLSHIT SECTION
-        if (_input->getRightTapped()) {
-            _input->setRightTapped(false);
-            if (!_movePhaseScene.getLocalPlayer()->isGrounded())
-            {
-                _movePhaseScene.getLocalPlayer()->setGlide(true);
-            }
+    //THE GLIDE BULLSHIT SECTION
+    if (_input->getRightTapped()) {
+        _input->setRightTapped(false);
+        if (!_movePhaseScene.getLocalPlayer()->isGrounded())
+        {
+            _movePhaseScene.getLocalPlayer()->setGlide(true);
         }
-        else if (!_input->isRightDown()) {
-            _movePhaseScene.getLocalPlayer()->setGlide(false);
-        }
+    }
+    else if (!_input->isRightDown()) {
+        _movePhaseScene.getLocalPlayer()->setGlide(false);
+    }
 
 //        if (_input->getRightTapped()) {
 //            _input->setRightTapped(false);
@@ -192,49 +192,40 @@ void MovePhaseController::preUpdate(float dt) {
 //            _avatar->setGlide(false);
 //
 //        }
-        
-        _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
-        _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-        _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
-        _movePhaseScene.getLocalPlayer()->applyForce();
+    
+    _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
+    _movePhaseScene.getLocalPlayer()->applyForce();
 
-        if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
-        {
-            _sound->playSound("jump");
-        }
+    if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
+    {
+        _sound->playSound("jump");
+    }
 
-//        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-//            (*it)->update(dt);
-//        }
+    if (_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isGlideDown()){
+        _uiScene.setJumpButtonActive();
+        _uiScene.setDidGlide(false);
+    }
+    else if (!_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isJumpDown()){
+        _uiScene.setGlideButtonActive();
+        _uiScene.setDidJump(false);
+    }
 
-        if (_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isGlideDown()){
-            _uiScene.setJumpButtonActive();
-            _uiScene.setDidGlide(false);
-        }
-        else if (!_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isJumpDown()){
-            _uiScene.setGlideButtonActive();
-            _uiScene.setDidJump(false);
-        }
-
-        float player_pos = _movePhaseScene.getLocalPlayer()->getPosition().x;
-        if (player_pos < _playerStart){
-            _uiScene.setRedIcon(0, _levelWidth);
-        }
-        else if (player_pos > _playerStart){
-            _uiScene.setRedIcon(_levelWidth, _levelWidth);
-        }
-        else{
-            _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
-        }
+    float player_pos = _movePhaseScene.getLocalPlayer()->getPosition().x;
+    if (player_pos < _playerStart){
+        _uiScene.setRedIcon(0, _levelWidth);
+    }
+    else if (player_pos > _playerStart){
+        _uiScene.setRedIcon(_levelWidth, _levelWidth);
+    }
+    else{
+        _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+    }
     
 
-//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-//        (*it)->update(dt);
-//    }
+    getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
 
-    if (!buildingMode){
-        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) * (_movePhaseScene.getLocalPlayer()->getPosition().x * 56 + SCENE_WIDTH / 3.0f - getCamera()->getPosition().x), getCamera()->getPosition().y, 0));
-    }
 
     _movePhaseScene.preUpdate(dt);
 }

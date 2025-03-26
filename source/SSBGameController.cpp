@@ -129,8 +129,6 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     };
     _world->update(FIXED_TIMESTEP_S);
     
-    
-    _objects = _movePhaseController->getObjects();
 
     // Start in building mode
     _buildingMode = true;
@@ -162,6 +160,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
+    
+    _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
     _buildPhaseController = std::make_shared<BuildPhaseController>();
@@ -250,6 +250,10 @@ void SSBGameController::preUpdate(float dt)
 {
     _networkController->preUpdate(dt);
     _input->update(dt);
+    
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
+    }
 
     // Process Networking
     // Check if can switch to movement phase
@@ -265,11 +269,15 @@ void SSBGameController::preUpdate(float dt)
         setBuildingMode(!_buildingMode);
         _networkController->reset();
         _movePhaseController->resetRound();
+        _movePhaseController->setCameraMove();
     }
     
-
-    _buildPhaseController->preUpdate(dt);
-    _movePhaseController->preUpdate(dt);
+    if (_buildingMode){
+        _buildPhaseController->preUpdate(dt);
+    }
+    else{
+        _movePhaseController->preUpdate(dt);
+    }
 }
 
 /**
@@ -343,8 +351,12 @@ void SSBGameController::postUpdate(float remain)
     _world->garbageCollect();
 
     // Update all controllers
+    if (!_buildingMode){
+        _movePhaseController->postUpdate(remain);
+    }
+    
     _networkController->fixedUpdate(remain);
-    _movePhaseController->postUpdate(remain);
+    
 
     // Reset the game if we win or lose.
     int countdown = _movePhaseController->getCountdown();
@@ -382,7 +394,7 @@ void SSBGameController::setBuildingMode(bool value) {
     _buildPhaseController->processModeChange(value);
 
     _gridManager->getGridNode()->setVisible(value);
-    _camera->setPosition(_initialCameraPos);
+//    _camera->setPosition(_initialCameraPos);
 
 }
 

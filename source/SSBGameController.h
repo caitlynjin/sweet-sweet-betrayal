@@ -66,8 +66,6 @@ protected:
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
 
-    /** The Box2D world */
-    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
