@@ -410,9 +410,6 @@ public:
 
         _mushroomFact = MushroomFactory::alloc(_assets);
         _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
-
-        
-
     }
     
     /**
