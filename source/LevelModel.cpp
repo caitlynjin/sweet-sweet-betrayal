@@ -139,7 +139,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 				allLevelObjects.push_back(WindObstacle::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
-					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat()),
+					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat()), Vec2(0, 3.0f),
 					(*it2)->get("type")->asString()
 				));
 			}

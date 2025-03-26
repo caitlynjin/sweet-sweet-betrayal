@@ -183,17 +183,17 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, Vec2 gust, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
 {
     std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, gust);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
 
     // Allow movement of obstacle
     wind->getObstacle()->setBodyType(b2_dynamicBody);
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
 
-    wind->setTrajectory(gust);
+    //wind->setTrajectory(gust);
     wind->setPosition(pos);
 
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
@@ -205,7 +205,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
 std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    return createWindObstacle(wind->getPosition(), wind->getSize(), wind->gustDir(), wind->getJsonType());
+    return createWindObstacle(wind->getPosition(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
 }
 
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
