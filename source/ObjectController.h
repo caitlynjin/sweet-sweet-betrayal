@@ -118,7 +118,7 @@ public:
     * @param size The dimensions (width, height) of the platform.
     */
 
-   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, Vec2 gustDir, std::string jsonType);
+   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, std::string jsonType);
 
    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
     

@@ -217,7 +217,7 @@ void MovePhaseController::preUpdate(float dt) {
                 std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
 
                 for (auto it = lst.begin(); it != lst.end(); ++it) {
-                    Vec2 rayEnd = *it + (wind_cast->getDir())*2.0f;
+                    Vec2 rayEnd = *it + (wind_cast->getWindDirection());
                     
                     /**Generates the appropriate callback function for this wind object*/
                     
@@ -244,7 +244,7 @@ void MovePhaseController::preUpdate(float dt) {
                 wind_cast->update(dt);
                 if (wind_cast->getPlayerHits()> 0 ) {
                     CULog("hit");
-                    _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
+                    _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getWindForce());
                 }
             }
 

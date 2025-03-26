@@ -7,6 +7,7 @@ using namespace cugl;
 using namespace std;
 /**How many raycasting points we generate plus one*/
 constexpr int RAYS = 3;
+#define OFFSET 0.1f;
 
 class WindObstacle : public Object {
 
@@ -14,10 +15,10 @@ private:
 	/** The BoxObstacle wrapped by this WindObstacle object */
 	std::shared_ptr<cugl::physics2::BoxObstacle> _gust;
 
-	/*The direction of where the wind gust will push you*/
-	Vec2 _gustDir;
-	/**Orientation of the casted rays Should be same as gustdir, but we could try something funky. */
-	Vec2 _windDir = Vec2(0,1);
+	/*The direction of where the wind wind will push you*/
+	Vec2 _windForce;
+	/**The offset of the ray endpoints. Determines both wind directio and range. */
+	Vec2 _windDirection = Vec2(0,1);
 
 	/**How many of the rays we have hit the player with.*/
 	int _playerHits;
@@ -64,30 +65,30 @@ public:
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 gustDir) {
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, const Vec2 windStrength) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, gustDir) ? result : nullptr);
+		return (result->init(position, size, windDirection, windStrength) ? result : nullptr);
 	}
 
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 gustDir, string jsonType) {
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, gustDir, jsonType) ? result : nullptr);
+		return (result->init(position, size, windDirection, windStrength, jsonType) ? result : nullptr);
 	}
 	/*Intialize according to position and size. Need to change later*/
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir);
+	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength);
 
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, string jsonType);
+	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 
-	/*Return the wind vector*/
-	const Vec2 gustDir() { return _gustDir; };
+	/*How hard and what direction the wind is blowing the player in*/
+	const Vec2 getWindForce() { return _windForce; };
 
 	/**Returns the list of wind origins*/
 
 	const std::vector<Vec2> getRayOrigins(){return _rayOrigins;};
 
-	const Vec2 getDir() { return _windDir; }
+	const Vec2 getWindDirection() { return _windDirection; }
 
 	/**Getter and setters for player and ray distancearrays*/
 	const float getRayDist(int x) { return _rayDist[x]; }
