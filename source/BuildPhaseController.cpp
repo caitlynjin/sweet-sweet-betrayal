@@ -61,7 +61,6 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-
     _uiScene.init(assets, _gridManager);
 
     std::vector<Item> inventoryItems = {PLATFORM, MOVING_PLATFORM, WIND, MUSHROOM};
