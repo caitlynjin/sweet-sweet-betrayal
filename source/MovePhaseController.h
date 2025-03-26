@@ -238,6 +238,13 @@ public:
     */
     void nextRound(bool reachedGoal = false);
     
+    /**
+     * Processes the change between modes (movement and building mode).
+     *
+     * @param value whether the level is in building mode.
+     */
+    void processModeChange(bool value);
+    
     void setCameraMove(){
         _movePhaseScene.resetCameraPos();
     }

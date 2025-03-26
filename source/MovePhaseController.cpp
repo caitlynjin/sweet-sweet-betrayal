@@ -382,6 +382,18 @@ void MovePhaseController::nextRound(bool reachedGoal) {
 //    _growingWallNode->setVisible(false);
 }
 
+/**
+ * Processes the change between modes (movement and building mode).
+ *
+ * @param value whether the level is in building mode.
+ */
+void MovePhaseController::processModeChange(bool value) {
+    _movePhaseScene.resetCameraPos();
+
+    _uiScene.setVisible(value);
+    _uiScene.setBuildingMode(value);
+}
+
 
 void MovePhaseController::killPlayer(){
     std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();

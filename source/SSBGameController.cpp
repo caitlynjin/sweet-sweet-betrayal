@@ -388,6 +388,7 @@ void SSBGameController::render() {
 void SSBGameController::setBuildingMode(bool value) {
     _buildingMode = value;
     _buildPhaseController->processModeChange(value);
+    _movePhaseController->processModeChange(value);
 
     _gridManager->getGridNode()->setVisible(value);
 //    _camera->setPosition(_initialCameraPos);
