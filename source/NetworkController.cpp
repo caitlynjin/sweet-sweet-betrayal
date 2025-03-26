@@ -428,6 +428,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
     poly *= scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
     
     return std::make_pair(box, sprite);
 }
