@@ -213,6 +213,10 @@ void SSBApp::preUpdate(float dt)
             _gameController.preUpdate(dt);
             break;
 
+        case LEVEL_EDITOR:
+            _levelEditorController.preUpdate(dt);
+            break;
+
         default:
             break;
         }
@@ -247,6 +251,9 @@ void SSBApp::fixedUpdate()
     if (_status == GAME)
     {
         _gameController.fixedUpdate(time);
+    }
+    else if (_status == LEVEL_EDITOR) {
+        _levelEditorController.fixedUpdate(time);
     }
     if (_network)
     {
@@ -284,6 +291,9 @@ void SSBApp::postUpdate(float dt)
     if (_status == GAME)
     {
         _gameController.postUpdate(time);
+    }
+    else if (_status == LEVEL_EDITOR) {
+        _levelEditorController.postUpdate(time);
     }
 }
 /**
@@ -330,12 +340,11 @@ void SSBApp::updateStartScene(float timestep)
     case StartScene::Choice::LEVEL_EDITOR:
             _mainmenu.setActive(false);
             _networkController->setIsHost(true);
-           _gameController.init(_assets, _networkController, _sound, true);
-           _gameController.setActive(true);
-           _gameController.setLevelEditor(true);
-           _gameController.setSpriteBatch(_batch);
-           _status = GAME;
-           _network->markReady();
+           _levelEditorController.init(_assets, _networkController, _sound, true);
+           _levelEditorController.setActive(true);
+           _levelEditorController.setSpriteBatch(_batch);
+           _status = LEVEL_EDITOR;
+          _network->markReady();
             break;
     case StartScene::Choice::NONE:
         // DO NOTHING
@@ -364,8 +373,7 @@ void SSBApp::updateHostScene(float timestep)
     {
         // TODO: add network to gameplay
         _networkController->setIsHost(true);
-        _gameController.init(_assets, _networkController, _sound, false);
-        _gameController.setLevelEditor(false);
+        _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -458,6 +466,9 @@ void SSBApp::draw()
         break;
     case GAME:
         _gameController.render();
+    case LEVEL_EDITOR:
+        _levelEditorController.render();
+        break;
     default:
         break;
     }

@@ -65,16 +65,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
 
-    // Eh it'll probably be useful to have this if-statement once ArtObjects are finished
-    // This way we can make them only accessible in level editor mode
-    if (_isLevelEditor) {
-        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA};
-        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
-    }
-    else {
-        inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM};
-        assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
-    }
+    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM};
+    assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
     
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -89,10 +81,6 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     }
 
     _uiScene.activateInventory(true);
-    if (_isLevelEditor) {
-        _uiScene.getSaveTextField()->activate();
-        _uiScene.getLoadTextField()->activate();
-    }
 
     return true;
 };
@@ -127,11 +115,11 @@ void BuildPhaseController::preUpdate(float dt) {
         Vec2 dragOffset = _input->getSystemDragOffset();
 
         // Deactivate inventory buttons once all traps are placed
-        _uiScene.activateInventory(_itemsPlaced == 0 || _isLevelEditor);
-        if (!_input->isTouchDown() && !_uiScene.isPaintMode() && !_uiScene.isEraserMode() && _input->getInventoryStatus() == PlatformInput::PLACING) {
+        _uiScene.activateInventory(_itemsPlaced == 0);
+        if (!_input->isTouchDown() && _input->getInventoryStatus() == PlatformInput::PLACING) {
             _input->setInventoryStatus(PlatformInput::WAITING);
         }
-        if (_input->isTouchDown() && !_uiScene.isEraserMode() && (_input->getInventoryStatus() == PlatformInput::PLACING || (_uiScene.isPaintMode() && _selectedItem != Item::NONE)))
+        if (_input->isTouchDown() && (_input->getInventoryStatus() == PlatformInput::PLACING))
         {
             Vec2 screenPos = _input->getPosOnDrag();
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
@@ -150,53 +138,6 @@ void BuildPhaseController::preUpdate(float dt) {
                     }
                 } else {
                     _gridManager->setObject(gridPosWithOffset, _selectedItem);
-                }
-            }
-            if (_uiScene.isPaintMode() && _gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
-                std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                // might go back to addObject() for levelEditor??? just keep this in mind
-                _gridManager->addMoveableObject(gridPos, obj);
-
-                _itemsPlaced += 1;
-
-                // Update inventory UI
-                if (_itemsPlaced >= 1)
-                {
-                    _uiScene.activateInventory(_isLevelEditor);
-                }
-            }
-        }
-        else if (_uiScene.isEraserMode() && _input->isTouchDown()) {
-            Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos + dragOffset, getSystemScale()), NONE);
-            std::shared_ptr<Object> obj = _gridManager->moveObject(gridPos);
-            // This REQUIRES the object to have been moveable when it got loaded in.
-            // Otherwise, it FAILS.
-            if (obj) {
-                vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
-                CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                auto it = (*(_objectController->getObjects())).begin();
-                int index = 0;
-                while (it != (*(_objectController->getObjects())).end()) {
-                    if (**it == *obj) {
-                        (*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
-                        CULog("%d", (*(_objectController->getObjects())).size());
-                        break;
-                    }
-                    else {
-                        CULog("%f", (**it).getPosition().x);
-                        CULog("%f", (*obj).getPosition().x);
-                        CULog("%f", (*obj).getPosition().y);
-                        CULog("");
-                    }
-                    index++;
-                    ++it;
-                }
-                //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
-                CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                obj->setPosition(Vec2(2, 2));
-                if (obj->getObstacle()->getListener()) {
-                    obj->getObstacle()->getListener()(obj->getObstacle().get());
                 }
             }
         }
@@ -224,7 +165,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 }
             }
         }
-        else if (_input->getInventoryStatus() == PlatformInput::PLACED && !_uiScene.isPaintMode() && !_uiScene.isEraserMode())
+        else if (_input->getInventoryStatus() == PlatformInput::PLACED)
         {
             Vec2 screenPos = _input->getPosOnDrag();
             Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
@@ -261,7 +202,6 @@ void BuildPhaseController::preUpdate(float dt) {
 
                 if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    // might go back to addObject() for levelEditor??? just keep this in mind
                     _gridManager->addMoveableObject(gridPos, obj);
 
                     _itemsPlaced += 1;
@@ -269,7 +209,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     // Update inventory UI
                     if (_itemsPlaced >= 1)
                     {
-                        _uiScene.activateInventory(_isLevelEditor);
+                        _uiScene.activateInventory(false);
                     }
                 }
             }
@@ -297,30 +237,13 @@ void BuildPhaseController::preUpdate(float dt) {
         _buildPhaseScene.getCamera()->update();
     }
 
-    if (_uiScene.getIsReady() && !_readyMessageSent && !_isLevelEditor){
+    if (_uiScene.getIsReady() && !_readyMessageSent){
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
     }
-    else if (_uiScene.getIsReady() && _isLevelEditor) {
-        // Save the level to a file
-        shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
-    }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
-    }
-
-    if (_uiScene.getLoadClicked() && _isLevelEditor) {
-        // Load the level stored in this file
-
-        // TODO (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
-        _objectController->getObjects()->clear();
-        shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
-        for (auto& obj : objects) {
-            _objectController->processLevelObject(obj, _isLevelEditor);
-        }
     }
 }
 
@@ -371,14 +294,6 @@ void BuildPhaseController::setBuildingMode(bool value) {
     }
 }
 
-/** Sets whether or not we are in level editor mode.
-    * By default, we are not.
-    */
-void BuildPhaseController::setLevelEditor(bool value) {
-    _isLevelEditor = value;
-    _uiScene.setLevelEditor(value);
-}
-
 /**
  * Creates an item of type item and places it at the grid position.
  *
@@ -390,12 +305,7 @@ void BuildPhaseController::setLevelEditor(bool value) {
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     switch (item) {
         case (PLATFORM):
-            if (_isLevelEditor) {
-                return _objectController->createPlatform(gridPos, itemToSize(item), "log");
-            }
-            else {
-                return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
-            }
+            return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
         case (MOVING_PLATFORM):
             return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
         case (WIND):

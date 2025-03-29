@@ -1,11 +1,11 @@
 //
-//  BuildPhaseScene.cpp
+//  LevelEditorScene.cpp
 //  SweetSweetBetrayal
 //
-//  Created by Caitlyn Jin on 3/17/25.
+//  Created by Benjamin Isaacson on 3/28/25.
 //
 
-#include "BuildPhaseScene.h"
+#include "LevelEditorScene.h"
 #include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
@@ -55,12 +55,12 @@ using namespace Constants;
  * This constructor does not allocate any objects or start the controller.
  * This allows us to use a controller without a heap pointer.
  */
-BuildPhaseScene::BuildPhaseScene() : Scene2() {}
+LevelEditorScene::LevelEditorScene() : Scene2() {}
 
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
-void BuildPhaseScene::dispose() {
+void LevelEditorScene::dispose() {
 
 };
 
@@ -71,7 +71,7 @@ void BuildPhaseScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<Camera> camera) {
+bool LevelEditorScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<Camera> camera) {
     if (assets == nullptr)
     {
         return false;
@@ -89,8 +89,9 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
 #ifdef CU_TOUCH_SCREEN 
     _offset = Vec2((_size.width - SCENE_WIDTH) * 2.0f, 448);
 #else
-    _offset = Vec2((_size.width * SCENE_WIDTH / 1024 - SCENE_WIDTH) * 0.8f, (_size.height * SCENE_HEIGHT / 576 - SCENE_HEIGHT) * 0.8f);
+    _offset = Vec2((_size.width * SCENE_WIDTH / 1024) * 0.75f, (_size.height * SCENE_HEIGHT / 576) * 0.75f);
 #endif
+    _active = true;
     return true;
 }
 
@@ -101,7 +102,7 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
  *
  * This method disposes of the world and creates a new one.
  */
-void BuildPhaseScene::reset() {
+void LevelEditorScene::reset() {
     _camera->setPosition(_cameraInitialPos);
     _camera->update();
 }
@@ -111,7 +112,7 @@ void BuildPhaseScene::reset() {
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void BuildPhaseScene::preUpdate(float dt) {
+void LevelEditorScene::preUpdate(float dt) {
     _camera->update();
 }
 
@@ -121,14 +122,14 @@ void BuildPhaseScene::preUpdate(float dt) {
 /**
  * Set whether the elements of this scene are visible or not
  */
-void BuildPhaseScene::setVisible(bool value) {
-    
+void LevelEditorScene::setVisible(bool value) {
+
 }
 
 /**
  * Resets the camera position to the initial state.
  */
-void BuildPhaseScene::resetCameraPos() {
+void LevelEditorScene::resetCameraPos() {
     _camera->setPosition(_cameraInitialPos);
 }
 
@@ -139,7 +140,7 @@ void BuildPhaseScene::resetCameraPos() {
  *
  * @param screenPos    The screen position
  */
-Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
+Vec2 LevelEditorScene::convertScreenToBox2d(const Vec2& screenPos)
 {
     Vec2 adjusted = screenPos - _offset;
 
@@ -164,7 +165,7 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
  * @param screenPos    The screen position
  * @param systemScale The scale to differentiate mobile from desktop
  */
-Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemScale)
+Vec2 LevelEditorScene::convertScreenToBox2d(const Vec2& screenPos, float systemScale)
 {
     Vec2 adjusted = screenPos * systemScale - _offset;
 
@@ -179,5 +180,23 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemSc
     int yGrid = yBox2D / 2;
 
     return Vec2(xGrid, yGrid);
+}
+void LevelEditorScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+    const std::shared_ptr<scene2::SceneNode>& node, float scale, const std::shared_ptr<scene2::SceneNode>* _worldnode) {
+
+    node->setPosition(obj->getPosition() * scale);
+    (*_worldnode)->addChild(node);
+
+    // Dynamic objects need constant updating
+    if (obj->getBodyType() == b2_dynamicBody) {
+        scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback
+        obj->setListener([=, this](physics2::Obstacle* obs) {
+            float leftover = Application::get()->getFixedRemainder() / 1000000.f;
+            Vec2 pos = obs->getPosition() + leftover * obs->getLinearVelocity();
+            float angle = obs->getAngle() + leftover * obs->getAngularVelocity();
+            weak->setPosition(pos * scale);
+            weak->setAngle(angle);
+            });
+    }
 }
 

@@ -1,11 +1,11 @@
 //
-//  BuildPhaseUIScene.cpp
+//  LevelEditorUIScene.cpp
 //  SweetSweetBetrayal
 //
-//  Created by Caitlyn Jin on 3/17/25.
+//  Created by Benjamin Isaacson on 3/28/25.
 //
 
-#include "BuildPhaseUIScene.h"
+#include "LevelEditorUIScene.h"
 #include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
@@ -53,12 +53,12 @@ using namespace Constants;
  * This constructor does not allocate any objects or start the controller.
  * This allows us to use a controller without a heap pointer.
  */
-BuildPhaseUIScene::BuildPhaseUIScene() : Scene2() {}
+LevelEditorUIScene::LevelEditorUIScene() : Scene2() {}
 
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
-void BuildPhaseUIScene::dispose() {
+void LevelEditorUIScene::dispose() {
     if (_active)
     {
         _readyButton = nullptr;
@@ -75,7 +75,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager) {
+bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager) {
     if (assets == nullptr)
     {
         return false;
@@ -94,9 +94,9 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
     _rightButton->setPosition(_size.width * 0.6f, _size.height * 0.1f);
     _rightButton->activate();
-    _rightButton->addListener([this](const std::string &name, bool down) {
+    _rightButton->addListener([this](const std::string& name, bool down) {
         _rightpressed = down;
-    });
+        });
 
     std::shared_ptr<scene2::PolygonNode> leftNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_BUTTON));
     leftNode->setScale(0.8f);
@@ -104,26 +104,89 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
     _leftButton->setPosition(_size.width * 0.4f, _size.height * 0.1f);
     _leftButton->activate();
-    _leftButton->addListener([this](const std::string &name, bool down) {
+    _leftButton->addListener([this](const std::string& name, bool down) {
         _leftpressed = down;
-    });
+        });
 
     std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
     readyNode->setScale(0.8f);
     _readyButton = scene2::Button::alloc(readyNode);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
+    // Sorry, I used this as the save button. Probably shouldn't have done that, but too late now.
+    // Might refactor later. Might not.
     _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
-    
+
     _readyButton->activate();
-    _readyButton->addListener([this](const std::string &name, bool down) {
+    _readyButton->addListener([this](const std::string& name, bool down) {
         if (down && !_isReady) {
             setIsReady(true);
             _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
-    });
+        });
+    std::shared_ptr<scene2::PolygonNode> loadNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    loadNode->setScale(0.8f);
+    _loadButton = scene2::Button::alloc(loadNode);
+    _loadButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _loadButton->setPosition(_size.width * 0.1f, _size.height * 0.9f);
+    _loadButton->activate();
+    _loadButton->addListener([this](const std::string& name, bool down) {
+        if (down && !_isTimeToLoad) {
+            setLoadClicked(true);
+        }
+        });
+
+    std::shared_ptr<scene2::PolygonNode> paintNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BRUSH_BUTTON));
+    paintNode->setScale(0.8f);
+    _paintButton = scene2::Button::alloc(paintNode);
+    _paintButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _paintButton->setPosition(_size.width * 0.06f, _size.height * 0.6f);
+    _paintButton->activate();
+    _paintButton->addListener([this](const std::string& name, bool down) {
+        // If the paint button was just pressed
+        if (down && !_paintButtonDown) {
+            _inPaintMode = true;
+            _paintButtonDown = !_paintButtonDown;
+        }
+        // If the paint button was just released
+        else if (down && _paintButtonDown) {
+            _inPaintMode = false;
+        }
+        });
+
+    std::shared_ptr<scene2::PolygonNode> eraserNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(ERASER_BUTTON));
+    eraserNode->setScale(0.8f);
+    _eraserButton = scene2::Button::alloc(eraserNode);
+    _eraserButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _eraserButton->setPosition(_size.width * 0.06f, _size.height * 0.4f);
+
+    // TODO: make this actually work
+    //_eraserButton->activate();
+    _eraserButton->addListener([this](const std::string& name, bool down) {
+        // If the paint button was just pressed
+        if (down && !_eraserButtonDown) {
+            _inEraserMode = true;
+            _eraserButtonDown = !_eraserButtonDown;
+        }
+        // If the paint button was just released
+        else if (down && _eraserButtonDown) {
+            _inEraserMode = false;
+        }
+        });
+    _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "save", _assets->get<Font>("marker"));
+    _fileSaveText->setAnchor(Vec2::ANCHOR_CENTER);
+    _fileSaveText->setPosition(_size.width * 0.13f, _size.height * 0.03f);
+
+    _fileLoadText = scene2::TextField::allocWithTextBox(Size(200, 100), "load", _assets->get<Font>("marker"));
+    _fileLoadText->setAnchor(Vec2::ANCHOR_CENTER);
+    _fileLoadText->setPosition(_size.width * 0.13f, _size.height * 0.73f);
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
+    addChild(_fileSaveText);
+    addChild(_fileLoadText);
+    addChild(_loadButton);
+    addChild(_paintButton);
+        //addChild(_eraserButton);
 
     return true;
 }
@@ -131,13 +194,13 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 /**
  * Initializes the grid layout on the screen for build mode.
  */
-void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
+void LevelEditorUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
 {
     // Set the background
     _inventoryBackground = scene2::PolygonNode::alloc();
-    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
-    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
-    _inventoryBackground->setColor(Color4(131,111,108));
+    _inventoryBackground->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryBackground->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
+    _inventoryBackground->setColor(Color4(131, 111, 108));
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
@@ -172,7 +235,7 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
  *
  * This method disposes of the world and creates a new one.
  */
-void BuildPhaseUIScene::reset() {
+void LevelEditorUIScene::reset() {
     setVisible(true);
     activateInventory(true);
 }
@@ -182,8 +245,8 @@ void BuildPhaseUIScene::reset() {
  *
  * @param dt    The amount of time (in seconds) since the last frame
  */
-void BuildPhaseUIScene::preUpdate(float dt) {
-    
+void LevelEditorUIScene::preUpdate(float dt) {
+
 }
 
 #pragma mark -
@@ -191,12 +254,12 @@ void BuildPhaseUIScene::preUpdate(float dt) {
 /**
  * Sets whether the player has pressed the ready button to indicate they are done with build phase.
  */
-void BuildPhaseUIScene::setIsReady(bool isDone) {
-    if (isDone){
+void LevelEditorUIScene::setIsReady(bool isDone) {
+    if (isDone) {
         _readyButton->setColor(Color4::GRAY);
         _isReady = true;
     }
-    else{
+    else {
         _readyButton->setColor(Color4::WHITE);
         _isReady = false;
     }
@@ -207,12 +270,12 @@ void BuildPhaseUIScene::setIsReady(bool isDone) {
 /**
  * Set whether the elements of this scene are visible or not
  */
-void BuildPhaseUIScene::setVisible(bool value) {
+void LevelEditorUIScene::setVisible(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
         _inventoryButtons[i]->setVisible(value);
     }
-    
+
     _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
 
@@ -221,15 +284,21 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _readyButton->setVisible(value);
 }
 
+/** Sets whether or not the load button was pressed. */
+void LevelEditorUIScene::setLoadClicked(bool value) {
+    _isTimeToLoad = value;
+}
+
 /**
  * Whether to activate the inventory.
  */
-void BuildPhaseUIScene::activateInventory(bool value) {
+void LevelEditorUIScene::activateInventory(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
         if (value) {
             _inventoryButtons[i]->activate();
-        } else {
+        }
+        else {
             _inventoryButtons[i]->deactivate();
         }
     }

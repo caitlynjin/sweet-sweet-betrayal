@@ -74,8 +74,6 @@ protected:
 
     /** Whether we are in build mode */
     bool _buildingMode;
-    /** Whether we are in level editor mode */
-    bool _isLevelEditor = false;
 
 public:
 #pragma mark -
@@ -116,7 +114,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing=false);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -155,7 +153,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing = false);
+        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -258,11 +256,6 @@ public:
      * @param value whether the level is in building mode.
      */
     void setBuildingMode(bool value);
-
-    /** Sets whether or not we are in level editor mode.
-    * By default, we are not.
-    */
-    void setLevelEditor(bool value);
 
 #pragma mark -
 #pragma mark Helpers

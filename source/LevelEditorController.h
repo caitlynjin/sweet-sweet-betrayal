@@ -1,12 +1,12 @@
 //
-//  BuildPhaseController.h
+//  LevelEditorController.h
 //  SweetSweetBetrayal
 //
-//  Created by Caitlyn Jin on 3/16/25.
+//  Created by Benjamin Isaacson on 3/28/25.
 //
 
-#ifndef __SSB_BUILD_PHASE_CONTROLLER_H__
-#define __SSB_BUILD_PHASE_CONTROLLER_H__
+#ifndef __SSB_LEVEL_EDITOR_CONTROLLER_H__
+#define __SSB_LEVEL_EDITOR_CONTROLLER_H__
 #include <cugl/cugl.h>
 #include <box2d/b2_world_callbacks.h>
 #include <box2d/b2_fixture.h>
@@ -17,20 +17,18 @@
 #include "SSBGridManager.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
-#include "BuildPhaseScene.h"
-#include "BuildPhaseUIScene.h"
+#include "LevelEditorScene.h"
+#include "LevelEditorUIScene.h"
+#include "SoundController.h"
 
 using namespace cugl;
 using namespace Constants;
 using namespace cugl::physics2::distrib;
 
 /**
- * This class is the move phase controller.
+ * This class is the controller. It probably shouldn't extend Scene2, but that's what GameController does.
  */
-class BuildPhaseController {
-public:
-    /** Whether we are in build mode */
-    bool buildingMode = true;
+class LevelEditorController : public scene2::Scene2 {
 
 protected:
     /** The asset manager for this game mode. */
@@ -39,12 +37,24 @@ protected:
     std::shared_ptr<GridManager> _gridManager;
     std::shared_ptr<ObjectController> _objectController;
     std::shared_ptr<NetworkController> _networkController;
+
+    /** Controller for handling audio logic */
+    std::shared_ptr<SoundController> _sound;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
     /** Controller for abstracting out input across multiple platforms */
     std::shared_ptr<PlatformInput> _input;
-    BuildPhaseScene _buildPhaseScene;
-    BuildPhaseUIScene _uiScene;
+    LevelEditorScene _levelEditorScene;
+    LevelEditorUIScene _uiScene;
+
+    std::vector<std::shared_ptr<Object>> _objects;
+
+
+
+
+    // Left in here in case it helps with drawing the sprite too (e.g. position of obstacle)
+    /** Reference to the goalDoor (for collision detection) */
+    std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
 
     /** The selected item in build mode (new object) */
     Item _selectedItem = NONE;
@@ -54,27 +64,40 @@ protected:
     Vec2 _prevPos = Vec2(0, 0);
     /** The number of items currently placed */
     int _itemsPlaced = 0;
-    /** Whether the message has been sent */
-    bool _readyMessageSent = false;
+    /** The scale between the physics world and the screen (MUST BE UNIFORM) */
+    float _scale;
+    /** The offset from the world */
+    Vec2 _offset;
 
-    std::function<void(bool)> _buildingModeCallback;
+    /** Reference to background scene */
+    scene2::Scene2 _backgroundScene;
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
+
+    /** The Box2D world */
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
 public:
 #pragma mark -
 #pragma mark Constructors
     /**
-     * Creates the move phase controller.
+     * Creates the controller.
      */
-    BuildPhaseController();
+    LevelEditorController();
 
+
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing);
+    
+    bool init(const std::shared_ptr<AssetManager>& assets,
+        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing);
     /**
-     * Initializes the controller contents.
+     * Initializes the build-related controller contents.
      *
      * @param assets    The (loaded) assets for this game mode
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera);
+    bool initBuildingLogic(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera);
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -95,28 +118,16 @@ public:
      */
     void preUpdate(float dt);
 
-    void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
+    void fixedUpdate(float dt);
+
+    void postUpdate(float dt);
+
+    void setSpriteBatch(const shared_ptr<SpriteBatch>& batch);
 
     void render();
 
 #pragma mark -
 #pragma mark Helpers
-    /**
-     * Processes the change between modes (movement and building mode).
-     *
-     * @param value whether the level is in building mode.
-     */
-    void processModeChange(bool value);
-    
-    /**
-     * Assigns a callback function that will be executed when `setBuildingMode` is called.
-     */
-    void setBuildingModeCallback(std::function<void(bool)> callback);
-
-    /**
-     * Triggers a change in building mode.
-     */
-    void setBuildingMode(bool value);
 
     /**
      * Creates an item of type item and places it at the grid position.
@@ -136,9 +147,9 @@ public:
      * @param screenPos    The screen position
      * @param item               The selected item being snapped to the grid
      */
-    Vec2 snapToGrid(const Vec2 &gridPos, Item item);
+    Vec2 snapToGrid(const Vec2& gridPos, Item item);
 
 
 };
 
-#endif /* __SSB_BUILD_PHASE_CONTROLLER_H__ */
+#endif /* __SSB_LEVEL_EDITOR_CONTROLLER_H__ */
