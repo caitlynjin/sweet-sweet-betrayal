@@ -193,7 +193,6 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
  * @param size          the amount of area this object takes up (including its movement)
  */
 bool GridManager::canPlace(Vec2 cellPos, Size size) {
-    return true;
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // Find object in object map

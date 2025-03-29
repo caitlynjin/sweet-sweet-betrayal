@@ -114,11 +114,12 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
     // Sorry, I used this as the save button. Probably shouldn't have done that, but too late now.
     // Might refactor later. Might not.
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+    _readyButton->setPosition(_size.width * 0.08f, _size.height * 0.20f);
 
     _readyButton->activate();
     _readyButton->addListener([this](const std::string& name, bool down) {
-        if (down && !_isReady) {
+        // Runs when the button is released, not when it is first pressed
+        if (!down && !_isReady) {
             setIsReady(true);
             _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
@@ -130,7 +131,9 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     _loadButton->setPosition(_size.width * 0.1f, _size.height * 0.9f);
     _loadButton->activate();
     _loadButton->addListener([this](const std::string& name, bool down) {
-        if (down && !_isTimeToLoad) {
+        // This runs when the button is RELEASED.
+        // This avoids issues with calling the loading logic every frame while the button is down.
+        if (!down && !_isTimeToLoad) {
             setLoadClicked(true);
         }
         });
@@ -150,6 +153,7 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
         // If the paint button was just released
         else if (down && _paintButtonDown) {
             _inPaintMode = false;
+            _paintButtonDown = !_paintButtonDown;
         }
         });
 
@@ -218,14 +222,6 @@ void LevelEditorUIScene::initInventory(std::vector<Item> inventoryItems, std::ve
         addChild(itemButton);
         yOffset += 80;
     }
-
-    // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
-    _inventoryOverlay->setVisible(false);
-    addChild(_inventoryOverlay);
 }
 
 #pragma mark -
@@ -275,8 +271,6 @@ void LevelEditorUIScene::setVisible(bool value) {
     {
         _inventoryButtons[i]->setVisible(value);
     }
-
-    _inventoryOverlay->setVisible(value);
     _inventoryBackground->setVisible(value);
 
     _leftButton->setVisible(value);
@@ -302,5 +296,4 @@ void LevelEditorUIScene::activateInventory(bool value) {
             _inventoryButtons[i]->deactivate();
         }
     }
-    _inventoryOverlay->setVisible(!value);
 }

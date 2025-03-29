@@ -1,0 +1,23 @@
+{
+	"width":	100,
+	"height":	100,
+	"objectTypes":	[{
+			"name":	"platforms",
+			"objects":	[{
+					"height":	1,
+					"type":	"log",
+					"width":	3,
+					"x":	9,
+					"y":	6
+				}]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}]
+}

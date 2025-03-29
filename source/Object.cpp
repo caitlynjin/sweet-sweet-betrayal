@@ -42,6 +42,12 @@ void Object::setPosition(const cugl::Vec2& position) {
 	_position = position;
 }
 
+void Object::setItemType(Item itemType)
+{
+	_itemType = itemType;
+}
+
+
 void Object::setPlayerPlaced(const bool playerPlaced) {
 	_playerPlaced = playerPlaced;
 }

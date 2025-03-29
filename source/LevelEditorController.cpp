@@ -163,17 +163,12 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     //
    // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, true);
-        // Left here for debugging later
-        if (true) {
-            // This is necessary to remove the object with the eraser.
-            _gridManager->addMoveableObject(obj->getPosition(), obj);
-        }
-        else {
-            _gridManager->addObject(obj);
-        }
+        // This is necessary to remove the object with the eraser.
+        // Also, in level editor, everything should be moveable.
+        _gridManager->addMoveableObject(obj->getPosition(), obj);
         CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
     }
 
@@ -212,8 +207,8 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA };
-    assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA };
+    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
 
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -277,7 +272,9 @@ void LevelEditorController::preUpdate(float dt) {
         if (!_input->isTouchDown() && !_uiScene.isPaintMode() && !_uiScene.isEraserMode() && _input->getInventoryStatus() == PlatformInput::PLACING) {
             _input->setInventoryStatus(PlatformInput::WAITING);
         }
-        if (_input->isTouchDown() && !_uiScene.isEraserMode() && (_input->getInventoryStatus() == PlatformInput::PLACING || (_uiScene.isPaintMode() && _selectedItem != Item::NONE)))
+        // TODO: add code to prevent save/load buttons/text fields from clicking an object down while in paintbrush mode
+        // Also, same for clicking the paintbrush button itself
+        if (_input->isTouchDown() && !_uiScene.isEraserMode() && (_input->getInventoryStatus() == PlatformInput::PLACING || (_uiScene.isPaintMode() && _selectedItem != Item::NONE && !_uiScene.getLeftPressed() && !_uiScene.getRightPressed())))
         {
             Vec2 screenPos = _input->getPosOnDrag();
             Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
@@ -305,12 +302,6 @@ void LevelEditorController::preUpdate(float dt) {
                 _gridManager->addMoveableObject(gridPos, obj);
 
                 _itemsPlaced += 1;
-
-                // Update inventory UI
-                if (_itemsPlaced >= 1)
-                {
-                    _uiScene.activateInventory(true);
-                }
             }
         }
         else if (_uiScene.isEraserMode() && _input->isTouchDown()) {
@@ -416,12 +407,6 @@ void LevelEditorController::preUpdate(float dt) {
                     _gridManager->addMoveableObject(gridPos, obj);
 
                     _itemsPlaced += 1;
-
-                    // Update inventory UI
-                    if (_itemsPlaced >= 1)
-                    {
-                        _uiScene.activateInventory(true);
-                    }
                 }
             }
 
@@ -430,7 +415,6 @@ void LevelEditorController::preUpdate(float dt) {
             _selectedObject = nullptr;
 
             // Darken inventory UI
-            _uiScene.getInventoryOverlay()->setVisible(true);
             _input->setInventoryStatus(PlatformInput::WAITING);
         }
 
@@ -451,6 +435,7 @@ void LevelEditorController::preUpdate(float dt) {
         // Save the level to a file
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
+        _uiScene.setIsReady(false);
     }
 
     if (_uiScene.getLoadClicked()) {
@@ -461,8 +446,12 @@ void LevelEditorController::preUpdate(float dt) {
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
         for (auto& obj : objects) {
-            _objectController->processLevelObject(obj);
+            _objectController->processLevelObject(obj, true);
+            _gridManager->addMoveableObject(obj->getPosition(), obj);
         }
+
+        // To avoid rerunning the loading logic next frame
+        _uiScene.setLoadClicked(false);
     }
 }
 
@@ -502,6 +491,7 @@ void LevelEditorController::render() {
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item) {
+    shared_ptr<Object> obj;
     switch (item) {
     case (PLATFORM):
         return _objectController->createPlatform(gridPos, itemToSize(item), "log");
@@ -520,7 +510,9 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
     case (TILE_ALPHA):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        return _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
     case (NONE):
         return nullptr;
     }

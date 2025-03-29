@@ -89,7 +89,7 @@ bool LevelEditorScene::init(const std::shared_ptr<AssetManager>& assets, std::sh
 #ifdef CU_TOUCH_SCREEN 
     _offset = Vec2((_size.width - SCENE_WIDTH) * 2.0f, 448);
 #else
-    _offset = Vec2((_size.width * SCENE_WIDTH / 1024) * 0.75f, (_size.height * SCENE_HEIGHT / 576) * 0.75f);
+    _offset = Vec2((_size.width * SCENE_WIDTH / 1024 - SCENE_WIDTH) / 2, (_size.height * SCENE_HEIGHT / 576 - SCENE_HEIGHT) / 2);
 #endif
     _active = true;
     return true;
@@ -170,7 +170,11 @@ Vec2 LevelEditorScene::convertScreenToBox2d(const Vec2& screenPos, float systemS
     Vec2 adjusted = screenPos * systemScale - _offset;
 
     // Adjust for camera position
-    Vec2 worldPos = (adjusted + (_camera->getPosition() * 2 * systemScale - _cameraInitialPos));
+    // systemScale used to be involved here (2 * systemScale instead of 2), but now I'm not so sure.
+    // I think it's different now because the MoveScene (1024 x 576) and BuildScene (2048 x 1152) don't both get drawn with different dimensions on top of each other in the level editor.
+    // Either way, it doesn't matter much, since this code is for desktop only.
+    // And for desktop, this works.
+    Vec2 worldPos = (adjusted + (_camera->getPosition() * 2 - _cameraInitialPos));
 
     float xBox2D = worldPos.x / _scale;
     float yBox2D = worldPos.y / _scale;

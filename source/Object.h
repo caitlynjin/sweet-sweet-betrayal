@@ -104,6 +104,8 @@ public:
     const Item getItemType() const {
         return _itemType;
     }
+
+	void setItemType(Item itemType);
 	/**
 	* Gets whether this object was placed by a player.
 	* @return whether this object was placed by a player

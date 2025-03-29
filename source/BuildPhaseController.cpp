@@ -303,6 +303,7 @@ void BuildPhaseController::setBuildingMode(bool value) {
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
+    shared_ptr<Object> obj;
     switch (item) {
         case (PLATFORM):
             return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
@@ -321,7 +322,9 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
         case (TILE_ALPHA):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            return _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+            obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+            obj->setItemType(TILE_ALPHA);
+            return obj;
         case (NONE):
             return nullptr;
     }
