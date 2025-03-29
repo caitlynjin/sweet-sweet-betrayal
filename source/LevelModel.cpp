@@ -61,6 +61,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 
 	shared_ptr<JsonWriter> jsonWriter = JsonWriter::alloc(fileName);
 	jsonWriter->writeJson(json);
+	jsonWriter->close();
 }
 
 void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<shared_ptr<Object>>* objects) {
@@ -147,5 +148,6 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 	}
 	// These objects have NOT been added to the physics world.
 	_objects = allLevelObjects;
+	jsonReader->close();
 	return allLevelObjects;
 }

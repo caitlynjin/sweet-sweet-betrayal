@@ -69,14 +69,9 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     std::function<void(const std::shared_ptr<physics2::Obstacle>&,const std::shared_ptr<scene2::SceneNode>&)> linkSceneToObsFunc = [=,this](const std::shared_ptr<physics2::Obstacle>& obs, const std::shared_ptr<scene2::SceneNode>& node) {
         this->_movePhaseScene.linkSceneToObs(obs,node);
     };
-
-    //TODO: Change this to all be handled in Network Controller
-    if (!_isLevelEditor) {
-        _network->enablePhysics(_world, linkSceneToObsFunc);
-
-        _networkController->setObjects(&_objects);
-        _networkController->setWorld(_world);
-    }
+    _network->enablePhysics(_world, linkSceneToObsFunc);
+    _networkController->setObjects(&_objects);
+    _networkController->setWorld(_world);
     
 
     // Initialize move phase scene
@@ -104,10 +99,8 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
     _uiScene.init(assets, _numPlayers);
-    if (!_isLevelEditor) {
-        _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
-        _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
-    }
+    _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
+    _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
     setComplete(false);
     setFailure(false);
@@ -339,9 +332,6 @@ void MovePhaseController::preUpdate(float dt) {
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void MovePhaseController::postUpdate(float remain) {
-    if (_isLevelEditor) {
-        return;
-    }
     // Record failure if necessary.
     if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
     {
@@ -394,14 +384,6 @@ void MovePhaseController::setBuildingMode(bool value) {
     if (_buildingModeCallback) {
         _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
     }
-}
-
-/* Sets whether or not the move scene should be in level editor mode.
-    * This method is necessary because object processing logic is in MovePhaseScene.
-    */
-void MovePhaseController::setLevelEditorForMoveScene(bool value) {
-    _isLevelEditor = value;
-    _movePhaseScene.setLevelEditor(value);
 }
 
 #pragma mark -

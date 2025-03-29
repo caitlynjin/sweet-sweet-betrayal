@@ -1,12 +1,12 @@
 //
-//  BuildPhaseScene.h
+//  LevelEditorScene.h
 //  SweetSweetBetrayal
 //
-//  Created by Caitlyn Jin on 3/17/25.
+//  Created by Benjamin Isaacson on 3/17/25.
 //
 
-#ifndef __SSB_BUILD_PHASE_SCENE_H__
-#define __SSB_BUILD_PHASE_SCENE_H__
+#ifndef __SSB_LEVEL_EDITOR_SCENE_H__
+#define __SSB_LEVEL_EDITOR_SCENE_H__
 #include <cugl/cugl.h>
 #include <box2d/b2_world_callbacks.h>
 #include <box2d/b2_fixture.h>
@@ -17,8 +17,7 @@
 #include "SSBGridManager.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
-#include "BuildPhaseScene.h"
-#include "BuildPhaseUIScene.h"
+#include "LevelEditorUIScene.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -27,7 +26,7 @@ using namespace cugl::physics2::distrib;
 /**
  * This class is the build phase scene.
  */
-class BuildPhaseScene : public scene2::Scene2 {
+class LevelEditorScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
@@ -52,7 +51,7 @@ public:
      * This constructor does not allocate any objects or start the controller.
      * This allows us to use a controller without a heap pointer.
      */
-    BuildPhaseScene();
+    LevelEditorScene();
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -60,7 +59,7 @@ public:
      * This method is different from dispose() in that it ALSO shuts off any
      * static resources, like the input controller.
      */
-    ~BuildPhaseScene() { dispose(); }
+    ~LevelEditorScene() { dispose(); }
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -123,7 +122,7 @@ public:
      *
      * @param screenPos    The screen position
      */
-    Vec2 convertScreenToBox2d(const Vec2 &screenPos);
+    Vec2 convertScreenToBox2d(const Vec2& screenPos);
 
     /**
  * Converts from screen to Box2D coordinates.
@@ -135,7 +134,11 @@ public:
  */
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float systemScale);
 
+    void linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& obj,
+        const std::shared_ptr<scene2::SceneNode>& node, float scale, const std::shared_ptr<scene2::SceneNode>* _worldnode);
+
 
 };
 
-#endif /* __SSB_BUILD_PHASE_SCENE_H__ */
+#endif /* __SSB_LEVEL_EDITOR_SCENE_H__ */
+#pragma once

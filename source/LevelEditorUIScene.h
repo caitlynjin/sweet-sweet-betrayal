@@ -1,12 +1,12 @@
 //
-//  BuildPhaseUIScene.h
+//  LevelEditorUIScene.h
 //  SweetSweetBetrayal
 //
-//  Created by Caitlyn Jin on 3/17/25.
+//  Created by Benjamin Isaacson on 3/28/25.
 //
 
-#ifndef __SSB_BUILD_PHASE_UI_SCENE_H__
-#define __SSB_BUILD_PHASE_UI_SCENE_H__
+#ifndef __SSB_LEVEL_EDITOR_UI_SCENE_H__
+#define __SSB_LEVEL_EDITOR_UI_SCENE_H__
 #include <cugl/cugl.h>
 #include <box2d/b2_world_callbacks.h>
 #include <box2d/b2_fixture.h>
@@ -28,9 +28,9 @@ using namespace Constants;
 using namespace cugl::physics2::distrib;
 
 /**
- * This class is the build phase UI scene.
+ * This class is the level editor UI scene.
  */
-class BuildPhaseUIScene : public scene2::Scene2 {
+class LevelEditorUIScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
@@ -66,6 +66,24 @@ protected:
     bool _rightpressed = false;
     /** Whether left camera button is being pressed */
     bool _leftpressed = false;
+    /** Whether or not the level editor load button was clicked */
+    bool _isTimeToLoad = false;
+    /** Whether or not the level editor is currently in paintbrush mode.
+    * Paintbrush mode makes it so that instead of dragging an object into place and releasing to create it,
+    * you can simply drag your mouse over several tiles at once, placing a copy of the object
+    * in all of those grid locations.
+    * This is particularly useful for 1x1 tile placement.
+    */
+    bool _inPaintMode = false;
+
+    /** Whether or not the level editor is in eraser mode to erase placed objects. */
+    bool _inEraserMode = false;
+
+    /** Whether or not the paint BUTTON is currently down. */
+    bool _paintButtonDown = false;
+
+    /** Whether or not the eraser mode BUTTON is currently down. */
+    bool _eraserButtonDown = false;
 
 public:
 #pragma mark -
@@ -76,7 +94,7 @@ public:
      * This constructor does not allocate any objects or start the controller.
      * This allows us to use a controller without a heap pointer.
      */
-    BuildPhaseUIScene();
+    LevelEditorUIScene();
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -84,7 +102,7 @@ public:
      * This method is different from dispose() in that it ALSO shuts off any
      * static resources, like the input controller.
      */
-    ~BuildPhaseUIScene() { dispose(); }
+    ~LevelEditorUIScene() { dispose(); }
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
@@ -144,11 +162,53 @@ public:
         return _isReady;
     }
 
+    /** Returns the text that the user input for the save file in level editor mode. */
+    std::string getSaveFileName() {
+        return _fileSaveText->getText();
+    }
+    /** Returns the text that the user input for the file to load into level editor mode. */
+    std::string getLoadFileName() {
+        return _fileLoadText->getText();
+    }
+
+    /** Returns the text object itself for the user's save file input. */
+    std::shared_ptr<cugl::scene2::TextField> getSaveTextField() {
+        return _fileSaveText;
+    }
+
+    /** Returns the text object itself for the user's load file input. */
+    std::shared_ptr<cugl::scene2::TextField> getLoadTextField() {
+        return _fileLoadText;
+    }
+
+    /** Gets whether or not the load button was clicked. */
+    bool getLoadClicked() {
+        return _isTimeToLoad;
+    }
+
+    /** Sets whether or not the load button was clicked. */
+    void setLoadClicked(bool value);
+
+    /** Gets whether or not we are currently in paint mode */
+    bool isPaintMode() {
+        return _inPaintMode;
+    }
+
+    /** Gets whether or not we are currently in paint mode */
+    bool isEraserMode() {
+        return _inEraserMode;
+    }
+
 
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */
     void setIsReady(bool isDone);
+
+    /** Sets whether or not we are in level editor mode.
+    * By default, we are not.
+    */
+    void setLevelEditor(bool value);
 
     /**
      * Gets the inventory buttons.
@@ -175,4 +235,5 @@ public:
 
 };
 
-#endif /* __SSB_BUILD_PHASE_UI_SCENE_H__ */
+#endif /* __SSB_LEVEL_EDITOR_UI_SCENE_H__ */
+#pragma once
