@@ -71,6 +71,7 @@ using namespace Constants;
 #define WIND_FACTOR 0.05f
 #define WIND_FACTOR_GLIDING 0.4f
 #define WIND_FACTOR_AIR 0.08f
+#define JUMP_DURATION 1.0f;
 
 #define GLIDE_FALL_SPEED -2.5f
 
@@ -106,6 +107,10 @@ protected:
 	int  _jumpCooldown;
 	/** Whether we are actively jumping */
 	bool _isJumping;
+    /*Whether or not we are holding down the jump button while jumping-True while we are holding jump from a jump.*/
+    bool _isHeld;
+    /*How long a jump should last. If we let go of jump before this is over, set the linear velocity to zero.**/
+    float _jumpDuration;
 	/** How long until we can shoot again */
 	int  _shootCooldown;
 	/** Whether our feet are on the ground */
@@ -128,6 +133,8 @@ protected:
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
 
+    float _jumpTimer = 0.0f;
+    bool _holdingJump;
 
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
@@ -561,7 +568,9 @@ public:
     /**Sets whether we are trying to glide or not.*/
     void setGlide(bool value) { if (!_isGliding && _isGliding != value) { _justGlided = true; };_isGliding = value; }
     
+    /*If we have are currently holding the jump button**/
 
+    void setJumpHold(bool value) { _holdingJump = value; }
     
 #pragma mark -
 #pragma mark Physics Methods

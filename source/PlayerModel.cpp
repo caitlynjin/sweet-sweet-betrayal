@@ -458,6 +458,8 @@ void PlayerModel::applyForce()
     {
         b2Vec2 force(0, PLAYER_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        _holdingJump = true;
+        _jumpTimer = JUMP_DURATION;
     }
     
 }
@@ -531,15 +533,20 @@ void PlayerModel::update(float dt)
         // Only cooldown while grounded
         _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
     }
+    
+    /**Allows the player to adjust their jump height while jumping-
+    If they stop holding jump partway during a jump, dampen their velocity*/
+    if (_jumpTimer > 0) {
+        _jumpTimer -= dt;
 
-    if (isShooting())
-    {
-        _shootCooldown = SHOOT_COOLDOWN;
+        if (!_holdingJump) {
+            b2Vec2 vel = _body->GetLinearVelocity();
+            vel.y  = 0;
+            _body->SetLinearVelocity(vel);
+            _jumpTimer = 0;
+        }
     }
-    else
-    {
-        _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
-    }
+    
 
     if (_onMovingPlat && MovingPlat != nullptr)
     {

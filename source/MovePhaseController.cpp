@@ -194,27 +194,16 @@ void MovePhaseController::preUpdate(float dt) {
         //THE GLIDE BULLSHIT SECTION
         if (_input->getRightTapped()) {
             _input->setRightTapped(false);
+            
             if (!_movePhaseScene.getLocalPlayer()->isGrounded())
             {
                 _movePhaseScene.getLocalPlayer()->setGlide(true);
             }
         }
         else if (!_input->isRightDown()) {
+            //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
             _movePhaseScene.getLocalPlayer()->setGlide(false);
         }
-
-//        if (_input->getRightTapped()) {
-//            _input->setRightTapped(false);
-//            if (!_avatar->isGrounded())
-//            {
-//                _avatar->setGlide(true);
-//            }
-//        }
-//        else if (!_input->isRightDown()) {
-//            _avatar->setGlide(false);
-//
-//        }
-        
         _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
         _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
