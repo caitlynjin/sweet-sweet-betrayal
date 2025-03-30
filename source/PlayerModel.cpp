@@ -63,7 +63,7 @@
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
-#define PLAYER_DENSITY 0.9f
+#define PLAYER_DENSITY 3.25f
 /** The impulse for the character jump */
 #define PLAYER_JUMP 27.5f
 /** Debug color for the sensor */
