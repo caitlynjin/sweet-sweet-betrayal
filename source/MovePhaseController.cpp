@@ -12,7 +12,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
@@ -79,7 +79,6 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
     _sound = sound;
-
 
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
@@ -211,6 +210,7 @@ void MovePhaseController::preUpdate(float dt) {
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
 
+
     if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
     {
         _sound->playSound("jump");
@@ -271,7 +271,7 @@ void MovePhaseController::preUpdate(float dt) {
 
     // TODO: Segment into progressBarUpdate method
     int player_index = 0;
-    std::vector<std::shared_ptr<DudeModel>> playerList = _networkController->getPlayerList();
+    std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
@@ -299,7 +299,7 @@ void MovePhaseController::preUpdate(float dt) {
             }
         }
 
-        if (player->_hasTreasure){
+        if (player->hasTreasure){
             _uiScene.setTreasureIcon(true, player_index);
         }
         else{
@@ -361,11 +361,16 @@ void MovePhaseController::render() {
  Kills player for the round.
  */
 void MovePhaseController::killPlayer(){
-    std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();
+    std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
+        // If player had treasure, remove from their possession
+        if (player->hasTreasure){
+            player->removeTreasure();
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_LOST));
+        }
+        // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
-        
         player->setDead(true);
     }
     
@@ -375,10 +380,13 @@ void MovePhaseController::killPlayer(){
  Logic for when player reaches the goal
  */
 void MovePhaseController::reachedGoal(){
-    std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();
-    player->setImmobile(true);
-    // Send message to network that the player has ended their movement phase
-    _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+    std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
+    if (!player->getImmobile()){
+        player->setImmobile(true);
+        // Send message to network that the player has ended their movement phase
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+    }
+    
 }
 
 /**
@@ -431,7 +439,7 @@ void MovePhaseController::setFailure(bool value) {
     if (value) {
         // If next round available, do not fail
         if (_currRound < TOTAL_ROUNDS){
-            if (_movePhaseScene.getLocalPlayer()->_hasTreasure){
+            if (_movePhaseScene.getLocalPlayer()->hasTreasure){
                 _movePhaseScene.setNextTreasure(_currGems);
             }
 
@@ -460,7 +468,7 @@ void MovePhaseController::setFailure(bool value) {
 void MovePhaseController::nextRound(bool reachedGoal) {
     // Check if player won before going to next round
     if (reachedGoal){
-        if(_movePhaseScene.getLocalPlayer()->_hasTreasure){
+        if(_movePhaseScene.getLocalPlayer()->hasTreasure){
             _movePhaseScene.getLocalPlayer()->removeTreasure();
             // Increment total treasure collected
             _currGems += 1;
@@ -610,7 +618,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "treasure") ||
         (bd1->getName() == "treasure" && bd2 == _movePhaseScene.getLocalPlayer().get()))
     {
-        if (!_movePhaseScene.getLocalPlayer()->_hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
+        if (!_movePhaseScene.getLocalPlayer()->hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
         {
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
             _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
