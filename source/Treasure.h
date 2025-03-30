@@ -47,9 +47,9 @@ public:
 
     void dispose();
     
-    virtual void setPosition(const cugl::Vec2& position);
-
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() {
+    virtual void setPosition(const cugl::Vec2& position) override;
+//
+    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
         return _box;
     }
 
@@ -85,7 +85,7 @@ public:
      * the node to be in sync with the physics info. It does this via the
      * {@link Obstacle#update(float)} method.
      *
-     * @param node  The scene graph node representing this DudeModel, which has been added to the world node already.
+     * @param node  The scene graph node representing this PlayerModel, which has been added to the world node already.
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
         _node = node;
@@ -106,6 +106,8 @@ public:
     bool isTaken() const {
         CULog("treasure taken");
         return _taken; }
+    
+    void reset();
 };
 
 

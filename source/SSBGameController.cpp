@@ -253,7 +253,7 @@ void SSBGameController::preUpdate(float dt)
         (*it)->update(dt);
     }
 //    
-//    std::vector<std::shared_ptr<DudeModel>> playerList = _networkController->getPlayerList();
+//    std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
 //    CULog("PlayerList size: %d", static_cast<int>(playerList.size()));
 //    int playerNum = 1;
 //    for (auto player : playerList){
@@ -401,7 +401,7 @@ void SSBGameController::setBuildingMode(bool value) {
 
     _movePhaseController->processModeChange(value);
     
-    std::vector<std::shared_ptr<DudeModel>> players = _networkController->getPlayerList();
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
     for (auto player : players){
         player->setImmobile(value);
     }

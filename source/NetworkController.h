@@ -300,8 +300,11 @@ protected:
     /** The treasure */
     std::shared_ptr<Treasure> _treasure; 
     
+    /** Current spawn location for the treasure */
+    Vec2 _treasureSpawn;
+    
     /** The list of all players */
-    std::vector<std::shared_ptr<DudeModel>> _playerList;
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
     
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
@@ -439,6 +442,28 @@ public:
     }
     
     /**
+     * Sets the spawn location of the treasure.
+     *
+     * @param spawn the spawn location of the treasure
+     */
+    void setTreasureSpawn(Vec2 spawn){
+        _treasureSpawn = spawn;
+    }
+    
+    /**
+     * Returns the spawn location of the treasure
+     */
+    Vec2 getTreasureSpawn(){
+        return _treasureSpawn;
+    }
+    
+    
+    /**
+     Resets the treasure to its spawn location and removes any possession
+     */
+    void resetTreasure();
+    
+    /**
      * Sets whether this local user is the host.
      *
      * @param isHost whether is host.
@@ -457,7 +482,7 @@ public:
     /**
      * Returns the set of player objects in game
      */
-    std::vector<std::shared_ptr<DudeModel>> getPlayerList(){
+    std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){
         return _playerList;
     }
     

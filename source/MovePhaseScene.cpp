@@ -195,6 +195,7 @@ void MovePhaseScene::populate() {
             _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
         );
         _networkController->setTreasure(_treasure);
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
 
 }
@@ -232,6 +233,7 @@ void MovePhaseScene::preUpdate(float dt) {
     
     if (_treasure == nullptr && !_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     
     // Update objects
@@ -261,8 +263,12 @@ void MovePhaseScene::resetCameraPos() {
 void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->setPosition(Vec2(DUDE_POS));
     _localPlayer->resetMovement();
-    _localPlayer->removeTreasure();
-    std::vector<std::shared_ptr<DudeModel>> players = _networkController->getPlayerList();
+    if (_localPlayer->hasTreasure){
+        _localPlayer->removeTreasure();
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_LOST));
+    }
+    
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
     for (auto player : players){
         player->setDead(false);
     }
