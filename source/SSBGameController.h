@@ -64,6 +64,8 @@ protected:
 
     /** The Box2D world */
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
+    /** The list of objects */
+    std::vector<std::shared_ptr<Object>> _objects;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -270,10 +272,6 @@ public:
      */
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
-    /**
-     * This method takes a MessageEvent and processes it.
-     */
-    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
 
   };
 

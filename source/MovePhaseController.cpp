@@ -126,6 +126,19 @@ void MovePhaseController::dispose() {
 /**
  * Resets the status of the game so that we can play again.
  */
+void MovePhaseController::resetRound() {
+//    setFailure(false);
+//    setComplete(false);
+    _movePhaseScene.resetPlayerProperties();
+    _movePhaseScene.resetCameraPos();
+    
+//    _movePhaseScene.reset();
+//    _uiScene.reset();
+}
+
+/**
+ * Resets the status of the game so that we can play again.
+ */
 void MovePhaseController::reset() {
     _currRound = 1;
     _died = false;
@@ -133,7 +146,6 @@ void MovePhaseController::reset() {
     
     setFailure(false);
     setComplete(false);
-    setBuildingMode(true);
 
     _movePhaseScene.reset();
     _uiScene.reset();
@@ -145,56 +157,57 @@ void MovePhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseController::preUpdate(float dt) {
-    if (!buildingMode)
-    {
-        // Process the toggled key commands
-        if (_input->didDebug())
-        {
-            setDebug(!isDebug());
-        }
-        if (_input->didReset())
-        {
-            reset();
-        }
-        if (_input->didExit())
-        {
-            CULog("Shutting down");
-            Application::get()->quit();
-        }
 
-        // Process the movement
-        if (_input->withJoystick())
+    // Process the toggled key commands
+    // TODO: segment into updateInput method
+    if (_input->didDebug())
+    {
+        setDebug(!isDebug());
+    }
+    if (_input->didReset())
+    {
+        reset();
+    }
+    if (_input->didExit())
+    {
+        CULog("Shutting down");
+        Application::get()->quit();
+    }
+
+    // Process the movement
+    // TODO: Segment into updateMovement method
+    if (_input->withJoystick())
+    {
+        if (_input->getHorizontal() < 0)
         {
-            if (_input->getHorizontal() < 0)
-            {
-                _uiScene.setLeftVisible();
-            }
-            else if (_input->getHorizontal() > 0)
-            {
-                _uiScene.setRightVisible();
-            }
-            else
-            {
-                _uiScene.setJoystickHidden();
-            }
-            _uiScene.setJoystickPosition(_input->getJoystick());
+            _uiScene.setLeftVisible();
+        }
+        else if (_input->getHorizontal() > 0)
+        {
+            _uiScene.setRightVisible();
         }
         else
         {
             _uiScene.setJoystickHidden();
         }
+        _uiScene.setJoystickPosition(_input->getJoystick());
+    }
+    else
+    {
+        _uiScene.setJoystickHidden();
+    }
 
-        //THE GLIDE BULLSHIT SECTION
-        if (_input->getRightTapped()) {
-            _input->setRightTapped(false);
-            if (!_movePhaseScene.getLocalPlayer()->isGrounded())
-            {
-                _movePhaseScene.getLocalPlayer()->setGlide(true);
-            }
+    //THE GLIDE BULLSHIT SECTION
+    if (_input->getRightTapped()) {
+        _input->setRightTapped(false);
+        if (!_movePhaseScene.getLocalPlayer()->isGrounded())
+        {
+            _movePhaseScene.getLocalPlayer()->setGlide(true);
         }
-        else if (!_input->isRightDown()) {
-            _movePhaseScene.getLocalPlayer()->setGlide(false);
-        }
+    }
+    else if (!_input->isRightDown()) {
+        _movePhaseScene.getLocalPlayer()->setGlide(false);
+    }
 
 //        if (_input->getRightTapped()) {
 //            _input->setRightTapped(false);
@@ -207,120 +220,121 @@ void MovePhaseController::preUpdate(float dt) {
 //            _avatar->setGlide(false);
 //
 //        }
-        
-        _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
-        _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-        _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
-        _movePhaseScene.getLocalPlayer()->applyForce();
+    
+    _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
+    _movePhaseScene.getLocalPlayer()->applyForce();
 
-        if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
-        {
-            _sound->playSound("jump");
-        }
-
-        for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-
-            /**If we created a wind object, create a bunch of raycasts.*/
-            if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
-                int i = 0;
-                std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
-
-                for (auto it = lst.begin(); it != lst.end(); ++it) {
-                    Vec2 rayEnd = *it + (wind_cast->getWindDirection());
-                    
-                    /**Generates the appropriate callback function for this wind object*/
-                    
-                    auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
-                        string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
-                        //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-                        if (fixtureName == "player") {
-                            CULog("plyr Callback!");
-                            wind_cast->setPlayerDist(i, fraction);
-                            return wind_cast->getRayDist(i);
-                        }
-                        else if (fixtureName == "gust") {
-                            return wind_cast->getRayDist(i);
-                        }
-                        wind_cast->setRayDist(i, fraction);
-                        return fraction;
-                        };
-                    /**Generates the appropriate raycasts to handle collision for this wind object*/
-
-                    _world->rayCast(callback, *it, rayEnd);
-                    ++i;
-
-                }
-                wind_cast->update(dt);
-                if (wind_cast->getPlayerHits()> 0 ) {
-                    CULog("hit");
-                    _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getWindForce());
-                }
-            }
-
-            (*it)->update(dt);
-        }
-
-        if (_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isGlideDown()){
-            _uiScene.setJumpButtonActive();
-            _uiScene.setDidGlide(false);
-        }
-        else if (!_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isJumpDown()){
-            _uiScene.setGlideButtonActive();
-            _uiScene.setDidJump(false);
-        }
-
-        int player_index = 0;
-        for (auto& player : playerList){
-            float player_pos = player->getPosition().x;
-            if (player_pos < _playerStart){
-                if (player_index == 0){
-                    _uiScene.setRedIcon(0, _levelWidth);
-                }
-                else{
-                    _uiScene.setBlueIcon(0, _levelWidth);
-                }
-            }
-            else if (player_pos > _levelWidth){
-                if (player_index == 0){
-                    _uiScene.setRedIcon(_levelWidth, _levelWidth);
-                }
-                else{
-                    _uiScene.setBlueIcon(_levelWidth, _levelWidth);
-                }
-            }
-            else{
-                if (player_index == 0){
-                    _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
-                }
-                else{
-                    _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
-                }
-            }
-
-            if (player->_hasTreasure){
-                _uiScene.setTreasureIcon(true, player_index);
-            }
-            else{
-                _uiScene.setTreasureIcon(false, player_index);
-            }
-            player_index += 1;
-        }
+    if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
+    {
+        _sound->playSound("jump");
     }
 
+    // TODO: Why is this here? Should be handled in WindObstacle class
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+
+        /**If we created a wind object, create a bunch of raycasts.*/
+        if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
+            int i = 0;
+            std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
+
+            for (auto it = lst.begin(); it != lst.end(); ++it) {
+                Vec2 rayEnd = *it + (wind_cast->getWindDirection());
+                
+                /**Generates the appropriate callback function for this wind object*/
+                
+                auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+                    string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
+                    //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
+                    if (fixtureName == "player") {
+                        CULog("plyr Callback!");
+                        wind_cast->setPlayerDist(i, fraction);
+                        return wind_cast->getRayDist(i);
+                    }
+                    else if (fixtureName == "gust") {
+                        return wind_cast->getRayDist(i);
+                    }
+                    wind_cast->setRayDist(i, fraction);
+                    return fraction;
+                    };
+                /**Generates the appropriate raycasts to handle collision for this wind object*/
+
+                _world->rayCast(callback, *it, rayEnd);
+                ++i;
+
+            }
+            wind_cast->update(dt);
+            if (wind_cast->getPlayerHits()> 0 ) {
+                CULog("hit");
+                _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getWindForce());
+            }
+        }
+
         (*it)->update(dt);
     }
 
-    if (!buildingMode){
-        if (getCamera()->getPosition().x >= 0 && getCamera()->getPosition().x <= 2240){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
-                                                                       (_movePhaseScene.getLocalPlayer()->getPosition().x *
-                                                                        56 + SCENE_WIDTH / 3.0f -
-                                                                        getCamera()->getPosition().x),
-                                        getCamera()->getPosition().y, 0));
-        }
+    // TODO: Segment into uiUpdate method
+    if (_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isGlideDown()){
+        _uiScene.setJumpButtonActive();
+        _uiScene.setDidGlide(false);
+    }
+    else if (!_movePhaseScene.getLocalPlayer()->isGrounded() && !_uiScene.isJumpDown()){
+        _uiScene.setGlideButtonActive();
+        _uiScene.setDidJump(false);
     }
 
+    // TODO: Segment into progressBarUpdate method
+    int player_index = 0;
+    for (auto& player : playerList){
+        float player_pos = player->getPosition().x;
+        if (player_pos < _playerStart){
+            if (player_index == 0){
+                _uiScene.setRedIcon(0, _levelWidth);
+            }
+            else{
+                _uiScene.setBlueIcon(0, _levelWidth);
+            }
+        }
+        else if (player_pos > _levelWidth){
+            if (player_index == 0){
+                _uiScene.setRedIcon(_levelWidth, _levelWidth);
+            }
+            else{
+                _uiScene.setBlueIcon(_levelWidth, _levelWidth);
+            }
+        }
+        else{
+            if (player_index == 0){
+                _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
+            }
+            else{
+                _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
+            }
+        }
+
+        if (player->_hasTreasure){
+            _uiScene.setTreasureIcon(true, player_index);
+        }
+        else{
+            _uiScene.setTreasureIcon(false, player_index);
+        }
+        player_index += 1;
+    }
+    
+
+    // TODO: Segment into updateCamera method
+    if (getCamera()->getPosition().x >= 0 && getCamera()->getPosition().x <= 2240){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+                                                                   (_movePhaseScene.getLocalPlayer()->getPosition().x *
+                                                                    56 + SCENE_WIDTH / 3.0f -
+                                                                    getCamera()->getPosition().x),
+                                    getCamera()->getPosition().y, 0));
+    }
+    
+
     _movePhaseScene.preUpdate(dt);
+    
+    // TODO: This code should be handled in Mushroom class, why is it here?
     if (_mushroomCooldown > 0) {
         _mushroomCooldown--;
     }
@@ -335,7 +349,7 @@ void MovePhaseController::postUpdate(float remain) {
     // Record failure if necessary.
     if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
     {
-        setFailure(true);
+        killPlayer();
     }
 
     if (!_failed && _died){
@@ -358,32 +372,30 @@ void MovePhaseController::render() {
 }
 
 /**
+ Kills player for the round.
+ */
+void MovePhaseController::killPlayer(){
+    std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();
+    // Send message to network that the player has ended their movement phase
+    if (!player->isDead()){
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        
+        player->setDead();
+    }
+    
+}
+
+/**
  * Processes the change between modes (movement and building mode).
  *
  * @param value whether the level is in building mode.
  */
 void MovePhaseController::processModeChange(bool value) {
-    buildingMode = value;
 
     _movePhaseScene.resetCameraPos();
 
     _uiScene.setVisible(value);
     _uiScene.setBuildingMode(value);
-}
-/**
- * Assigns a callback function that will be executed when `setBuildingMode` is called.
- */
-void MovePhaseController::setBuildingModeCallback(std::function<void(bool)> callback) {
-    _buildingModeCallback = callback;
-}
-
-/**
- * Triggers a change in building mode.
- */
-void MovePhaseController::setBuildingMode(bool value) {
-    if (_buildingModeCallback) {
-        _buildingModeCallback(value);  // Calls the GameController's `setBuildingMode`
-    }
 }
 
 #pragma mark -
@@ -494,7 +506,6 @@ void MovePhaseController::nextRound(bool reachedGoal) {
 //    _growingWallWidth = 0.1f;
 //    _growingWallNode->setVisible(false);
 
-    setBuildingMode(true);
 }
 
 #pragma mark -
@@ -566,7 +577,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
         (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
         //        setFailure(true);
-        _died = true;
+        killPlayer();
     }
     //ounce if we hit a mushroom
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "mushroom") ||
@@ -594,7 +605,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
         if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
             (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get()))
         {
-            _died = true;
+            killPlayer();
         }
     }
 
@@ -602,9 +613,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "treasure") ||
         (bd1->getName() == "treasure" && bd2 == _movePhaseScene.getLocalPlayer().get()))
     {
-        if (!_movePhaseScene.getLocalPlayer()->_hasTreasure)
+        if (!_movePhaseScene.getLocalPlayer()->_hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
         {
-            _movePhaseScene.getTreasure()->setTaken(true);
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
             _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
         }
     }

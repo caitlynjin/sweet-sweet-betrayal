@@ -29,9 +29,8 @@ using namespace cugl::physics2::distrib;
  * This class is the move phase controller.
  */
 class MovePhaseController {
-public:
-    /** Whether we are in build mode */
-    bool buildingMode = true;
+    
+    // TODO: Should be in Mushroom class
     int _mushroomCooldown = 0;
 
 protected:
@@ -89,7 +88,6 @@ protected:
     /** Whether the player has reached the goal */
     bool _reachedGoal = false;
 
-    std::function<void(bool)> _buildingModeCallback;
 
 public:
 #pragma mark -
@@ -118,6 +116,11 @@ public:
     /**
      * Resets the status of the game so that we can play again.
      */
+    void resetRound(); 
+    
+    /**
+     * Resets the status of the game so that we can play again.
+     */
     void reset();
 
     /**
@@ -137,6 +140,11 @@ public:
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render();
+    
+    /**
+     * Kills the player for the round.
+     */
+    void killPlayer();
 
     /**
      * Processes the change between modes (movement and building mode).
@@ -144,16 +152,6 @@ public:
      * @param value whether the level is in building mode.
      */
     void processModeChange(bool value);
-
-    /**
-     * Assigns a callback function that will be executed when `setBuildingMode` is called.
-     */
-    void setBuildingModeCallback(std::function<void(bool)> callback);
-
-    /**
-     * Triggers a change in building mode.
-     */
-    void setBuildingMode(bool value);
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -166,6 +164,13 @@ public:
      * Gets the object controller
      */
     std::shared_ptr<ObjectController> getObjectController() { return _objectController; };
+    
+    /**
+     * Gets the object list
+     */
+    std::vector<std::shared_ptr<Object>> getObjects(){
+        return _objects;
+    };
 
     /**
      * Gets the current countdown count

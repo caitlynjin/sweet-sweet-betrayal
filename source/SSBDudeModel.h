@@ -116,6 +116,9 @@ protected:
     bool _onMovingPlat;
     /** points to moving platform standing on*/
     physics2::Obstacle* MovingPlat;
+    
+    /** Whether is dead  */
+    bool _isDead = false;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
@@ -425,6 +428,20 @@ public:
         _hasTreasure = false;
         _treasure = nullptr;
     };
+    
+    /**
+     * Sets the player as dead.
+     */
+    void setDead(){
+        _isDead = true;
+    }
+    
+    /**
+     * Returns whether the player is dead
+     */
+    bool isDead(){
+        return _isDead;
+    }
 
     
 #pragma mark -
@@ -614,6 +631,9 @@ public:
 
     /** Reset the player's movements in between rounds by setting it all to zero and to face the right */
     void resetMovement();
+    
+    /** Reset the player */
+    void reset();
 	
 };
 

@@ -28,9 +28,6 @@ using namespace cugl::physics2::distrib;
  * This class is the move phase controller.
  */
 class BuildPhaseController {
-public:
-    /** Whether we are in build mode */
-    bool buildingMode = true;
 
 protected:
     /** The asset manager for this game mode. */
@@ -57,7 +54,6 @@ protected:
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
 
-    std::function<void(bool)> _buildingModeCallback;
 
 public:
 #pragma mark -

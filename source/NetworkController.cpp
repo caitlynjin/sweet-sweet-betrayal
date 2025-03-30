@@ -132,6 +132,13 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    // Process messaging events
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+    }
 
 }
 
@@ -167,12 +174,47 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // TODO: Might need to add reset logic
-//    _readyButton->setVisible(true);
-//    _rightButton->setVisible(true);
-//    _leftButton->setVisible(true);
+
 }
 
 
+/**
+ * Resets logic necessary to start another round
+ */
+void NetworkController::resetRound(){
+    _numReady = 0;
+    _numReset = 0;
+}
+
+
+#pragma mark -
+#pragma mark Process Network Events
+/**
+ * This method takes a MessageEvent and processes it.
+ */
+void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+    Message message = event->getMesage();
+    switch (message) {
+        case Message::BUILD_READY:
+            // Increment number of players ready
+            _numReady++;
+            break;
+        
+        case Message::MOVEMENT_END:
+            // Increment number of players needed to be reset
+            _numReset++;
+            break;
+            
+        case Message::TREASURE_TAKEN:
+            // Increment number of players needed to be reset
+            _treasure->setTaken(true);
+            break;
+        default:
+            // Handle unknown message types
+            std::cout << "Unknown message type received" << std::endl;
+            break;
+    }
+}
 
 #pragma mark -
 #pragma mark Networked Object Creation
@@ -249,6 +291,35 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
         return nullptr;
     }
 }
+
+std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size size, float scale, bool isTaken){
+    // Find the hitbox in network world
+    std::shared_ptr<cugl::physics2::BoxObstacle> box;
+    const auto& obstacles = _world->getObstacles();
+    for (const auto& obstacle : obstacles) {
+        if (obstacle->getName() == "treasure"){
+            CULog("treasure is set for client");
+            box = std::dynamic_pointer_cast<BoxObstacle>(obstacle);
+            break;
+        }
+    }
+    
+    // Rest of initialization
+    std::shared_ptr<Texture> image;
+    std::shared_ptr<scene2::PolygonNode> sprite;
+    Vec2 treasurePos = pos;
+    image = _assets->get<Texture>("treasure");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/scale,scale, false, box);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    _treasure->setPosition(pos);
+    _objects->push_back(_treasure);
+    return _treasure;
+}
+
+
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
     auto params = _mushroomFact->serializeParams(pos+size/2, size, scale);

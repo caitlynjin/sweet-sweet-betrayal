@@ -190,11 +190,12 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-#ifdef CU_TOUCH_SCREEN
-    _treasure = std::dynamic_pointer_cast<Treasure>(
-        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
-    );
-#endif
+    if(_networkController->getIsHost()){
+        _treasure = std::dynamic_pointer_cast<Treasure>(
+            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+        );
+        _networkController->setTreasure(_treasure);
+    }
 
 }
 
@@ -226,7 +227,12 @@ void MovePhaseScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseScene::preUpdate(float dt) {
-    // Update objects    
+    // Set up treasure for non-host player
+    if (_treasure == nullptr && !_networkController->getIsHost()){
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
+    }
+    
+    // Update objects
     _camera->update();
 }
 
