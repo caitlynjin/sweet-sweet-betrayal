@@ -81,7 +81,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _sound = sound;
 
     // Initalize UI Scene
-    _uiScene.setTotalRounds(TOTAL_ROUNDS);
+//    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
     _uiScene.init(assets, _numPlayers);
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
@@ -124,9 +124,8 @@ void MovePhaseController::resetRound() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::reset() {
+    // TODO: Need to properly reset
     _currRound = 1;
-    _died = false;
-    _reachedGoal = false;
     
     setFailure(false);
     setComplete(false);
@@ -338,13 +337,7 @@ void MovePhaseController::postUpdate(float remain) {
         killPlayer();
     }
 
-    if (!_failed && _died){
-        setFailure(true);
-    }
-
-    if(_reachedGoal){
-        nextRound(true);
-    }
+    // TODO: Set up overall win and lose logic
 }
 
 void MovePhaseController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
@@ -437,15 +430,6 @@ void MovePhaseController::setComplete(bool value)
  */
 void MovePhaseController::setFailure(bool value) {
     if (value) {
-        // If next round available, do not fail
-        if (_currRound < TOTAL_ROUNDS){
-            if (_movePhaseScene.getLocalPlayer()->hasTreasure){
-                _movePhaseScene.setNextTreasure(_currGems);
-            }
-
-            nextRound();
-            return;
-        }
 
         _sound->playMusic("lose");
         _uiScene.setLoseVisible(true);
@@ -467,48 +451,48 @@ void MovePhaseController::setFailure(bool value) {
 */
 void MovePhaseController::nextRound(bool reachedGoal) {
     // Check if player won before going to next round
-    if (reachedGoal){
-        if(_movePhaseScene.getLocalPlayer()->hasTreasure){
-            _movePhaseScene.getLocalPlayer()->removeTreasure();
-            // Increment total treasure collected
-            _currGems += 1;
-            // Update score image
-            _uiScene.setScoreImageFull(_currGems - 1);
-
-            // Check if player won
-            if (_currGems == TOTAL_GEMS){
-                setComplete(true);
-                return;
-            }
-            else{
-                // Set up next treasure if collected in prev round
-                _movePhaseScene.setNextTreasure(_currGems);
-            }
-
-        }
-    }
-
-    // Check if player lost
-    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
-        setFailure(true);
-        return;
-    }
-
-    // Increment round
-    _currRound += 1;
-    // Update text
-    _uiScene.updateRound(_currRound, TOTAL_ROUNDS);
-
-    setFailure(false);
-
-    // Reset player properties
-    _movePhaseScene.resetPlayerProperties();
-    _died = false;
-    _reachedGoal = false;
-
-    // Reset growing wall
-//    _growingWallWidth = 0.1f;
-//    _growingWallNode->setVisible(false);
+//    if (reachedGoal){
+//        if(_movePhaseScene.getLocalPlayer()->hasTreasure){
+//            _movePhaseScene.getLocalPlayer()->removeTreasure();
+//            // Increment total treasure collected
+//            _currGems += 1;
+//            // Update score image
+//            _uiScene.setScoreImageFull(_currGems - 1);
+//
+//            // Check if player won
+//            if (_currGems == TOTAL_GEMS){
+//                setComplete(true);
+//                return;
+//            }
+//            else{
+//                // Set up next treasure if collected in prev round
+//                _movePhaseScene.setNextTreasure(_currGems);
+//            }
+//
+//        }
+//    }
+//
+//    // Check if player lost
+//    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
+//        setFailure(true);
+//        return;
+//    }
+//
+//    // Increment round
+//    _currRound += 1;
+//    // Update text
+//    _uiScene.updateRound(_currRound, TOTAL_ROUNDS);
+//
+//    setFailure(false);
+//
+//    // Reset player properties
+//    _movePhaseScene.resetPlayerProperties();
+//    _died = false;
+//    _reachedGoal = false;
+//
+//    // Reset growing wall
+////    _growingWallWidth = 0.1f;
+////    _growingWallNode->setVisible(false);
 
 }
 
