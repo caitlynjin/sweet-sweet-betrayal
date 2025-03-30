@@ -277,7 +277,10 @@ void BuildPhaseController::processModeChange(bool value) {
 
     if (value){
         _uiScene.setIsReady(false);
+        _networkController->resetRound();
     }
+    
+    
 }
 
 

@@ -80,20 +80,6 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _objectController = _movePhaseScene.getObjectController();
     _sound = sound;
 
-    const auto& obstacles = _world->getObstacles();
-    _numPlayers = 0;
-    for (const auto& obstacle : obstacles) {
-        if (obstacle->getName() == "player") {
-            _numPlayers += 1;
-            // Try to cast to DudeModel and add to our list if successful
-            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
-            if (playerModel) {
-                playerList.push_back(playerModel);
-            } else {
-                CULog("Found player but casting failed");
-            }
-        }
-    }
 
     // Initalize UI Scene
     _uiScene.setTotalRounds(TOTAL_ROUNDS);
@@ -127,8 +113,7 @@ void MovePhaseController::dispose() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::resetRound() {
-//    setFailure(false);
-//    setComplete(false);
+
     _movePhaseScene.resetPlayerProperties();
     _movePhaseScene.resetCameraPos();
     
@@ -286,6 +271,7 @@ void MovePhaseController::preUpdate(float dt) {
 
     // TODO: Segment into progressBarUpdate method
     int player_index = 0;
+    std::vector<std::shared_ptr<DudeModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
@@ -347,7 +333,7 @@ void MovePhaseController::preUpdate(float dt) {
  */
 void MovePhaseController::postUpdate(float remain) {
     // Record failure if necessary.
-    if (!_failed && _movePhaseScene.getLocalPlayer()->getY() < 0)
+    if (_movePhaseScene.getLocalPlayer()->getY() < 0)
     {
         killPlayer();
     }
@@ -380,9 +366,19 @@ void MovePhaseController::killPlayer(){
     if (!player->isDead()){
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
         
-        player->setDead();
+        player->setDead(true);
     }
     
+}
+
+/**
+ Logic for when player reaches the goal
+ */
+void MovePhaseController::reachedGoal(){
+    std::shared_ptr<DudeModel> player = _movePhaseScene.getLocalPlayer();
+    player->setImmobile(true);
+    // Send message to network that the player has ended their movement phase
+    _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
 }
 
 /**
@@ -570,7 +566,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
     // If we hit the "win" door, we are done
     if((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2 == _movePhaseScene.getGoalDoor().get()) ||
         (bd1 == _movePhaseScene.getGoalDoor().get() && bd2 == _movePhaseScene.getLocalPlayer().get())) {
-        _reachedGoal = true;
+//        _reachedGoal = true;
+        reachedGoal();
 
     }
     // If we hit a spike, we are DEAD

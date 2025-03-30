@@ -59,7 +59,7 @@ void MovePhaseUIScene::dispose() {
     {
         _winnode = nullptr;
         _losenode = nullptr;
-        _roundsnode = nullptr;
+//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
         _progressBar = nullptr;
@@ -104,13 +104,13 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
     _losenode->setForeground(LOSE_COLOR);
     addChild(_losenode);
 
-    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(_totalRounds), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setContentWidth(_size.width * .3);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
-    addChild(_roundsnode);
+//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(_totalRounds), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setContentWidth(_size.width * .3);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
+//    addChild(_roundsnode);
 
     float distance = _size.width * .05;
     for (int i = 0; i < TOTAL_GEMS; i++){
@@ -224,7 +224,7 @@ void MovePhaseUIScene::preUpdate(float dt) {
  * @param value whether the level is in building mode.
  */
 void MovePhaseUIScene::setBuildingMode(bool value) {
-    _roundsnode->setVisible(value);
+//    _roundsnode->setVisible(value);
     _progressBar->setVisible(!value);
     _redIcon->setVisible(!value);
     if (_numPlayers > 1){
@@ -258,7 +258,7 @@ void MovePhaseUIScene::setTotalRounds(int value) {
  * Set whether the elements of this scene are visible or not
  */
 void MovePhaseUIScene::setVisible(bool value) {
-    _roundsnode->setVisible(value);
+//    _roundsnode->setVisible(value);
 }
 
 /**
@@ -355,7 +355,7 @@ void MovePhaseUIScene::setScoreImageFull(int index) {
  * @param total     The total number of rounds
  */
 void MovePhaseUIScene::updateRound(int cur, int total) {
-    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
+//    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
 void MovePhaseUIScene::setRedIcon(float pos, float width) {

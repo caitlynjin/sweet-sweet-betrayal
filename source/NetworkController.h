@@ -300,6 +300,9 @@ protected:
     /** The treasure */
     std::shared_ptr<Treasure> _treasure; 
     
+    /** The list of all players */
+    std::vector<std::shared_ptr<DudeModel>> _playerList;
+    
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -452,6 +455,13 @@ public:
     }
     
     /**
+     * Returns the set of player objects in game
+     */
+    std::vector<std::shared_ptr<DudeModel>> getPlayerList(){
+        return _playerList;
+    }
+    
+    /**
      * Returns the localID
      */
     int getLocalID(){
@@ -492,6 +502,7 @@ public:
      * Returns whether game can switch to movement mode for all players.
      */
     bool canSwitchToBuild(){
+        CULog("Num reset: %f", _numReset);
         return _numReset >= _network->getNumPlayers();
     }
     

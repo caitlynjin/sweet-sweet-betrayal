@@ -65,7 +65,7 @@
 /** The density of the character */
 #define DUDE_DENSITY 0.9f
 /** The impulse for the character jump */
-#define DUDE_JUMP 27.5f
+#define DUDE_JUMP 10.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -473,6 +473,7 @@ void DudeModel::update(float dt)
 {
 
     // ANIMATION
+    // TODO: Move to method updateAnimation
     _timeline->update(dt);
     
     if ((getVY() != 0) && _isGliding && _glideAction){
@@ -509,9 +510,12 @@ void DudeModel::update(float dt)
         doStrip(_walkAction);
     }
     
-    // Check whether we are in glide mode
+//     Should not move when immobile
+    if (_immobile){
+        setLinearVelocity(Vec2(0,0));
+    }
     
-    if (!_isDead){
+    if (!_isDead && !_immobile){
         windUpdate(dt);
         //Set Justflipped and justglided to instantly deactivate
         if (_justFlipped == true) {
@@ -532,6 +536,7 @@ void DudeModel::update(float dt)
             _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
         }
         
+        // TODO: Is this code from the lab? If we're not using, delete
         if (isShooting())
         {
             _shootCooldown = SHOOT_COOLDOWN;

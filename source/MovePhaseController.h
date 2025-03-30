@@ -74,8 +74,6 @@ protected:
     float _playerStart;
     /** Number of players */
     int _numPlayers;
-    /** List of players */
-    std::vector<std::shared_ptr<DudeModel>> playerList;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -145,6 +143,11 @@ public:
      * Kills the player for the round.
      */
     void killPlayer();
+    
+    /**
+     *  Called when player reaches the goal
+     */
+    void reachedGoal();
 
     /**
      * Processes the change between modes (movement and building mode).

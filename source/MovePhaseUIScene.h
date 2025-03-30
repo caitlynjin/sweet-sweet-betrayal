@@ -42,7 +42,7 @@ protected:
     /** Reference to the lose message label */
     std::shared_ptr<scene2::Label> _losenode;
     /** Reference to the rounds message label */
-    std::shared_ptr<scene2::Label> _roundsnode;
+//    std::shared_ptr<scene2::Label> _roundsnode;
     /** Score images */
     std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
     /** Reference to the left joystick image */

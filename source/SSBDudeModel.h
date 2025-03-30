@@ -119,6 +119,8 @@ protected:
     
     /** Whether is dead  */
     bool _isDead = false;
+    /** Whether is immobile */
+    bool _immobile = true;
 
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
@@ -432,8 +434,8 @@ public:
     /**
      * Sets the player as dead.
      */
-    void setDead(){
-        _isDead = true;
+    void setDead(bool value){
+        _isDead = value;
     }
     
     /**
@@ -441,6 +443,20 @@ public:
      */
     bool isDead(){
         return _isDead;
+    }
+    
+    /**
+     * Sets the player as immobile.
+     */
+    void setImmobile(bool value){
+        _immobile = value; 
+    }
+    
+    /**
+     * Returns whether the player is immobile
+     */
+    bool getImmobile(){
+        return _immobile;
     }
 
     

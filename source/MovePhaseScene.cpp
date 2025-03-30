@@ -228,6 +228,8 @@ void MovePhaseScene::reset() {
  */
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player
+    CULog("Local Player is dead: %d", _localPlayer->isDead());
+    
     if (_treasure == nullptr && !_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
     }
@@ -260,6 +262,10 @@ void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->setPosition(Vec2(DUDE_POS));
     _localPlayer->resetMovement();
     _localPlayer->removeTreasure();
+    std::vector<std::shared_ptr<DudeModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setDead(false);
+    }
 
 }
 

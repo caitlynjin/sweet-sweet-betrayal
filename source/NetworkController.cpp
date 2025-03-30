@@ -56,7 +56,6 @@ void NetworkController::dispose(){
 //    if (_active)
 //    {
 //        //TODO: Dispose variables
-//        _roundsnode = nullptr;
 //        _readyButton = nullptr;
 //        _rightButton = nullptr;
 //        _leftButton = nullptr;
@@ -365,8 +364,8 @@ void NetworkController::trySetFilters(){
     // First, count how many players are in the world
     // We only want to set filters once all players are represented in the world
     int numPlayers = 0;
-    std::vector<std::shared_ptr<DudeModel>> playerList;
     const auto& obstacles = _world->getObstacles();
+    std::vector<std::shared_ptr<DudeModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
         if (obstacle->getName() == "player"){
@@ -375,7 +374,7 @@ void NetworkController::trySetFilters(){
             // Try to cast to DudeModel and add to our list if successful
             auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
             if (playerModel) {
-                playerList.push_back(playerModel);
+                playerListTemp.push_back(playerModel);
             } else {
                 CULog("Found player but casting failed");
             }
@@ -383,12 +382,13 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
-    if (numPlayers >= _network->getNumPlayers()){
+    if (numPlayers == _network->getNumPlayers()){
+        _playerList = playerListTemp;
         // Loop through each obstacle
-        for (auto& player : playerList) {
+        for (auto& player : _playerList) {
             player->setFilterData();
         }
-        for (auto& player : playerList) {
+        for (auto& player : _playerList) {
             player->setEnabled(true);
         }
         

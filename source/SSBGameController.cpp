@@ -252,7 +252,15 @@ void SSBGameController::preUpdate(float dt)
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
-
+//    
+//    std::vector<std::shared_ptr<DudeModel>> playerList = _networkController->getPlayerList();
+//    CULog("PlayerList size: %d", static_cast<int>(playerList.size()));
+//    int playerNum = 1;
+//    for (auto player : playerList){
+//        CULog("Player %d is dead: %d", playerNum, player->isDead());
+//        playerNum++;
+//    }
+    
 
     // Update logic for Build Phase
     if (_buildingMode){
@@ -272,9 +280,10 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
-            setBuildingMode(!_buildingMode);
+            CULog("SWITCHING TO BUILD MODE");
             _networkController->resetRound();
             _movePhaseController->resetRound();
+            setBuildingMode(!_buildingMode);
         }
     }
 }
@@ -384,12 +393,18 @@ void SSBGameController::render() {
  */
 void SSBGameController::setBuildingMode(bool value) {
     _buildingMode = value;
+    
     _buildPhaseController->processModeChange(value);
 
     _gridManager->getGridNode()->setVisible(value);
     _camera->setPosition(_initialCameraPos);
 
     _movePhaseController->processModeChange(value);
+    
+    std::vector<std::shared_ptr<DudeModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setImmobile(value);
+    }
 }
 
 #pragma mark -
