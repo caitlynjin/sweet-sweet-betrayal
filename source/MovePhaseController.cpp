@@ -12,7 +12,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_collision.h>
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
@@ -86,7 +86,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
         if (obstacle->getName() == "player") {
             _numPlayers += 1;
             // Try to cast to DudeModel and add to our list if successful
-            auto playerModel = std::dynamic_pointer_cast<DudeModel>(obstacle);
+            auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
                 playerList.push_back(playerModel);
             } else {
@@ -187,27 +187,16 @@ void MovePhaseController::preUpdate(float dt) {
         //THE GLIDE BULLSHIT SECTION
         if (_input->getRightTapped()) {
             _input->setRightTapped(false);
+            
             if (!_movePhaseScene.getLocalPlayer()->isGrounded())
             {
                 _movePhaseScene.getLocalPlayer()->setGlide(true);
             }
         }
         else if (!_input->isRightDown()) {
+            //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
             _movePhaseScene.getLocalPlayer()->setGlide(false);
         }
-
-//        if (_input->getRightTapped()) {
-//            _input->setRightTapped(false);
-//            if (!_avatar->isGrounded())
-//            {
-//                _avatar->setGlide(true);
-//            }
-//        }
-//        else if (!_input->isRightDown()) {
-//            _avatar->setGlide(false);
-//
-//        }
-        
         _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
         _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());

@@ -10,7 +10,7 @@
 
 #include <cugl/cugl.h>
 #include "Object.h"
-#include "SSBDudeModel.h"
+#include "PlayerModel.h"
 #include "Platform.h"
 #include "Constants.h"
 #include "MessageEvent.h"
@@ -485,7 +485,7 @@ public:
      *
      * @param The player being created (that has not yet been added to the physics world).
      */
-    std::shared_ptr<DudeModel> createPlayerNetworked(Vec2 pos, float scale);
+    std::shared_ptr<PlayerModel> createPlayerNetworked(Vec2 pos, float scale);
     
     /**
      * Creates a networked moving platform.

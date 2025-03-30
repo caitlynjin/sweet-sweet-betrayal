@@ -49,7 +49,7 @@ protected:
     /** Reference to the goalDoor (for collision detection) */
     std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
     /** Reference to the local player */
-    std::shared_ptr<DudeModel> _localPlayer;
+    std::shared_ptr<PlayerModel> _localPlayer;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
 
@@ -148,7 +148,7 @@ public:
     /**
      * Gets the local player
      */
-    std::shared_ptr<DudeModel> getLocalPlayer() { return _localPlayer; };
+    std::shared_ptr<PlayerModel> getLocalPlayer() { return _localPlayer; };
 
     /**
      * Gets the treasure
