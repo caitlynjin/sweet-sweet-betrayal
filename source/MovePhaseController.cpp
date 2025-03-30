@@ -231,7 +231,7 @@ void MovePhaseController::preUpdate(float dt) {
         _sound->playSound("jump");
     }
 
-    // TODO: Why is this here? Should be handled in WindObstacle class
+    // TODO: All of this logic should be handled in WindObstacle class
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 
         /**If we created a wind object, create a bunch of raycasts.*/
