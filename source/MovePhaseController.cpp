@@ -390,9 +390,8 @@ void MovePhaseController::reachedGoal(){
 void MovePhaseController::processModeChange(bool value) {
 
     _movePhaseScene.resetCameraPos();
-
-    _uiScene.setVisible(value);
-    _uiScene.setBuildingMode(value);
+    _uiScene.disableUI(value);
+    
 }
 
 #pragma mark -

@@ -252,15 +252,7 @@ void SSBGameController::preUpdate(float dt)
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
         (*it)->update(dt);
     }
-//    
-//    std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
-//    CULog("PlayerList size: %d", static_cast<int>(playerList.size()));
-//    int playerNum = 1;
-//    for (auto player : playerList){
-//        CULog("Player %d is dead: %d", playerNum, player->isDead());
-//        playerNum++;
-//    }
-    
+
 
     // Update logic for Build Phase
     if (_buildingMode){
@@ -269,8 +261,6 @@ void SSBGameController::preUpdate(float dt)
         if (_networkController->canSwitchToMove()){
             // Exit build mode and switch to movement phase
             setBuildingMode(!_buildingMode);
-            //TODO: Implement switching to movement mode logic in networkcontroller
-//            _networkController->resetRound();
         }
         
     }
@@ -280,11 +270,26 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
-            CULog("SWITCHING TO BUILD MODE");
-            _networkController->resetRound();
-            _movePhaseController->resetRound();
-            setBuildingMode(!_buildingMode);
+            //TODO: Segment into switchToBuild()
+            if (_scoreCountdown == -1){
+                _scoreCountdown = SCOREBOARD_COUNT;
+                _movePhaseController->scoreboardActive(true);
+            }
+            if (_scoreCountdown == 0){
+                _movePhaseController->scoreboardActive(false);
+                _movePhaseController->resetRound();
+                setBuildingMode(!_buildingMode);
+                _networkController->resetRound();
+//                _movePhaseController->resetRound();
+                _scoreCountdown = -1;
+            }
         }
+    }
+    
+    // Update any timers, if active
+    // TODO: segment into updateTimers method if more timers needed in future
+    if (_scoreCountdown > 0){
+        _scoreCountdown -= 1;
     }
 }
 
@@ -361,6 +366,7 @@ void SSBGameController::postUpdate(float remain)
     
 
     // Reset the game if we win or lose.
+    // TODO: handle within u
     int countdown = _movePhaseController->getCountdown();
     if (countdown > 0)
     {

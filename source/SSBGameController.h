@@ -76,6 +76,9 @@ protected:
 
     /** Whether we are in build mode */
     bool _buildingMode;
+    
+    /** Countdown active for displaying scoreboard between rounds */
+    int _scoreCountdown = -1;
 
 public:
 #pragma mark -

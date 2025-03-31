@@ -465,6 +465,7 @@ public:
     bool getImmobile(){
         return _immobile;
     }
+    
 
     
 #pragma mark -

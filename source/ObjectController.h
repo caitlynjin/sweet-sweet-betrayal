@@ -7,8 +7,6 @@
 
 //This file will handle generation logic for all obstacles: spikes, wind gust,treasure
 
-//TODO: decide if it will be networked
-//TODO: will treasure be here?
 
 #ifndef OBJECT_CONTROLLER_H
 #define OBJECT_CONTROLLER_H

@@ -371,7 +371,6 @@ void SSBApp::updateHostScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
-        // TODO: add network to gameplay
         _networkController->setIsHost(true);
         _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
@@ -413,7 +412,6 @@ void SSBApp::updateClientScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
-        // TODO: add network
         _networkController->setIsHost(false);
         _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);

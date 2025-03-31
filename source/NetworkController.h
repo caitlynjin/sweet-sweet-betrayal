@@ -527,7 +527,6 @@ public:
      * Returns whether game can switch to movement mode for all players.
      */
     bool canSwitchToBuild(){
-        CULog("Num reset: %f", _numReset);
         return _numReset >= _network->getNumPlayers();
     }
     

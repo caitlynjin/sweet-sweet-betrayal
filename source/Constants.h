@@ -129,8 +129,14 @@
 #define BASIC_FRICTION 0.4f
 /** The restitution for all physics objects */
 #define BASIC_RESTITUTION 0.1f
+
+
+#pragma mark -
+#pragma mark Timer Constants
 /** The number of frame to wait before reinitializing the game */
 #define EXIT_COUNT 240
+/** The number of frame to wait before reinitializing the game */
+#define SCOREBOARD_COUNT 150
 
 
 #pragma mark -

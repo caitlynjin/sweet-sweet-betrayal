@@ -228,9 +228,7 @@ void MovePhaseScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseScene::preUpdate(float dt) {
-    // Set up treasure for non-host player
-    CULog("Local Player is dead: %d", _localPlayer->isDead());
-    
+    // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
         _networkController->setTreasureSpawn(TREASURE_POS[0]);

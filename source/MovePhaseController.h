@@ -81,10 +81,6 @@ protected:
     bool _debug;
     /** Whether we have failed at this world (and need a reset) */
     bool _failed;
-    /** Whether the player has died */
-    bool _died = false;
-    /** Whether the player has reached the goal */
-    bool _reachedGoal = false;
 
 
 public:
@@ -155,6 +151,18 @@ public:
      * @param value whether the level is in building mode.
      */
     void processModeChange(bool value);
+    
+    
+    /**
+     * Activates or deactivates the scoreboard node
+     *
+     * @param value whether to activate the scoreboard node
+     */
+    void scoreboardActive(bool value){
+        _uiScene.setScoreboardVisible(value);
+        _uiScene.disableUI(value);
+    };
+    
 
 #pragma mark -
 #pragma mark Attribute Functions

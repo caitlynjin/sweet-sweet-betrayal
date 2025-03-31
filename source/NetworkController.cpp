@@ -520,7 +520,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
  * Helper method for converting normal parameters into byte vectors used for syncing.
  */
 std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, string jsonType, float scale) {
-    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
     // Cast jsonType to an int for serializer
     int type;
     if (jsonType == "tile"){
@@ -548,7 +547,7 @@ std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 po
  * Generate a pair of Obstacle and SceneNode using serialized parameters.
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
-    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
+
     _deserializer.reset();
     _deserializer.receive(params);
     float x = _deserializer.readFloat();
