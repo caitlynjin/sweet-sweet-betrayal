@@ -161,16 +161,12 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
+    
+    _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
-    // Set up callbacks to transition between game modes
-    _buildPhaseController->setBuildingModeCallback([this](bool value) {
-        this->setBuildingMode(value);
-    });
-    _movePhaseController->setBuildingModeCallback([this](bool value) {
-        this->setBuildingMode(value);
-    });
+
 
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
@@ -248,18 +244,53 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);
-
-    // Process Networking
-    if (_buildingMode && (_networkController->getNumReady() >= _network->getNumPlayers())){
-        // Exit build mode and switch to movement phase
-        setBuildingMode(!_buildingMode);
-        _networkController->setNumReady(0);
+    
+    // Update all game objects
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
     }
 
-    _buildPhaseController->preUpdate(dt);
-    _movePhaseController->preUpdate(dt);
+
+    // Update logic for Build Phase
+    if (_buildingMode){
+        _buildPhaseController->preUpdate(dt);
+        // Check if can switch to movement phase
+        if (_networkController->canSwitchToMove()){
+            // Exit build mode and switch to movement phase
+            setBuildingMode(!_buildingMode);
+        }
+        
+    }
+    
+    // Update logic for Movement Phase
+    if (!_buildingMode){
+        _movePhaseController->preUpdate(dt);
+        // Check if can switch to build phase, therefore starting a new round
+        if (_networkController->canSwitchToBuild()){
+            //TODO: Segment into switchToBuild()
+            if (_scoreCountdown == -1){
+                _scoreCountdown = SCOREBOARD_COUNT;
+                _movePhaseController->scoreboardActive(true);
+            }
+            if (_scoreCountdown == 0){
+                _movePhaseController->scoreboardActive(false);
+                _movePhaseController->resetRound();
+                setBuildingMode(!_buildingMode);
+                _networkController->resetRound();
+//                _movePhaseController->resetRound();
+                _scoreCountdown = -1;
+            }
+        }
+    }
+    
+    // Update any timers, if active
+    // TODO: segment into updateTimers method if more timers needed in future
+    if (_scoreCountdown > 0){
+        _scoreCountdown -= 1;
+    }
 }
 
 /**
@@ -293,15 +324,10 @@ void SSBGameController::fixedUpdate(float step)
     // Turn the physics engine crank.
     _world->update(FIXED_TIMESTEP_S);
 
-    // Update all controller
+    // Update all controllers
     _networkController->fixedUpdate(step);
 
-    if(_network->isInAvailable()){
-        auto e = _network->popInEvent();
-        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            processMessageEvent(mEvent);
-        }
-    }
+
 }
 
 /**
@@ -333,9 +359,14 @@ void SSBGameController::postUpdate(float remain)
 
     // Update all controllers
     _networkController->fixedUpdate(remain);
-    _movePhaseController->postUpdate(remain);
+    
+    if (!_buildingMode){
+        _movePhaseController->postUpdate(remain);
+    }
+    
 
     // Reset the game if we win or lose.
+    // TODO: handle within u
     int countdown = _movePhaseController->getCountdown();
     if (countdown > 0)
     {
@@ -368,31 +399,20 @@ void SSBGameController::render() {
  */
 void SSBGameController::setBuildingMode(bool value) {
     _buildingMode = value;
+    
     _buildPhaseController->processModeChange(value);
 
     _gridManager->getGridNode()->setVisible(value);
     _camera->setPosition(_initialCameraPos);
 
     _movePhaseController->processModeChange(value);
+    
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setImmobile(value);
+    }
 }
 
 #pragma mark -
 #pragma mark Helpers
-/**
- * This method takes a MessageEvent and processes it.
- */
-void SSBGameController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
-    Message message = event->getMesage();
-    switch (message) {
-        case Message::BUILD_READY:
-            // Increment number of players ready
-            // TODO: Find better way of handling
-            _networkController->setNumReady(_networkController->getNumReady() + 1);
-            break;
 
-        default:
-            // Handle unknown message types
-            std::cout << "Unknown message type received" << std::endl;
-            break;
-    }
-}

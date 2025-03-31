@@ -62,7 +62,7 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     return true;
 }
 bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    Size nsize = size;
+//    Size nsize = size;
     _treasureTexture = "";
     _position = pos;
     _size = size;
@@ -71,6 +71,10 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std
     _taken = taken;
     _box = box;
     return true;
+}
+
+void Treasure::reset(){
+    _taken = false;
 }
 
 std::map<std::string, std::any> Treasure::getMap() {

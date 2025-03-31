@@ -148,7 +148,7 @@ void HostScene::setActive(bool value) {
         Scene2::setActive(value);
         
         /**
-         * TODO: if value is true, you need to activate the _backout button, and set the clicked variable to false. You need to also call the network controller to start a connection as a host. If the value is false, and reset all buttons and textfields to their original state.
+         * If value is true, you need to activate the _backout button, and set the clicked variable to false. You need to also call the network controller to start a connection as a host. If the value is false, and reset all buttons and textfields to their original state.
          */
 #pragma mark BEGIN SOLUTION
         if (value) {
@@ -198,7 +198,7 @@ void HostScene::updateText(const std::shared_ptr<scene2::Button>& button, const 
  */
 void HostScene::update(float timestep) {
     /**
-     * TODO: check for the status of `_network` (The NetworkController). If it is CONNECTED, you would need to update the scene nodes so that _gameId displays the id of the room (converted from hex to decimal) and _player displays the number of players. Additionally, you should check whether the `_startgame` button has been pressed and update its text. If it is not pressed yet, then its should display "Start Game" and be activated, otherwise, it should be deactivated and show "Starting".
+     * Check for the status of `_network` (The NetworkController). If it is CONNECTED, you would need to update the scene nodes so that _gameId displays the id of the room (converted from hex to decimal) and _player displays the number of players. Additionally, you should check whether the `_startgame` button has been pressed and update its text. If it is not pressed yet, then its should display "Start Game" and be activated, otherwise, it should be deactivated and show "Starting".
      */
 #pragma mark BEGIN SOLUTION
     if(_network->getStatus() == NetEventController::Status::CONNECTED){
@@ -220,7 +220,7 @@ void HostScene::update(float timestep) {
  * This method prompts the network controller to start the game.
  */
 void HostScene::startGame(){
-    //TODO: call the network controller to start the game and set the _startGameClicked to true.
+    //Call the network controller to start the game and set the _startGameClicked to true.
 #pragma mark BEGIN SOLUTION
     _network->startGame();
     _startGameClicked = true;

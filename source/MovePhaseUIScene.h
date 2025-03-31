@@ -36,15 +36,15 @@ protected:
     std::shared_ptr<AssetManager> _assets;
 
     /** Reference to the label for counting rounds */
-    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
+//    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
     /** Reference to the win message label */
     std::shared_ptr<scene2::Label> _winnode;
     /** Reference to the lose message label */
     std::shared_ptr<scene2::Label> _losenode;
     /** Reference to the rounds message label */
-    std::shared_ptr<scene2::Label> _roundsnode;
+//    std::shared_ptr<scene2::Label> _roundsnode;
     /** Score images */
-    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
+//    std::vector<std::shared_ptr<scene2::PolygonNode>> _scoreImages;
     /** Reference to the left joystick image */
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
@@ -61,6 +61,12 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
     /** Reference to the treasure icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
+    
+    /** Reference to the scoreboard overlay */
+    //TODO: Change to the PolygonNode that will be the background of the scoreboard scene
+    std::shared_ptr<scene2::Label> _scoreboardNode;
+    //TODO: Change to the appropriate type for each row of the scoreboard
+    std::vector<std::shared_ptr<scene2::Label>> _playerScores;
 
     /** Total numer of rounds */
     int _totalRounds;
@@ -127,11 +133,11 @@ public:
     void preUpdate(float dt);
 
     /**
-     * Sets whether mode is in building or play mode.
+     * Sets whether to enable or disable UI
      *
-     * @param value whether the level is in building mode.
+     * @param value whether to disable UI
      */
-    void setBuildingMode(bool value);
+    void disableUI(bool value);
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -177,6 +183,18 @@ public:
      * Set whether the lose node is visible or not
      */
     void setLoseVisible(bool value);
+    
+    /**
+     * Set whether the scoreboard  node is visible or not
+     */
+    void setScoreboardVisible(bool value){
+        // Set scoreboard as visible
+        _scoreboardNode->setVisible(value);
+//        for (auto scores : _playerScores){
+//            scores->setVisible(value);
+//        }
+        disableUI(value); 
+    };
 
     /**
      * Sets the left joystick to be visible.
@@ -246,6 +264,7 @@ public:
      * @param color     Which color icon the treasure will appear on top of
      */
     void setTreasureIcon(bool has, int color);
+
 
     /**
      * Updates round counter

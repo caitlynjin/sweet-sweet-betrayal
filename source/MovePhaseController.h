@@ -29,9 +29,8 @@ using namespace cugl::physics2::distrib;
  * This class is the move phase controller.
  */
 class MovePhaseController {
-public:
-    /** Whether we are in build mode */
-    bool buildingMode = true;
+    
+    // TODO: Should be in Mushroom class
     int _mushroomCooldown = 0;
 
 protected:
@@ -75,8 +74,6 @@ protected:
     float _playerStart;
     /** Number of players */
     int _numPlayers;
-    /** List of players */
-    std::vector<std::shared_ptr<PlayerModel>> playerList;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -84,12 +81,7 @@ protected:
     bool _debug;
     /** Whether we have failed at this world (and need a reset) */
     bool _failed;
-    /** Whether the player has died */
-    bool _died = false;
-    /** Whether the player has reached the goal */
-    bool _reachedGoal = false;
 
-    std::function<void(bool)> _buildingModeCallback;
 
 public:
 #pragma mark -
@@ -118,6 +110,11 @@ public:
     /**
      * Resets the status of the game so that we can play again.
      */
+    void resetRound(); 
+    
+    /**
+     * Resets the status of the game so that we can play again.
+     */
     void reset();
 
     /**
@@ -137,6 +134,16 @@ public:
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render();
+    
+    /**
+     * Kills the player for the round.
+     */
+    void killPlayer();
+    
+    /**
+     *  Called when player reaches the goal
+     */
+    void reachedGoal();
 
     /**
      * Processes the change between modes (movement and building mode).
@@ -144,16 +151,18 @@ public:
      * @param value whether the level is in building mode.
      */
     void processModeChange(bool value);
-
+    
+    
     /**
-     * Assigns a callback function that will be executed when `setBuildingMode` is called.
+     * Activates or deactivates the scoreboard node
+     *
+     * @param value whether to activate the scoreboard node
      */
-    void setBuildingModeCallback(std::function<void(bool)> callback);
-
-    /**
-     * Triggers a change in building mode.
-     */
-    void setBuildingMode(bool value);
+    void scoreboardActive(bool value){
+        _uiScene.setScoreboardVisible(value);
+        _uiScene.disableUI(value);
+    };
+    
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -166,6 +175,13 @@ public:
      * Gets the object controller
      */
     std::shared_ptr<ObjectController> getObjectController() { return _objectController; };
+    
+    /**
+     * Gets the object list
+     */
+    std::vector<std::shared_ptr<Object>> getObjects(){
+        return _objects;
+    };
 
     /**
      * Gets the current countdown count

@@ -59,16 +59,16 @@ void MovePhaseUIScene::dispose() {
     {
         _winnode = nullptr;
         _losenode = nullptr;
-        _roundsnode = nullptr;
+//        _roundsnode = nullptr;
         _leftnode = nullptr;
         _rightnode = nullptr;
         _progressBar = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
         _treasureIcon = nullptr;
-        for (auto score : _scoreImages){
-            score = nullptr;
-        }
+//        for (auto score : _scoreImages){
+//            score = nullptr;
+//        }
         Scene2::dispose();
     }
 };
@@ -104,25 +104,25 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
     _losenode->setForeground(LOSE_COLOR);
     addChild(_losenode);
 
-    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(_totalRounds), _assets->get<Font>(INFO_FONT));
-    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
-    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
-    _roundsnode->setContentWidth(_size.width * .3);
-    _roundsnode->setForeground(INFO_COLOR);
-    _roundsnode->setVisible(true);
-    addChild(_roundsnode);
+//    _roundsnode = scene2::Label::allocWithText("Round: 1/" + std::to_string(_totalRounds), _assets->get<Font>(INFO_FONT));
+//    _roundsnode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _roundsnode->setPosition(_size.width * .75,_size.height * .9);
+//    _roundsnode->setContentWidth(_size.width * .3);
+//    _roundsnode->setForeground(INFO_COLOR);
+//    _roundsnode->setVisible(true);
+//    addChild(_roundsnode);
 
     float distance = _size.width * .05;
-    for (int i = 0; i < TOTAL_GEMS; i++){
-        std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
-        scoreNode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
-        scoreNode->setPosition(_size.width * .15 + (i*distance),_size.height * .9);
-        scoreNode->setScale(0.1f);
-        scoreNode->setVisible(true);
-        _scoreImages.push_back(scoreNode);
-        // TODO: May cause issues
-        addChild(scoreNode);
-    }
+//    for (int i = 0; i < TOTAL_GEMS; i++){
+//        std::shared_ptr<scene2::PolygonNode> scoreNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(EMPTY_IMAGE));
+//        scoreNode->SceneNode::setAnchor(Vec2::ANCHOR_CENTER);
+//        scoreNode->setPosition(_size.width * .15 + (i*distance),_size.height * .9);
+//        scoreNode->setScale(0.1f);
+//        scoreNode->setVisible(true);
+//        _scoreImages.push_back(scoreNode);
+//        // TODO: May cause issues
+//        addChild(scoreNode);
+//    }
 
     _leftnode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_IMAGE));
     _leftnode->SceneNode::setAnchor(Vec2::ANCHOR_MIDDLE_RIGHT);
@@ -193,6 +193,24 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
     _treasureIcon->setPosition(_redIcon->getPosition());
     _treasureIcon->setVisible(false);
     addChild(_treasureIcon);
+    
+    // Add scoreboard node
+    _scoreboardNode = scene2::Label::allocWithText("Round Over!", _assets->get<Font>(INFO_FONT));
+    _scoreboardNode->setAnchor(Vec2::ANCHOR_CENTER);
+    _scoreboardNode->setPosition(_size.width * .5,_size.height * .7);
+    _scoreboardNode->setForeground(INFO_COLOR);
+    _scoreboardNode->setVisible(false);
+    addChild(_scoreboardNode);
+    
+    // KEEP THIS FOR REFERENCE, WILL NEED ONCE SCORING UI IS IN
+    // Add player score nodes
+//    std::shared_ptr<scene2::Label> playerScore = scene2::Label::allocWithText("Player 1 has 0 points", _assets->get<Font>(INFO_FONT));
+//    playerScore->setAnchor(Vec2::ANCHOR_CENTER);
+//    playerScore->setPosition(_size.width * .5,_size.height * .5);
+//    playerScore->setForeground(INFO_COLOR);
+//    playerScore->setVisible(false);
+//    addChild(playerScore);
+//    _playerScores.push_back(playerScore);
 
     _numPlayers = players;
 
@@ -223,8 +241,7 @@ void MovePhaseUIScene::preUpdate(float dt) {
  *
  * @param value whether the level is in building mode.
  */
-void MovePhaseUIScene::setBuildingMode(bool value) {
-    _roundsnode->setVisible(value);
+void MovePhaseUIScene::disableUI(bool value) {
     _progressBar->setVisible(!value);
     _redIcon->setVisible(!value);
     if (_numPlayers > 1){
@@ -234,12 +251,13 @@ void MovePhaseUIScene::setBuildingMode(bool value) {
     if (value){
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
-        _glidebutton->setVisible(false);
     }
     else{
         _jumpbutton->activate();
+        _glidebutton->activate();
     }
     _jumpbutton->setVisible(!value);
+    _glidebutton->setVisible(!value);
 }
 
 #pragma mark -
@@ -254,12 +272,6 @@ void MovePhaseUIScene::setTotalRounds(int value) {
 
 #pragma mark -
 #pragma mark Helpers
-/**
- * Set whether the elements of this scene are visible or not
- */
-void MovePhaseUIScene::setVisible(bool value) {
-    _roundsnode->setVisible(value);
-}
 
 /**
  * Set whether the win node is visible or not
@@ -344,9 +356,9 @@ void MovePhaseUIScene::setJumpButtonActive() {
 /**
  * Set the score image at this gem index to full.
  */
-void MovePhaseUIScene::setScoreImageFull(int index) {
-    _scoreImages.at(index)->setTexture(_assets->get<Texture>(FULL_IMAGE));
-}
+//void MovePhaseUIScene::setScoreImageFull(int index) {
+//    _scoreImages.at(index)->setTexture(_assets->get<Texture>(FULL_IMAGE));
+//}
 
 /**
  * Updates round counter
@@ -355,7 +367,7 @@ void MovePhaseUIScene::setScoreImageFull(int index) {
  * @param total     The total number of rounds
  */
 void MovePhaseUIScene::updateRound(int cur, int total) {
-    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
+//    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
 void MovePhaseUIScene::setRedIcon(float pos, float width) {

@@ -56,7 +56,6 @@ void NetworkController::dispose(){
 //    if (_active)
 //    {
 //        //TODO: Dispose variables
-//        _roundsnode = nullptr;
 //        _readyButton = nullptr;
 //        _rightButton = nullptr;
 //        _leftButton = nullptr;
@@ -132,6 +131,13 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    // Process messaging events
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+    }
 
 }
 
@@ -167,12 +173,58 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // TODO: Might need to add reset logic
-//    _readyButton->setVisible(true);
-//    _rightButton->setVisible(true);
-//    _leftButton->setVisible(true);
+
 }
 
 
+/**
+ * Resets logic necessary to start another round
+ */
+void NetworkController::resetRound(){
+    _numReady = 0;
+    _numReset = 0;
+}
+
+
+#pragma mark -
+#pragma mark Process Network Events
+/**
+ * This method takes a MessageEvent and processes it.
+ */
+void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
+    Message message = event->getMesage();
+    switch (message) {
+        case Message::BUILD_READY:
+            // Increment number of players ready
+            _numReady++;
+            break;
+        
+        case Message::MOVEMENT_END:
+            // Increment number of players needed to be reset
+            _numReset++;
+            break;
+            
+        case Message::TREASURE_TAKEN:
+            // Increment number of players needed to be reset
+            _treasure->setTaken(true);
+            break;
+        case Message::TREASURE_LOST:
+            // Reset treasure
+            resetTreasure();
+            break;
+        default:
+            // Handle unknown message types
+            std::cout << "Unknown message type received" << std::endl;
+            break;
+    }
+}
+
+/** Resets the treasure to remove possession and return to spawn location */
+void NetworkController::resetTreasure(){
+    _treasure->setTaken(false);
+    _treasure->setPosition(_treasureSpawn);
+    
+}
 
 #pragma mark -
 #pragma mark Networked Object Creation
@@ -249,6 +301,35 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
         return nullptr;
     }
 }
+
+std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size size, float scale, bool isTaken){
+    // Find the hitbox in network world
+    std::shared_ptr<cugl::physics2::BoxObstacle> box;
+    const auto& obstacles = _world->getObstacles();
+    for (const auto& obstacle : obstacles) {
+        if (obstacle->getName() == "treasure"){
+            CULog("treasure is set for client");
+            box = std::dynamic_pointer_cast<BoxObstacle>(obstacle);
+            break;
+        }
+    }
+    
+    // Rest of initialization
+    std::shared_ptr<Texture> image;
+    std::shared_ptr<scene2::PolygonNode> sprite;
+    Vec2 treasurePos = pos;
+    image = _assets->get<Texture>("treasure");
+    _treasure = Treasure::alloc(treasurePos,image->getSize()/scale,scale, false, box);
+    sprite = scene2::PolygonNode::allocWithTexture(image);
+    _treasure->setSceneNode(sprite);
+    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+
+    _treasure->setPosition(pos);
+    _objects->push_back(_treasure);
+    return _treasure;
+}
+
+
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
     auto params = _mushroomFact->serializeParams(pos+size/2, size, scale);
@@ -294,17 +375,18 @@ void NetworkController::trySetFilters(){
     // First, count how many players are in the world
     // We only want to set filters once all players are represented in the world
     int numPlayers = 0;
-    std::vector<std::shared_ptr<PlayerModel>> playerList;
+
     const auto& obstacles = _world->getObstacles();
+    std::vector<std::shared_ptr<PlayerModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
         if (obstacle->getName() == "player"){
             numPlayers += 1;
             
-            // Try to cast to DudeModel and add to our list if successful
+            // Try to cast to PlayerModel and add to our list if successful
             auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
-                playerList.push_back(playerModel);
+                playerListTemp.push_back(playerModel);
             } else {
                 CULog("Found player but casting failed");
             }
@@ -312,12 +394,13 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
-    if (numPlayers >= _network->getNumPlayers()){
+    if (numPlayers == _network->getNumPlayers()){
+        _playerList = playerListTemp;
         // Loop through each obstacle
-        for (auto& player : playerList) {
+        for (auto& player : _playerList) {
             player->setFilterData();
         }
-        for (auto& player : playerList) {
+        for (auto& player : _playerList) {
             player->setEnabled(true);
         }
         
@@ -437,7 +520,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
  * Helper method for converting normal parameters into byte vectors used for syncing.
  */
 std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 pos, Size size, string jsonType, float scale) {
-    // TODO: Use _serializer to serialize pos and scale (remember to make a shared copy of the serializer reference, otherwise it will be lost if the serializer is reset).
     // Cast jsonType to an int for serializer
     int type;
     if (jsonType == "tile"){
@@ -465,7 +547,7 @@ std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 po
  * Generate a pair of Obstacle and SceneNode using serialized parameters.
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> PlatformFactory::createObstacle(const std::vector<std::byte>& params) {
-    // TODO: Use _deserializer to deserialize byte vectors packed by {@link serializeParams()} and call the regular createObstacle() method with them.
+
     _deserializer.reset();
     _deserializer.receive(params);
     float x = _deserializer.readFloat();

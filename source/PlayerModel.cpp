@@ -1,5 +1,5 @@
 //
-//  PFDudeModel.cpp
+//  PFPlayerModel.cpp
 //  PlatformDemo
 //
 //  This encapsulates all of the information for the character avatar.  Note how this
@@ -65,6 +65,7 @@
 /** The density of the character */
 #define PLAYER_DENSITY 3.25f
 /** The impulse for the character jump */
+
 #define PLAYER_JUMP 27.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
@@ -336,10 +337,10 @@ void PlayerModel::releaseFixtures()
     }
 }
 /**
- * Disposes all resources and assets of this DudeModel
+ * Disposes all resources and assets of this PlayerModel
  *
  * Any assets owned by this object will be immediately released.  Once
- * disposed, a DudeModel may not be used until it is initialized again.
+ * disposed, a PlayerModel may not be used until it is initialized again.
  */
 void PlayerModel::dispose()
 {
@@ -475,6 +476,7 @@ void PlayerModel::update(float dt)
 {
 
     // ANIMATION
+    // TODO: Move to method updateAnimation
     _timeline->update(dt);
     
     if ((getVY() != 0) && _isGliding && _glideAction){
@@ -511,66 +513,82 @@ void PlayerModel::update(float dt)
         doStrip(_walkAction);
     }
     
-    // Check whether we are in glide mode
-    
-    
-    windUpdate(dt);
-    //Set Justflipped and justglided to instantly deactivate 
-    if (_justFlipped == true) {
-        _justFlipped = false;
-    }
-    if (_justGlided == true) {
-        _justGlided = false;
+//     Should not move when immobile
+    if (_immobile){
+        setLinearVelocity(Vec2(0,0));
     }
     
-    // Apply cooldowns
-    if (isJumping())
-    {
-        _jumpCooldown = JUMP_COOLDOWN;
-    }
-    else
-    {
-        // Only cooldown while grounded
-        _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
-    }
-    
-    /**Allows the player to adjust their jump height while jumping-
-    If they stop holding jump partway during a jump, dampen their velocity*/
-    if (_jumpTimer > 0) {
-        _jumpTimer -= dt;
+    if (!_isDead && !_immobile){
+        windUpdate(dt);
+        //Set Justflipped and justglided to instantly deactivate
+        if (_justFlipped == true) {
+            _justFlipped = false;
+        }
+        if (_justGlided == true) {
+            _justGlided = false;
+        }
+        
+        // Apply cooldowns
+        if (isJumping())
+        {
+            _jumpCooldown = JUMP_COOLDOWN;
+        }
+        else
+        {
+            // Only cooldown while grounded
+            _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
+        }
+        
+        /**Allows the player to adjust their jump height while jumping-
+        If they stop holding jump partway during a jump, dampen their velocity*/
+        if (_jumpTimer > 0) {
+            _jumpTimer -= dt;
 
-        if (!_holdingJump) {
-            b2Vec2 vel = _body->GetLinearVelocity();
-            vel.y  = 0;
-            _body->SetLinearVelocity(vel);
-            _jumpTimer = 0;
+            if (!_holdingJump) {
+                b2Vec2 vel = _body->GetLinearVelocity();
+                vel.y  = 0;
+                _body->SetLinearVelocity(vel);
+                _jumpTimer = 0;
+            }
+        }
+        
+        // TODO: Is this code from the lab? If we're not using, delete
+        if (isShooting())
+        {
+            _shootCooldown = SHOOT_COOLDOWN;
+        }
+        else
+        {
+            _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
+        }
+        
+        glideUpdate(dt);
+        
+        CapsuleObstacle::update(dt);
+        
+        if (_node != nullptr)
+        {
+            _node->setPosition(getPosition() * _drawScale);
+            _node->setAngle(getAngle());
+        }
+        
+        // If the player has a treasure, update the position of the treasure such that
+        // it follows the player
+        if (_treasure != nullptr)
+        {
+            _treasure->setPosition(getPosition());
         }
     }
-    
-
+        
+    // Allows the player to still move on a moving platform even if dead
     if (_onMovingPlat && MovingPlat != nullptr)
     {
         Vec2 platformVel = MovingPlat->getLinearVelocity();
         setPosition(getPosition() + platformVel * dt);
     }
-
-    glideUpdate(dt);
-
-    CapsuleObstacle::update(dt);
-
-    if (_node != nullptr)
-    {
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(getAngle());
-    }
-
-    // If the player has a treasure, update the position of the treasure such that
-    // it follows the player
-    if (_treasure != nullptr)
-    {
-        _treasure->setPosition(getPosition());
-    }
 }
+
+
 // Based on the player motion, check if we are falling.
 // If the player is falling for more than the glidetimer, set player into glide mode
 // once player is grounded, turn off glidemode.
@@ -659,6 +677,12 @@ void PlayerModel::setFilterData() {
         fixture->SetFilterData(filter);
         fixture = fixture->GetNext();
     }
+}
+
+void PlayerModel::reset(){
+    _isDead = false;
+    removeTreasure();
+    resetMovement();
 }
 
 /** Resets the player's movements in between rounds by setting it all to zero and to face the right */

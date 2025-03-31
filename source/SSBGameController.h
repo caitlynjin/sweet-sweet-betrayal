@@ -64,6 +64,8 @@ protected:
 
     /** The Box2D world */
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
+    /** The list of objects */
+    std::vector<std::shared_ptr<Object>> _objects;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -74,6 +76,9 @@ protected:
 
     /** Whether we are in build mode */
     bool _buildingMode;
+    
+    /** Countdown active for displaying scoreboard between rounds */
+    int _scoreCountdown = -1;
 
 public:
 #pragma mark -
@@ -270,10 +275,6 @@ public:
      */
     Vec2 convertScreenToBox2d(const Vec2& screenPos, float scale, const Vec2& offset);
 
-    /**
-     * This method takes a MessageEvent and processes it.
-     */
-    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
 
   };
 

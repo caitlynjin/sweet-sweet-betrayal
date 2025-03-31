@@ -297,8 +297,19 @@ protected:
     /** The network controller */
     std::shared_ptr<NetEventController> _network;
     
+    /** The treasure */
+    std::shared_ptr<Treasure> _treasure; 
+    
+    /** Current spawn location for the treasure */
+    Vec2 _treasureSpawn;
+    
+    /** The list of all players */
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
+    
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
+    /** The number of players ready to proceed from MovementPhase into BuildPhase */
+    float _numReset = 0;
     /** Whether the player is the host */
     bool _isHost;
     /** Whether the message has been sent */
@@ -422,6 +433,37 @@ public:
     }
     
     /**
+     * Sets the networked treasure
+     *
+     * @param treasure the treasure to be networked
+     */
+    void setTreasure(std::shared_ptr<Treasure> treasure){
+        _treasure = treasure;
+    }
+    
+    /**
+     * Sets the spawn location of the treasure.
+     *
+     * @param spawn the spawn location of the treasure
+     */
+    void setTreasureSpawn(Vec2 spawn){
+        _treasureSpawn = spawn;
+    }
+    
+    /**
+     * Returns the spawn location of the treasure
+     */
+    Vec2 getTreasureSpawn(){
+        return _treasureSpawn;
+    }
+    
+    
+    /**
+     Resets the treasure to its spawn location and removes any possession
+     */
+    void resetTreasure();
+    
+    /**
      * Sets whether this local user is the host.
      *
      * @param isHost whether is host.
@@ -435,6 +477,13 @@ public:
      */
     bool getIsHost(){
         return _isHost;
+    }
+    
+    /**
+     * Returns the set of player objects in game
+     */
+    std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){
+        return _playerList;
     }
     
     /**
@@ -466,6 +515,28 @@ public:
      * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
      */
     void trySetFilters();
+    
+    /**
+     * Returns whether game can switch to movement mode for all players.
+     */
+    bool canSwitchToMove(){
+        return _numReady >= _network->getNumPlayers();
+    }
+    
+    /**
+     * Returns whether game can switch to movement mode for all players.
+     */
+    bool canSwitchToBuild(){
+        return _numReset >= _network->getNumPlayers();
+    }
+    
+#pragma mark -
+#pragma mark Message Handling
+    
+    /**
+     * This method takes a MessageEvent and processes it.
+     */
+    void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -500,6 +571,13 @@ public:
      * @return the treasure being created
      */
     std::shared_ptr<Object> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
+   
+    /**
+    * Creates a networked treasure on the client end.
+    *
+    * @return the treasure being created
+    */
+    std::shared_ptr<Object> createTreasureClient(Vec2 pos, Size size, float scale, bool taken);
 
     /**
      * Creates a networked mushroom.
@@ -598,6 +676,12 @@ public:
      * Resets the status of the game so that we can play again.
      */
     void reset();
+    
+    
+    /**
+     * Resets the necessary logic to start a new round
+     */
+    void resetRound();
 
 };
 

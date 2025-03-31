@@ -190,11 +190,13 @@ void MovePhaseScene::populate() {
     }
 
 #pragma mark : Treasure
-#ifdef CU_TOUCH_SCREEN
-    _treasure = std::dynamic_pointer_cast<Treasure>(
-        _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
-    );
-#endif
+    if(_networkController->getIsHost()){
+        _treasure = std::dynamic_pointer_cast<Treasure>(
+            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+        );
+        _networkController->setTreasure(_treasure);
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+    }
 
 }
 
@@ -226,7 +228,13 @@ void MovePhaseScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseScene::preUpdate(float dt) {
-    // Update objects    
+    // Set up treasure for non-host player    
+    if (_treasure == nullptr && !_networkController->getIsHost()){
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+    }
+    
+    // Update objects
     _camera->update();
 }
 
@@ -253,7 +261,15 @@ void MovePhaseScene::resetCameraPos() {
 void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->setPosition(Vec2(DUDE_POS));
     _localPlayer->resetMovement();
-    _localPlayer->removeTreasure();
+    if (_localPlayer->hasTreasure){
+        _localPlayer->removeTreasure();
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_LOST));
+    }
+    
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setDead(false);
+    }
 
 }
 

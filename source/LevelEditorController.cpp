@@ -441,7 +441,7 @@ void LevelEditorController::preUpdate(float dt) {
     if (_uiScene.getLoadClicked()) {
         // Load the level stored in this file
 
-        // TODO (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
+        // TODO: (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
         _objectController->getObjects()->clear();
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
