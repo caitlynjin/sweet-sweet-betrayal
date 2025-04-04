@@ -175,8 +175,8 @@ Vec2 BuildPhaseScene::convertScreenToBox2d(const Vec2& screenPos, float systemSc
     float yBox2D = worldPos.y / _scale;
 
     // Converts to the specific grid position
-    int xGrid = xBox2D / 2;
-    int yGrid = yBox2D / 2;
+    int xGrid = xBox2D / 2 - 1;
+    int yGrid = yBox2D / 2 + 1;
 
     return Vec2(xGrid, yGrid);
 }
