@@ -329,6 +329,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
  * @param item               The selected item being snapped to the grid
  */
 Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
+    // Consider size of item
     Size offset = itemToGridSize(item) - Vec2(1, 1);
 
     int xGrid = gridPos.x;
