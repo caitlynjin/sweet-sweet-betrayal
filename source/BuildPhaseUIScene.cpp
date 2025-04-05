@@ -124,7 +124,6 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton = scene2::Button::alloc(trashNode);
     _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
     _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-    _trashButton->activate();
 
     addChild(_rightButton);
     addChild(_readyButton);

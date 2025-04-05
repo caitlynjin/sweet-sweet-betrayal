@@ -128,6 +128,7 @@ void BuildPhaseController::preUpdate(float dt) {
         auto trashBounds = _uiScene.getTrashButton()->getBoundingBox() * 2;
         Vec2 touchPos = _uiScene.getTrashButton()->worldToNodeCoords(screenPos);
 
+        _uiScene.getTrashButton()->activate();
         if (trashBounds.contains(touchPos)) {
             CULog("Hovering over trash!");
             _uiScene.getTrashButton()->setDown(true);
@@ -154,7 +155,8 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (_input->getInventoryStatus() == PlatformInput::WAITING)
     {
         _gridManager->setSpriteInvisible();
-        
+        _uiScene.getTrashButton()->deactivate();
+
         if (_input->isTouchDown()) {
             // Attempt to move object that exists on the grid
             Vec2 screenPos = _input->getPosOnDrag();
