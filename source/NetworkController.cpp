@@ -252,6 +252,7 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
     if (boxObstacle) {
         // Assign the boxObstacle that was made to the platform
         std::shared_ptr<Platform> plat = Platform::alloc(pos, size, boxObstacle);
+        plat->setSceneNode(sprite);
         _objects->push_back(plat);
         return plat;
     } else {
@@ -276,6 +277,7 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
     std::shared_ptr<scene2::SceneNode> sprite = pair.second;
     if (boxObstacle) {
         std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed, boxObstacle);
+        plat->setSceneNode(sprite);
         _objects->push_back(plat);
         return plat;
     } else {
@@ -294,6 +296,7 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
     
     if (boxObstacle) {
         std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
+        treasure->setSceneNode(sprite);
         _objects->push_back(treasure);
         return treasure;
     } else {
@@ -332,14 +335,15 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size s
 
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
-    auto params = _mushroomFact->serializeParams(pos+size/2, size, scale);
+    auto params = _mushroomFact->serializeParams(pos, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
     std::shared_ptr<scene2::SceneNode> sprite = pair.second;
     
     if (boxObstacle) {
-        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos+size/2, size, scale, boxObstacle);
+        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos, size, scale, boxObstacle);
+        mushroom->setSceneNode(sprite);
         _objects->push_back(mushroom);
         return mushroom;
     } else {

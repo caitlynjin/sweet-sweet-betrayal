@@ -163,6 +163,13 @@ public:
      */
     bool canPlace(Vec2 cellPos, Size size);
 
+    /**
+     * Deletes the object at this cell position from the world.
+     *
+     * @param obj    the object
+     */
+    void deleteObject(std::shared_ptr<Object> obj);
+
 };
 
 #endif /* __SSB_GRID_MANAGER_H__ */

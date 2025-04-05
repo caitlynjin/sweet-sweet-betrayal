@@ -47,7 +47,11 @@ string WindObstacle::getJsonKey() {
     return JSON_KEY;
 }
 
-void WindObstacle::dispose() {}
+void WindObstacle::dispose() {
+    Object::dispose();
+
+    
+}
 
 using namespace cugl;
 

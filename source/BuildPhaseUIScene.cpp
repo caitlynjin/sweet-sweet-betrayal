@@ -40,10 +40,6 @@ using namespace Constants;
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
-/** The image for the brush button */
-#define BRUSH_BUTTON "brush_button"
-/** The image for the eraser button */
-#define ERASER_BUTTON "eraser_button"
 
 #pragma mark -
 #pragma mark Constructors
@@ -64,6 +60,7 @@ void BuildPhaseUIScene::dispose() {
         _readyButton = nullptr;
         _rightButton = nullptr;
         _leftButton = nullptr;
+        _trashButton = nullptr;
         Scene2::dispose();
     }
 };
@@ -121,9 +118,17 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
             _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
     });
+
+    std::shared_ptr<scene2::PolygonNode> trashNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    trashNode->setScale(0.8f);
+    _trashButton = scene2::Button::alloc(trashNode);
+    _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
+    addChild(_trashButton);
 
     return true;
 }
@@ -219,6 +224,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _leftButton->setVisible(value);
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
+    _trashButton->setVisible(value);
 }
 
 /**
