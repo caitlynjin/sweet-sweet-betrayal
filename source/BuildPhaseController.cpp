@@ -125,6 +125,16 @@ void BuildPhaseController::preUpdate(float dt) {
         Vec2 screenPos = _input->getPosOnDrag();
         Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
+        auto trashBounds = _uiScene.getTrashButton()->getBoundingBox() * 2;
+        Vec2 touchPos = _uiScene.getTrashButton()->worldToNodeCoords(screenPos);
+
+        if (trashBounds.contains(touchPos)) {
+            CULog("Hovering over trash!");
+            _uiScene.getTrashButton()->setDown(true);
+        } else {
+            _uiScene.getTrashButton()->setDown(false);
+        }
+
         // Show placing object indicator when dragging object
         if (_selectedItem != NONE) {
             
@@ -170,12 +180,12 @@ void BuildPhaseController::preUpdate(float dt) {
         Vec2 screenPos = _input->getPosOnDrag();
         Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
-        auto trashBounds = _uiScene.getTrashButton()->getBoundingBox();
+        auto trashBounds = _uiScene.getTrashButton()->getBoundingBox() * 2;
         Vec2 touchPos = _uiScene.getTrashButton()->worldToNodeCoords(screenPos);
 
         if (trashBounds.contains(touchPos)) {
-            CULog("Hovering over trash!");
-            _uiScene.getTrashButton()->setColor(Color4::RED);
+            CULog("Deleted object");
+            _uiScene.getTrashButton()->setDown(false);
 
             if (_selectedObject) {
                 _itemsPlaced -= 1;

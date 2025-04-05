@@ -88,6 +88,8 @@
 #define BLUE_ICON "blue-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
+/** The image for the trash can icon */
+#define TRASH "trash"
 
 
 #pragma mark -
