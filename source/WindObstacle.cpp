@@ -50,7 +50,8 @@ string WindObstacle::getJsonKey() {
 void WindObstacle::dispose() {
     Object::dispose();
 
-    
+    _gust->markRemoved(true);
+    _gust = nullptr;
 }
 
 using namespace cugl;
