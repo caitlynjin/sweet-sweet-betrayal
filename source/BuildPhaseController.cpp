@@ -65,7 +65,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
 
-    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM};
+    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
     assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
     
     _uiScene.initInventory(inventoryItems, assetNames);
@@ -123,9 +123,19 @@ void BuildPhaseController::preUpdate(float dt) {
     if (_input->isTouchDown() && (_input->getInventoryStatus() == PlatformInput::PLACING))
     {
         Vec2 screenPos = _input->getPosOnDrag();
-        Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
         Vec2 gridPosWithOffset = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
-        
+
+        auto trashBounds = _uiScene.getTrashButton()->getBoundingBox() * 2;
+        Vec2 touchPos = _uiScene.getTrashButton()->worldToNodeCoords(screenPos);
+
+        _uiScene.getTrashButton()->activate();
+        if (trashBounds.contains(touchPos)) {
+            CULog("Hovering over trash!");
+            _uiScene.getTrashButton()->setDown(true);
+        } else {
+            _uiScene.getTrashButton()->setDown(false);
+        }
+
         // Show placing object indicator when dragging object
         if (_selectedItem != NONE) {
             
@@ -145,7 +155,8 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (_input->getInventoryStatus() == PlatformInput::WAITING)
     {
         _gridManager->setSpriteInvisible();
-        
+        _uiScene.getTrashButton()->deactivate();
+
         if (_input->isTouchDown()) {
             // Attempt to move object that exists on the grid
             Vec2 screenPos = _input->getPosOnDrag();
@@ -170,57 +181,74 @@ void BuildPhaseController::preUpdate(float dt) {
     {
         Vec2 screenPos = _input->getPosOnDrag();
         Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
-        if (_selectedObject) {
-            if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
-                // Move the object back to its original position
-                _selectedObject->setPosition(_prevPos);
-                _gridManager->addMoveableObject(_prevPos, _selectedObject);
-                _prevPos = Vec2(0, 0);
+
+        auto trashBounds = _uiScene.getTrashButton()->getBoundingBox() * 2;
+        Vec2 touchPos = _uiScene.getTrashButton()->worldToNodeCoords(screenPos);
+
+        if (trashBounds.contains(touchPos)) {
+            CULog("Deleted object");
+            _uiScene.getTrashButton()->setDown(false);
+
+            if (_selectedObject) {
+                _itemsPlaced -= 1;
+                _gridManager->deleteObject(_selectedObject);
+
+                // Undarken inventory UI
+                _uiScene.getInventoryOverlay()->setVisible(false);
+            }
+        } else {
+            if (_selectedObject) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                    // Move the object back to its original position
+                    _selectedObject->setPosition(_prevPos);
+                    _gridManager->addMoveableObject(_prevPos, _selectedObject);
+                    _prevPos = Vec2(0, 0);
+                } else {
+                    // Move the existing object to new position
+                    CULog("Reposition object");
+                    _selectedObject->setPosition(gridPos);
+                    if (_selectedObject->getItemType()== Item::PLATFORM) {
+                        auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
+                        if (platform) {
+                            platform->updateMoving(gridPos);
+                        }
+                    }
+                    _gridManager->addMoveableObject(gridPos, _selectedObject);
+                }
+
+                // Trigger listener
+                if (_selectedObject->getObstacle()->getListener()) {
+                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                }
+
+                // Reset selected object
+                _selectedObject = nullptr;
             } else {
-                // Move the existing object to new position
-                CULog("Reposition object");
-                _selectedObject->setPosition(gridPos);
-                if (_selectedObject->getItemType()== Item::PLATFORM) {
-                    auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
-                    if (platform) {
-                        platform->updateMoving(gridPos);
+                // Place new object on grid
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
+
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+                    _gridManager->addMoveableObject(gridPos, obj);
+
+                    _itemsPlaced += 1;
+
+                    // Update inventory UI
+                    if (_itemsPlaced >= 1)
+                    {
+                        _uiScene.activateInventory(false);
                     }
                 }
-                _gridManager->addMoveableObject(gridPos, _selectedObject);
             }
-            
-            // Trigger listener
-            if (_selectedObject->getObstacle()->getListener()) {
-                _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
-            }
-            
-            // Reset selected object
-            _selectedObject = nullptr;
+
+            // Darken inventory UI
+            _uiScene.getInventoryOverlay()->setVisible(true);
         }
-        else {
-            // Place new object on grid
-            Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
-            if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
-                std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                _gridManager->addMoveableObject(gridPos, obj);
-
-                _itemsPlaced += 1;
-
-                // Update inventory UI
-                if (_itemsPlaced >= 1)
-                {
-                    _uiScene.activateInventory(false);
-                }
-            }
-        }
-        
         // Reset selected item
         _selectedItem = NONE;
         _selectedObject = nullptr;
-        
-        // Darken inventory UI
-        _uiScene.getInventoryOverlay()->setVisible(true);
+
         _input->setInventoryStatus(PlatformInput::WAITING);
     }
     
@@ -304,7 +332,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
         case (MUSHROOM):
-            return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _buildPhaseScene.getScale());
+            return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

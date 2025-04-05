@@ -49,7 +49,12 @@ string Platform::getJsonKey() {
     return JSON_KEY;
 }
 
-void Platform::dispose() {}
+void Platform::dispose() {
+    Object::dispose();
+
+    _box->markRemoved(true);
+    _box = nullptr;
+}
 
 
 
@@ -76,7 +81,6 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     _itemType = Item::PLATFORM;
     _jsonType = jsonType;
     _position = pos;
-    _size = size;
     return true;
 }
 
@@ -88,7 +92,6 @@ bool Platform::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physi
     _size = size;
     _itemType = Item::PLATFORM;
     _position = pos;
-    _size = size;
     return true;
 }
 

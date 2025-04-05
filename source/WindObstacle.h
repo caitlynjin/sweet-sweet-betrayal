@@ -54,7 +54,7 @@ public:
 
 	/** Disposal */
 	~WindObstacle(void) override { dispose(); }
-	void dispose();
+	void dispose() override;
 
 
 	/** Return the obstacle */

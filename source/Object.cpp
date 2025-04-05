@@ -13,23 +13,27 @@ Object::Object(Vec2 pos, Item itemType, bool playerPlaced) {
 	_texture = nullptr;
 	_itemType = itemType;
 	_playerPlaced = playerPlaced;
+    _sceneNode = nullptr;
 }
 Object::Object(Vec2 pos, Item itemType) {
     _position = pos;
     _texture = nullptr;
     _itemType = itemType;
+    _sceneNode = nullptr;
 }
 
 Object::Object(Vec2 pos) {
 	_position = pos;
 	_texture = nullptr;
     _itemType = NONE;
+    _sceneNode = nullptr;
 }
 
 Object::Object() {
 	_position = Vec2(0, 0);
 	_texture = nullptr;
     _itemType = NONE;
+    _sceneNode = nullptr;
 }
 
 void Object::update(float timestep) { }
@@ -40,6 +44,10 @@ void Object::setTexture(const std::shared_ptr<graphics::Texture>& texture) {
 
 void Object::setPosition(const cugl::Vec2& position) {
 	_position = position;
+}
+
+void Object::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
+    _sceneNode = node;
 }
 
 void Object::setItemType(Item itemType)
@@ -54,6 +62,11 @@ void Object::setPlayerPlaced(const bool playerPlaced) {
 
 void Object::dispose() {
 	_texture = nullptr;
+
+    if (_sceneNode && _sceneNode->getParent()) {
+        _sceneNode->removeFromParent();
+        _sceneNode = nullptr;
+    }
 }
 
 std::string Object::getJsonKey() {

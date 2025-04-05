@@ -37,7 +37,14 @@ public:
 
 	~Spike(void) override { dispose(); }
 
-	void dispose();
+	void dispose() override;
+
+    /**
+     * Sets the position
+     *
+     * @param position   The position
+     */
+    void setPosition(const cugl::Vec2& position) override;
 
 	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
 		return _hitbox;

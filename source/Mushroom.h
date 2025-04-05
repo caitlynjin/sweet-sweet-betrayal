@@ -23,11 +23,11 @@ public:
 
     ~Mushroom(void) override { dispose(); }
 
-    void dispose();
-    
-    virtual void setPosition(const cugl::Vec2& position);
+    void dispose() override;
 
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() {
+    void setPosition(const cugl::Vec2& position) override;
+
+    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
         return _box;
     }
 

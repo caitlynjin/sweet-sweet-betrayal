@@ -82,7 +82,8 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
 
     poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
-    
+    plat->setSceneNode(sprite);
+
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
     
     
@@ -140,6 +141,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
 
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
+    plat->setSceneNode(sprite);
 
     addObstacle(plat->getObstacle(), sprite, 1);
     _gameObjects->push_back(plat);
@@ -197,6 +199,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
     wind->setPosition(pos);
 
     addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
+    wind->setSceneNode(sprite);
 
     _gameObjects->push_back(wind);
 
