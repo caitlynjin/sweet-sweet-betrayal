@@ -31,7 +31,7 @@ public:
 
 	~Platform(void) override { dispose(); }
 
-	void dispose();
+	void dispose() override;
 
     /**
      * Sets the position

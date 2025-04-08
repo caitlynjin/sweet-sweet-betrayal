@@ -14,6 +14,8 @@ protected:
 	cugl::Vec2 _position;
 	/** The texture that will be used to draw the object on screen */
 	std::shared_ptr<graphics::Texture> _texture;
+    /** The scene node of the object */
+    std::shared_ptr<scene2::SceneNode> _sceneNode;
     /** The item type of this object */
     Item _itemType;
 	/**The trajectory of the object-Should be unused by most objects, used by gust objects rn*/
@@ -94,6 +96,11 @@ public:
 	void setTexture(const std::shared_ptr<graphics::Texture>& texture);
 
     /**
+     * Sets the scene node
+     */
+    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
+
+    /**
      * Gets the obstacle of this object.
      */
     virtual std::shared_ptr<cugl::physics2::Obstacle> getObstacle() { return nullptr; };
@@ -135,7 +142,7 @@ public:
 	 *
 	 * Any assets owned by this object will be immediately released.
 	 */
-	void dispose();
+	virtual void dispose();
 
 	void draw(const std::shared_ptr<cugl::graphics::SpriteBatch>& batch,
 		cugl::Size size);
