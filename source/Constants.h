@@ -224,6 +224,8 @@ enum Item {
     TILE_ALPHA,
     /** A mushroom */
     MUSHROOM,
+    /** An art object */
+    ART_OBJECT,
     /** No type */
     NONE
 };

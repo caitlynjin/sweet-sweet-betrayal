@@ -17,6 +17,9 @@ protected:
     /** The layer in which to draw the art object */
     int _layer;
 
+    /** The angle for the sprite */
+    float _angle;
+
     /** The scene graph node for the ArtObject. */
     std::shared_ptr<scene2::SceneNode> _node;
 
@@ -34,26 +37,25 @@ public:
 
     void dispose();
 
+    void setPosition(const cugl::Vec2& position) override;
+
+    void setPriority(int layer);
+
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the ArtObject.
     */
-    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, float angle = 0) {
+    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, float angle, int layer) {
         std::shared_ptr<ArtObject> result = std::make_shared<ArtObject>();
-        return (result->init(position, size, scale, angle) ? result : nullptr);
+        return (result->init(position, size, scale, angle, layer) ? result : nullptr);
     }
 
-    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, float angle, string jsonType) {
+    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, float angle, int layer, string jsonType) {
         std::shared_ptr<ArtObject> result = std::make_shared<ArtObject>();
-        return (result->init(position, size, scale, angle, jsonType) ? result : nullptr);
-    }
-    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, string jsonType) {
-        std::shared_ptr<ArtObject> result = std::make_shared<ArtObject>();
-        return (result->init(position, size, scale, 0.0f, jsonType) ? result : nullptr);
+        return (result->init(position, size, scale, angle, layer, jsonType) ? result : nullptr);
     }
 
-
-    bool init(const Vec2 pos, const Size size, float scale, float angle);
-    bool init(const Vec2 pos, const Size size, float scale, float angle, string jsonType);
+    bool init(const Vec2 pos, const Size size, float scale, float angle, int layer);
+    bool init(const Vec2 pos, const Size size, float scale, float angle, int layer, string jsonType);
 
     /**
      * Sets the scene graph node representing this Spike.
@@ -69,6 +71,13 @@ public:
         _node->setPosition(getPosition() * _drawScale);
         _node->setAngle(angle);
     }
+
+    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
+        _node = node;
+        _node->setPosition(getPosition() * _drawScale);
+        _node->setAngle(0);
+    }
+
 
     std::map<std::string, std::any> getMap() override;
 };

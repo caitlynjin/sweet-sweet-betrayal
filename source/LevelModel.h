@@ -15,6 +15,7 @@
 #include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
+#include "ArtObject.h"
 
 class LevelModel {
 
@@ -31,7 +32,8 @@ public:
 	shared_ptr <JsonValue> createJsonObjectList(string name, vector<shared_ptr<T>>& objects);
 
 	void createJsonFromLevel(string fileName, Size size, vector<shared_ptr<Platform>>& platforms, vector<shared_ptr<Spike>>& spikes,
-		vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles);
+		vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles,
+		vector<shared_ptr<ArtObject>>& artObjects);
 
 	/** Creates a JSON file based on an in-game level. 
 	* @param size The size (width, height) of the level.

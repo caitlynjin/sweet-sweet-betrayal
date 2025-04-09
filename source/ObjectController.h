@@ -128,6 +128,10 @@ public:
     std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
 
     std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
+
+    /** Creates an art object */
+    std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
+
     /**creates teh goal door**/
     std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);
     /**

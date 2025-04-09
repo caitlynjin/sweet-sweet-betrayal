@@ -232,6 +232,40 @@ std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasur
     return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 
+
+std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObject> art) {
+    std::shared_ptr<Texture> image;
+
+    // Add new art object types here as they are created.
+    // The "type" attribute of that art object in the level JSON must match the proper string here.
+    if (art->getJsonType() == "tile") {
+        image = _assets->get<Texture>(TILE_TEXTURE);
+    }
+    else {
+        image = _assets->get<Texture>(TILE_TEXTURE);
+    }
+
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(art->getPosition().x, art->getPosition().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    art->setSceneNode(sprite);
+
+
+    _gameObjects->push_back(art);
+
+    return art;
+}
+
 std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
@@ -314,6 +348,9 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));
+    }
+    else if (key == "artObjects") {
+        createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
     }
 }
 
