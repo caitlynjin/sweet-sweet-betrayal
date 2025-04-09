@@ -90,7 +90,7 @@ void NetworkController::update(float timestep){
         if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
             processColorEvent(cEvent);
         }
-        // Check for ScoreEvent
+        // // Check for ScoreEvent
         if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
             _scoreController->processScoreEvent(sEvent);
         }
