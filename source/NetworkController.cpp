@@ -47,7 +47,11 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
+    _network->attachEventType<ColorEvent>();
     _localID = _network->getShortUID();
+    
+    // TODO: Create player-id hashmap
+    
     
     return true;
 }
@@ -72,7 +76,19 @@ void NetworkController::dispose(){
      * @param timestep  The amount of time (in seconds) since the last frame
      */
 void NetworkController::update(float timestep){
-
+    // Process messaging events
+    
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        // Check for MessageEvent
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+        // Check for ColorEvent
+        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+            processColorEvent(cEvent);
+        }
+    }
 }
 
 
@@ -102,6 +118,14 @@ void NetworkController::preUpdate(float dt){
     if (!_filtersSet){
         trySetFilters();
     }
+    
+    // Test all color map
+
+    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
+    for (int id : _playerIDs){
+        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
+    }
+    
 }
 
 /**
@@ -134,8 +158,13 @@ void NetworkController::fixedUpdate(float step){
     // Process messaging events
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
+        // Check for MessageEvent
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             processMessageEvent(mEvent);
+        }
+        // Check for ColorEvent
+        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+            processColorEvent(cEvent);
         }
     }
 
@@ -212,11 +241,27 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Reset treasure
             resetTreasure();
             break;
+        case Message::HOST_START:
+            // Send message for everyone to send player id and color
+            _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
+            break;
         default:
             // Handle unknown message types
             std::cout << "Unknown message type received" << std::endl;
             break;
     }
+}
+
+/**
+ * This method takes a ColorEvent and processes it.
+ */
+void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& event){
+    int playerID = event->getPlayerID();
+    ColorType color = event->getColor();
+    
+    // Store each color into map by player id
+    _playerColorsById[playerID] = color;
+    _playerIDs.push_back(playerID);
 }
 
 /** Resets the treasure to remove possession and return to spawn location */
@@ -406,6 +451,17 @@ void NetworkController::trySetFilters(){
         
         _filtersSet = true;
     }
+}
+
+void NetworkController::addPlayerColor(){
+    if (_isHost){
+        _color = ColorType::RED;
+    }
+    else{
+        // Determine color by order joined
+        _color = static_cast<ColorType>(_network->getNumPlayers() - 1);
+    }
+    _playerColorAdded = true;
 }
 
 

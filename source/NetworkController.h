@@ -14,8 +14,10 @@
 #include "Platform.h"
 #include "Constants.h"
 #include "MessageEvent.h"
+#include "ColorEvent.h"
 #include "Treasure.h"
 #include "Mushroom.h"
+#include "Message.h"
 
 using namespace cugl;
 using namespace cugl::netcode;
@@ -306,6 +308,16 @@ protected:
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
     
+    /** Map for accessing player color based off network id */
+    std::unordered_map<int, ColorType> _playerColorsById;
+    
+    /** The player colorr */
+    ColorType _color;
+    
+    /** Whether the local player data has been recorded */
+    bool _playerColorAdded = false;
+    
+    
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -316,8 +328,8 @@ protected:
     bool _readyMessageSent = false;
     /** The player's ID */
     int _localID;
-    /** The other player's ID */
-    int _otherID;
+    /** List of all players ids */
+    std::vector<int> _playerIDs;
     /** Whether we have set collision filters for all players */
     bool _filtersSet = false;
     
@@ -457,6 +469,13 @@ public:
         return _treasureSpawn;
     }
     
+    /**
+     * Returns whether the local player data has been set.
+     */
+    bool getPlayerColorAdded(){
+        return _playerColorAdded;
+    }
+    
     
     /**
      Resets the treasure to its spawn location and removes any possession
@@ -530,6 +549,11 @@ public:
         return _numReset >= _network->getNumPlayers();
     }
     
+    /**
+     * Creates player information
+     */
+    void addPlayerColor();
+    
 #pragma mark -
 #pragma mark Message Handling
     
@@ -537,6 +561,11 @@ public:
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+    
+    /**
+     * This method takes a ColorEvent and processes it.
+     */
+    void processColorEvent(const std::shared_ptr<ColorEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects

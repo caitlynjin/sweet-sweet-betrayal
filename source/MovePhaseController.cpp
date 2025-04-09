@@ -378,6 +378,7 @@ void MovePhaseController::reachedGoal(){
         player->setImmobile(true);
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        
     }
     
 }
