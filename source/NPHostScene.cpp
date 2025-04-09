@@ -216,10 +216,6 @@ void HostScene::update(float timestep) {
             _startgame->activate();
         }
         else {
-            if (!_hostMessageSent){
-                _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
-                _hostMessageSent = true;
-            }
             
             updateText(_startgame, "Starting");
             _startgame->deactivate();
