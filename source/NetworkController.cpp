@@ -119,12 +119,19 @@ void NetworkController::preUpdate(float dt){
         trySetFilters();
     }
     
+    // If filters are all set, then all player physics bodies are in network and can sync color
+    if (_filtersSet){
+        if (!_colorsSynced){
+            syncColors();
+        }
+    }
+    
     // Test all color map
 
-    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
-    for (int id : _playerIDs){
-        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
-    }
+//    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
+//    for (int id : _playerIDs){
+//        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
+//    }
     
 }
 
@@ -401,8 +408,8 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
  *
  * @param The player being created (that has not yet been added to the physics world).
  */
-std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale){
-    auto params = _dudeFact->serializeParams(pos, scale);
+std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale, ColorType color){
+    auto params = _dudeFact->serializeParams(pos, scale, color);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
 }
@@ -425,13 +432,15 @@ void NetworkController::trySetFilters(){
     std::vector<std::shared_ptr<PlayerModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
-        if (obstacle->getName() == "player"){
+        
+        if (tagContainsPlayer(obstacle->getName())){
             numPlayers += 1;
             
             // Try to cast to PlayerModel and add to our list if successful
             auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
                 playerListTemp.push_back(playerModel);
+                
             } else {
                 CULog("Found player but casting failed");
             }
@@ -441,6 +450,7 @@ void NetworkController::trySetFilters(){
     // Check if we have all players in world, then set their collision filters
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
+        
         // Loop through each obstacle
         for (auto& player : _playerList) {
             player->setFilterData();
@@ -453,6 +463,33 @@ void NetworkController::trySetFilters(){
     }
 }
 
+/**
+ * This method syncs the display of all player colors within the network.
+ */
+void NetworkController::syncColors(){
+    for (auto player : _playerList){
+        player->getSceneNode()->removeAllChildren();
+        std::string tag = player->getName();
+        if (tag == "playerRed"){
+            // Set the player animation to the red player
+            auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
+            player->setIdleAnimation(idleSpriteNode);
+            
+            auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
+            player->setWalkAnimation(walkSpriteNode);
+            
+            auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
+            player->setGlideAnimation(glideSpriteNode);
+            
+            auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
+            player->setJumpAnimation(jumpSpriteNode);
+        }
+    }
+    
+    _colorsSynced = true;
+}
+
+
 void NetworkController::addPlayerColor(){
     if (_isHost){
         _color = ColorType::RED;
@@ -462,6 +499,8 @@ void NetworkController::addPlayerColor(){
         _color = static_cast<ColorType>(_network->getNumPlayers() - 1);
     }
     _playerColorAdded = true;
+    
+    
 }
 
 
@@ -476,24 +515,24 @@ void NetworkController::addPlayerColor(){
 /**
  * Generate a pair of Obstacle and SceneNode using the given parameters
  */
-std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale, ColorType color) {
     auto image = _assets->get<Texture>(PLAYER_TEXTURE);
 
-    auto player = PlayerModel::alloc(pos, image->getSize() / scale, scale);
+    auto player = PlayerModel::alloc(pos, image->getSize() / scale, scale, color);
     
     player->setShared(true);
     player->setDebugColor(DEBUG_COLOR);
     
-    auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_IDLE_TEXTURE), 1, 7, 7);
+    auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
     player->setIdleAnimation(idleSpriteNode);
     
-    auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
+    auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
     player->setWalkAnimation(walkSpriteNode);
     
-    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GLIDE_TEXTURE), 1, 4, 4);
+    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
     player->setGlideAnimation(glideSpriteNode);
     
-    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_JUMP_TEXTURE), 1, 5, 5);
+    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
     player->setJumpAnimation(jumpSpriteNode);
     
     return std::make_pair(player, player->getSceneNode());
@@ -502,11 +541,12 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 /**
  * Helper method for converting normal parameters into byte vectors used for syncing.
  */
-std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale) {
+std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale, ColorType color) {
     _serializer.reset();
     _serializer.writeFloat(pos.x);
     _serializer.writeFloat(pos.y);
     _serializer.writeFloat(scale);
+    _serializer.writeSint32(static_cast<int>(color));
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 }
 
@@ -520,7 +560,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     float y = _deserializer.readFloat();
     Vec2 pos = Vec2(x,y);
     float scale = _deserializer.readFloat();
-    return createObstacle(pos, scale);
+    ColorType color = static_cast<ColorType>(_deserializer.readSint32());
+    return createObstacle(pos, scale, color);
 }
 
 

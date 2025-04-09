@@ -64,12 +64,12 @@ public:
     /**
      * Generate a pair of Obstacle and SceneNode using the given parameters
      */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale);
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale, ColorType color);
 
     /**
      * Helper method for converting normal parameters into byte vectors used for syncing.
      */
-    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale, ColorType color);
     
     /**
      * Generate a pair of Obstacle and SceneNode using serialized parameters.
@@ -286,6 +286,7 @@ class MushroomFactory : public ObstacleFactory {
  *
  */
 class NetworkController {
+
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
@@ -332,6 +333,8 @@ protected:
     std::vector<int> _playerIDs;
     /** Whether we have set collision filters for all players */
     bool _filtersSet = false;
+    /** Whether we have synced all colors across players */
+    bool _colorsSynced = false;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
@@ -506,6 +509,20 @@ public:
     }
     
     /**
+     * Returns the color of the player by their shortUID
+     */
+    ColorType getPlayerColor(int ID){
+        return _playerColorsById[ID];
+    }
+    
+    /**
+     * Returns the color of the local player.
+     */
+    ColorType getLocalColor(){
+        return _color;
+    }
+    
+    /**
      * Returns the localID
      */
     int getLocalID(){
@@ -534,6 +551,11 @@ public:
      * All filters should be set once the world contains the amount of connected players to avoid possible race condition.
      */
     void trySetFilters();
+    
+    /**
+     * This method syncs the display of all player colors within the network.
+     */
+    void syncColors();
     
     /**
      * Returns whether game can switch to movement mode for all players.
@@ -585,7 +607,7 @@ public:
      *
      * @param The player being created (that has not yet been added to the physics world).
      */
-    std::shared_ptr<PlayerModel> createPlayerNetworked(Vec2 pos, float scale);
+    std::shared_ptr<PlayerModel> createPlayerNetworked(Vec2 pos, float scale, ColorType color);
     
     /**
      * Creates a networked moving platform.

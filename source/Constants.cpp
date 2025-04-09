@@ -153,4 +153,11 @@ std::string itemToAssetName(Item item) {
     }
 }
 
+/**
+ Returns whether a tag contains the player keyword.
+ */
+bool tagContainsPlayer(std::string tag){
+    return tag.find("player") != std::string::npos;
+}
+
 }

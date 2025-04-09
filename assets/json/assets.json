@@ -102,17 +102,29 @@
         "left": {
             "file":  "textures/left_arrow.png"
         },
-        "player-idle": {
+        "player-red-idle": {
             "file": "textures/red-idle.png"
         },
-        "player-walk": {
+        "player-red-walk": {
             "file": "textures/red-walk.png"
         },
-        "player-glide": {
+        "player-red-glide": {
             "file": "textures/red-glide.png"
         },
-        "player-jump": {
+        "player-red-jump": {
             "file": "textures/red-jump.png"
+        },
+        "player-blue-idle": {
+            "file": "textures/blue-run-character-spritesheet.png"
+        },
+        "player-blue-walk": {
+            "file": "textures/blue-walk-character-spritesheet.png"
+        },
+        "player-blue-glide": {
+            "file": "textures/blue-glide-character-spritesheet.png"
+        },
+        "player-blue-jump": {
+            "file": "textures/blue-jump-character-spritesheet.png"
         },
         "progress-bar": {
             "file":  "textures/progress-bar.png"
