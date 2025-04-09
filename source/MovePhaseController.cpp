@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "ScoreEvent.h"
 
 #include <ctime>
 #include <string>
@@ -364,6 +365,13 @@ void MovePhaseController::killPlayer(){
         }
         // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        _networkController->getScoreController()->sendScoreEvent(
+            _networkController->getNetwork(),
+            _networkController->getLocalID(),
+            ScoreEvent::ScoreType::DEAD, 
+            _currRound
+        );
+        
         player->setDead(true);
     }
     
@@ -378,6 +386,21 @@ void MovePhaseController::reachedGoal(){
         player->setImmobile(true);
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        if (player->hasTreasure){
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getLocalID(),
+                ScoreEvent::ScoreType::END_TREASURE,
+                _currRound
+            );
+        } else {
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getLocalID(),
+                ScoreEvent::ScoreType::END,
+                _currRound
+            );
+        }
         
     }
     

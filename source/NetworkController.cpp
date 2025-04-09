@@ -48,7 +48,9 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ScoreEvent>();
     _localID = _network->getShortUID();
+    _scoreController = ScoreController::alloc(_assets);
     
     // TODO: Create player-id hashmap
     
@@ -88,6 +90,11 @@ void NetworkController::update(float timestep){
         if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
             processColorEvent(cEvent);
         }
+        // Check for ScoreEvent
+        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+            _scoreController->processScoreEvent(sEvent);
+        }
+        
     }
 }
 
@@ -121,10 +128,10 @@ void NetworkController::preUpdate(float dt){
     
     // Test all color map
 
-    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
-    for (int id : _playerIDs){
-        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
-    }
+//    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
+//    for (int id : _playerIDs){
+//        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
+//    }
     
 }
 
@@ -165,6 +172,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for ColorEvent
         if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
             processColorEvent(cEvent);
+        }
+        // Check for ScoreEvent
+        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+            _scoreController->processScoreEvent(sEvent);
         }
     }
 
@@ -244,6 +255,9 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
         case Message::HOST_START:
             // Send message for everyone to send player id and color
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
+            break;
+        case Message::SCORE_UPDATE:
+//            _network
             break;
         default:
             // Handle unknown message types
