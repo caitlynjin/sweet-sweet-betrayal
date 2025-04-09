@@ -120,11 +120,11 @@ void NetworkController::preUpdate(float dt){
     }
     
     // If filters are all set, then all player physics bodies are in network and can sync color
-    if (_filtersSet){
-        if (!_colorsSynced){
-            syncColors();
-        }
-    }
+//    if (_filtersSet){
+//        if (!_colorsSynced){
+//            syncColors();
+//        }
+//    }
     
     // Test all color map
 
@@ -523,17 +523,33 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     player->setShared(true);
     player->setDebugColor(DEBUG_COLOR);
     
-    auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
-    player->setIdleAnimation(idleSpriteNode);
+    if (player->getName() == "playerRed"){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
+    else if (player->getName() == "playerBlue"){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
     
-    auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
-    player->setWalkAnimation(walkSpriteNode);
-    
-    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
-    player->setGlideAnimation(glideSpriteNode);
-    
-    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
-    player->setJumpAnimation(jumpSpriteNode);
     
     return std::make_pair(player, player->getSceneNode());
 }

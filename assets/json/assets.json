@@ -115,10 +115,10 @@
             "file": "textures/red-jump.png"
         },
         "player-blue-idle": {
-            "file": "textures/blue-run-character-spritesheet.png"
+            "file": "textures/blue-idle-character-spritesheet.png"
         },
         "player-blue-walk": {
-            "file": "textures/blue-walk-character-spritesheet.png"
+            "file": "textures/blue-run-character-spritesheet.png"
         },
         "player-blue-glide": {
             "file": "textures/blue-glide-character-spritesheet.png"
