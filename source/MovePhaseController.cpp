@@ -367,8 +367,8 @@ void MovePhaseController::killPlayer(){
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
         _networkController->getScoreController()->sendScoreEvent(
             _networkController->getNetwork(),
-            _networkController->getLocalID(),
-            ScoreEvent::ScoreType::DEAD, 
+            _networkController->getNetwork()->getShortUID(),
+            ScoreEvent::ScoreType::DEAD,
             _currRound
         );
         
@@ -389,14 +389,14 @@ void MovePhaseController::reachedGoal(){
         if (player->hasTreasure){
             _networkController->getScoreController()->sendScoreEvent(
                 _networkController->getNetwork(),
-                _networkController->getLocalID(),
+                _networkController->getNetwork()->getShortUID(),
                 ScoreEvent::ScoreType::END_TREASURE,
                 _currRound
             );
         } else {
             _networkController->getScoreController()->sendScoreEvent(
                 _networkController->getNetwork(),
-                _networkController->getLocalID(),
+                _networkController->getNetwork()->getShortUID(),
                 ScoreEvent::ScoreType::END,
                 _currRound
             );

@@ -24,11 +24,18 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     int playerID = event->getPlayerID();
     int round = event->getRoundNumber();
     int score = event->getScore();
+    ScoreEvent::ScoreType type = event->getScoreType();
 
-    _playerRoundScores[playerID][round] = score;
+    RoundScore rs;
+    rs.score = score;
+    rs.scoreType = type;
+
+    // Assuming _playerRoundScores is now a mapping from playerID to a mapping of round to RoundScore.
+    _playerRoundScores[playerID][round] = rs;
     _playerTotalScores[playerID] += score;
-    CULog("Processed ScoreEvent: PlayerID = %d, Round = %d, Score = %d, Total Score = %d\n",
-        playerID, round, score, _playerTotalScores[playerID]);
+    
+    CULog("Processed ScoreEvent: PlayerID = %d, Round = %d, Score = %d (Type: %d), Total Score = %d\n",
+          playerID, round, score, static_cast<int>(type), _playerTotalScores[playerID]);
 }
 
 int ScoreController::getTotalScore(int playerID) const {

@@ -15,11 +15,18 @@
 
 class ScoreController {
 private:
+    
+    struct RoundScore {
+        int score;
+        ScoreEvent::ScoreType scoreType;
+    };
+
     /** Pointer to the AssetManager for texture access, etc. */
     std::shared_ptr<cugl::AssetManager> _assets;
     
-    //             playerID             roundNumber  score
-    std::unordered_map<int, std::unordered_map<int, int>> _playerRoundScores;
+    //             playerID             roundNumber  score, scoreType
+    std::unordered_map<int, std::unordered_map<int, RoundScore>> _playerRoundScores;
+
 
     //             playerID  total_scoe
     std::unordered_map<int, int> _playerTotalScores;
