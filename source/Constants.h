@@ -48,6 +48,24 @@
 #define PLAYER_BLUE_GLIDE_TEXTURE    "player-blue-glide"
 /** The animation texture for when the player is jumping */
 #define PLAYER_BLUE_JUMP_TEXTURE    "player-blue-jump"
+// GREEN
+/** The animation texture for when the player is idle */
+#define PLAYER_GREEN_IDLE_TEXTURE    "player-green-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_GREEN_WALK_TEXTURE    "player-green-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_GREEN_GLIDE_TEXTURE    "player-green-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_GREEN_JUMP_TEXTURE    "player-green-jump"
+// YELLOW
+/** The animation texture for when the player is idle */
+#define PLAYER_YELLOW_IDLE_TEXTURE    "player-yellow-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_YELLOW_WALK_TEXTURE    "player-yellow-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_YELLOW_GLIDE_TEXTURE    "player-yellow-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_YELLOW_JUMP_TEXTURE    "player-yellow-jump"
 
 
 /** The key for the tile texture in the asset manager*/
