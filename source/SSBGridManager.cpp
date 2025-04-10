@@ -206,3 +206,16 @@ bool GridManager::canPlace(Vec2 cellPos, Size size) {
 
     return true;
 };
+
+/**
+ * Deletes the object at this cell position from the world.
+ *
+ * @param obj    the object
+ */
+void GridManager::deleteObject(std::shared_ptr<Object> obj) {
+    // Clears maps and returns the object
+    if (obj) {
+        obj->dispose();
+        obj = nullptr;
+    }
+}

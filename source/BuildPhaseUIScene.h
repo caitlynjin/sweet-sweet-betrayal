@@ -45,20 +45,12 @@ protected:
     std::vector<std::shared_ptr<scene2::Button>> _inventoryButtons;
     /** Reference to the ready button */
     std::shared_ptr<cugl::scene2::Button> _readyButton;
-    /** Reference to the level editor load button */
-    std::shared_ptr<cugl::scene2::Button> _loadButton;
-    /** Reference to the level editor paintbrush button */
-    std::shared_ptr<cugl::scene2::Button> _paintButton;
-    /** Reference to the level editor eraser button */
-    std::shared_ptr<cugl::scene2::Button> _eraserButton;
     /** Reference to the right button */
     std::shared_ptr<cugl::scene2::Button> _rightButton;
     /** Reference to the left button */
     std::shared_ptr<cugl::scene2::Button> _leftButton;
-    /** The text input for the file name to save to in level select mode. */
-    std::shared_ptr<cugl::scene2::TextField> _fileSaveText;
-    /** The text input for the file name to load in level select mode. */
-    std::shared_ptr<cugl::scene2::TextField> _fileLoadText;
+    /** Reference to the trash button */
+    std::shared_ptr<cugl::scene2::Button> _trashButton;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -159,6 +151,11 @@ public:
      * Gets the inventory overlay.
      */
     std::shared_ptr<scene2::PolygonNode> getInventoryOverlay() { return _inventoryOverlay; };
+
+    /**
+     * Gets the trash button.
+     */
+    std::shared_ptr<scene2::Button> getTrashButton() { return _trashButton; };
 
 
 #pragma mark -
