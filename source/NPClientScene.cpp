@@ -57,7 +57,7 @@ static std::string dec2hex(const std::string dec) {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetEventController> network, std::shared_ptr<SoundController> sound) {
+bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
     // Initialize the scene to a locked height
     if (assets == nullptr) {
            return false;
@@ -70,7 +70,8 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     
     // Start up the input handler
     _assets = assets;
-    _network = network;
+    _networkController = networkController;
+    _network = _networkController->getNetwork();
     _sound = sound;
     
     // Acquire the scene built by the asset loader and resize it the scene
@@ -192,6 +193,11 @@ void ClientScene::update(float timestep) {
     // Do this last for button safety
     configureStartButton();
     if(_network->getStatus() == NetEventController::Status::CONNECTED || _network->getStatus() == NetEventController::Status::HANDSHAKE){
+        
+        if (!_networkController->getPlayerColorAdded()){
+            _networkController->addPlayerColor();
+        }
+        
         _player->setText(std::to_string(_network->getNumPlayers()));
     }
 }

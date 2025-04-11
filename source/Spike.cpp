@@ -6,6 +6,17 @@
 using namespace cugl;
 using namespace cugl::graphics;
 
+/**
+ * Sets the position
+ *
+ * @param position   The position
+ */
+void Spike::setPosition(const cugl::Vec2& position) {
+    _position = position;
+    _hitbox->setPosition(position + _size/2);
+    _node->setPosition((position + _size/2) * _drawScale);
+}
+
 void Spike::update(float timestep) {
 }
 
@@ -13,7 +24,17 @@ string Spike::getJsonKey() {
     return JSON_KEY;
 }
 
-void Spike::dispose() {}
+void Spike::dispose() {
+    Object::dispose();
+
+    _hitbox->markRemoved(true);
+    _hitbox = nullptr;
+
+    if (_node && _node->getParent()) {
+        _node->removeFromParent();
+        _node = nullptr;
+    }
+}
 
 
 
@@ -37,6 +58,7 @@ bool Spike::init(const Vec2 pos, const Size size, float scale, float angle, stri
     _spikeTexture = "";
     _drawScale = scale;
     _position = pos;
+    _itemType = Item::SPIKE;
     _size = size;
     _angle = angle;
     Size nsize = size*.40; // FIX LATER
