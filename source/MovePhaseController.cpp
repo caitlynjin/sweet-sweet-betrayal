@@ -530,11 +530,18 @@ void MovePhaseController::beginContact(b2Contact *contact)
             contact->SetEnabled(false);
         }
     // See if we have landed on the ground.
+    if (bd1->getName() == "player" && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
+    }
 
-    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
-        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
-    {
-        _movePhaseScene.getLocalPlayer()->setGrounded(true);
+    if (bd2->getName() == "player" && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
     }
 
 //    if ((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||

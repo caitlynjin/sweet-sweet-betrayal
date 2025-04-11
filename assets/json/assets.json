@@ -134,6 +134,24 @@
         },
         "redbutton": {
             "file": "textures/start-button.png"
+        },
+        "menu-background": {
+            "file": "textures/menu-background.png"
+        },
+        "settingsbutton": {
+            "file": "textures/settingsbutton.png"
+        },
+        "startbutton": {
+            "file": "textures/startbutton.png"
+        },
+        "ssb_logo": {
+            "file": "textures/ssb_logo.png"
+        },
+        "rightgliders": {
+            "file": "textures/rightgliders.png"
+        },
+        "leftgliders": {
+            "file": "textures/leftgliders.png"
         }
     },
     "jsons": {
