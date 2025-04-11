@@ -46,6 +46,7 @@
 #include <cugl/cugl.h>
 #include "Treasure.h"
 #include "Constants.h"
+#include "Message.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -229,7 +230,7 @@ public:
      *
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
-    virtual bool init() override { return init(Vec2::ZERO, Size(1,1), 1.0f); }
+    virtual bool init() override { return init(Vec2::ZERO, Size(1,1), 1.0f, ColorType::RED); }
     
     /**
      * Initializes a new dude at the given position.
@@ -245,7 +246,7 @@ public:
      *
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
-    virtual bool init(const Vec2 pos) override { return init(pos, Size(1,1), 1.0f); }
+    virtual bool init(const Vec2 pos) override { return init(pos, Size(1,1), 1.0f, ColorType::RED); }
     
     /**
      * Initializes a new dude at the given position.
@@ -263,7 +264,7 @@ public:
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
     virtual bool init(const Vec2 pos, const Size size) override {
-        return init(pos, size, 1.0f);
+        return init(pos, size, 1.0f, ColorType::RED);
     }
     
     /**
@@ -282,7 +283,7 @@ public:
      *
      * @return  true if the obstacle is initialized properly, false otherwise.
      */
-    virtual bool init(const Vec2& pos, const Size& size, float scale);
+    virtual bool init(const Vec2& pos, const Size& size, float scale, ColorType color);
     
 #pragma mark -
 #pragma mark Static Constructors
@@ -358,9 +359,9 @@ public:
 	 *
 	 * @return  A newly allocated PlayerModel at the given position with the given scale
 	 */
-	static std::shared_ptr<PlayerModel> alloc(const Vec2& pos, const Size& size, float scale) {
+	static std::shared_ptr<PlayerModel> alloc(const Vec2& pos, const Size& size, float scale, ColorType color) {
 		std::shared_ptr<PlayerModel> result = std::make_shared<PlayerModel>();
-		return (result->init(pos, size, scale) ? result : nullptr);
+		return (result->init(pos, size, scale, color) ? result : nullptr);
 	}
     
 
@@ -396,6 +397,7 @@ public:
      * @param node  The scene graph node representing this PlayerModel, which has been added to the world node already.
      */
 	void setSceneNode(const std::shared_ptr<scene2::SpriteNode>& node) {
+
         if (!_node){
             _node = scene2::SceneNode::alloc();
         } else{
@@ -419,6 +421,9 @@ public:
     
     /** Increments an animation film strip */
     void doStrip(cugl::ActionFunction action);
+    
+    /** Sets which animation color strip to use for the player */
+    void setAnimationColors(ColorType color);
     
     /**
      * Called when the player obtains a treasure.

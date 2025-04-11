@@ -79,6 +79,7 @@
 
 using namespace cugl;
 using namespace cugl::scene2;
+using namespace cugl::graphics;
 
 #pragma mark -
 #pragma mark Constructors
@@ -99,7 +100,7 @@ using namespace cugl::scene2;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale)
+bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType color)
 {
     Size nsize = size;
     nsize.width *= PLAYER_HSHRINK;
@@ -113,7 +114,21 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale)
         setDensity(PLAYER_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true); // OTHERWISE, HE IS A WEEBLE WOBBLE
-        setName("player");
+        
+        // Set tag of player based on color
+        if (color == ColorType::RED){
+            setName("playerRed");
+        }
+        else if (color == ColorType::BLUE){
+            setName("playerBlue");
+        }
+        else if (color == ColorType::GREEN){
+            setName("playerGreen");
+        }
+        else if (color == ColorType::YELLOW){
+            setName("playerYellow");
+        }
+        
         setDebugColor(Color4::YELLOW);
         
         _node = scene2::SpriteNode::alloc();
@@ -201,6 +216,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) 
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
+
     _glideSpriteNode->setAnchor(0.6,0.3);
     _glideSpriteNode->setPosition(Vec2(-13.0, 0.0f));
     _node->addChild(_glideSpriteNode);
@@ -261,6 +277,10 @@ void PlayerModel::doStrip(cugl::ActionFunction action) {
         _timeline->add(ACT_KEY, action, DURATION);
     }
 }
+
+//void PlayerModel::setAnimationColors(ColorType color){
+//    _walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
+//}
 
 
 #pragma mark -

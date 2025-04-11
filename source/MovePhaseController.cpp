@@ -373,6 +373,7 @@ void MovePhaseController::reachedGoal(){
         player->setImmobile(true);
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        
     }
     
 }
@@ -517,13 +518,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-
-    // Check if both are players and disable contact
-        if ((bd1->getName() == "player" && bd2->getName() == "player") ||
-            (bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "player") ||
-            (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "player")) {
-            contact->SetEnabled(false);
-        }
+    // See if we have landed on the ground.
 
     //Handles all Player Collisions in this section
         if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
