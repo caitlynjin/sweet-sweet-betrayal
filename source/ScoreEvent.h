@@ -31,7 +31,7 @@ public:
     enum ScoreType {
         END,          // reach end without treasure: 1 point
         END_TREASURE, // reach end with treasure: 3 points
-        DEAD          // dead: 0 points
+        DEAD,          // dead: 0 points
         NONE
     } scoreType;
     /**
