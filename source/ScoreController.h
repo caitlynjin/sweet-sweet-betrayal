@@ -82,6 +82,8 @@ public:
 
     int getRoundScore(int playerID, int round) const;
     
+    ScoreEvent::ScoreType getRoundScoreType(int playerID, int round) const;
+    
     void sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum);
 
 };

@@ -48,10 +48,21 @@ int ScoreController::getRoundScore(int playerID, int round) const {
     if (playerIt != _playerRoundScores.end()) {
         auto roundIt = playerIt->second.find(round);
         if (roundIt != playerIt->second.end()) {
-            return roundIt->second;
+            return roundIt->second.score;
         }
     }
     return 0;
+}
+
+ScoreEvent::ScoreType ScoreController::getRoundScoreType(int playerID, int round) const {
+    auto playerIt = _playerRoundScores.find(playerID);
+    if (playerIt != _playerRoundScores.end()) {
+        auto roundIt = playerIt->second.find(round);
+        if (roundIt != playerIt->second.end()) {
+            return roundIt->second.scoreType;
+        }
+    }
+    return ScoreEvent::ScoreType::NONE;
 }
 
 void ScoreController::sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum) {
