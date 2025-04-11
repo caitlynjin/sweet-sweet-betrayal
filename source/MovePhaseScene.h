@@ -85,6 +85,7 @@ public:
      */
     void dispose();
 
+    
     /**
      * Initializes the scene contents
      *
