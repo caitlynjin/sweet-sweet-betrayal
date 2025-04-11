@@ -131,6 +131,11 @@ public:
      */
     void postUpdate(float remain);
 
+    /**
+    Handles wind collisions
+    */
+    void windUpdate(std::shared_ptr <WindObstacle> wind, float dt);
+
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render();

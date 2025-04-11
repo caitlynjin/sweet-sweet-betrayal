@@ -133,6 +133,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale)
         
         return true;
     }
+
     return false;
 }
 
@@ -541,26 +542,17 @@ void PlayerModel::update(float dt)
         
         /**Allows the player to adjust their jump height while jumping-
         If they stop holding jump partway during a jump, dampen their velocity*/
-        if (_jumpTimer > 0) {
-            _jumpTimer -= dt;
+        _jumpTimer -= dt;
 
-            if (!_holdingJump) {
-                b2Vec2 vel = _body->GetLinearVelocity();
-                vel.y  = 0;
-                _body->SetLinearVelocity(vel);
-                _jumpTimer = 0;
+        if (!_holdingJump and _jumpTimer > 0) {
+            b2Vec2 vel = _body->GetLinearVelocity();
+            if (vel.y > 0) {
+                vel.y = vel.y * JUMP_STOP_DAMPING;
             }
+            _body->SetLinearVelocity(vel);
+            _jumpTimer = 0;
         }
         
-        // TODO: Is this code from the lab? If we're not using, delete
-        if (isShooting())
-        {
-            _shootCooldown = SHOOT_COOLDOWN;
-        }
-        else
-        {
-            _shootCooldown = (_shootCooldown > 0 ? _shootCooldown - 1 : 0);
-        }
         
         glideUpdate(dt);
         

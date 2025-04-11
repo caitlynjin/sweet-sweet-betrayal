@@ -71,7 +71,9 @@ using namespace Constants;
 #define WIND_FACTOR 0.05f
 #define WIND_FACTOR_GLIDING 0.4f
 #define WIND_FACTOR_AIR 0.08f
-#define JUMP_DURATION 1.0f;
+//Determines for how long we can 'halt' a jump middair, allowing the player to control how high they jump
+#define JUMP_DURATION 0.6f;
+#define JUMP_STOP_DAMPING 0.2f;
 
 #define GLIDE_FALL_SPEED -2.5f
 
@@ -605,6 +607,8 @@ public:
     /*If we have are currently holding the jump button**/
 
     void setJumpHold(bool value) { _holdingJump = value; }
+
+    bool getJumpHold() { return _holdingJump; }
     
 #pragma mark -
 #pragma mark Physics Methods
