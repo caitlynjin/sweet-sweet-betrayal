@@ -26,16 +26,48 @@
 
 #pragma mark -
 #pragma mark Object Textures
+
+// PLAYER TEXTURES
 /** The texture for the character avatar */
 #define PLAYER_TEXTURE    "dude"
+// RED
 /** The animation texture for when the player is idle */
-#define PLAYER_IDLE_TEXTURE    "player-idle"
+#define PLAYER_RED_IDLE_TEXTURE    "player-red-idle"
 /** The animation texture for when the player is walking */
-#define PLAYER_WALK_TEXTURE    "player-walk"
+#define PLAYER_RED_WALK_TEXTURE    "player-red-walk"
 /** The animation texture for when the player is gliding */
-#define PLAYER_GLIDE_TEXTURE    "player-glide"
+#define PLAYER_RED_GLIDE_TEXTURE    "player-red-glide"
 /** The animation texture for when the player is jumping */
-#define PLAYER_JUMP_TEXTURE    "player-jump"
+#define PLAYER_RED_JUMP_TEXTURE    "player-red-jump"
+// BLUE
+/** The animation texture for when the player is idle */
+#define PLAYER_BLUE_IDLE_TEXTURE    "player-blue-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_BLUE_WALK_TEXTURE    "player-blue-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_BLUE_GLIDE_TEXTURE    "player-blue-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_BLUE_JUMP_TEXTURE    "player-blue-jump"
+// GREEN
+/** The animation texture for when the player is idle */
+#define PLAYER_GREEN_IDLE_TEXTURE    "player-green-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_GREEN_WALK_TEXTURE    "player-green-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_GREEN_GLIDE_TEXTURE    "player-green-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_GREEN_JUMP_TEXTURE    "player-green-jump"
+// YELLOW
+/** The animation texture for when the player is idle */
+#define PLAYER_YELLOW_IDLE_TEXTURE    "player-yellow-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_YELLOW_WALK_TEXTURE    "player-yellow-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_YELLOW_GLIDE_TEXTURE    "player-yellow-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_YELLOW_JUMP_TEXTURE    "player-yellow-jump"
+
+
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */
@@ -88,6 +120,8 @@
 #define BLUE_ICON "blue-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
+/** The image for the trash can icon */
+#define TRASH "trash"
 
 
 #pragma mark -
@@ -256,6 +290,13 @@ cugl::Size itemToGridSize(Item item);
  */
 std::string itemToAssetName(Item item);
 
+/**
+ Returns whether a tag contains the player keyword.
+ */
+bool tagContainsPlayer(std::string tag);
+
 }
+
+
 
 #endif /* __CONSTANTS_H__ */
