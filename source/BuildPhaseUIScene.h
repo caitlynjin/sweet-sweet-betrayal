@@ -51,6 +51,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _leftButton;
     /** Reference to the trash button */
     std::shared_ptr<cugl::scene2::Button> _trashButton;
+    /** Reference to the timer */
+    std::shared_ptr<cugl::scene2::Label> _timer;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -58,6 +60,9 @@ protected:
     bool _rightpressed = false;
     /** Whether left camera button is being pressed */
     bool _leftpressed = false;
+
+    /** Starting time for the build mode timer */
+    Uint64 _startTime;
 
 public:
 #pragma mark -
