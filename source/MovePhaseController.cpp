@@ -524,14 +524,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // See if we have landed on the ground.
-    if (bd1->getName() == "player" && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (bd1->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
         }
     }
 
-    if (bd2->getName() == "player" && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (bd2->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
