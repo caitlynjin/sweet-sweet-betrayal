@@ -96,23 +96,62 @@
         "button": {
             "file":  "textures/button.png"
         },
+        "trash": {
+            "file":  "textures/trash.png"
+        },
         "frame": {
             "file":  "textures/frame.png"
         },
         "left": {
             "file":  "textures/left_arrow.png"
         },
-        "player-idle": {
+        "player-red-idle": {
             "file": "textures/red-idle.png"
         },
-        "player-walk": {
+        "player-red-walk": {
             "file": "textures/red-walk.png"
         },
-        "player-glide": {
+        "player-red-glide": {
             "file": "textures/red-glide.png"
         },
-        "player-jump": {
+        "player-red-jump": {
             "file": "textures/red-jump.png"
+        },
+        "player-blue-idle": {
+            "file": "textures/blue-idle-character-spritesheet.png"
+        },
+        "player-blue-walk": {
+            "file": "textures/blue-run-character-spritesheet.png"
+        },
+        "player-blue-glide": {
+            "file": "textures/blue-glide-character-spritesheet.png"
+        },
+        "player-blue-jump": {
+            "file": "textures/blue-jump-character-spritesheet.png"
+        },
+        "player-green-idle": {
+            "file": "textures/green-idle-character-spritesheet.png"
+        },
+        "player-green-walk": {
+            "file": "textures/green-run-character-spritesheet.png"
+        },
+        "player-green-glide": {
+            "file": "textures/green-glide-character-spritesheet.png"
+        },
+        "player-green-jump": {
+            "file": "textures/green-jump-character-spritesheet.png"
+        },
+        "player-yellow-idle": {
+            "file": "textures/yellow-idle-character-spritesheet.png"
+        },
+        "player-yellow-walk": {
+            "file": "textures/yellow-run-character-spritesheet.png"
+        },
+        "player-yellow-glide": {
+            "file": "textures/yellow-glide-character-spritesheet.png"
+        },
+        "player-yellow-jump": {
+            "file": "textures/yellow-jump-character-spritesheet.png"
         },
         "progress-bar": {
             "file":  "textures/progress-bar.png"
