@@ -366,13 +366,14 @@ Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
     int yGrid = gridPos.y;
 
     // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
+    int minRow = ROW_OFFSET_BOT;
+    int maxRow = MAX_ROWS - ROW_OFFSET_TOP - 1;
+    int maxCol = _gridManager->getNumColumns() - 1;
 
     xGrid = xGrid < 0 ? 0 : xGrid;
-    yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
-    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
+    yGrid = yGrid < minRow ? minRow : yGrid;
+    xGrid = xGrid + offset.width > maxCol ? maxCol - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRow ? maxRow - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }
