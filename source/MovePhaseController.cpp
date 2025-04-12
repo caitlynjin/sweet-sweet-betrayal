@@ -192,21 +192,12 @@ void MovePhaseController::preUpdate(float dt) {
         }
     }
     else if (!_input->isRightDown()) {
+        if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
+            CULog("SetFalse");
+            _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+        }
         _movePhaseScene.getLocalPlayer()->setGlide(false);
     }
-
-//        if (_input->getRightTapped()) {
-//            _input->setRightTapped(false);
-//            if (!_avatar->isGrounded())
-//            {
-//                _avatar->setGlide(true);
-//            }
-//        }
-//        else if (!_input->isRightDown()) {
-//            _avatar->setGlide(false);
-//
-//        }
-    
     _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
@@ -218,44 +209,12 @@ void MovePhaseController::preUpdate(float dt) {
         _sound->playSound("jump");
     }
 
-    // TODO: All of this logic should be handled in WindObstacle class
+    
     for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 
         /**If we created a wind object, create a bunch of raycasts.*/
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
-            int i = 0;
-            std::vector<cugl::Vec2> lst = wind_cast->getRayOrigins();
-
-            for (auto it = lst.begin(); it != lst.end(); ++it) {
-                Vec2 rayEnd = *it + (wind_cast->getWindDirection());
-                
-                /**Generates the appropriate callback function for this wind object*/
-                
-                auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
-                    string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
-                    //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-                    if (tagContainsPlayer(fixtureName)) {
-                        CULog("plyr Callback!");
-                        wind_cast->setPlayerDist(i, fraction);
-                        return wind_cast->getRayDist(i);
-                    }
-                    else if (fixtureName == "gust") {
-                        return wind_cast->getRayDist(i);
-                    }
-                    wind_cast->setRayDist(i, fraction);
-                    return fraction;
-                    };
-                /**Generates the appropriate raycasts to handle collision for this wind object*/
-
-                _world->rayCast(callback, *it, rayEnd);
-                ++i;
-
-            }
-            wind_cast->update(dt);
-            if (wind_cast->getPlayerHits()> 0 ) {
-                CULog("hit");
-                _movePhaseScene.getLocalPlayer()->addWind(wind_cast->getWindForce());
-            }
+            windUpdate(wind_cast, dt);
         }
 
         (*it)->update(dt);
@@ -325,6 +284,42 @@ void MovePhaseController::preUpdate(float dt) {
     // TODO: This code should be handled in Mushroom class, why is it here?
     if (_mushroomCooldown > 0) {
         _mushroomCooldown--;
+    }
+}
+
+void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float dt) {
+    int i = 0;
+    std::vector<cugl::Vec2> lst = wind->getRayOrigins();
+
+    for (auto it = lst.begin(); it != lst.end(); ++it) {
+        Vec2 rayEnd = *it + (wind->getWindDirection());
+
+        /**Generates the appropriate callback function for this wind object*/
+        
+        auto callback = [this, wind, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+
+            string fixtureName = wind->ReportFixture(f, point, normal, fraction);
+            //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
+            if (fixtureName == "player") {
+                CULog("plyr Callback!");
+                wind->setPlayerDist(i, fraction);
+                return wind->getRayDist(i);
+            }
+            else if (fixtureName == "gust") {
+                return wind->getRayDist(i);
+            }
+            wind->setRayDist(i, fraction);
+            return fraction;
+            };
+        /**Generates the appropriate raycasts to handle collision for this wind object*/
+
+        _world->rayCast(callback, *it, rayEnd);
+        ++i;
+
+    }
+    wind->update(dt);
+    if (wind->getPlayerHits() > 0) {
+        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce());
     }
 }
 
@@ -550,82 +545,60 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
     // See if we have landed on the ground.
 
-    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
-        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2)) && (bd2->getName() != "gust" && bd1->getName() != "gust"))
-    {
-        _movePhaseScene.getLocalPlayer()->setGrounded(true);
-    }
+    //Handles all Player Collisions in this section
+        if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
+            //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
+            
+            // If we hit the "win" door, we are done
+            if (bd2 == _movePhaseScene.getGoalDoor().get() || bd1 == _movePhaseScene.getGoalDoor().get()){
+                reachedGoal();
+            }
 
-//    if ((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
-//        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2))
-//    {
-//        _movePhaseScene.getLocalPlayer()->setGrounded(true);
-//
-//        // Could have more than one ground
-//        _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
-//    }
+            // If we hit a spike, we are DEAD
+            else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
+                killPlayer();
+            }
 
-    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1 && !tagContainsPlayer(bd1->getName())) ||
-        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2 && !tagContainsPlayer(bd2->getName()))
-        ) && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
-        _movePhaseScene.getLocalPlayer()->setGrounded(true);
-        // Could have more than one ground
-        _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
-    }
+            //Treasure Collection
+            else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
+            {
+                if (!_movePhaseScene.getLocalPlayer()->hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
+                {
+                    _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
+                    _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
+                }
+            }
+            //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
+            else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && bd1->getName() != "player") ||
+                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && bd2->getName() != "player"))
+                && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
+                //Set player to grounded
+                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                // Could have more than one ground
+                _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 
-    // If we hit the "win" door, we are done
-    if((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2 == _movePhaseScene.getGoalDoor().get()) ||
-        (bd1 == _movePhaseScene.getGoalDoor().get() && bd2 == _movePhaseScene.getLocalPlayer().get())) {
-//        _reachedGoal = true;
-        reachedGoal();
+                //bounce if we hit a mushroom
+                if (bd2->getName() == "mushroom" || bd1->getName() == "mushroom") {
+                    if (_mushroomCooldown == 0) {
+                        b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
+                        b2Vec2 newVelocity = playerBody->GetLinearVelocity();
+                        newVelocity.y = 15.0f;
+                        playerBody->SetLinearVelocity(newVelocity);
 
-    }
-    // If we hit a spike, we are DEAD
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
-        (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
-        //        setFailure(true);
-        killPlayer();
-    }
-    //ounce if we hit a mushroom
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "mushroom") ||
-    (bd1->getName() == "mushroom" && bd2 == _movePhaseScene.getLocalPlayer().get())) {
+                        _mushroomCooldown = 10;
+                        CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
+                    }
+                }
 
-        if (_mushroomCooldown == 0) {
-            b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
-            b2Vec2 newVelocity = playerBody->GetLinearVelocity();
-            newVelocity.y = 15.0f;
-            playerBody->SetLinearVelocity(newVelocity);
-
-            _mushroomCooldown = 10;
-            CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
+                //Handles Moving Platforms
+                if ((bd2->getName() == "movingPlatform" || bd1->getName() == "movingPlatform") && _movePhaseScene.getLocalPlayer()->isGrounded())
+                {
+                    _movePhaseScene.getLocalPlayer()->setOnMovingPlat(true);
+                    _movePhaseScene.getLocalPlayer()->setMovingPlat(bd1 == _movePhaseScene.getLocalPlayer().get() ? bd2 : bd1);
+                }
+            }
         }
-    }
-
-
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "movingPlatform" && _movePhaseScene.getLocalPlayer()->isGrounded()) ||
-        (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "movingPlatform" && _movePhaseScene.getLocalPlayer()->isGrounded()))
-    {
-        _movePhaseScene.getLocalPlayer()->setOnMovingPlat(true);
-        _movePhaseScene.getLocalPlayer()->setMovingPlat(bd1 == _movePhaseScene.getLocalPlayer().get() ? bd2 : bd1);
-
-        // If we hit a spike, we are DEAD
-        if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "spike") ||
-            (bd1->getName() == "spike" && bd2 == _movePhaseScene.getLocalPlayer().get()))
-        {
-            killPlayer();
-        }
-    }
-
-    // If we collide with a treasure, we pick it up
-    if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "treasure") ||
-        (bd1->getName() == "treasure" && bd2 == _movePhaseScene.getLocalPlayer().get()))
-    {
-        if (!_movePhaseScene.getLocalPlayer()->hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
-        {
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
-            _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
-        }
-    }
+    
 }
 
 /**
