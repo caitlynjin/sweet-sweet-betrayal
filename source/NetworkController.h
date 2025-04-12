@@ -340,6 +340,8 @@ protected:
     bool _filtersSet = false;
     /** Whether we have synced all colors across players */
     bool _colorsSynced = false;
+    /** Whether the level should reset */
+    bool _resetLevel = false;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
@@ -475,6 +477,13 @@ public:
      */
     Vec2 getTreasureSpawn(){
         return _treasureSpawn;
+    }
+    
+    /**
+     * Returns whether the level should reset
+     */
+    bool getResetLevel(){
+        return _resetLevel;
     }
     
     /**
@@ -740,6 +749,15 @@ public:
      * Resets the necessary logic to start a new round
      */
     void resetRound();
+    
+    /**
+     Checks if win condition has been met and sends a message to reset the level.
+     */
+    void checkWinCondition(){
+        if (_scoreController->checkWinCondition()){
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
+        }
+    }
 
 };
 

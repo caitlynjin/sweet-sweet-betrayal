@@ -51,7 +51,7 @@ int ScoreEvent::getScore() const {
         case END_TREASURE: // reach end with treasure: 3 points
             return 3;
         case DEAD: // dead: 0 points
-            return 0;
+            return 1;
         default:
             return 0;
     }

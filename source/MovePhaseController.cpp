@@ -127,6 +127,8 @@ void MovePhaseController::resetRound() {
 void MovePhaseController::reset() {
     // TODO: Need to properly reset
     _currRound = 1;
+    _mushroomCooldown = 0;
+    
     
     setFailure(false);
     setComplete(false);

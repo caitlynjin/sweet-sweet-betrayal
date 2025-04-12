@@ -21,7 +21,6 @@ std::shared_ptr<NetEvent> ColorEvent::newEvent(){
 }
 
 std::shared_ptr<NetEvent> ColorEvent::allocColorEvent(int playerID, ColorType color){
-    CULog("Color Event alloced");
     auto event = std::make_shared<ColorEvent>();
     event->_playerID = playerID;
     event->_color = color;
