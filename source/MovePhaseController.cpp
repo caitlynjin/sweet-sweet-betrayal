@@ -277,6 +277,13 @@ void MovePhaseController::preUpdate(float dt) {
                                                                     getCamera()->getPosition().x),
                                     getCamera()->getPosition().y, 0));
     }
+    else if (getCamera()->getPosition().x < 0){
+        getCamera()->setPosition(Vec3 (0, getCamera()->getPosition().y, 0));
+    }
+    else if (getCamera()->getPosition().x > _movePhaseScene.getGoalDoor()->getPosition().x * 64){
+        getCamera()->setPosition(Vec3 (_movePhaseScene.getGoalDoor()->getPosition().x * 64, getCamera()->getPosition().y, 0));
+    }
+
     
 
     _movePhaseScene.preUpdate(dt);
