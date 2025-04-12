@@ -116,7 +116,7 @@
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
 /** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "gray"
+#define EARTH_TEXTURE   "earth"
 
 
 #pragma mark -
@@ -259,6 +259,15 @@ cugl::Size itemToGridSize(Item item);
  * @param item The item
  */
 std::string itemToAssetName(Item item);
+
+static std::map<std::string, int> jsonTypeToLayer {
+    {"default", -1}
+};
+
+static std::map<std::string, std::string> jsonTypeToAsset
+{
+    {"default", EARTH_TEXTURE}
+};
 
 }
 

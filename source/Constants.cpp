@@ -155,10 +155,12 @@ std::string itemToAssetName(Item item) {
         case (MUSHROOM):
             return MUSHROOM_TEXTURE;
         case (ART_OBJECT):
-            return MUSHROOM_TEXTURE; // for debugging - this is not sustainable
+            return EARTH_TEXTURE; // for debugging - this is not sustainable
         case (NONE):
             return nullptr;
     }
 }
+
+
 
 }

@@ -132,7 +132,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
 
     // Initialize movement phase controller
     // TODO: fix this part
-    shared_ptr<scene2::SceneNode> _worldnode = scene2::SceneNode::alloc();
+    shared_ptr<scene2::SceneNode> _worldnode = scene2::OrderedNode::alloc();
     _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _worldnode->setPosition(_offset);
     _worldnode->setScale(_worldnode->getScale() * 2);
@@ -207,8 +207,8 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA };
-    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA, ART_OBJECT };
+    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE, TILE_TEXTURE};
 
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -513,6 +513,8 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
         obj->setItemType(TILE_ALPHA);
         return obj;
+    case (ART_OBJECT):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "default");
     case (NONE):
         return nullptr;
     }

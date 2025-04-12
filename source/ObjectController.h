@@ -23,6 +23,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
 #include "NetworkController.h"
+#include "ArtObject.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -131,6 +132,7 @@ public:
 
     /** Creates an art object */
     std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
+    std::shared_ptr<Object> createArtObject(Vec2 pos, Size size, float scale, float angle, string jsonType);
 
     /**creates teh goal door**/
     std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);

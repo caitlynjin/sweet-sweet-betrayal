@@ -6,7 +6,6 @@
 //
 
 #include "MovePhaseScene.h"
-#include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>

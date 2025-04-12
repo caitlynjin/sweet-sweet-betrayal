@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "ArtObject.h"
 
 #include <ctime>
 #include <string>
@@ -232,19 +233,17 @@ std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasur
     return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 
+std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
+    return createArtObject(ArtObject::alloc(pos, size, scale, angle, jsonType));
+}
 
 std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObject> art) {
     std::shared_ptr<Texture> image;
 
-    // Add new art object types here as they are created.
-    // The "type" attribute of that art object in the level JSON must match the proper string here.
-    if (art->getJsonType() == "tile") {
-        image = _assets->get<Texture>(TILE_TEXTURE);
+    image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
+    if (image == nullptr) {
+        image = _assets->get<Texture>("earth");
     }
-    else {
-        image = _assets->get<Texture>(TILE_TEXTURE);
-    }
-
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
@@ -256,10 +255,26 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     triangulator.calculate();
     poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
-
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     art->setSceneNode(sprite);
-
+    if (jsonTypeToLayer.find(art->getJsonType()) != jsonTypeToLayer.end()) {
+        // jsonType IS in the map
+        art->setLayer(jsonTypeToLayer[art->getJsonType()]);
+    }
+    CULog("layer is %d", art->getLayer());
+    /* ArtObjects are still objects, and thus still have BoxObstacles.
+     * They also need this to be rendered properly in the physics world.
+     * Otherwise we'd have to have separate logic using an addChild method 
+     * to add the sprite nodes just for art objects to all the game scenes.
+     * So we keep the physics body for consistency, and just disable it for art objects.
+     */
+    art->getObstacle()->setBodyType(b2_staticBody);
+    art->getObstacle()->setDensity(BASIC_DENSITY);
+    art->getObstacle()->setFriction(BASIC_FRICTION);
+    art->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    art->getObstacle()->setDebugColor(DEBUG_COLOR);
+    art->getObstacle()->setName("artObject");
+    addObstacle(art->getObstacle(), sprite);
 
     _gameObjects->push_back(art);
 

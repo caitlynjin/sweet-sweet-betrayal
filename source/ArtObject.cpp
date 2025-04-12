@@ -25,15 +25,22 @@ string ArtObject::getJsonKey() {
  * @return  true if the ArtObject is initialized properly, false otherwise.
  */
 bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, int layer) {
-    return ArtObject::init(pos, size, scale, angle, layer, "default");
+    _layer = layer;
+    return ArtObject::init(pos, size, scale, angle, "default");
 }
 
-bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, int layer, string jsonType) {
+bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, string jsonType) {
     _drawScale = scale;
     _position = pos;
     _size = size;
-    _layer = layer;
     _angle = angle;
+    _itemType = Item::ART_OBJECT;
+    _jsonType = jsonType;
+    _box = cugl::physics2::BoxObstacle::alloc(pos, size);
+    _box->setDebugColor(Color4::YELLOW);
+    _box->setPosition(pos + size/2);
+    _box->setAngle(angle);
+    _box->setEnabled(false);
 
     return true;
 }
@@ -47,8 +54,9 @@ void ArtObject::setPosition(const cugl::Vec2& position) {
     _node->setPosition((position + _size / 2) * _drawScale);
 }
 
-void ArtObject::setPriority(int layer) {
+void ArtObject::setLayer(int layer) {
     _node->setPriority(layer);
+    _layer = layer;
 }
 
 void ArtObject::dispose() {
