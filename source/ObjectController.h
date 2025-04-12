@@ -48,6 +48,8 @@ private:
     std::shared_ptr<scene2::PolygonNode> _growingWallNode;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
+    /** Reference to goal position */
+    Vec2 _goalPos;
    
     std::shared_ptr<NetworkController> _networkController;
 
@@ -156,6 +158,8 @@ public:
     }
 
     std::shared_ptr<Treasure> getTreasure() {return _treasure;}
+
+    Vec2 getGoalPos() {return _goalPos;}
     
 
     

@@ -236,6 +236,8 @@ std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goa
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
 
+    _goalPos = goalPos;
+
     Size goalSize(image->getSize().width / _scale, image->getSize().height / _scale);
     
     std::shared_ptr<physics2::BoxObstacle> goalDoor = physics2::BoxObstacle::alloc(goalPos, goalSize);

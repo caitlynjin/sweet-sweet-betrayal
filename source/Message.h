@@ -16,7 +16,8 @@ enum class Message {
     BUILD_READY,      // Signal to build something
     MOVEMENT_END,     // Signal that a player has ended movement phase by either dying or winning
     TREASURE_TAKEN,   // Signal that a player has picked up a treasure
-    TREASURE_LOST     // Signal that a player has lost possession of a treasure
+    TREASURE_LOST,    // Signal that a player has lost possession of a treasure
+    SCORE_UPDATE      // Signal a score update 
 };
 
 /**

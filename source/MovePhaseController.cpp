@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "ScoreEvent.h"
 
 #include <ctime>
 #include <string>
@@ -157,15 +158,17 @@ void MovePhaseController::preUpdate(float dt) {
         Application::get()->quit();
     }
 
+    _uiScene.preUpdate(dt);
+
     // Process the movement
     // TODO: Segment into updateMovement method
     if (_input->withJoystick())
     {
-        if (_input->getHorizontal() < 0)
+        if (_input->getHorizontal() > 0)
         {
             _uiScene.setLeftVisible();
         }
-        else if (_input->getHorizontal() > 0)
+        else if (_input->getHorizontal() < 0)
         {
             _uiScene.setRightVisible();
         }
@@ -173,7 +176,7 @@ void MovePhaseController::preUpdate(float dt) {
         {
             _uiScene.setJoystickHidden();
         }
-        _uiScene.setJoystickPosition(_input->getJoystick());
+        _uiScene.setJoystickPosition(Vec2 (_uiScene.screenToWorldCoords(_input->getJoystick()).x, SCENE_HEIGHT - (_uiScene.screenToWorldCoords(_input->getJoystick()).y)));
     }
     else
     {
@@ -268,7 +271,7 @@ void MovePhaseController::preUpdate(float dt) {
     
 
     // TODO: Segment into updateCamera method
-    if (getCamera()->getPosition().x >= 0 && getCamera()->getPosition().x <= 2240){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+    if (getCamera()->getPosition().x >= 0 && getCamera()->getPosition().x <= _movePhaseScene.getGoalDoor()->getPosition().x * 64){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
                                                                    (_movePhaseScene.getLocalPlayer()->getPosition().x *
                                                                     56 + SCENE_WIDTH / 3.0f -
                                                                     getCamera()->getPosition().x),
@@ -359,6 +362,13 @@ void MovePhaseController::killPlayer(){
         }
         // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        _networkController->getScoreController()->sendScoreEvent(
+            _networkController->getNetwork(),
+            _networkController->getNetwork()->getShortUID(),
+            ScoreEvent::ScoreType::DEAD,
+            _currRound
+        );
+        
         player->setDead(true);
     }
     
@@ -373,6 +383,21 @@ void MovePhaseController::reachedGoal(){
         player->setImmobile(true);
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        if (player->hasTreasure){
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getNetwork()->getShortUID(),
+                ScoreEvent::ScoreType::END_TREASURE,
+                _currRound
+            );
+        } else {
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getNetwork()->getShortUID(),
+                ScoreEvent::ScoreType::END,
+                _currRound
+            );
+        }
         
     }
     
