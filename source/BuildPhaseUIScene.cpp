@@ -242,6 +242,11 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
     _timer->setVisible(value);
+
+    if (value){
+        _timer->setText(std::to_string(BUILD_TIME));
+        _startTime = Application::get()->getEllapsedMicros();
+    }
 }
 
 /**
