@@ -43,6 +43,10 @@ protected:
     BuildPhaseScene _buildPhaseScene;
     BuildPhaseUIScene _uiScene;
 
+    /** The selected randomized items in the inventory */
+    std::vector<Item> inventoryItems;
+    /** The assets of the selected randomized items in the inventory */
+    std::vector<std::string> assetNames;
     /** The selected item in build mode (new object) */
     Item _selectedItem = NONE;
     /** The selected object in build mode (object being moved) */
@@ -113,6 +117,13 @@ public:
      * Triggers a change in building mode.
      */
     void setBuildingMode(bool value);
+
+    /**
+     * Randomizes the items in the inventory and selects only a `count` of these items.
+     *
+     * @param count     the number of items to select
+     */
+    void randomizeItems(int count = 4);
 
     /**
      * Creates an item of type item and places it at the grid position.

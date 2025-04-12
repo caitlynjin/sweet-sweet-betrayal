@@ -29,6 +29,13 @@ using namespace cugl::physics2;
 using namespace cugl::audio;
 using namespace Constants;
 
+#pragma mark -
+#pragma mark Constants
+/** List of all inventory items that are placeable */
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
+/** List of all corresponding textures to items that are placeable */
+std::vector<std::string> allAssetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
+
 
 #pragma mark -
 #pragma mark Constructors
@@ -62,12 +69,9 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 
     // Initalize UI Scene
     _uiScene.init(assets, _gridManager);
-    std::vector<Item> inventoryItems;
-    std::vector<std::string> assetNames;
 
-    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
-    assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
-    
+    randomizeItems();
+
     _uiScene.initInventory(inventoryItems, assetNames);
 
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
@@ -102,6 +106,8 @@ void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
     _uiScene.reset();
     _itemsPlaced = 0;
+    randomizeItems();
+    _uiScene.setInventoryButtons(inventoryItems, assetNames);
 }
 
 /**
@@ -297,8 +303,6 @@ void BuildPhaseController::render() {
  * @param value whether the level is in building mode.
  */
 void BuildPhaseController::processModeChange(bool value) {
-
-
     _buildPhaseScene.setVisible(value);
     _buildPhaseScene.resetCameraPos();
 
@@ -309,10 +313,34 @@ void BuildPhaseController::processModeChange(bool value) {
         _uiScene.setIsReady(false);
         _networkController->resetRound();
     }
-    
-    
 }
 
+/**
+ * Randomizes the items in the inventory and selects only a `count` of these items.
+ *
+ * @param count     the number of items to select
+ */
+void BuildPhaseController::randomizeItems(int count) {
+    std::vector<std::pair<Item, std::string>> pairedItems;
+    for (int i = 0; i < allInventoryItems.size(); ++i) {
+        pairedItems.emplace_back(allInventoryItems[i], allAssetNames[i]);
+    }
+
+    // Shuffle the full set
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(pairedItems.begin(), pairedItems.end(), g);
+
+    // Clear previous round
+    inventoryItems.clear();
+    assetNames.clear();
+
+    // Take the first `count` items
+    for (int i = 0; i < count; ++i) {
+        inventoryItems.push_back(pairedItems[i].first);
+        assetNames.push_back(pairedItems[i].second);
+    }
+}
 
 /**
  * Creates an item of type item and places it at the grid position.

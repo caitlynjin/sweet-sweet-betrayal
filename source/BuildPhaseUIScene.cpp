@@ -145,7 +145,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 }
 
 /**
- * Initializes the grid layout on the screen for build mode.
+ * Initializes the item inventory.
  */
 void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
 {
@@ -157,20 +157,7 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
-    float yOffset = 0;
-    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
-    {
-        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
-        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
-        itemButton->setName(itemToString(inventoryItems[itemNo]));
-        itemButton->setVisible(true);
-        itemButton->activate();
-        _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
-        yOffset += 80;
-    }
+    setInventoryButtons(inventoryItems, assetNames);
 
     // Set the darkened overlay
     _inventoryOverlay = scene2::PolygonNode::alloc();
@@ -262,4 +249,26 @@ void BuildPhaseUIScene::activateInventory(bool value) {
         }
     }
     _inventoryOverlay->setVisible(!value);
+}
+
+/**
+ * Set the inventory buttons for each item.
+ */
+void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
+    _inventoryButtons.clear();
+
+    float yOffset = 0;
+    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
+    {
+        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
+        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
+        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
+        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
+        itemButton->setName(itemToString(inventoryItems[itemNo]));
+        itemButton->setVisible(true);
+        itemButton->activate();
+        _inventoryButtons.push_back(itemButton);
+        addChild(itemButton);
+        yOffset += 80;
+    }
 }
