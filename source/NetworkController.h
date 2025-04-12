@@ -14,8 +14,12 @@
 #include "Platform.h"
 #include "Constants.h"
 #include "MessageEvent.h"
+#include "ColorEvent.h"
+#include "ScoreEvent.h"
+#include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
+#include "Message.h"
 
 using namespace cugl;
 using namespace cugl::netcode;
@@ -62,12 +66,12 @@ public:
     /**
      * Generate a pair of Obstacle and SceneNode using the given parameters
      */
-    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale);
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, float scale, ColorType color);
 
     /**
      * Helper method for converting normal parameters into byte vectors used for syncing.
      */
-    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale);
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, float scale, ColorType color);
     
     /**
      * Generate a pair of Obstacle and SceneNode using serialized parameters.
@@ -284,6 +288,7 @@ class MushroomFactory : public ObstacleFactory {
  *
  */
 class NetworkController {
+
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
@@ -306,6 +311,19 @@ protected:
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
     
+    /** Map for accessing player color based off network id */
+    std::unordered_map<int, ColorType> _playerColorsById;
+    
+    /** The player colorr */
+    ColorType _color;
+    
+    /**stores score controller instance**/
+    std::shared_ptr<ScoreController> _scoreController;
+    
+    /** Whether the local player data has been recorded */
+    bool _playerColorAdded = false;
+    
+    
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -316,10 +334,12 @@ protected:
     bool _readyMessageSent = false;
     /** The player's ID */
     int _localID;
-    /** The other player's ID */
-    int _otherID;
+    /** List of all players ids */
+    std::vector<int> _playerIDs;
     /** Whether we have set collision filters for all players */
     bool _filtersSet = false;
+    /** Whether we have synced all colors across players */
+    bool _colorsSynced = false;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
@@ -457,6 +477,13 @@ public:
         return _treasureSpawn;
     }
     
+    /**
+     * Returns whether the local player data has been set.
+     */
+    bool getPlayerColorAdded(){
+        return _playerColorAdded;
+    }
+    
     
     /**
      Resets the treasure to its spawn location and removes any possession
@@ -484,6 +511,20 @@ public:
      */
     std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){
         return _playerList;
+    }
+    
+    /**
+     * Returns the color of the player by their shortUID
+     */
+    ColorType getPlayerColor(int ID){
+        return _playerColorsById[ID];
+    }
+    
+    /**
+     * Returns the color of the local player.
+     */
+    ColorType getLocalColor(){
+        return _color;
     }
     
     /**
@@ -517,6 +558,11 @@ public:
     void trySetFilters();
     
     /**
+     * This method syncs the display of all player colors within the network.
+     */
+    void syncColors();
+    
+    /**
      * Returns whether game can switch to movement mode for all players.
      */
     bool canSwitchToMove(){
@@ -524,11 +570,18 @@ public:
     }
     
     /**
-     * Returns whether game can switch to movement mode for all players.
+     * Returns whether game can switch to build mode for all players.
      */
     bool canSwitchToBuild(){
         return _numReset >= _network->getNumPlayers();
     }
+    
+    /**
+     * Creates player information
+     */
+    void addPlayerColor();
+    std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
+
     
 #pragma mark -
 #pragma mark Message Handling
@@ -537,6 +590,11 @@ public:
      * This method takes a MessageEvent and processes it.
      */
     void processMessageEvent(const std::shared_ptr<MessageEvent>& event);
+    
+    /**
+     * This method takes a ColorEvent and processes it.
+     */
+    void processColorEvent(const std::shared_ptr<ColorEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -556,7 +614,7 @@ public:
      *
      * @param The player being created (that has not yet been added to the physics world).
      */
-    std::shared_ptr<PlayerModel> createPlayerNetworked(Vec2 pos, float scale);
+    std::shared_ptr<PlayerModel> createPlayerNetworked(Vec2 pos, float scale, ColorType color);
     
     /**
      * Creates a networked moving platform.

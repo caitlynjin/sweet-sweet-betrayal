@@ -37,7 +37,7 @@ string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const 
     std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
     physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
 
-    if (bd->getName() == "player") {
+    if (tagContainsPlayer(bd->getName())) {
 
     }
     return bd->getName();
