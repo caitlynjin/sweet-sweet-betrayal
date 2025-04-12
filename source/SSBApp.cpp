@@ -185,9 +185,9 @@ void SSBApp::preUpdate(float dt)
         _startscreen.setSpriteBatch(_batch);
         _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
-        _hostgame.init(_assets, _network, _sound);
+        _hostgame.init(_assets, _networkController, _sound);
         _hostgame.setSpriteBatch(_batch);
-        _joingame.init(_assets, _network, _sound);
+        _joingame.init(_assets, _networkController, _sound);
         _joingame.setSpriteBatch(_batch);
         _status = START;
     }
@@ -363,6 +363,7 @@ void SSBApp::updateStartScene(float timestep)
 void SSBApp::updateHostScene(float timestep)
 {
     _hostgame.update(timestep);
+    _networkController->update(timestep);
     if (_hostgame.getBackClicked())
     {
         _status = MENU;
@@ -381,6 +382,7 @@ void SSBApp::updateHostScene(float timestep)
         _hostgame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
@@ -404,6 +406,7 @@ void SSBApp::updateClientScene(float timestep)
 {
 #pragma mark SOLUTION
     _joingame.update(timestep);
+    _networkController->update(timestep);
     if (_joingame.getBackClicked())
     {
         _status = MENU;

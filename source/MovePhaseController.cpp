@@ -16,6 +16,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "ScoreEvent.h"
 
 #include <ctime>
 #include <string>
@@ -233,7 +234,7 @@ void MovePhaseController::preUpdate(float dt) {
                 auto callback = [this, wind_cast, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
                     string fixtureName = wind_cast->ReportFixture(f, point, normal, fraction);
                     //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-                    if (fixtureName == "player") {
+                    if (tagContainsPlayer(fixtureName)) {
                         CULog("plyr Callback!");
                         wind_cast->setPlayerDist(i, fraction);
                         return wind_cast->getRayDist(i);
@@ -366,6 +367,13 @@ void MovePhaseController::killPlayer(){
         }
         // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        _networkController->getScoreController()->sendScoreEvent(
+            _networkController->getNetwork(),
+            _networkController->getNetwork()->getShortUID(),
+            ScoreEvent::ScoreType::DEAD,
+            _currRound
+        );
+        
         player->setDead(true);
     }
     
@@ -380,6 +388,22 @@ void MovePhaseController::reachedGoal(){
         player->setImmobile(true);
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        if (player->hasTreasure){
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getNetwork()->getShortUID(),
+                ScoreEvent::ScoreType::END_TREASURE,
+                _currRound
+            );
+        } else {
+            _networkController->getScoreController()->sendScoreEvent(
+                _networkController->getNetwork(),
+                _networkController->getNetwork()->getShortUID(),
+                ScoreEvent::ScoreType::END,
+                _currRound
+            );
+        }
+        
     }
     
 }
@@ -524,13 +548,6 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-
-    // Check if both are players and disable contact
-        if ((bd1->getName() == "player" && bd2->getName() == "player") ||
-            (bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "player") ||
-            (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "player")) {
-            contact->SetEnabled(false);
-        }
     // See if we have landed on the ground.
 
     if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
@@ -548,8 +565,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
 //        _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 //    }
 
-    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1 && bd1->getName() != "player") ||
-        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2 && bd2->getName() != "player")
+    if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1 && !tagContainsPlayer(bd1->getName())) ||
+        (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2 && !tagContainsPlayer(bd2->getName()))
         ) && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
         _movePhaseScene.getLocalPlayer()->setGrounded(true);
         // Could have more than one ground

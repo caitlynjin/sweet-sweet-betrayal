@@ -174,7 +174,8 @@ void MovePhaseScene::populate() {
     if (_networkController->getLocalID() == 2) {
         pos += Vec2(2, 0);
     }
-    _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
+    ColorType playerColor = _networkController->getLocalColor();
+    _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
 
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
