@@ -175,6 +175,11 @@ public:
      */
     void activateInventory(bool value);
 
+    /**
+     * Set the inventory buttons for each item.
+     */
+    void setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames);
+
 };
 
 #endif /* __SSB_BUILD_PHASE_UI_SCENE_H__ */
