@@ -191,6 +191,11 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
 void BuildPhaseUIScene::reset() {
     setVisible(true);
     activateInventory(true);
+    
+    // Reset UI variables
+    _isReady = false;
+    _rightpressed = false;
+    _leftpressed = false;
 }
 
 /**

@@ -225,6 +225,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
  * This method disposes of the world and creates a new one.
  */
 void MovePhaseUIScene::reset() {
+    
 }
 
 /**
