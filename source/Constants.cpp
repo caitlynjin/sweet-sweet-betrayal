@@ -67,7 +67,7 @@ std::string itemToString(Item item) {
             return "spike";
         case TREASURE:
             return "treasure";
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return "tile";
         case MUSHROOM:
             return "mushroom";
@@ -91,7 +91,7 @@ cugl::Size itemToSize(Item item) {
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
@@ -116,7 +116,7 @@ cugl::Size itemToGridSize(Item item) {
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
@@ -144,7 +144,7 @@ std::string itemToAssetName(Item item) {
             return SPIKE_TILE_TEXTURE;
         case (TREASURE):
             return TREASURE_TEXTURE;
-        case (TILE_ALPHA):
+        case (TILE_ITEM):
             return TILE_TEXTURE;
         case (MUSHROOM):
             return MUSHROOM_TEXTURE;

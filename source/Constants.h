@@ -253,7 +253,7 @@ enum Item {
     /** A treasure */
     TREASURE,
     /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
-    TILE_ALPHA,
+    TILE_ITEM,
     /** A mushroom */
     MUSHROOM,
     /** No type */
