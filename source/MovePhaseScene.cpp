@@ -159,7 +159,7 @@ void MovePhaseScene::populate() {
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/empty.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
