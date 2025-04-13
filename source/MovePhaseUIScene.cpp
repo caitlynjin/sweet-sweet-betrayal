@@ -80,7 +80,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController) {
     if (assets == nullptr)
     {
         return false;
@@ -213,6 +213,8 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 //    _playerScores.push_back(playerScore);
 
     _numPlayers = players;
+    _scoreController = scoreController;
+    _scoreController->initScoreboardNodes(this, Vec2::ANCHOR_CENTER);
 
     return true;
 }

@@ -22,6 +22,7 @@
 #include "MessageEvent.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
+#include "ScoreController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -81,6 +82,11 @@ protected:
     bool _didjump;
     /** Whether player is gliding */
     bool _didglide;
+    
+    /**stores score controller instance**/
+    std::shared_ptr<ScoreController> _scoreController;
+    
+    
 
 public:
 #pragma mark -
@@ -114,7 +120,10 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, int players);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets,
+              int players,
+              const std::shared_ptr<ScoreController>& scoreController);
+
 
 #pragma mark -
 #pragma mark Gameplay Handling

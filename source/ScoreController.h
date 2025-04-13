@@ -35,6 +35,7 @@ private:
     //             playerID  total_scoe
     std::unordered_map<int, int> _playerTotalScores;
     
+    Vec2 _anchor;
 public:
 
     /**
@@ -98,6 +99,8 @@ public:
         Iterates through all players and checks for a win.
      */
     bool checkWinCondition();
+    
+    void initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor);
     
     /**
      * The method called to indicate the start of a deterministic loop.

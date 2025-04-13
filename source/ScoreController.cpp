@@ -90,6 +90,20 @@ bool ScoreController::checkWinCondition(){
     return false;
 }
 
+void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor) {
+//    // Create a sample icon from one of your textures
+//    auto icon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>("scoreboard_icon"));
+//    icon->setAnchor(Vec2::ANCHOR_CENTER);
+//    icon->setPosition(Vec2(100, 100));  // Example position; adjust as needed
+//    icon->setScale(0.5f);
+//    
+//    // Add the child node to the parent's scene graph
+//    parent->addChild(icon);
+    _anchor = anchor;
+}
+
+
+
 /**
  * The method called to indicate the start of a deterministic loop.
  *
