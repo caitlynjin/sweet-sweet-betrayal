@@ -23,6 +23,7 @@
 #include "NetworkController.h"
 #include "ObjectController.h"
 #include "ScoreController.h"
+#include "NetworkController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -86,6 +87,11 @@ protected:
     /**stores score controller instance**/
     std::shared_ptr<ScoreController> _scoreController;
     
+    std::shared_ptr<NetworkController> _networkController;
+    
+    bool scoreBoardInitialized = false;
+
+    
     
 
 public:
@@ -122,7 +128,8 @@ public:
      */
     bool init(const std::shared_ptr<cugl::AssetManager>& assets,
               int players,
-              const std::shared_ptr<ScoreController>& scoreController);
+              const std::shared_ptr<ScoreController>& scoreController,
+              std::shared_ptr<NetworkController> networkController);
 
 
 #pragma mark -

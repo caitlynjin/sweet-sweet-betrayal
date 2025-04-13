@@ -80,7 +80,8 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
+    _networkController = networkController;
     if (assets == nullptr)
     {
         return false;
@@ -214,7 +215,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 
     _numPlayers = players;
     _scoreController = scoreController;
-    _scoreController->initScoreboardNodes(this, Vec2::ANCHOR_CENTER);
+    
 
     return true;
 }
@@ -236,7 +237,12 @@ void MovePhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseUIScene::preUpdate(float dt) {
-
+    if (!scoreBoardInitialized) {
+        auto playerList = _networkController->getPlayerList();
+        CULog("Calling initScoreboardNodes with %d players", (int)playerList.size());
+        _scoreController->initScoreboardNodes(this, Vec2::ANCHOR_CENTER, _networkController->getPlayerList(), _size.width, _size.height);
+        scoreBoardInitialized = true;
+    }
 }
 
 /**

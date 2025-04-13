@@ -12,6 +12,8 @@
 #include <cugl/cugl.h>
 #include "ScoreEvent.h"
 #include <unordered_map>
+#include "PlayerModel.h"
+#include "ColorEvent.h"
 
 class ScoreController {
 private:
@@ -36,6 +38,13 @@ private:
     std::unordered_map<int, int> _playerTotalScores;
     
     Vec2 _anchor;
+    
+    //list storing all the nodes created
+    std::unordered_map<std::string, std::shared_ptr<scene2::PolygonNode>> _scoreIcons;
+    
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
+    
+
 public:
 
     /**
@@ -100,7 +109,13 @@ public:
      */
     bool checkWinCondition();
     
-    void initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor);
+    void initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor, std::vector<std::shared_ptr<PlayerModel>> playerList, float size_width, float size_height);
+    
+    std::shared_ptr<scene2::PolygonNode> createIcon(const std::string& textureKey,
+                                                    float scale,
+                                                    const Vec2& position,
+                                                    const Vec2 &anchor,
+                                                    bool visible = false);
     
     /**
      * The method called to indicate the start of a deterministic loop.

@@ -7,6 +7,8 @@
 
 #include "ScoreController.h"
 
+using namespace cugl::graphics;
+
 ScoreController::ScoreController() {}
 
 bool ScoreController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
@@ -90,16 +92,84 @@ bool ScoreController::checkWinCondition(){
     return false;
 }
 
-void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor) {
-//    // Create a sample icon from one of your textures
-//    auto icon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>("scoreboard_icon"));
-//    icon->setAnchor(Vec2::ANCHOR_CENTER);
-//    icon->setPosition(Vec2(100, 100));  // Example position; adjust as needed
-//    icon->setScale(0.5f);
-//    
-//    // Add the child node to the parent's scene graph
-//    parent->addChild(icon);
+void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor, std::vector<std::shared_ptr<PlayerModel>> playerList, float size_width, float size_height) {
     _anchor = anchor;
+
+    float scale = 1.0f;
+    Vec2 bar_position = Vec2(size_width * 0.5f, size_height * 0.8f);
+    Vec2 glider_position = Vec2(size_width * 0.25f, size_height * 0.8f);
+    Vec2 offset_betw_points = Vec2(size_width*0.07,0);
+    Vec2 offset_betw_players = Vec2(0, size_height * 0.1f);
+
+    _playerList = playerList;
+
+    for (auto& player : _playerList) {
+        std::string name = player->getName();
+
+        if (name == "playerRed") {
+            CULog("Red player detected");
+            _scoreIcons["red-bar"] = createIcon("red-bar", scale, bar_position, anchor, true);
+            parent->addChild(_scoreIcons["red-bar"]);
+            _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, true);
+            parent->addChild(_scoreIcons["redglider"]);
+        }
+        else if (name == "playerBlue") {
+            CULog("Blue player detected");
+            _scoreIcons["blue-bar"] = createIcon("blue-bar", scale, bar_position, anchor, true);
+            parent->addChild(_scoreIcons["blue-bar"]);
+            _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, true);
+            parent->addChild(_scoreIcons["blueglider"]);
+        }
+        else if (name == "playerGreen") {
+            CULog("Green player detected");
+            _scoreIcons["green-bar"] = createIcon("green-bar", scale, bar_position, anchor, true);
+            parent->addChild(_scoreIcons["green-bar"]);
+            _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, true);
+            parent->addChild(_scoreIcons["greenglider"]);
+        }
+        else if (name == "playerYellow") {
+            CULog("Yellow player detected");
+            _scoreIcons["yellow-bar"] = createIcon("yellow-bar", scale, bar_position, anchor, true);
+            parent->addChild(_scoreIcons["yellow-bar"]);
+            _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, true);
+            parent->addChild(_scoreIcons["yellowglider"]);
+        }
+
+        bar_position += offset;
+        glider_position += offset;
+    }
+}
+    
+
+//    _scoreIcons["dot"] = createIcon("dot", scale, basePos + Vec2(2 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["dot"]);
+//
+//    _scoreIcons["score-finish"] = createIcon("score-finish", scale, basePos + Vec2(7 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-finish"]);
+//
+//    _scoreIcons["score-trapkill"] = createIcon("score-trapkill", scale, basePos + Vec2(8 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-trapkill"]);
+//
+//    _scoreIcons["score-treasure"] = createIcon("score-treasure", scale, basePos + Vec2(9 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-treasure"]);
+//
+//    _scoreIcons["scoreboard-background"] = createIcon("scoreboard-background", 0.2f, basePos + Vec2(10 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["scoreboard-background"]);
+
+
+
+std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::string& textureKey,
+                                                                   float scale,
+                                                                   const Vec2& position,
+                                                                   const Vec2 &anchor,
+                                                                   bool visible) {
+    auto tex = _assets->get<Texture>(textureKey);
+    auto node = scene2::PolygonNode::allocWithTexture(tex);
+    node->setAnchor(anchor);
+    node->setScale(scale);
+    node->setPosition(position);
+    node->setVisible(visible);
+    return node;
 }
 
 
