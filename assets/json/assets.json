@@ -191,7 +191,16 @@
         },
         "leftgliders": {
             "file": "textures/leftgliders.png"
-        }
+        },
+        "end-background": {
+           "file": "textures/end-background.png"
+       },
+       "button_quit": {
+           "file": "textures/button_quit.png"
+       },
+       "button_restart": {
+           "file": "textures/button_restart.png"
+       }
     },
     "jsons": {
             "server": "json/server.json"
@@ -265,7 +274,8 @@
         "create_join" : "widgets/create_join.json",
         "textbutton2" : "widgets/textbutton2.json",
         "start" : "widgets/start.json",
-        "startbutton" : "widgets/textbutton.json"
+        "startbutton" : "widgets/textbutton.json",
+        "end" : "widgets/end.json"
     },
     "scene2s" : {
         "start": {
@@ -284,6 +294,16 @@
             },
             "data" : {
                 "key" : "create_join"
+            }
+        },
+        "end" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the end/congradulation screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "end"
             }
         },
         "host": {

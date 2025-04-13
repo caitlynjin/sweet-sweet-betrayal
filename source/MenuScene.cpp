@@ -89,7 +89,6 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
             _choice = Choice::JOIN;
         }
     });
-    CULog("scene");
     addChild(scene);
     setActive(false);
     return true;

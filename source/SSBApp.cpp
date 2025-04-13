@@ -77,6 +77,7 @@ void SSBApp::onShutdown()
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
+    _victory.dispose();
 
     // Is this correct way of diposing networkController?
     _networkController->dispose();
@@ -189,6 +190,8 @@ void SSBApp::preUpdate(float dt)
         _hostgame.setSpriteBatch(_batch);
         _joingame.init(_assets, _networkController, _sound);
         _joingame.setSpriteBatch(_batch);
+        _victory.init(_assets, _sound, _networkController);
+        _victory.setSpriteBatch(_batch);
         _status = START;
     }
     else
@@ -204,17 +207,25 @@ void SSBApp::preUpdate(float dt)
         case HOST:
             updateHostScene(dt);
             break;
-
         case CLIENT:
             updateClientScene(dt);
             break;
-
         case GAME:
             _gameController.preUpdate(dt);
+            //TODO: Check for a victory
+                if (_gameController.getHasVictory()){
+                    _gameController.setActive(false);
+//                    _gameController.reset();
+                    _victory.setActive(true);
+                    _status = VICTORY;
+                }
             break;
-
         case LEVEL_EDITOR:
             _levelEditorController.preUpdate(dt);
+            break;
+        case VICTORY:
+            _victory.preUpdate(dt);
+            //TODO: Check for restart
             break;
 
         default:
@@ -255,6 +266,9 @@ void SSBApp::fixedUpdate()
     else if (_status == LEVEL_EDITOR) {
         _levelEditorController.fixedUpdate(time);
     }
+    else if (_status == VICTORY){
+        _victory.fixedUpdate(time);
+    }
     if (_network)
     {
         _network->updateNet();
@@ -294,6 +308,9 @@ void SSBApp::postUpdate(float dt)
     }
     else if (_status == LEVEL_EDITOR) {
         _levelEditorController.postUpdate(time);
+    }
+    else if (_status == VICTORY){
+        _victory.postUpdate(time);
     }
 }
 /**
@@ -469,6 +486,9 @@ void SSBApp::draw()
         _gameController.render();
     case LEVEL_EDITOR:
         _levelEditorController.render();
+        break;
+    case VICTORY:
+        _victory.render();
         break;
     default:
         break;

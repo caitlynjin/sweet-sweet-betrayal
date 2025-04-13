@@ -8,6 +8,7 @@
 #include "NPClientScene.h"
 #include "NPHostScene.h"
 #include "NetworkController.h"
+#include "VictoryScene.h"
 #include "SoundController.h"
 #include "LevelEditorController.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
@@ -20,7 +21,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR
+        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -36,6 +37,8 @@ protected:
     ClientScene _joingame;
         
     HostScene _hostgame;
+    
+    VictoryScene _victory;
     
     /***/
     PlatformInput _input;

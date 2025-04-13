@@ -753,10 +753,12 @@ public:
     /**
      Checks if win condition has been met and sends a message to reset the level.
      */
-    void checkWinCondition(){
-        if (_scoreController->checkWinCondition()){
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
-        }
+    bool checkWinCondition(){
+//        if (_scoreController->checkWinCondition()){
+//            
+//          _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
+//        }
+        return _scoreController->checkWinCondition();
     }
 
 };

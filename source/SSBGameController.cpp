@@ -203,14 +203,14 @@ void SSBGameController::dispose()
 void SSBGameController::reset()
 {
     // Clear the world
-    
     _world->clear();
     
     // Reset all controllers
     _networkController->reset();
     _buildPhaseController->reset();
     _movePhaseController->reset();
-    // object controller?
+    
+    _hasVictory = false;
 }
 
 #pragma mark -
@@ -293,7 +293,9 @@ void SSBGameController::preUpdate(float dt)
 //                _movePhaseController->resetRound();
                 _scoreCountdown = -1;
                 // Check for win condition
-                _networkController->checkWinCondition();
+                if (_networkController->checkWinCondition()){
+                    _hasVictory = true;
+                }
             }
         }
     }

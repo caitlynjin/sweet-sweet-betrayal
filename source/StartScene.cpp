@@ -70,7 +70,6 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
             _choice = Choice::LEVEL_EDITOR;
         }
     });
-    CULog("scene");
     addChild(scene);
     setActive(false);
     return true;
