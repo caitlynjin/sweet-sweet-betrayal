@@ -124,6 +124,7 @@ void NetworkController::preUpdate(float dt){
     // Should only be done one time --> once all players have joined the world
     if (!_filtersSet){
         trySetFilters();
+        _scoreController->setPlayerColors(_playerColorsById);
     }
     
     _scoreController->preUpdate(dt);

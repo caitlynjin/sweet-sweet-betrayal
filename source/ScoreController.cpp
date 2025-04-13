@@ -32,17 +32,45 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     int round = event->getRoundNumber();
     int score = event->getScore();
     ScoreEvent::ScoreType type = event->getScoreType();
-
+    
+    //update total score
+    int prevTotal = _playerTotalScores[playerID];
+    _playerTotalScores[playerID] += score;
+    int newTotal = _playerTotalScores[playerID];
+        
+    //update round score
     RoundScore rs;
     rs.score = score;
     rs.scoreType = type;
-
-    // Assuming _playerRoundScores is now a mapping from playerID to a mapping of round to RoundScore.
     _playerRoundScores[playerID][round] = rs;
-    _playerTotalScores[playerID] += score;
     
     CULog("Processed ScoreEvent: PlayerID = %d, Round = %d, Score = %d (Type: %d), Total Score = %d\n",
           playerID, round, score, static_cast<int>(type), _playerTotalScores[playerID]);
+    
+    //update scoreboardUI
+    auto it = _playerColors.find(playerID);
+    ColorType color = (it != _playerColors.end()) ? it->second : ColorType::RED;
+    std::string playerName = colorToString(color);
+    
+    std::string iconTextureKey;
+    if (type == ScoreEvent::ScoreType::END_TREASURE) {
+        iconTextureKey = "score-treasure";
+    }
+    else if (type == ScoreEvent::ScoreType::END) {
+        iconTextureKey = "score-finish";
+    }
+    auto newTexture = _assets->get<Texture>(iconTextureKey);
+    
+    for (int i = prevTotal; i < newTotal; i++) {
+        std::string dotKey = playerName + "-dot-" + std::to_string(i);
+        auto iconIt = _scoreIcons.find(dotKey);
+        if (iconIt != _scoreIcons.end()) {
+            iconIt->second->setTexture(newTexture);
+        }
+        else {
+            CULog("UI icon with key %s not found!", dotKey.c_str());
+        }
+    }
 }
 
 int ScoreController::getTotalScore(int playerID) const {

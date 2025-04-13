@@ -33,9 +33,11 @@ private:
     //             playerID             roundNumber  score, scoreType
     std::unordered_map<int, std::unordered_map<int, RoundScore>> _playerRoundScores;
 
-
     //             playerID  total_scoe
     std::unordered_map<int, int> _playerTotalScores;
+    
+    //maps player UID to color
+    std::unordered_map<int, ColorType> _playerColors;
     
     Vec2 _anchor;
     
@@ -103,6 +105,20 @@ public:
     ScoreEvent::ScoreType getRoundScoreType(int playerID, int round) const;
     
     void sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum);
+    
+    void setPlayerColors(const std::unordered_map<int, ColorType>& colors) {
+        _playerColors = colors;
+    }
+        
+    std::string colorToString(ColorType color) const {
+        switch (color) {
+            case ColorType::RED:    return "playerRed";
+            case ColorType::BLUE:   return "playerBlue";
+            case ColorType::GREEN:  return "playerGreen";
+            case ColorType::YELLOW: return "playerYellow";
+            default:                return "playerRed";
+        }
+    }
     
     /** 
         Iterates through all players and checks for a win.
