@@ -543,8 +543,20 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    // See if we have landed on the ground.
+    // Set grounded for all players (not just local player)
+    if (bd1->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
+    }
 
+    if (bd2->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
+    }
     //Handles all Player Collisions in this section
         if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
             //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
@@ -573,7 +585,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && bd2->getName() != "player"))
                 && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
                 //Set player to grounded
-                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                // _movePhaseScene.getLocalPlayer()->setGrounded(true);
                 // Could have more than one ground
                 _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 
