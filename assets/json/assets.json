@@ -67,10 +67,13 @@
             }
         },
         "ready_button": {
-            "file":     "textures/ready_button.png"
+            "file": "textures/ready.png"
         },
         "left_button": {
             "file": "textures/left_button.png"
+        },
+        "right_button": {
+            "file": "textures/ready_button.png"
         },
         "brush_button": {
             "file": "textures/brush_button.png"
