@@ -503,7 +503,7 @@ void PlayerModel::update(float dt)
     // TODO: Move to method updateAnimation
     _timeline->update(dt);
     
-    if ((getVY() != 0) && _isGliding && _glideAction){
+    if (!isGrounded() && _isGliding && _glideAction){
         if (!_glideSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
@@ -511,7 +511,7 @@ void PlayerModel::update(float dt)
             _jumpSpriteNode->setVisible(false);
         }
         doStrip(_glideAction);
-    } else if (getVY() != 0 && _jumpAction){
+    } else if (!isGrounded() && _jumpAction){
         if (!_jumpSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);

@@ -128,7 +128,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale * 2, offset, assets);
+    _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets);
 
     // Initialize movement phase controller
     // TODO: fix this part
@@ -533,13 +533,13 @@ Vec2 LevelEditorController::snapToGrid(const Vec2& gridPos, Item item) {
     int yGrid = gridPos.y;
 
     // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
+    int maxRow = MAX_ROWS - 1;
+    int maxCol = _gridManager->getNumColumns() - 1;
 
     xGrid = xGrid < 0 ? 0 : xGrid;
     yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
-    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
+    xGrid = xGrid + offset.width > maxCol ? maxCol - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRow ? maxRow - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }

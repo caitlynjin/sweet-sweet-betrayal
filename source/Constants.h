@@ -172,6 +172,15 @@
 /** The number of frame to wait before reinitializing the game */
 #define SCOREBOARD_COUNT 150
 
+#pragma mark -
+#pragma mark Build Phase Constants
+/** The maximum number of rows on the grid */
+#define MAX_ROWS 9
+/** The number of rows on the bottom of the grid removed for build phase */
+#define ROW_OFFSET_BOT 2
+/** The number of rows on the top of the grid removed for build phase */
+#define ROW_OFFSET_TOP 1
+
 
 #pragma mark -
 #pragma mark Audio Constants
