@@ -83,7 +83,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.back"));
     _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.center.players.field.text"));
     
-    _gameID = {' ', ' ', ' ', ' ', ' ', ' '};
+    _gameID = {' ', ' ', ' ', ' ', ' '};
     _gameIDLength = 0;
     
     _gameid1 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_1.field.text"));
@@ -91,8 +91,8 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _gameid3 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_3.field.text"));
     _gameid4 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_4.field.text"));
     _gameid5 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_5.field.text"));
-    _gameid6 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_6.field.text"));
     
+    _button0 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button0"));
     _button1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button1"));
     _button2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button2"));
     _button3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button3"));
@@ -103,13 +103,13 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _button8 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button8"));
     _button9 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button9"));
     
-    _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.clearall"));
+    _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button-del"));
     
     _backout->addListener([this](const std::string& name, bool down) {
         if (down) {
             _network->disconnect();
             _backClicked = true;
-            _gameID = {' ', ' ', ' ', ' ', ' ', ' '};
+            _gameID = {' ', ' ', ' ', ' ', ' '};
             _gameIDLength = 0;
             
         }
@@ -120,7 +120,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
             _network->connectAsClient(dec2hex(std::string(_gameID.begin(), _gameID.end())));
         }
     });
-    
+    _button0->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('0');}});
     _button1->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('1');}});
     _button2->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('2');}});
     _button3->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('3');}});
@@ -173,6 +173,7 @@ void ClientScene::setActive(bool value) {
             _backout->activate();
             _player->setText("1");
             
+            _button0->activate();
             _button1->activate();
             _button2->activate();
             _button3->activate();
@@ -194,6 +195,7 @@ void ClientScene::setActive(bool value) {
             _startgame->deactivate();
             _backout->deactivate();
             
+            _button0->deactivate();
             _button1->deactivate();
             _button2->deactivate();
             _button3->deactivate();
@@ -280,7 +282,7 @@ void ClientScene::configureStartButton() {
  * Adds the num character to the end of the game ID. If the game ID is full (already 6 digits), do nothing.
  */
 void ClientScene::appendGameID(char num){
-    if (_gameIDLength < 6){
+    if (_gameIDLength < 5){
         _gameID[_gameIDLength] = num;
         _gameIDLength += 1;
     }
@@ -299,11 +301,10 @@ void ClientScene::deleteGameID(){
 /**
  * Set the gameid labels to match the characters in the given gameid array.
  */
-void ClientScene::setGameIDLabels(std::array<char, 6> gameid){
+void ClientScene::setGameIDLabels(std::array<char, 5> gameid){
     _gameid1->setText(std::string(1, gameid[0]));
     _gameid2->setText(std::string(1, gameid[1]));
     _gameid3->setText(std::string(1, gameid[2]));
     _gameid4->setText(std::string(1, gameid[3]));
     _gameid5->setText(std::string(1, gameid[4]));
-    _gameid6->setText(std::string(1, gameid[5]));
 }

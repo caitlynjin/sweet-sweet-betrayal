@@ -210,32 +210,38 @@
         "button_join": {
             "file": "textures/buttons/button_join.png"
         },
-        "button_button1": {
-            "file": "textures/buttons/button_button1.png"
+        "button_1": {
+            "file": "textures/buttons/button_1.png"
         },
-        "button_button2": {
-            "file": "textures/buttons/button_button2.png"
+        "button_2": {
+            "file": "textures/buttons/button_2.png"
         },
-        "button_button3": {
-            "file": "textures/buttons/button_button3.png"
+        "button_3": {
+            "file": "textures/buttons/button_3.png"
         },
-        "button_button4": {
-            "file": "textures/buttons/button_button4.png"
+        "button_4": {
+            "file": "textures/buttons/button_4.png"
         },
-        "button_button5": {
-            "file": "textures/buttons/button_button5.png"
+        "button_5": {
+            "file": "textures/buttons/button_5.png"
         },
-        "button_button6": {
-            "file": "textures/buttons/button_button6.png"
+        "button_6": {
+            "file": "textures/buttons/button_6.png"
         },
-        "button_button7": {
-            "file": "textures/buttons/button_button7.png"
+        "button_7": {
+            "file": "textures/buttons/button_7.png"
         },
-        "button_button8": {
-            "file": "textures/buttons/button_button8.png"
+        "button_8": {
+            "file": "textures/buttons/button_8.png"
         },
-        "button_button9": {
-            "file": "textures/buttons/button_button9.png"
+        "button_9": {
+            "file": "textures/buttons/button_9.png"
+        },
+        "button_0": {
+            "file": "textures/buttons/button_0.png"
+        },
+        "button_del": {
+            "file": "textures/buttons/button_del.png"
         }
     },
     "jsons": {

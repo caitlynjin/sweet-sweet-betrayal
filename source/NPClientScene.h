@@ -44,7 +44,7 @@ protected:
     std::shared_ptr<cugl::scene2::Label> _player;
     
     /** The game id entered in by the user represented by an array*/
-    std::array<char, 6> _gameID;
+    std::array<char, 5> _gameID;
     /** Number of index in gameID array  that isn't empty (' ') */
     int _gameIDLength;
     
@@ -58,9 +58,9 @@ protected:
     std::shared_ptr<cugl::scene2::Label> _gameid4;
     /** Gameid textfield no. 5*/
     std::shared_ptr<cugl::scene2::Label> _gameid5;
-    /** Gameid textfield no. 6*/
-    std::shared_ptr<cugl::scene2::Label> _gameid6;
 
+    /** The numpad button for 0 */
+    std::shared_ptr<cugl::scene2::Button> _button0;
     /** The numpad button for 1 */
     std::shared_ptr<cugl::scene2::Button> _button1;
     /** The numpad button for 2 */
@@ -200,7 +200,7 @@ private:
     /**
      * Set the gameid labels to match the characters in the given gameid array.
      */
-    void setGameIDLabels(std::array<char, 6> gameid);
+    void setGameIDLabels(std::array<char, 5> gameid);
 };
 
 #endif /* __NL_GAME_SCENE_H__ */
