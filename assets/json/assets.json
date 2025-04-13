@@ -209,6 +209,45 @@
         },
         "button_join": {
             "file": "textures/buttons/button_join.png"
+        }, 
+        "blue-bar": {
+            "file": "textures/blue-bar.png"
+        },
+        "blueglider": {
+            "file": "textures/blueglider.png"
+        },
+        "dot": {
+            "file": "textures/dot.png"
+        },
+        "green-bar": {
+            "file": "textures/green-bar.png"
+        },
+        "greenglider": {
+            "file": "textures/greenglider.png"
+        },
+        "red-bar": {
+            "file": "textures/red-bar.png"
+        },
+        "redglider": {
+            "file": "textures/redglider.png"
+        },
+        "score-finish": {
+            "file": "textures/score-finish.png"
+        },
+        "score-trapkill": {
+            "file": "textures/score-trapkill.png"
+        },
+        "score-treasure": {
+            "file": "textures/score-treasure.png"
+        },
+        "scoreboard-background": {
+            "file": "textures/scoreboard-background.png"
+        },
+        "yellow-bar": {
+            "file": "textures/yellow-bar.png"
+        },
+        "yellowglider": {
+            "file": "textures/yellowglider.png"
         }
     },
     "jsons": {
