@@ -102,6 +102,7 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
  * This method disposes of the world and creates a new one.
  */
 void BuildPhaseScene::reset() {
+    // Reset camera properties
     _camera->setPosition(_cameraInitialPos);
     _camera->update();
 }

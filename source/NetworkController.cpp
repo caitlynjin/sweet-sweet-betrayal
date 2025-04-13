@@ -126,19 +126,7 @@ void NetworkController::preUpdate(float dt){
         trySetFilters();
     }
     
-    // If filters are all set, then all player physics bodies are in network and can sync color
-//    if (_filtersSet){
-//        if (!_colorsSynced){
-//            syncColors();
-//        }
-//    }
-    
-    // Test all color map
-
-//    CULog("PlayerIDs size: %d", static_cast<int>(_playerIDs.size()));
-//    for (int id : _playerIDs){
-//        CULog("Player id: %d, Player Color: %d", id, static_cast<int>(_playerColorsById[id]));
-//    }
+    _scoreController->preUpdate(dt);
     
 }
 
@@ -169,6 +157,7 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    _scoreController->fixedUpdate(step);
     // Process messaging events
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
@@ -211,7 +200,7 @@ void NetworkController::fixedUpdate(float step){
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void NetworkController::postUpdate(float remain){
-
+    _scoreController->postUpdate(remain);
 }
 
 
@@ -219,8 +208,16 @@ void NetworkController::postUpdate(float remain){
  * Resets the status of the game so that we can play again.
  */
 void NetworkController::reset(){
-    // TODO: Might need to add reset logic
-
+    // Reset score controller
+    _scoreController->reset();
+    
+    // Reset network in-game variables
+    _numReady = 0;
+    _numReset = 0;
+    resetTreasure();
+    _readyMessageSent = false;
+    _filtersSet = false;
+    _resetLevel = false;
 }
 
 
@@ -263,8 +260,12 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Send message for everyone to send player id and color
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
             break;
+            // Still need this?
         case Message::SCORE_UPDATE:
 //            _network
+            break;
+        case Message::RESET_LEVEL:
+            _resetLevel = true;
             break;
         default:
             // Handle unknown message types
@@ -479,32 +480,6 @@ void NetworkController::trySetFilters(){
         
         _filtersSet = true;
     }
-}
-
-/**
- * This method syncs the display of all player colors within the network.
- */
-void NetworkController::syncColors(){
-    for (auto player : _playerList){
-        player->getSceneNode()->removeAllChildren();
-        std::string tag = player->getName();
-        if (tag == "playerRed"){
-            // Set the player animation to the red player
-            auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
-            player->setIdleAnimation(idleSpriteNode);
-            
-            auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
-            player->setWalkAnimation(walkSpriteNode);
-            
-            auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
-            player->setGlideAnimation(glideSpriteNode);
-            
-            auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
-            player->setJumpAnimation(jumpSpriteNode);
-        }
-    }
-    
-    _colorsSynced = true;
 }
 
 
