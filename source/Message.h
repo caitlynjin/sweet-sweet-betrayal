@@ -17,7 +17,8 @@ enum class Message {
     MOVEMENT_END,     // Signal that a player has ended movement phase by either dying or winning
     TREASURE_TAKEN,   // Signal that a player has picked up a treasure
     TREASURE_LOST,    // Signal that a player has lost possession of a treasure
-    SCORE_UPDATE      // Signal a score update 
+    SCORE_UPDATE,     // Signal a score update
+    RESET_LEVEL       // Signal a level to reset
 };
 
 /**

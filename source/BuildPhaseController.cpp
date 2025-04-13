@@ -95,7 +95,13 @@ void BuildPhaseController::reset() {
     randomizeItems();
     addInvButtonListeners();
     _uiScene.reset();
+    
+    // Reset controller variables
     _itemsPlaced = 0;
+    _selectedItem = NONE;
+    _selectedObject = nullptr;
+    _prevPos = Vec2(0, 0);
+    _readyMessageSent = false;
 }
 
 /**

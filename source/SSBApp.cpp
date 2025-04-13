@@ -309,30 +309,33 @@ void SSBApp::updateMenuScene(float timestep)
     _mainmenu.update(timestep);
     switch (_mainmenu.getChoice())
     {
-    case MenuScene::Choice::HOST:
-        _mainmenu.setActive(false);
-        _hostgame.setActive(true);
-        _status = HOST;
-        break;
-    case MenuScene::Choice::JOIN:
-        _mainmenu.setActive(false);
-        _joingame.setActive(true);
-        _status = CLIENT;
-        break;
-    case MenuScene::Choice::NONE:
-        // DO NOTHING
-        break;
+        case MenuScene::Choice::HOST:
+            _mainmenu.setActive(false);
+            _hostgame.setActive(true);
+            _status = HOST;
+            break;
+        case MenuScene::Choice::JOIN:
+            _mainmenu.setActive(false);
+            _joingame.setActive(true);
+            _status = CLIENT;
+            break;
+        case MenuScene::Choice::BACK:
+            _mainmenu.setActive(false);
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case MenuScene::Choice::NONE:
+            // DO NOTHING
+            break;
     }
 }
 
 void SSBApp::updateStartScene(float timestep)
 {
-    CULog("StartScene Choice: %d", static_cast<int>(_startscreen.getChoice()));
     _startscreen.update(timestep);
     switch (_startscreen.getChoice())
     {
     case StartScene::Choice::START:
-        CULog("Transitioning to MENU scene!");
         _startscreen.setActive(false);
         _mainmenu.setActive(true);
         _status = MENU;
