@@ -126,6 +126,11 @@ public:
     void randomizeItems(int count = 4);
 
     /**
+     * Adds the inventory button listeners.
+     */
+    void addInvButtonListeners();
+
+    /**
      * Creates an item of type item and places it at the grid position.
      *
      *@return the object being placed and created

@@ -69,21 +69,9 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 
     // Initalize UI Scene
     _uiScene.init(assets, _gridManager);
-
     randomizeItems();
-
     _uiScene.initInventory(inventoryItems, assetNames);
-
-    std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
-    for (size_t i = 0; i < inventoryButtons.size(); i++) {
-        inventoryButtons[i]->addListener([this, item = inventoryItems[i]](const std::string &name, bool down) {
-            if (down) {
-                _selectedItem = item;
-                _input->setInventoryStatus(PlatformInput::PLACING);
-            }
-        });
-    }
-
+    addInvButtonListeners();
     _uiScene.activateInventory(true);
 
     return true;
@@ -104,10 +92,10 @@ void BuildPhaseController::dispose() {
  */
 void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
+    randomizeItems();
+    addInvButtonListeners();
     _uiScene.reset();
     _itemsPlaced = 0;
-    randomizeItems();
-    _uiScene.setInventoryButtons(inventoryItems, assetNames);
 }
 
 /**
@@ -310,6 +298,8 @@ void BuildPhaseController::processModeChange(bool value) {
     _itemsPlaced = 0;
 
     if (value){
+        randomizeItems();
+        addInvButtonListeners();
         _uiScene.setIsReady(false);
         _networkController->resetRound();
     }
@@ -339,6 +329,24 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
+        CULog("%s", pairedItems[i].second.c_str());
+    }
+
+    _uiScene.setInventoryButtons(inventoryItems, assetNames);
+}
+
+/**
+ * Adds the inventory button listeners.
+ */
+void BuildPhaseController::addInvButtonListeners() {
+    std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
+    for (size_t i = 0; i < inventoryButtons.size(); i++) {
+        inventoryButtons[i]->addListener([this, item = inventoryItems[i]](const std::string &name, bool down) {
+            if (down) {
+                _selectedItem = item;
+                _input->setInventoryStatus(PlatformInput::PLACING);
+            }
+        });
     }
 }
 

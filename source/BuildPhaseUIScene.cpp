@@ -255,7 +255,12 @@ void BuildPhaseUIScene::activateInventory(bool value) {
  * Set the inventory buttons for each item.
  */
 void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
-    _inventoryButtons.clear();
+    // Reset buttons
+    for (auto it = _inventoryButtons.begin(); it != _inventoryButtons.end(); ) {
+        std::shared_ptr<scene2::Button> btn = *it;
+        btn->dispose();
+        it = _inventoryButtons.erase(it);
+    }
 
     float yOffset = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
