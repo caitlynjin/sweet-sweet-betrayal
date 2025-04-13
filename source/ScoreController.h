@@ -119,6 +119,12 @@ public:
             default:                return "playerRed";
         }
     }
+    //set scoreboard visible by looping over all elements
+    void setScoreboardVisible(bool visible) {
+        for (auto const& entry : _scoreIcons) {
+            entry.second->setVisible(visible);
+        }
+    }
     
     /** 
         Iterates through all players and checks for a win.
