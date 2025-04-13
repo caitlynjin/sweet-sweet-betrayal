@@ -92,14 +92,16 @@ bool ScoreController::checkWinCondition(){
     return false;
 }
 
-void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor, std::vector<std::shared_ptr<PlayerModel>> playerList, float size_width, float size_height) {
+void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor,
+                                          std::vector<std::shared_ptr<PlayerModel>> playerList,
+                                          float size_width, float size_height) {
     _anchor = anchor;
 
     float scale = 1.0f;
     Vec2 bar_position = Vec2(size_width * 0.5f, size_height * 0.8f);
     Vec2 glider_position = Vec2(size_width * 0.25f, size_height * 0.8f);
-    Vec2 offset_betw_points = Vec2(size_width*0.07,0);
-    Vec2 offset_betw_players = Vec2(0, size_height * 0.1f);
+    Vec2 offset_betw_points = Vec2(size_width * 0.05f, 0);
+    Vec2 offset_betw_players = Vec2(0, size_height * 0.25f);
 
     _playerList = playerList;
 
@@ -112,6 +114,15 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             parent->addChild(_scoreIcons["red-bar"]);
             _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, true);
             parent->addChild(_scoreIcons["redglider"]);
+            float glider_width = _scoreIcons["redglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, true);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
         }
         else if (name == "playerBlue") {
             CULog("Blue player detected");
@@ -119,6 +130,15 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             parent->addChild(_scoreIcons["blue-bar"]);
             _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, true);
             parent->addChild(_scoreIcons["blueglider"]);
+            float glider_width = _scoreIcons["blueglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, true);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
         }
         else if (name == "playerGreen") {
             CULog("Green player detected");
@@ -126,6 +146,15 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             parent->addChild(_scoreIcons["green-bar"]);
             _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, true);
             parent->addChild(_scoreIcons["greenglider"]);
+            float glider_width = _scoreIcons["greenglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, true);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
         }
         else if (name == "playerYellow") {
             CULog("Yellow player detected");
@@ -133,17 +162,22 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             parent->addChild(_scoreIcons["yellow-bar"]);
             _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, true);
             parent->addChild(_scoreIcons["yellowglider"]);
+            float glider_width = _scoreIcons["yellowglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, true);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
         }
 
-        bar_position += offset;
-        glider_position += offset;
+        bar_position += offset_betw_players;
+        glider_position += offset_betw_players;
     }
 }
-    
 
-//    _scoreIcons["dot"] = createIcon("dot", scale, basePos + Vec2(2 * spacing, 0), anchor, true);
-//    parent->addChild(_scoreIcons["dot"]);
-//
 //    _scoreIcons["score-finish"] = createIcon("score-finish", scale, basePos + Vec2(7 * spacing, 0), anchor, true);
 //    parent->addChild(_scoreIcons["score-finish"]);
 //
