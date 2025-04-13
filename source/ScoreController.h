@@ -19,11 +19,18 @@ private:
     /** The score needed to win */
     int const WIN_SCORE = 6;
     
+    struct RoundScore {
+        int score;
+        ScoreEvent::ScoreType scoreType;
+    };
+
+
     /** Pointer to the AssetManager for texture access, etc. */
     std::shared_ptr<cugl::AssetManager> _assets;
     
-    //             playerID             roundNumber  score
-    std::unordered_map<int, std::unordered_map<int, int>> _playerRoundScores;
+    //             playerID             roundNumber  score, scoreType
+    std::unordered_map<int, std::unordered_map<int, RoundScore>> _playerRoundScores;
+
 
     //             playerID  total_scoe
     std::unordered_map<int, int> _playerTotalScores;
@@ -82,6 +89,8 @@ public:
     int getTotalScore(int playerID) const;
 
     int getRoundScore(int playerID, int round) const;
+    
+    ScoreEvent::ScoreType getRoundScoreType(int playerID, int round) const;
     
     void sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum);
     

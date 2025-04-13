@@ -121,6 +121,8 @@ void BuildPhaseController::preUpdate(float dt) {
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
 
+    _uiScene.preUpdate(dt);
+
     // Deactivate inventory buttons once all traps are placed
     _uiScene.activateInventory(_itemsPlaced == 0);
     if (!_input->isTouchDown() && _input->getInventoryStatus() == PlatformInput::PLACING) {
@@ -264,7 +266,7 @@ void BuildPhaseController::preUpdate(float dt) {
 //    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
     // TODO: Segment out to another method, uiSceneUpdate()
-    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= 2240){
+    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
         _buildPhaseScene.getCamera()->translate(10, 0);
         _buildPhaseScene.getCamera()->update();
     }
