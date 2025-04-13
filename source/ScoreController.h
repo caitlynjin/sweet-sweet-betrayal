@@ -17,7 +17,7 @@ class ScoreController {
 private:
     // CONSTANTS
     /** The score needed to win */
-    int const WIN_SCORE = 1;
+    int const WIN_SCORE = 6;
     
     /** Pointer to the AssetManager for texture access, etc. */
     std::shared_ptr<cugl::AssetManager> _assets;
