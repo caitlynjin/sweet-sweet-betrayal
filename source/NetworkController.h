@@ -15,6 +15,8 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "ScoreEvent.h"
+#include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
 #include "Message.h"
@@ -315,6 +317,9 @@ protected:
     /** The player colorr */
     ColorType _color;
     
+    /**stores score controller instance**/
+    std::shared_ptr<ScoreController> _scoreController;
+    
     /** Whether the local player data has been recorded */
     bool _playerColorAdded = false;
     
@@ -565,7 +570,7 @@ public:
     }
     
     /**
-     * Returns whether game can switch to movement mode for all players.
+     * Returns whether game can switch to build mode for all players.
      */
     bool canSwitchToBuild(){
         return _numReset >= _network->getNumPlayers();
@@ -575,6 +580,8 @@ public:
      * Creates player information
      */
     void addPlayerColor();
+    std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
+
     
 #pragma mark -
 #pragma mark Message Handling
