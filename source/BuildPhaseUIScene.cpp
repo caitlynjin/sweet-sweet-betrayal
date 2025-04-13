@@ -275,13 +275,13 @@ void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, st
     {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
+        itemButton->setAnchor(Vec2::ANCHOR_CENTER);
+        itemButton->setPosition(_size.width - 75, _size.height - 80 - yOffset);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
-        yOffset += 80;
+        yOffset += 100;
     }
 }

@@ -188,9 +188,6 @@
         "menu-background": {
             "file": "textures/backgrounds/menu-background.png"
         },
-        "redbutton": {
-            "file": "textures/start-button.png"
-        },
         "inventory": {
             "file": "textures/inventory.png"
         },
