@@ -65,8 +65,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
 
-    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
-    assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
+    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, MUSHROOM };
+    assetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_TEXTURE, MUSHROOM_ICON };
     
     _uiScene.initInventory(inventoryItems, assetNames);
 

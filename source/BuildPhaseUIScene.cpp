@@ -40,6 +40,8 @@ using namespace Constants;
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
+/** The texture for the inventory */
+#define INVENTORY "inventory"
 
 /** Starting build time for timer */
 #define BUILD_TIME 30
@@ -115,7 +117,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     readyNode->setScale(0.8f);
     _readyButton = scene2::Button::alloc(readyNode);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.91f, _size.height * 0.1f);
+    _readyButton->setPosition(_size.width * 0.85f, _size.height * 0.1f);
     
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
@@ -150,10 +152,11 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
 {
     // Set the background
-    _inventoryBackground = scene2::PolygonNode::alloc();
-    _inventoryBackground->setPosition(Vec2(_size.width*0.88, _size.height*0.2));
-    _inventoryBackground->setContentSize(Size(_size.width*0.18, _size.height*0.8));
-    _inventoryBackground->setColor(Color4(131,111,108));
+    _inventoryBackground = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(INVENTORY));
+    _inventoryBackground->setScale(0.8f);
+    _inventoryBackground->setAnchor(Vec2::ANCHOR_CENTER);
+    _inventoryBackground->setPosition(Vec2(_size.width * 0.92, _size.height*0.6));
+    //_inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
@@ -162,14 +165,14 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
     {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
+        itemButton->setAnchor(Vec2::ANCHOR_CENTER);
+        itemButton->setPosition(_size.width - 75, _size.height - 80 - yOffset);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
-        yOffset += 80;
+        yOffset += 100;
     }
 
     // Set the darkened overlay

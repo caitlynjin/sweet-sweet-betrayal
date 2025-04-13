@@ -173,6 +173,18 @@
         },
         "redbutton": {
             "file": "textures/start-button.png"
+        },
+        "inventory": {
+            "file": "textures/inventory.png"
+        },
+        "icon-log": {
+            "file": "textures/icon-log.PNG"
+        },
+        "icon-moving-log": {
+            "file": "textures/icon-moving-log.PNG"
+        },
+        "icon-mushroom": {
+            "file": "textures/icon-mushroom.png"
         }
     },
     "jsons": {
