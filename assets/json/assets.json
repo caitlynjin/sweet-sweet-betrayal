@@ -215,8 +215,8 @@
         "leftgliders": {
             "file": "textures/leftgliders.png"
         },
-        "code_background": {
-            "file": "textures/backgrounds/code_background.png"
+        "roomcode-background": {
+            "file": "textures/backgrounds/roomcode-background.png"
         },
         "numpad": {
             "file": "textures/buttons/numpad.png"
@@ -227,8 +227,8 @@
         "num-enter": {
             "file": "textures/buttons/num-enter.png"
         },
-        "clearallbutton": {
-            "file": "textures/buttons/clearallbutton.png"
+        "button_clearall": {
+            "file": "textures/buttons/button_clearall.png"
         },
         "button_ready": {
             "file": "textures/buttons/button_ready.png"
@@ -241,6 +241,39 @@
         },
         "button_join": {
             "file": "textures/buttons/button_join.png"
+        },
+        "button_1": {
+            "file": "textures/buttons/button_1.png"
+        },
+        "button_2": {
+            "file": "textures/buttons/button_2.png"
+        },
+        "button_3": {
+            "file": "textures/buttons/button_3.png"
+        },
+        "button_4": {
+            "file": "textures/buttons/button_4.png"
+        },
+        "button_5": {
+            "file": "textures/buttons/button_5.png"
+        },
+        "button_6": {
+            "file": "textures/buttons/button_6.png"
+        },
+        "button_7": {
+            "file": "textures/buttons/button_7.png"
+        },
+        "button_8": {
+            "file": "textures/buttons/button_8.png"
+        },
+        "button_9": {
+            "file": "textures/buttons/button_9.png"
+        },
+        "button_0": {
+            "file": "textures/buttons/button_0.png"
+        },
+        "button_del": {
+            "file": "textures/buttons/button_del.png"
         }
     },
     "jsons": {
@@ -305,18 +338,23 @@
         "yeasty flavorsRegular37.317073822021484": {
             "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
             "size": 37.317073822021484
+        },
+        "yeasty flavorsRegular66.53518676757812": {
+            "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
+            "size": 66.53518676757812
         }
     },
     "widgets": {
-        "colorbutton": "widgets/colorbutton.json",
-        "textbutton": "widgets/textbutton.json",
-        "textfield": "widgets/textfield.json",
-        "labelbox": "widgets/labelbox.json",
-        "menu": "widgets/menu.json",
-        "textbutton2": "widgets/textbutton2.json",
-        "start": "widgets/start.json",
-        "startbutton": "widgets/textbutton.json",
-        "join": "widgets/join.json"
+        "colorbutton" : "widgets/colorbutton.json",
+        "textbutton" : "widgets/textbutton.json",
+        "textfield" : "widgets/textfield.json",
+        "labelbox" : "widgets/labelbox.json",
+        "menu" : "widgets/menu.json",
+        "textbutton2" : "widgets/textbutton2.json",
+        "start" : "widgets/start.json",
+        "startbutton" : "widgets/textbutton.json",
+        "join" : "widgets/join.json",
+        "numlabel" : "widgets/numlabel.json"
     },
     "scene2s": {
         "start": {
