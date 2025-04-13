@@ -419,6 +419,26 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
     }
 }
 
+std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size size) {
+    CULog("creating thorn");
+    auto params = _thornFact->serializeParams(pos, size);
+    auto pair = _network->getPhysController()->addSharedObstacle(_thornFactID, params);
+
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+
+    if (boxObstacle) {
+        std::shared_ptr<Thorn> thorn = Thorn::alloc(pos, size, boxObstacle);
+        thorn->setSceneNode(sprite);
+        _objects->push_back(thorn);
+        return thorn;
+    } else {
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
+
+
 
 /**
  * Creates a networked player.
@@ -913,4 +933,55 @@ MushroomFactory::createObstacle(const std::vector<std::byte>& params) {
     float scale = _deserializer.readFloat();
     
     return createObstacle(pos, size, scale);
+}
+
+#pragma mark -
+#pragma mark Thorn Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ThornFactory::createObstacle(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(THORN_TEXTURE);
+
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
+
+    auto thorn = Thorn::alloc(pos, size);
+
+    thorn->getObstacle()->setBodyType(b2_dynamicBody);
+    thorn->getObstacle()->setDensity(BASIC_DENSITY);
+    thorn->getObstacle()->setFriction(BASIC_FRICTION);
+    thorn->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    thorn->getObstacle()->setName("thorn");
+    thorn->getObstacle()->setDebugColor(DEBUG_COLOR);
+    thorn->setPosition(pos);
+    thorn->getObstacle()->setShared(true);
+
+    return std::make_pair(thorn->getObstacle(), sprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+ThornFactory::serializeParams(Vec2 pos, Size size) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ThornFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+
+    return createObstacle(pos, size);
 }

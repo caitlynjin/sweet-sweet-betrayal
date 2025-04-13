@@ -32,9 +32,9 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Constants
 /** List of all inventory items that are placeable */
-std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
+std::vector<std::string> allAssetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, THORN_TEXTURE, MUSHROOM_TEXTURE };
 
 
 #pragma mark -
@@ -375,6 +375,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0),  "default");
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
+        case (THORN):
+            return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
             return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
         case (TREASURE):

@@ -573,6 +573,11 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 killPlayer();
             }
 
+            // If we hit a thorn, we are DEAD
+            else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
+                killPlayer();
+            }
+
             //Treasure Collection
             else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
             {

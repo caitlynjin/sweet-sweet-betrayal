@@ -28,6 +28,9 @@
         "spike_tile": {
             "file": "textures/1x1-spike-tile.png"
         },
+        "thorns_obstacle": {
+            "file": "textures/thorns-obstacle.png"
+        },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
         },
