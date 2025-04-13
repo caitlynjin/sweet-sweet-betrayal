@@ -302,7 +302,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
 
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-            if (fixtureName == "player") {
+            if (tagContainsPlayer("player")) {
                 CULog("plyr Callback!");
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
@@ -546,14 +546,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // Set grounded for all players (not just local player)
-    if (bd1->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd1->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
         }
     }
 
-    if (bd2->getName().find("player") != std::string::npos && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd2->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
@@ -583,8 +583,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 }
             }
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
-            else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && bd1->getName() != "player") ||
-                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && bd2->getName() != "player"))
+            else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && !tagContainsPlayer(bd1->getName())) ||
+                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName())))
                 && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
                 //Set player to grounded
                 // _movePhaseScene.getLocalPlayer()->setGrounded(true);
