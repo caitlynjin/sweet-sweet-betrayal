@@ -54,9 +54,9 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
-    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.start"));
-    _settingsbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.settings"));
-    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
+    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.start"));
+    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.settings"));
+//    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
     
     // Program the buttons
     _startbutton->addListener([this](const std::string& name, bool down) {
