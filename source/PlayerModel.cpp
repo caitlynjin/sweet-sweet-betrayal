@@ -51,7 +51,7 @@
 #pragma mark -
 #pragma mark Physics Constants
 /** Cooldown (in animation frames) for jumping */
-#define JUMP_COOLDOWN 5
+#define JUMP_COOLDOWN 2
 /** Cooldown (in animation frames) for shooting */
 #define SHOOT_COOLDOWN 20
 /** The amount to shrink the body fixture (vertically) relative to the image */
@@ -273,11 +273,11 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
  * @param action The film strip action
  * @param slide  The associated movement slide
  */
-void PlayerModel::doStrip(cugl::ActionFunction action) {
+void PlayerModel::doStrip(cugl::ActionFunction action, float duration = DURATION) {
     if (_timeline->isActive(ACT_KEY)) {
         // NO OP
     } else {
-        _timeline->add(ACT_KEY, action, DURATION);
+        _timeline->add(ACT_KEY, action, duration);
     }
 }
 
@@ -518,7 +518,7 @@ void PlayerModel::update(float dt)
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(true);
         }
-        doStrip(_jumpAction);
+        doStrip(_jumpAction, 0.5f);
     } else if (getVX() == 0  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
@@ -534,7 +534,7 @@ void PlayerModel::update(float dt)
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(false);
         }
-        doStrip(_walkAction);
+        doStrip(_walkAction, 0.5f);
     }
     
 //     Should not move when immobile

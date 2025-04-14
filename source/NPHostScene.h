@@ -46,6 +46,16 @@ protected:
     std::shared_ptr<cugl::scene2::Label> _gameid;
     /** The players label (for updating) */
     std::shared_ptr<cugl::scene2::Label> _player;
+    
+    std::shared_ptr<cugl::scene2::Label> _textField;
+    /** The player icons for showing players joined */
+    std::shared_ptr<cugl::scene2::PolygonNode> _player1Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player2Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player3Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player4Icon;
+    
+    /** The texture to use when the player icon gets filled */
+    std::shared_ptr<graphics::Texture> _filledIcon;
 
     /** Whether the startGame button had been pressed. */
     bool _startGameClicked = false;
