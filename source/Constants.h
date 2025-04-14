@@ -74,16 +74,26 @@
 #define PLATFORM_TILE_TEXTURE   "platform_tile"
 /** The key for the 3x0.5 platform texture in the asset manager */
 #define LOG_TEXTURE   "log_obstacle"
+/** The key for the inventory icon for the log */
+#define LOG_ICON   "icon-log"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** The key for the inventory icon for the gliding log */
+#define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the wind icon*/
+#define WIND_ICON "icon-wind"
 /** Name of the mushroom texture*/
 #define MUSHROOM_TEXTURE "mushroom"
+/** The key for the inventory icon for the mushroom */
+#define MUSHROOM_ICON   "icon-mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the thorn texture in the asset manager */
 #define THORN_TEXTURE "thorns_obstacle"
+/** The key for the inventory icon for the thorns */
+#define THORN_TILE_ICON "icon-thorn"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -172,7 +182,7 @@
 /** The number of frame to wait before reinitializing the game */
 #define EXIT_COUNT 240
 /** The number of frame to wait before reinitializing the game */
-#define SCOREBOARD_COUNT 150
+#define SCOREBOARD_COUNT 300
 
 #pragma mark -
 #pragma mark Build Phase Constants
