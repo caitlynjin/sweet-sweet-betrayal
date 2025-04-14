@@ -113,13 +113,26 @@ public:
 
     int getRoundScore(int playerID, int round) const;
     
+    const std::unordered_map<int, ColorType>& getPlayerColors() const {
+        return _playerColors;
+    }
+    
     ScoreEvent::ScoreType getRoundScoreType(int playerID, int round) const;
     
     void sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum);
     
     void setPlayerColors(const std::unordered_map<int, ColorType>& colors) {
         _playerColors = colors;
+
+        CULog("=== Player Colors Set ===\n");
+        for (const auto& pair : _playerColors) {
+            int playerID = pair.first;
+            ColorType color = pair.second;
+
+            std::string colorStr = colorToString(color);  // Assuming you have this helper
+        }
     }
+
         
     std::string colorToString(ColorType color) const {
         switch (color) {

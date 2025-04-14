@@ -63,6 +63,8 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
     /** Reference to the treasure icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
+    //grey overlay
+    std::shared_ptr<scene2::PolygonNode> _scoreboardOverlay;
     
     /** Reference to the scoreboard overlay */
     //TODO: Change to the PolygonNode that will be the background of the scoreboard scene
@@ -205,7 +207,8 @@ public:
      */
     void setScoreboardVisible(bool value){
         // Set scoreboard as visible
-        _scoreboardNode->setVisible(value);
+//        _scoreboardNode->setVisible(value);
+        _scoreboardOverlay->setVisible(value);
         _scoreController->setScoreboardVisible(value);
 //        for (auto scores : _playerScores){
 //            scores->setVisible(value);

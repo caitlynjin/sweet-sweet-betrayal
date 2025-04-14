@@ -195,13 +195,21 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
     _treasureIcon->setVisible(false);
     addChild(_treasureIcon);
     
+    _scoreboardOverlay = scene2::PolygonNode::allocWithPoly(Rect(0, 0, _size.width, _size.height));
+    _scoreboardOverlay->setColor(Color4(0, 0, 0, 192)); // 192/255 ~75% opacity black
+    _scoreboardOverlay->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _scoreboardOverlay->setPosition(0, 0);
+    _scoreboardOverlay->setVisible(false);
+    
+    addChild(_scoreboardOverlay);
+    
     // Add scoreboard node
-    _scoreboardNode = scene2::Label::allocWithText("Round Over!", _assets->get<Font>(INFO_FONT));
-    _scoreboardNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _scoreboardNode->setPosition(_size.width * .5,_size.height * .7);
-    _scoreboardNode->setForeground(INFO_COLOR);
-    _scoreboardNode->setVisible(false);
-    addChild(_scoreboardNode);
+//    _scoreboardNode = scene2::Label::allocWithText("Round Over!", _assets->get<Font>(INFO_FONT));
+//    _scoreboardNode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _scoreboardNode->setPosition(_size.width * .5,_size.height * .7);
+//    _scoreboardNode->setForeground(INFO_COLOR);
+//    _scoreboardNode->setVisible(false);
+//    addChild(_scoreboardNode);
     
     // KEEP THIS FOR REFERENCE, WILL NEED ONCE SCORING UI IS IN
     // Add player score nodes

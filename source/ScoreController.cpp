@@ -49,7 +49,7 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     
     //update scoreboardUI
     auto it = _playerColors.find(playerID);
-    ColorType color = (it != _playerColors.end()) ? it->second : ColorType::RED;
+    ColorType color = it->second;
     std::string playerName = colorToString(color);
     
     std::string iconTextureKey;
@@ -62,11 +62,14 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     auto newTexture = _assets->get<Texture>(iconTextureKey);
     
     for (int i = prevTotal; i < newTotal; i++) {
+        
         Vec2 basePos = _playerBaseDotPos[playerName];
         Vec2 overlayPos = basePos + offset_betw_points * static_cast<float>(i);
         auto newIconNode = createIcon(iconTextureKey, 1.0f, overlayPos, _anchor, false);
         _scoreboardParent->addChild(newIconNode);
-         _scoreIcons[playerName + "-" + iconTextureKey + "-" + std::to_string(i)] = newIconNode;
+        _scoreIcons[playerName + "-" + iconTextureKey + "-" + std::to_string(i)] = newIconNode;
+        CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
+                      iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
     }
 }
 
@@ -165,7 +168,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             for (int i = 0; i < 10; ++i) {
                 std::string dot_key = name + "-dot-" + std::to_string(i);
                 Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
-                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, true);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
                 parent->addChild(_scoreIcons[dot_key]);
             }
         }
