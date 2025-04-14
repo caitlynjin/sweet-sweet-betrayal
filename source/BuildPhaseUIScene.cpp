@@ -40,6 +40,8 @@ using namespace Constants;
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
+/** The image for the right button */
+#define RIGHT_BUTTON "right_button"
 /** The texture for the inventory */
 #define INVENTORY "inventory"
 
@@ -93,11 +95,11 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _startTime = Application::get()->getEllapsedMicros();
 
-    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
+    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_BUTTON));
     rightNode->setScale(0.8f);
     _rightButton = scene2::Button::alloc(rightNode);
     _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _rightButton->setPosition(_size.width * 0.6f, _size.height * 0.1f);
+    _rightButton->setPosition(_size.width * 0.75f, _size.height * 0.15f);
     _rightButton->activate();
     _rightButton->addListener([this](const std::string &name, bool down) {
         _rightpressed = down;
@@ -107,7 +109,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     leftNode->setScale(0.8f);
     _leftButton = scene2::Button::alloc(leftNode);
     _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _leftButton->setPosition(_size.width * 0.4f, _size.height * 0.1f);
+    _leftButton->setPosition(_size.width * 0.25f, _size.height * 0.15f);
     _leftButton->activate();
     _leftButton->addListener([this](const std::string &name, bool down) {
         _leftpressed = down;
@@ -117,7 +119,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     readyNode->setScale(0.8f);
     _readyButton = scene2::Button::alloc(readyNode);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.85f, _size.height * 0.1f);
+    _readyButton->setPosition(_size.width * 0.5f, _size.height * 0.15f);
     
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
@@ -135,7 +137,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(MESSAGE_FONT));
     _timer->setAnchor(Vec2::ANCHOR_CENTER);
-    _timer->setPosition(_size.width * 0.1f, _size.height * 0.15f);
+    _timer->setPosition(_size.width * 0.5f, _size.height * 0.9f);
 
     addChild(_rightButton);
     addChild(_readyButton);
@@ -153,9 +155,9 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
 {
     // Set the background
     _inventoryBackground = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(INVENTORY));
-    _inventoryBackground->setScale(0.8f);
+    _inventoryBackground->setScale(0.9f);
     _inventoryBackground->setAnchor(Vec2::ANCHOR_CENTER);
-    _inventoryBackground->setPosition(Vec2(_size.width * 0.92, _size.height*0.6));
+    _inventoryBackground->setPosition(Vec2(_size.width * 0.92, _size.height*0.5));
     //_inventoryBackground->setColor(Color4(131,111,108));
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
@@ -164,7 +166,7 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
 
     // Set the darkened overlay
     _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.1));
     _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
     _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
     _inventoryOverlay->setVisible(false);
@@ -276,12 +278,12 @@ void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, st
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
         itemButton->setAnchor(Vec2::ANCHOR_CENTER);
-        itemButton->setPosition(_size.width - 75, _size.height - 80 - yOffset);
+        itemButton->setPosition(_size.width - 75, _size.height - 120 - yOffset);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
-        yOffset += 100;
+        yOffset += 115;
     }
 }

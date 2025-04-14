@@ -87,10 +87,13 @@
             }
         },
         "ready_button": {
-            "file": "textures/ready_button.png"
+            "file": "textures/ready.png"
         },
         "left_button": {
-            "file": "textures/left_button.png"
+            "file": "textures/left-scroll-arrow.png"
+        },
+        "right_button": {
+            "file": "textures/right-scroll-arrow.png"
         },
         "brush_button": {
             "file": "textures/brush_button.png"
@@ -199,6 +202,12 @@
         },
         "icon-mushroom": {
             "file": "textures/icon-mushroom.png"
+        },
+        "icon-thorn": {
+            "file": "textures/icon-thorn.png"
+        },
+        "icon-wind": {
+            "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
             "file": "textures/settingsbutton.png"
@@ -364,7 +373,17 @@
         "startbutton" : "widgets/textbutton.json",
         "end" : "widgets/end.json",
         "join" : "widgets/join.json",
-        "numlabel" : "widgets/numlabel.json"
+        "numlabel" : "widgets/numlabel.json",
+        "colorbutton": "widgets/colorbutton.json",
+        "textbutton": "widgets/textbutton.json",
+        "textfield": "widgets/textfield.json",
+        "labelbox": "widgets/labelbox.json",
+        "menu": "widgets/menu.json",
+        "textbutton2": "widgets/textbutton2.json",
+        "start": "widgets/start.json",
+        "startbutton": "widgets/textbutton.json",
+        "join": "widgets/join.json",
+        "numlabel": "widgets/numlabel.json"
     },
     "scene2s": {
         "start": {
@@ -953,3 +972,4 @@
         }
     }
 }
+
