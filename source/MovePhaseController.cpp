@@ -277,11 +277,19 @@ void MovePhaseController::preUpdate(float dt) {
                                                                     getCamera()->getPosition().x),
                                     getCamera()->getPosition().y, 0));
     }
-    else if (getCamera()->getPosition().x < 0){
-        getCamera()->setPosition(Vec3 (0, getCamera()->getPosition().y, 0));
+    else if (getCamera()->getPosition().x < 0 && _movePhaseScene.getLocalPlayer()->getMovement() > 0){
+        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+                                                                     (_movePhaseScene.getLocalPlayer()->getPosition().x *
+                                                                      56 + SCENE_WIDTH / 3.0f -
+                                                                      getCamera()->getPosition().x),
+                                      getCamera()->getPosition().y, 0));
     }
-    else if (getCamera()->getPosition().x > _movePhaseScene.getGoalDoor()->getPosition().x * 64){
-        getCamera()->setPosition(Vec3 (_movePhaseScene.getGoalDoor()->getPosition().x * 64, getCamera()->getPosition().y, 0));
+    else if (getCamera()->getPosition().x > _movePhaseScene.getGoalDoor()->getPosition().x * 64 && _movePhaseScene.getLocalPlayer()->getMovement() < 0){
+        getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+                                                                     (_movePhaseScene.getLocalPlayer()->getPosition().x *
+                                                                      56 + SCENE_WIDTH / 3.0f -
+                                                                      getCamera()->getPosition().x),
+                                      getCamera()->getPosition().y, 0));
     }
 
     
