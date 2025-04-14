@@ -90,8 +90,10 @@
 #define MUSHROOM_ICON   "icon-mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
+/** The key for the thorn texture in the asset manager */
+#define THORN_TEXTURE "thorns_obstacle"
 /** The key for the inventory icon for the thorns */
-#define SPIKE_TILE_ICON "icon-thorn"
+#define THORN_TILE_ICON "icon-thorn"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -269,6 +271,8 @@ enum Item {
     WIND,
     /** A spike */
     SPIKE,
+    /** The thorn */
+    THORN,
     /** A treasure */
     TREASURE,
     /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
