@@ -1,0 +1,432 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                1306,
+                576
+            ],
+            "angle": 0,
+            "position": [
+                0,
+                0
+            ],
+            "visible": true
+        },
+        "children": {
+            "host-background": {
+                "type": "Image",
+                "data": {
+                    "texture": "host-background",
+                    "anchor": [
+                        0,
+                        0.5
+                    ],
+                    "size": [
+                        1319,
+                        581
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        -5
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "fill",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": -0.01
+                }
+            },
+            "back": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        250,
+                        131
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        427
+                    ],
+                    "visible": true,
+                    "upnode": "back"
+                },
+                "children": {
+                    "back": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "back",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                276.96,
+                                130.78
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0.22
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": -0.03
+                }
+            },
+            "player-count": {
+                "type": "Node",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        1,
+                        0.5
+                    ],
+                    "size": [
+                        467,
+                        112
+                    ],
+                    "angle": 0,
+                    "position": [
+                        619,
+                        189
+                    ],
+                    "visible": true
+                },
+                "children": {
+                    "redglider": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "redglider",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                107,
+                                112
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    },
+                    "greyglider": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "greyglider",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                107,
+                                112
+                            ],
+                            "angle": 0,
+                            "position": [
+                                120,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.26,
+                            "y_offset": 0
+                        }
+                    },
+                    "greyglider_2": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "greyglider",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                107,
+                                112
+                            ],
+                            "angle": 0,
+                            "position": [
+                                240,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.51,
+                            "y_offset": 0
+                        }
+                    },
+                    "greyglider_3": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "greyglider",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                107,
+                                112
+                            ],
+                            "angle": 0,
+                            "position": [
+                                360,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.77,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "right",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.17,
+                    "y_offset": -0.07
+                }
+            },
+            "start": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0
+                    ],
+                    "size": [
+                        394,
+                        162.52
+                    ],
+                    "angle": 0,
+                    "position": [
+                        498,
+                        13.48
+                    ],
+                    "visible": true,
+                    "upnode": "startbutton"
+                },
+                "children": {
+                    "startbutton": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "startbutton",
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                334.69,
+                                162.93
+                            ],
+                            "angle": 0,
+                            "position": [
+                                16.42,
+                                -0.4
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "fill",
+                            "y_anchor": "fill",
+                            "absolute": false,
+                            "x_offset": 0.04,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "bottom",
+                    "absolute": false,
+                    "x_offset": 0.03,
+                    "y_offset": 0.02
+                }
+            },
+            "center": {
+                "type": "Node",
+                "format": {
+                    "type": "Float",
+                    "orientation": "vertical",
+                    "x_alignment": "center",
+                    "y_alignment": "middle"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.0
+                    ],
+                    "size": [
+                        500,
+                        500
+                    ]
+                },
+                "children": {
+                    "game": {
+                        "type": "Node",
+                        "format": {
+                            "type": "Float",
+                            "orientation": "horizontal",
+                            "x_alignment": "center",
+                            "y_alignment": "middle"
+                        },
+                        "data": {
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                500,
+                                100
+                            ]
+                        },
+                        "children": {
+                            "field": {
+                                "type": "Widget",
+                                "data": {
+                                    "key": "labelbox",
+                                    "variables": {
+                                        "size": [
+                                            200,
+                                            100
+                                        ],
+                                        "text": "",
+                                        "halign": "center",
+                                        "framecolor": "#000088"
+                                    }
+                                },
+                                "layout": {
+                                    "priority": 2
+                                }
+                            }
+                        },
+                        "layout": {
+                            "priority": 1,
+                            "padding": [
+                                0,
+                                50,
+                                0,
+                                0
+                            ]
+                        }
+                    },
+                    "players": {
+                        "type": "Node",
+                        "format": {
+                            "type": "Float",
+                            "orientation": "horizontal",
+                            "x_alignment": "center",
+                            "y_alignment": "middle"
+                        },
+                        "data": {
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                700,
+                                100
+                            ]
+                        },
+                        "children": {
+                            "field": {
+                                "type": "Widget",
+                                "data": {
+                                    "key": "textfield",
+                                    "variables": {
+                                        "size": [
+                                            200,
+                                            100
+                                        ],
+                                        "text": "1",
+                                        "halign": "center",
+                                        "framecolor": "#000088"
+                                    }
+                                },
+                                "layout": {
+                                    "priority": 2
+                                }
+                            }
+                        },
+                        "layout": {
+                            "priority": 2,
+                            "padding": [
+                                0,
+                                50,
+                                0,
+                                0
+                            ]
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "bottom"
+                }
+            }
+        }
+    }
+}
