@@ -6,7 +6,7 @@
             "wrapT": "repeat"
         },
         "tile": {
-            "file": "textures/alphatile.png",
+            "file": "textures/1x1-tile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
