@@ -295,6 +295,7 @@ void SSBGameController::preUpdate(float dt)
                     _scoreCountdown = -1;
                     // Check for win condition
                     _networkController->checkWinCondition();
+                    _beforeScoreBoard = 10;
                 }
             } else {
                 _beforeScoreBoard --;

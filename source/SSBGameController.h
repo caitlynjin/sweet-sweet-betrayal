@@ -81,7 +81,7 @@ protected:
     int _scoreCountdown = -1;
     
     // Countdown between build ready and dispaying scoreboard
-    int _beforeScoreBoard = 10;
+    int _beforeScoreBoard = 15;
 
 public:
 #pragma mark -
