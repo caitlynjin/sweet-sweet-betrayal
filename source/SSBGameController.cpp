@@ -280,21 +280,27 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
-            //TODO: Segment into switchToBuild()
-            if (_scoreCountdown == -1){
-                _scoreCountdown = SCOREBOARD_COUNT;
-                _movePhaseController->scoreboardActive(true);
+            if (_beforeScoreBoard == 0) {
+                //TODO: Segment into switchToBuild()
+                if (_scoreCountdown == -1){
+                    _scoreCountdown = SCOREBOARD_COUNT;
+                    _movePhaseController->scoreboardActive(true);
+                }
+                if (_scoreCountdown == 0){
+                    _movePhaseController->scoreboardActive(false);
+                    _movePhaseController->resetRound();
+                    setBuildingMode(!_buildingMode);
+                    _networkController->resetRound();
+    //                _movePhaseController->resetRound();
+                    _scoreCountdown = -1;
+                    // Check for win condition
+                    _networkController->checkWinCondition();
+                    _beforeScoreBoard = 15;
+                }
+            } else {
+                _beforeScoreBoard --;
             }
-            if (_scoreCountdown == 0){
-                _movePhaseController->scoreboardActive(false);
-                _movePhaseController->resetRound();
-                setBuildingMode(!_buildingMode);
-                _networkController->resetRound();
-//                _movePhaseController->resetRound();
-                _scoreCountdown = -1;
-                // Check for win condition
-                _networkController->checkWinCondition();
-            }
+            
         }
     }
     

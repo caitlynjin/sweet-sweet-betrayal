@@ -22,6 +22,8 @@
 #include "MessageEvent.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
+#include "ScoreController.h"
+#include "NetworkController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -61,6 +63,8 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
     /** Reference to the treasure icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
+    //grey overlay
+    std::shared_ptr<scene2::PolygonNode> _scoreboardOverlay;
     
     /** Reference to the scoreboard overlay */
     //TODO: Change to the PolygonNode that will be the background of the scoreboard scene
@@ -81,6 +85,16 @@ protected:
     bool _didjump;
     /** Whether player is gliding */
     bool _didglide;
+    
+    /**stores score controller instance**/
+    std::shared_ptr<ScoreController> _scoreController;
+    
+    std::shared_ptr<NetworkController> _networkController;
+    
+    bool scoreBoardInitialized = false;
+
+    
+    
 
 public:
 #pragma mark -
@@ -114,7 +128,11 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, int players);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets,
+              int players,
+              const std::shared_ptr<ScoreController>& scoreController,
+              std::shared_ptr<NetworkController> networkController);
+
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -189,7 +207,9 @@ public:
      */
     void setScoreboardVisible(bool value){
         // Set scoreboard as visible
-        _scoreboardNode->setVisible(value);
+//        _scoreboardNode->setVisible(value);
+        _scoreboardOverlay->setVisible(value);
+        _scoreController->setScoreboardVisible(value);
 //        for (auto scores : _playerScores){
 //            scores->setVisible(value);
 //        }
