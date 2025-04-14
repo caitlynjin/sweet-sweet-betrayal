@@ -40,23 +40,8 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
-        "spike-left": {
-            "file": "textures/1x1-left-spike-tile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
-        },
-        "spike-right": {
-            "file": "textures/1x1-right-spike-tile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
-        },
-        "spike-up": {
-            "file": "textures/1x1-up-spike-tile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
-        },
         "tile-bottom-edge": {
-            "file": "textures/1x1-tile-bottom-edge.png",
+            "file": "textures/tile-bottom-edge.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },

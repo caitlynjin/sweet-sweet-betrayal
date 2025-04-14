@@ -206,8 +206,10 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA, ART_OBJECT };
-    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE, TILE_TEXTURE};
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA, ART_OBJECT, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT };
+    for (auto it = inventoryItems.begin(); it != inventoryItems.end(); ++it) {
+        assetNames.push_back(itemToAssetName(*it));
+    }
 
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -403,6 +405,7 @@ void LevelEditorController::preUpdate(float dt) {
                 if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     // might go back to addObject() for levelEditor??? just keep this in mind
+                    CULog("%d is _selectedItem", _selectedItem);
                     _gridManager->addMoveableObject(gridPos, obj);
 
                     _itemsPlaced += 1;
@@ -513,8 +516,56 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
         obj->setItemType(TILE_ALPHA);
         return obj;
-    case (ART_OBJECT):
-        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "default");
+    case (TILE_TOP):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTop");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_BOTTOM):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileBottom");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_INNER):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileInner");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_LEFT):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileLeft");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_RIGHT):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileRight");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_TOPLEFT):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTopLeft");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+    case (TILE_TOPRIGHT):
+        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTopRight");
+        obj->setItemType(TILE_ALPHA);
+        return obj;
+
+
+    case (CRACK_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack1");
+    case (CRACK_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack2");
+    case (CRACK_3):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack3");
+    case (CRACK_4):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack4");
+    case (CRACK_5):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack5");
+    case (CRACK_LARGE_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crackLarge1");
+    case (MOSS_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "moss1");
+    case (MOSS_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "moss2");
+    case (ROCKY_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "rocky1");
+    case (ROCKY_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "rocky2");
     case (NONE):
         return nullptr;
     }

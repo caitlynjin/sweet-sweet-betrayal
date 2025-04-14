@@ -301,7 +301,7 @@ bool itemIsArtObject(Item item);
 std::string itemToAssetName(Item item);
 
 static std::map<std::string, int> jsonTypeToLayer {
-    {"default", 1}
+    {"default", 1},
     {"crack1", 1},
     {"crack2", 1},
     {"crack3", 1},
@@ -311,12 +311,12 @@ static std::map<std::string, int> jsonTypeToLayer {
     {"moss1", 1},
     {"moss2", 1},
     {"rocky1", 1},
-    {"rocky2",1},
+    {"rocky2",1}
 };
 
 static std::map<std::string, std::string> jsonTypeToAsset
 {
-    {"default", EARTH_TEXTURE}
+    {"default", EARTH_TEXTURE},
     { "tileTop", TOP_TILE_TEXTURE },
     {"tileBottom", BOTTOM_TILE_TEXTURE},
     {"tileInner", INNER_TILE_TEXTURE},
@@ -333,7 +333,7 @@ static std::map<std::string, std::string> jsonTypeToAsset
     {"moss1", MOSS1_TEXTURE},
     {"moss2", MOSS2_TEXTURE},
     {"rocky1", ROCKY1_TEXTURE},
-    {"rocky2", ROCKY2_TEXTURE},
+    {"rocky2", ROCKY2_TEXTURE}
 };
 
 static std::map<std::string, Item> jsonTypeToItemType
@@ -355,7 +355,7 @@ static std::map<std::string, Item> jsonTypeToItemType
     {"moss1", Item::MOSS_1},
     {"moss2", Item::MOSS_2},
     {"rocky1", Item::ROCKY_1},
-    {"rocky2", Item::ROCKY_2},
+    {"rocky2", Item::ROCKY_2}
 };
 
 }
