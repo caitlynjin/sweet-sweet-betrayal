@@ -402,7 +402,7 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size s
 
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
-    auto params = _mushroomFact->serializeParams(pos, size, scale);
+    auto params = _mushroomFact->serializeParams(pos + size/2, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
@@ -876,31 +876,20 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
-
-    // float blendingOffset = 0.01f;
-
-    // Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
-
-    // EarclipTriangulator triangulator;
-    // triangulator.set(poly.vertices);
-    // triangulator.calculate();
-    // poly.setIndices(triangulator.getTriangulation());
-    // triangulator.clear();
-    
     std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
+
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    box->setBodyType(b2_dynamicBody);
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setName("mushroom");
+    box->setDebugColor(DEBUG_COLOR);
+    box->setShared(true);
+
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
-    
-    auto mushroom = Mushroom::alloc(pos, size, scale);
-    mushroom->getObstacle()->setBodyType(b2_dynamicBody);
-    mushroom->getObstacle()->setDensity(BASIC_DENSITY);
-    mushroom->getObstacle()->setFriction(BASIC_FRICTION);
-    mushroom->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    mushroom->getObstacle()->setName("mushroom");
-    mushroom->getObstacle()->setDebugColor(Color4::YELLOW);
-    mushroom->setPosition(pos);
-    mushroom->getObstacle()->setShared(true);
-    
-    return std::make_pair(mushroom->getObstacle(), sprite);
+
+    return std::make_pair(box, sprite);
 }
 
 
@@ -940,7 +929,7 @@ MushroomFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 ThornFactory::createObstacle(Vec2 pos, Size size) {
     std::shared_ptr<Texture> texture = _assets->get<Texture>(THORN_TEXTURE);
-    
+
     std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     box->setBodyType(b2_dynamicBody);
     box->setDensity(BASIC_DENSITY);
