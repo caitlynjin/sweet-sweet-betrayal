@@ -63,6 +63,8 @@ std::string itemToString(Item item) {
             return "wind";
         case SPIKE:
             return "spike";
+        case THORN:
+            return "thorn";
         case TREASURE:
             return "treasure";
         case TILE_ITEM:
@@ -86,6 +88,8 @@ cugl::Size itemToSize(Item item) {
         case WIND:
             return cugl::Size(1, 1);
         case SPIKE:
+            return cugl::Size(1, 1);
+        case THORN:
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
@@ -111,6 +115,8 @@ cugl::Size itemToGridSize(Item item) {
         case WIND:
             return cugl::Size(1, 1);
         case SPIKE:
+            return cugl::Size(1, 1);
+        case THORN:
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
@@ -140,6 +146,8 @@ std::string itemToAssetName(Item item) {
             return FAN_TEXTURE;
         case (SPIKE):
             return SPIKE_TILE_TEXTURE;
+        case (THORN):
+            return THORN_TEXTURE;
         case (TREASURE):
             return TREASURE_TEXTURE;
         case (TILE_ITEM):

@@ -501,6 +501,8 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0), "default");
     case (SPIKE):
         return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "default");
+    case (THORN):
+        return _networkController->createThornNetworked(gridPos, itemToSize(item));
     case (MUSHROOM):
         return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _levelEditorScene.getScale());
     case (TREASURE):

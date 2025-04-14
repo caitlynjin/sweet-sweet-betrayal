@@ -91,6 +91,12 @@ public:
      */
     void dispose() override;
     
+    
+    /**
+     * Resets all properties of the scene.
+     */
+    void reset() override;
+    
     /**
      * Initializes the controller contents.
      *

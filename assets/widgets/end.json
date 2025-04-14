@@ -1,0 +1,172 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                1306,
+                576
+            ],
+            "angle": 0,
+            "position": [
+                0,
+                0
+            ],
+            "visible": true
+        },
+        "children": {
+            "end-background": {
+                "type": "Image",
+                "data": {
+                    "texture": "end-background",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        1306,
+                        576
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        0
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "quit": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        400.47,
+                        180
+                    ],
+                    "angle": 0,
+                    "position": [
+                        784,
+                        108
+                    ],
+                    "visible": true,
+                    "upnode": "button_quit"
+                },
+                "children": {
+                    "button_quit": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "button_quit",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                401,
+                                180
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": 0.25,
+                    "y_offset": -0.16
+                }
+            },
+            "restart": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        400.47,
+                        180
+                    ],
+                    "angle": 0,
+                    "position": [
+                        144,
+                        108
+                    ],
+                    "visible": true,
+                    "upnode": "button_restart"
+                },
+                "children": {
+                    "button_restart": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "button_restart",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                401,
+                                180
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.24,
+                    "y_offset": -0.16
+                }
+            }
+        }
+    }
+}

@@ -20,40 +20,64 @@
             "size"    : [350, 75]
         },
         "children": {
+            "frame": {
+                "type": "Image",
+                "data": {
+                    "texture": "num",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        108.58,
+                        108.58
+                    ],
+                    "angle": 0,
+                    "position": [
+                        491.42,
+                        0.42
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
 			"text": {
 				"type"   : "TextField",
 				"data": {
-					"anchor"   : [0.5, 0.5],
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        108.58,
+                        108.58
+                    ],
+                    "angle": 0,
+                    "position": [
+                        491.42,
+                        0.42
+                    ],
+                    "visible": true,
 					"font"     : "gyparody",
 					"text"     : "Text",
-					"padding"  : [20, 20, 20, 20],
 					"halign"   : "left",
 					"valign"   : "middle",
-					"background" : "#ffffff",
-					"foreground" : "#000000",
 					"cursor": true
 				},
-				"layout" : {
-					"x_anchor" : "fill",
-					"y_anchor" : "fill",
-                    "x_offset" : 2,
-                    "y_offset" : 2,
-                    "absolute" : true
-
-				}
-			},
-			"frame": {
-				"type"   : "NinePatch",
-				"data": {
-					"texture":  "frame",
-					"anchor"   : [0.5, 0.5],
-					"interior" : [20,20,88,88],
-					"color"    : "#ffffff"
-				},
-				"layout" : {
-					"x_anchor" : "fill",
-					"y_anchor" : "fill"
-				}
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0,
+                    "priority" : 1
+                }
 			}
 		},
 		"layout" : {

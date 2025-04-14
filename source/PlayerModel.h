@@ -676,7 +676,22 @@ public:
     /** Reset the player */
     void reset();
 
-	
+#pragma mark -
+#pragma mark Helpers
+    /**
+     * Checks whether the player is visible or not.
+     */
+    bool isVisible() {
+        return _node->isVisible();
+    }
+
+    /**
+     * Sets whether the player is visible or not.
+     */
+    void setVisible(bool value) {
+        _node->setVisible(value);
+    }
+
 };
 
 #endif /* __PF_PLAYER_MODEL_H__ */
