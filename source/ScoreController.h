@@ -19,7 +19,7 @@ class ScoreController {
 private:
     // CONSTANTS
     /** The score needed to win */
-    int const WIN_SCORE = 10;
+    int const WIN_SCORE = 6;
     
     struct RoundScore {
         int score;

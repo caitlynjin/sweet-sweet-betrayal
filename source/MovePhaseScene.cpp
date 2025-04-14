@@ -200,10 +200,10 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(
-            _networkController->createTreasureNetworked(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false)
+            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
         );
         _networkController->setTreasure(_treasure);
-        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
 
 }
@@ -242,7 +242,7 @@ void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false));
-        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
+        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     
     // Update objects
@@ -288,7 +288,7 @@ void MovePhaseScene::resetPlayerProperties() {
  * Set the next position for the treasure based on the current gem count.
  */
 void MovePhaseScene::setNextTreasure(int count) {
-    _treasure->setPosition(Vec2(TREASURE_POS_TEST[count]));
+    _treasure->setPosition(Vec2(TREASURE_POS[count]));
 }
 
 /**
