@@ -78,10 +78,12 @@
 #define LOG_ICON   "icon-log"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the fan texture for windobstacle*/
+#define FAN_TEXTURE "static_fan"
+/** Name of the gust texture for windobstacle*/
+#define GUST_TEXTURE "static_gust"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 /** Name of the wind icon*/
 #define WIND_ICON "icon-wind"
 /** Name of the mushroom texture*/
@@ -280,7 +282,7 @@ enum Item {
     /** A treasure */
     TREASURE,
     /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
-    TILE_ALPHA,
+    TILE_ITEM,
     /** A mushroom */
     MUSHROOM,
     /** No type */

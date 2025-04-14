@@ -188,6 +188,11 @@ void MovePhaseScene::populate() {
 
     _localPlayer->setDebugScene(_debugnode);
     _world->getOwnedObstacles().insert({ _localPlayer,0 });
+    //If we are on keyboard, for debugging purposes turn off jump damping
+    Mouse* mouse = Input::get<Mouse>();
+    if (mouse) {
+        _localPlayer->setJumpDamping(false);
+    }
     if (!_networkController->getIsHost()) {
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }

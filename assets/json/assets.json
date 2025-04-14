@@ -55,8 +55,11 @@
         "goal": {
             "file": "textures/goaldoor.png"
         },
-        "up": {
-            "file": "textures/up.png"
+        "static_fan": {
+            "file":      "textures/static-fan.png"
+        },
+        "static_gust": {
+            "file":      "textures/static-gust.png"
         },
         "dpad": {
             "file": "textures/dpad.png",

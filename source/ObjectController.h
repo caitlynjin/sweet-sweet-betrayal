@@ -90,6 +90,10 @@ public:
      * @param The platform being created (that has not yet been added to the physics world).
      */
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
+
+    /*Creates a 1 by 1 tile*/
+    std::shared_ptr<Object> createTile(Vec2 pos, Size size);
+
     /**
      * Creates a moving platform.
      *

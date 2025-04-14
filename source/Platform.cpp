@@ -13,7 +13,8 @@ using namespace cugl::graphics;
  */
 void Platform::setPosition(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + _size / 2);
+    _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
+    
 }
 
 void Platform::update(float timestep) {
@@ -76,7 +77,8 @@ bool Platform::init(const Vec2 pos, const Size size) {
 }
 bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos + size/2, Size(nsize.width, nsize.height));
+    _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
+    
     _size = size;
     _itemType = Item::PLATFORM;
     _jsonType = jsonType;
@@ -88,7 +90,7 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
 bool Platform::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
     Size nsize = size;
     // The long platform is shorter in height
-    _box = box;
+    _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
     _size = size;
     _itemType = Item::PLATFORM;
     _position = pos;
@@ -105,6 +107,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
+    _box  = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
     _box->setBodyType(b2_kinematicBody);
     Vec2 direction = _endPos - _startPos;
     direction.normalize();
@@ -122,7 +125,8 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
-    _box  =box;
+    _box = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
+    _box = box;
     _box->setBodyType(b2_kinematicBody);
     Vec2 direction = _endPos - _startPos;
     direction.normalize();

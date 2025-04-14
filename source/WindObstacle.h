@@ -65,12 +65,14 @@ public:
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, const Vec2 windStrength) {
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+		const Vec2 windStrength) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
 		return (result->init(position, size, windDirection, windStrength) ? result : nullptr);
 	}
 
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+		const Vec2 windStrength, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
 		return (result->init(position, size, windDirection, windStrength, jsonType) ? result : nullptr);
 	}
@@ -80,6 +82,14 @@ public:
 	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
+
+	/*Creates the wind gust sprite**/
+	void setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite);
+
+	/*Sprite Node representing the wind object*/
+	std::shared_ptr<AnimateSprite> _windAnimate;
+	std::shared_ptr<cugl::scene2::SpriteNode> _windNode;
+	cugl::ActionFunction _windAction;
 
 	/*How hard and what direction the wind is blowing the player in*/
 	const Vec2 getWindForce() { return _windForce; };
