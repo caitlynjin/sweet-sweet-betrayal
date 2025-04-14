@@ -421,7 +421,7 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
 
 std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size size) {
     CULog("creating thorn");
-    auto params = _thornFact->serializeParams(pos, size);
+    auto params = _thornFact->serializeParams(pos + size/2, size);
     auto pair = _network->getPhysController()->addSharedObstacle(_thornFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
@@ -664,7 +664,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     poly *= scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
 
-    
     return std::make_pair(box, sprite);
 }
 
@@ -941,21 +940,19 @@ MushroomFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 ThornFactory::createObstacle(Vec2 pos, Size size) {
     std::shared_ptr<Texture> texture = _assets->get<Texture>(THORN_TEXTURE);
+    
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    box->setBodyType(b2_dynamicBody);
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setName("thorn");
+    box->setDebugColor(DEBUG_COLOR);
+    box->setShared(true);
 
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(texture, 1, 1);
 
-    auto thorn = Thorn::alloc(pos, size);
-
-    thorn->getObstacle()->setBodyType(b2_dynamicBody);
-    thorn->getObstacle()->setDensity(BASIC_DENSITY);
-    thorn->getObstacle()->setFriction(BASIC_FRICTION);
-    thorn->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    thorn->getObstacle()->setName("thorn");
-    thorn->getObstacle()->setDebugColor(DEBUG_COLOR);
-    thorn->setPosition(pos);
-    thorn->getObstacle()->setShared(true);
-
-    return std::make_pair(thorn->getObstacle(), sprite);
+    return std::make_pair(box, sprite);
 }
 
 

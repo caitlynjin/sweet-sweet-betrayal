@@ -62,7 +62,6 @@ public:
     /** Init method used for networked thorns */
     bool init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
-
     std::map<std::string, std::any> getMap() override;
 };
 
