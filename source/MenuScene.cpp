@@ -106,6 +106,14 @@ void MenuScene::dispose() {
         Scene2::dispose();
     }
 }
+
+/**
+ * Resets all properties of the scene.
+ */
+void MenuScene::reset(){
+    _choice = Choice::NONE;
+}
+
 /**
  * Sets whether the scene is currently active
  *

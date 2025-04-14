@@ -226,6 +226,23 @@ void SSBApp::preUpdate(float dt)
         case VICTORY:
             _victory.preUpdate(dt);
             //TODO: Check for restart
+                if (_networkController->getResetLevel()){
+                    // Reset the level and return back to the game scene
+//                    _victory.reset();
+                    _victory.setActive(false);
+                    _gameController.reset();
+                    _gameController.setActive(true);
+                    _status = GAME;
+                }
+            //TODO: Check for quit to main menu
+                if (_victory.getChoice() == VictoryScene::Choice::QUIT){
+                    _victory.setActive(false);
+                    _victory.reset();
+                    _startscreen.setActive(true);
+                    //TODO: resetGame() method
+                    resetScenes();
+                    _status = START;
+                }
             break;
 
         default:
@@ -389,6 +406,7 @@ void SSBApp::updateHostScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
+        CULog("HANDSHAKE");
         _networkController->setIsHost(true);
         _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
@@ -396,6 +414,7 @@ void SSBApp::updateHostScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
+        CULog("INGAME");
         _hostgame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
@@ -452,6 +471,18 @@ void SSBApp::updateClientScene(float timestep)
         _status = MENU;
     }
 #pragma mark END SOLUTION
+}
+
+void SSBApp::resetScenes(){
+    // Reset network
+//    _networkController->resetNetwork();
+    _gameController.reset();
+    _network->disconnect();
+    _gameController.dispose();
+    
+    _startscreen.reset();
+    _mainmenu.reset();
+    _hostgame.reset();
 }
 
 /**

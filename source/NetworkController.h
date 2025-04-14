@@ -387,6 +387,11 @@ public:
      */
     void dispose();
     
+    /**
+     Resets the properties of the network
+     */
+    void resetNetwork();
+    
     /** This method allocates a NetworkController. */
     static std::shared_ptr<NetworkController> alloc(const std::shared_ptr<AssetManager>& assets) {
         std::shared_ptr<NetworkController> result = std::make_shared<NetworkController>();

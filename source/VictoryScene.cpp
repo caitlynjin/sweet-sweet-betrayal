@@ -67,6 +67,7 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     _restartButton->addListener([this](const std::string& name, bool down) {
         if (down) {
             _choice = Choice::RESTART;
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
         }
     });
     
@@ -140,6 +141,7 @@ void VictoryScene::setActive(bool value) {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void VictoryScene::preUpdate(float dt){
+    _networkController->preUpdate(dt);
 }
 
 /**
@@ -169,7 +171,7 @@ void VictoryScene::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void VictoryScene::fixedUpdate(float step){
-    
+    _networkController->fixedUpdate(step);
 }
 
 /**
@@ -195,5 +197,5 @@ void VictoryScene::fixedUpdate(float step){
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void VictoryScene::postUpdate(float remain){
-    
+    _networkController->postUpdate(remain);
 }

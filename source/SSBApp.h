@@ -267,5 +267,11 @@ public:
     virtual void draw() override;
     
     
+    /**
+     Resets all properties of the scene prior to joining a game.
+     */
+    void resetScenes();
+    
+    
 };
 #endif /* __PF_APP_H__ */

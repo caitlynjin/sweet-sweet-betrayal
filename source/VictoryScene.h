@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <vector>
 #include "Constants.h"
+#include "Message.h"
+#include "MessageEvent.h"
 #include "SSBInput.h"
 #include "SoundController.h"
 #include "NetworkController.h"

@@ -179,17 +179,14 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
  */
 void SSBGameController::dispose()
 {
-    if (_active)
-    {
-        _world = nullptr;
-        _gridManager->getGridNode() = nullptr;
+    _world = nullptr;
+    _gridManager->getGridNode() = nullptr;
 
-        _input->dispose();
-        _backgroundScene.dispose();
-        _buildPhaseController->dispose();
-        _movePhaseController->dispose();
-        Scene2::dispose();
-    }
+    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    _movePhaseController->dispose();
+    Scene2::dispose();
 }
 
 #pragma mark -
