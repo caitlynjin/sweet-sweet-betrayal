@@ -42,8 +42,6 @@ private:
     Vec2 _offset;
     /** The number of columns in the grid */
     float _columns;
-    /** The number of rows in the grid */
-    float _rows;
     /** The size of the cell in Box2d units */
     const float CELL_SIZE = 1.0f;
 
@@ -62,22 +60,22 @@ public:
      *
      * @return  A newly allocated GridManager
      */
-    static std::shared_ptr<GridManager> alloc(int rows, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets) {
+    static std::shared_ptr<GridManager> alloc(bool isLevelEditor, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets) {
         auto manager = std::make_shared<GridManager>();
 
         manager->_assets = assets;
         manager->_scale = scale;
         manager->_offset = offset;
-        manager->_rows = rows;
         manager->_columns = columns;
 
         manager->_grid = scene2::SceneNode::alloc();
         manager->_grid->setScale(scale);
         manager->_grid->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
         manager->_grid->setPosition(offset);
+        // Vec2(0, 64.0f * 2)
         manager->_grid->setVisible(false);
 
-        manager->initGrid();
+        manager->initGrid(isLevelEditor);
 
         return manager;
     }
@@ -85,7 +83,7 @@ public:
     /**
      * Initializes the grid layout on the screen for build mode.
      */
-    void initGrid();
+    void initGrid(bool isEditor);
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -105,15 +103,6 @@ public:
      */
     float getNumColumns() {
         return _columns;
-    }
-
-    /**
-     * Returns the number of rows in the grid.
-     *
-     * @return the number of rows
-     */
-    float getNumRows() {
-        return _rows;
     }
 
     /**

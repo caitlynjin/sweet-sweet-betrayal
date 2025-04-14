@@ -47,7 +47,13 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
+    _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ScoreEvent>();
     _localID = _network->getShortUID();
+    _scoreController = ScoreController::alloc(_assets);
+    
+    // TODO: Create player-id hashmap
+    
     
     return true;
 }
@@ -72,7 +78,24 @@ void NetworkController::dispose(){
      * @param timestep  The amount of time (in seconds) since the last frame
      */
 void NetworkController::update(float timestep){
-
+    // Process messaging events
+    
+    if(_network->isInAvailable()){
+        auto e = _network->popInEvent();
+        // Check for MessageEvent
+        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+            processMessageEvent(mEvent);
+        }
+        // Check for ColorEvent
+        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+            processColorEvent(cEvent);
+        }
+        // // Check for ScoreEvent
+        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+            _scoreController->processScoreEvent(sEvent);
+        }
+        
+    }
 }
 
 
@@ -102,6 +125,9 @@ void NetworkController::preUpdate(float dt){
     if (!_filtersSet){
         trySetFilters();
     }
+    
+    _scoreController->preUpdate(dt);
+    
 }
 
 /**
@@ -131,11 +157,21 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    _scoreController->fixedUpdate(step);
     // Process messaging events
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
+        // Check for MessageEvent
         if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
             processMessageEvent(mEvent);
+        }
+        // Check for ColorEvent
+        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+            processColorEvent(cEvent);
+        }
+        // Check for ScoreEvent
+        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+            _scoreController->processScoreEvent(sEvent);
         }
     }
 
@@ -164,7 +200,7 @@ void NetworkController::fixedUpdate(float step){
  * @param remain    The amount of time (in seconds) last fixedUpdate
  */
 void NetworkController::postUpdate(float remain){
-
+    _scoreController->postUpdate(remain);
 }
 
 
@@ -172,8 +208,16 @@ void NetworkController::postUpdate(float remain){
  * Resets the status of the game so that we can play again.
  */
 void NetworkController::reset(){
-    // TODO: Might need to add reset logic
-
+    // Reset score controller
+    _scoreController->reset();
+    
+    // Reset network in-game variables
+    _numReady = 0;
+    _numReset = 0;
+    resetTreasure();
+    _readyMessageSent = false;
+    _filtersSet = false;
+    _resetLevel = false;
 }
 
 
@@ -212,11 +256,34 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Reset treasure
             resetTreasure();
             break;
+        case Message::HOST_START:
+            // Send message for everyone to send player id and color
+            _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
+            break;
+            // Still need this?
+        case Message::SCORE_UPDATE:
+//            _network
+            break;
+        case Message::RESET_LEVEL:
+            _resetLevel = true;
+            break;
         default:
             // Handle unknown message types
             std::cout << "Unknown message type received" << std::endl;
             break;
     }
+}
+
+/**
+ * This method takes a ColorEvent and processes it.
+ */
+void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& event){
+    int playerID = event->getPlayerID();
+    ColorType color = event->getColor();
+    
+    // Store each color into map by player id
+    _playerColorsById[playerID] = color;
+    _playerIDs.push_back(playerID);
 }
 
 /** Resets the treasure to remove possession and return to spawn location */
@@ -360,8 +427,8 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
  *
  * @param The player being created (that has not yet been added to the physics world).
  */
-std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale){
-    auto params = _dudeFact->serializeParams(pos, scale);
+std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale, ColorType color){
+    auto params = _dudeFact->serializeParams(pos, scale, color);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
 }
@@ -384,13 +451,15 @@ void NetworkController::trySetFilters(){
     std::vector<std::shared_ptr<PlayerModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
-        if (obstacle->getName() == "player"){
+        
+        if (tagContainsPlayer(obstacle->getName())){
             numPlayers += 1;
             
             // Try to cast to PlayerModel and add to our list if successful
             auto playerModel = std::dynamic_pointer_cast<PlayerModel>(obstacle);
             if (playerModel) {
                 playerListTemp.push_back(playerModel);
+                
             } else {
                 CULog("Found player but casting failed");
             }
@@ -400,6 +469,7 @@ void NetworkController::trySetFilters(){
     // Check if we have all players in world, then set their collision filters
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
+        
         // Loop through each obstacle
         for (auto& player : _playerList) {
             player->setFilterData();
@@ -410,6 +480,20 @@ void NetworkController::trySetFilters(){
         
         _filtersSet = true;
     }
+}
+
+
+void NetworkController::addPlayerColor(){
+    if (_isHost){
+        _color = ColorType::RED;
+    }
+    else{
+        // Determine color by order joined
+        _color = static_cast<ColorType>(_network->getNumPlayers() - 1);
+    }
+    _playerColorAdded = true;
+    
+    
 }
 
 
@@ -424,25 +508,67 @@ void NetworkController::trySetFilters(){
 /**
  * Generate a pair of Obstacle and SceneNode using the given parameters
  */
-std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale) {
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> DudeFactory::createObstacle(Vec2 pos, float scale, ColorType color) {
     auto image = _assets->get<Texture>(PLAYER_TEXTURE);
 
-    auto player = PlayerModel::alloc(pos, image->getSize() / scale, scale);
+    auto player = PlayerModel::alloc(pos, image->getSize() / scale, scale, color);
     
     player->setShared(true);
     player->setDebugColor(DEBUG_COLOR);
     
-    auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_IDLE_TEXTURE), 1, 7, 7);
-    player->setIdleAnimation(idleSpriteNode);
+    if (color == ColorType::RED){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
+    else if (color == ColorType::BLUE){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
+    else if (color == ColorType::GREEN){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
+    else if (color == ColorType::YELLOW){
+        auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_IDLE_TEXTURE), 1, 7, 7);
+        player->setIdleAnimation(idleSpriteNode);
+        
+        auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_WALK_TEXTURE), 1, 3, 3);
+        player->setWalkAnimation(walkSpriteNode);
+        
+        auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_GLIDE_TEXTURE), 1, 4, 4);
+        player->setGlideAnimation(glideSpriteNode);
+        
+        auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_JUMP_TEXTURE), 1, 5, 5);
+        player->setJumpAnimation(jumpSpriteNode);
+    }
     
-    auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
-    player->setWalkAnimation(walkSpriteNode);
-    
-    auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GLIDE_TEXTURE), 1, 4, 4);
-    player->setGlideAnimation(glideSpriteNode);
-    
-    auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_JUMP_TEXTURE), 1, 5, 5);
-    player->setJumpAnimation(jumpSpriteNode);
     
     return std::make_pair(player, player->getSceneNode());
 }
@@ -450,11 +576,12 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 /**
  * Helper method for converting normal parameters into byte vectors used for syncing.
  */
-std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale) {
+std::shared_ptr<std::vector<std::byte>> DudeFactory::serializeParams(Vec2 pos, float scale, ColorType color) {
     _serializer.reset();
     _serializer.writeFloat(pos.x);
     _serializer.writeFloat(pos.y);
     _serializer.writeFloat(scale);
+    _serializer.writeSint32(static_cast<int>(color));
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 }
 
@@ -468,7 +595,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     float y = _deserializer.readFloat();
     Vec2 pos = Vec2(x,y);
     float scale = _deserializer.readFloat();
-    return createObstacle(pos, scale);
+    ColorType color = static_cast<ColorType>(_deserializer.readSint32());
+    return createObstacle(pos, scale, color);
 }
 
 

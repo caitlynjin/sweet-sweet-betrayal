@@ -185,9 +185,9 @@ void SSBApp::preUpdate(float dt)
         _startscreen.setSpriteBatch(_batch);
         _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
-        _hostgame.init(_assets, _network, _sound);
+        _hostgame.init(_assets, _networkController, _sound);
         _hostgame.setSpriteBatch(_batch);
-        _joingame.init(_assets, _network, _sound);
+        _joingame.init(_assets, _networkController, _sound);
         _joingame.setSpriteBatch(_batch);
         _status = START;
     }
@@ -309,30 +309,33 @@ void SSBApp::updateMenuScene(float timestep)
     _mainmenu.update(timestep);
     switch (_mainmenu.getChoice())
     {
-    case MenuScene::Choice::HOST:
-        _mainmenu.setActive(false);
-        _hostgame.setActive(true);
-        _status = HOST;
-        break;
-    case MenuScene::Choice::JOIN:
-        _mainmenu.setActive(false);
-        _joingame.setActive(true);
-        _status = CLIENT;
-        break;
-    case MenuScene::Choice::NONE:
-        // DO NOTHING
-        break;
+        case MenuScene::Choice::HOST:
+            _mainmenu.setActive(false);
+            _hostgame.setActive(true);
+            _status = HOST;
+            break;
+        case MenuScene::Choice::JOIN:
+            _mainmenu.setActive(false);
+            _joingame.setActive(true);
+            _status = CLIENT;
+            break;
+        case MenuScene::Choice::BACK:
+            _mainmenu.setActive(false);
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case MenuScene::Choice::NONE:
+            // DO NOTHING
+            break;
     }
 }
 
 void SSBApp::updateStartScene(float timestep)
 {
-    CULog("StartScene Choice: %d", static_cast<int>(_startscreen.getChoice()));
     _startscreen.update(timestep);
     switch (_startscreen.getChoice())
     {
     case StartScene::Choice::START:
-        CULog("Transitioning to MENU scene!");
         _startscreen.setActive(false);
         _mainmenu.setActive(true);
         _status = MENU;
@@ -363,6 +366,7 @@ void SSBApp::updateStartScene(float timestep)
 void SSBApp::updateHostScene(float timestep)
 {
     _hostgame.update(timestep);
+    _networkController->update(timestep);
     if (_hostgame.getBackClicked())
     {
         _status = MENU;
@@ -381,6 +385,7 @@ void SSBApp::updateHostScene(float timestep)
         _hostgame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
@@ -404,6 +409,7 @@ void SSBApp::updateClientScene(float timestep)
 {
 #pragma mark SOLUTION
     _joingame.update(timestep);
+    _networkController->update(timestep);
     if (_joingame.getBackClicked())
     {
         _status = MENU;

@@ -36,10 +36,6 @@ string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const 
     b2Body* body = contact->GetBody();
     std::string* fd = reinterpret_cast<std::string*>(contact->GetUserData().pointer);
     physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
-
-    if (bd->getName() == "player") {
-
-    }
     return bd->getName();
 }
 
@@ -86,7 +82,6 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _gust->setDensity(0.0f);
     _gust->setFriction(0.0f);
     _gust->setRestitution(0.0f);
-    _gust->setSensor(true);
     _gust->setName("gust");
     
     /**Intialize wind specific variables*/
@@ -102,7 +97,16 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _windForce = windStrength;
     setTrajectory(Vec2(0, 3.0f));
     return true;
+    /*Finally intialize the wind gust effect**/
     
+}
+
+void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
+    _windNode = gustSprite;
+    _windNode->setAnchor(0.0f, 0.0f);
+    _windNode->setPosition(Vec2());
+    _sceneNode->addChild(_windNode);
+    _windNode->setVisible(true);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {

@@ -128,7 +128,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale * 2, offset, assets);
+    _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets);
 
     shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
     worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -206,7 +206,7 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA, ART_OBJECT, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT };
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT };
     for (auto it = inventoryItems.begin(); it != inventoryItems.end(); ++it) {
         assetNames.push_back(itemToAssetName(*it));
     }
@@ -511,38 +511,38 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         // No need to make it networked here since this code should only run in the level editor.
         // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
         return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
-    case (TILE_ALPHA):
+    case (TILE_ITEM):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "default");
+        obj->setItemType(TILE_ITEM);
         return obj;
     case (TILE_TOP):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTop");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTop");
+        obj->setItemType(TILE_ITEM);
         return obj;
     case (TILE_BOTTOM):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileBottom");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottom");
+        obj->setItemType(TILE_BOTTOM);
         return obj;
     case (TILE_INNER):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileInner");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInner");
+        obj->setItemType(TILE_INNER);
         return obj;
     case (TILE_LEFT):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileLeft");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileLeft");
+        obj->setItemType(TILE_LEFT);
         return obj;
     case (TILE_RIGHT):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileRight");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileRight");
+        obj->setItemType(TILE_RIGHT);
         return obj;
     case (TILE_TOPLEFT):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTopLeft");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopLeft");
+        obj->setItemType(TILE_TOPLEFT);
         return obj;
     case (TILE_TOPRIGHT):
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tileTopRight");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight");
+        obj->setItemType(TILE_TOPRIGHT);
         return obj;
 
 
@@ -586,13 +586,13 @@ Vec2 LevelEditorController::snapToGrid(const Vec2& gridPos, Item item) {
     int yGrid = gridPos.y;
 
     // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
+    int maxRow = MAX_ROWS - 1;
+    int maxCol = _gridManager->getNumColumns() - 1;
 
     xGrid = xGrid < 0 ? 0 : xGrid;
     yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
-    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
+    xGrid = xGrid + offset.width > maxCol ? maxCol - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRow ? maxRow - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }

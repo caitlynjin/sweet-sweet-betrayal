@@ -41,6 +41,9 @@ using namespace Constants;
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
 
+/** Starting build time for timer */
+#define BUILD_TIME 30
+
 #pragma mark -
 #pragma mark Constructors
 /**
@@ -61,6 +64,7 @@ void BuildPhaseUIScene::dispose() {
         _rightButton = nullptr;
         _leftButton = nullptr;
         _trashButton = nullptr;
+        _timer = nullptr;
         Scene2::dispose();
     }
 };
@@ -84,6 +88,8 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _assets = assets;
     _gridManager = gridManager;
+
+    _startTime = Application::get()->getEllapsedMicros();
 
     std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
     rightNode->setScale(0.8f);
@@ -125,16 +131,21 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
     _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
 
+    _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(MESSAGE_FONT));
+    _timer->setAnchor(Vec2::ANCHOR_CENTER);
+    _timer->setPosition(_size.width * 0.1f, _size.height * 0.15f);
+
     addChild(_rightButton);
     addChild(_readyButton);
     addChild(_leftButton);
     addChild(_trashButton);
+    addChild(_timer);
 
     return true;
 }
 
 /**
- * Initializes the grid layout on the screen for build mode.
+ * Initializes the item inventory.
  */
 void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
 {
@@ -146,20 +157,7 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
     _inventoryBackground->setVisible(true);
     addChild(_inventoryBackground);
 
-    float yOffset = 0;
-    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
-    {
-        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
-        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
-        itemButton->setName(itemToString(inventoryItems[itemNo]));
-        itemButton->setVisible(true);
-        itemButton->activate();
-        _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
-        yOffset += 80;
-    }
+    setInventoryButtons(inventoryItems, assetNames);
 
     // Set the darkened overlay
     _inventoryOverlay = scene2::PolygonNode::alloc();
@@ -180,6 +178,11 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
 void BuildPhaseUIScene::reset() {
     setVisible(true);
     activateInventory(true);
+    
+    // Reset UI variables
+    _isReady = false;
+    _rightpressed = false;
+    _leftpressed = false;
 }
 
 /**
@@ -188,7 +191,12 @@ void BuildPhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseUIScene::preUpdate(float dt) {
-    
+    Uint64 currentTime = Application::get()->getEllapsedMicros();
+    Uint64 elapsedTime = currentTime - _startTime;
+    _timer->setText(std::to_string(BUILD_TIME - elapsedTime / 1000000));
+    if (elapsedTime >= BUILD_TIME * 1000000){
+        _isReady = true;
+    }
 }
 
 #pragma mark -
@@ -225,6 +233,12 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
+    _timer->setVisible(value);
+
+    if (value){
+        _timer->setText(std::to_string(BUILD_TIME));
+        _startTime = Application::get()->getEllapsedMicros();
+    }
 }
 
 /**
@@ -240,4 +254,31 @@ void BuildPhaseUIScene::activateInventory(bool value) {
         }
     }
     _inventoryOverlay->setVisible(!value);
+}
+
+/**
+ * Set the inventory buttons for each item.
+ */
+void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
+    // Reset buttons
+    for (auto it = _inventoryButtons.begin(); it != _inventoryButtons.end(); ) {
+        std::shared_ptr<scene2::Button> btn = *it;
+        btn->dispose();
+        it = _inventoryButtons.erase(it);
+    }
+
+    float yOffset = 0;
+    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
+    {
+        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
+        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
+        itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
+        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
+        itemButton->setName(itemToString(inventoryItems[itemNo]));
+        itemButton->setVisible(true);
+        itemButton->activate();
+        _inventoryButtons.push_back(itemButton);
+        addChild(itemButton);
+        yOffset += 80;
+    }
 }

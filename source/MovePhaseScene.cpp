@@ -61,6 +61,9 @@ float DUDE_POS[] = { 1.0f, 3.0f};
 /** The initial position of the treasure */
 float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
 
+/** The initial position of the treasure (for testing) */
+float TREASURE_POS_TEST[1][2] = {{5.5f, 4.0f}};
+
 #pragma mark -
 #pragma mark Constructors
 /**
@@ -169,22 +172,27 @@ void MovePhaseScene::populate() {
 
     // HOST STARTS ON LEFT
     Vec2 pos = DUDE_POS;
-    //    pos += Vec2(4, 5);
-        // CLIENT STARTS ON RIGHT
+    // CLIENT STARTS ON RIGHT
     if (_networkController->getLocalID() == 2) {
-        pos += Vec2(2, 0);
+        pos += Vec2(3, 0);
     }
-    _localPlayer = _networkController->createPlayerNetworked(pos, _scale);
+    ColorType playerColor = _networkController->getLocalColor();
+    _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
 
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
     // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
     // If I do not disable the player, collision filtering works after build phase ends, not sure why
     // TODO: Find a better solution, maybe only have players getting updated during movement phase
-    _localPlayer->setEnabled(false);
+//    _localPlayer->setEnabled(false);
 
     _localPlayer->setDebugScene(_debugnode);
     _world->getOwnedObstacles().insert({ _localPlayer,0 });
+    //If we are on keyboard, for debugging purposes turn off jump damping
+    Mouse* mouse = Input::get<Mouse>();
+    if (mouse) {
+        _localPlayer->setJumpDamping(false);
+    }
     if (!_networkController->getIsHost()) {
         _network->getPhysController()->acquireObs(_localPlayer, 0);
     }
@@ -192,10 +200,10 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         _treasure = std::dynamic_pointer_cast<Treasure>(
-            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+            _networkController->createTreasureNetworked(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false)
         );
         _networkController->setTreasure(_treasure);
-        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
     }
 
 }
@@ -209,9 +217,12 @@ void MovePhaseScene::populate() {
  * This method disposes of the world and creates a new one.
  */
 void MovePhaseScene::reset() {
+    resetPlayerProperties();
+    
     _localPlayer = nullptr;
     _goalDoor = nullptr;
     _treasure = nullptr;
+    _objects = nullptr;
 
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
@@ -230,8 +241,8 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
-        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false));
+        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
     }
     
     // Update objects
@@ -277,7 +288,7 @@ void MovePhaseScene::resetPlayerProperties() {
  * Set the next position for the treasure based on the current gem count.
  */
 void MovePhaseScene::setNextTreasure(int count) {
-    _treasure->setPosition(Vec2(TREASURE_POS[count]));
+    _treasure->setPosition(Vec2(TREASURE_POS_TEST[count]));
 }
 
 /**

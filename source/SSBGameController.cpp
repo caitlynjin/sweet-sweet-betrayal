@@ -152,7 +152,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale, offset, assets);
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, offset, assets);
 
     _movePhaseController = std::make_shared<MovePhaseController>();
     _buildPhaseController = std::make_shared<BuildPhaseController>();
@@ -202,10 +202,15 @@ void SSBGameController::dispose()
  */
 void SSBGameController::reset()
 {
-    _networkController->reset();
+    // Clear the world
+    
     _world->clear();
+    
+    // Reset all controllers
+    _networkController->reset();
     _buildPhaseController->reset();
     _movePhaseController->reset();
+    // object controller?
 }
 
 #pragma mark -
@@ -244,6 +249,11 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    // Check for reset
+    if (_networkController->getResetLevel()){
+        reset();
+    }
+    
     // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);
@@ -282,6 +292,8 @@ void SSBGameController::preUpdate(float dt)
                 _networkController->resetRound();
 //                _movePhaseController->resetRound();
                 _scoreCountdown = -1;
+                // Check for win condition
+                _networkController->checkWinCondition();
             }
         }
     }

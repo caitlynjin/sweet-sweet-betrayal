@@ -12,6 +12,7 @@
 #include <any>
 #include "Object.h"
 #include "Platform.h"
+#include "Tile.h"
 #include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
@@ -33,7 +34,7 @@ public:
 
 	void createJsonFromLevel(string fileName, Size size, vector<shared_ptr<Platform>>& platforms, vector<shared_ptr<Spike>>& spikes,
 		vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles,
-		vector<shared_ptr<ArtObject>>& artObjects);
+		vector<shared_ptr<Tile>>& tiles, vector<shared_ptr<ArtObject>>& artObjects);
 
 	/** Creates a JSON file based on an in-game level. 
 	* @param size The size (width, height) of the level.

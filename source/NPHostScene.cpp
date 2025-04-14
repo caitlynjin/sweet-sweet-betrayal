@@ -15,6 +15,8 @@
 #include <sstream>
 
 #include "NPHostScene.h"
+#include "Message.h"
+#include "MessageEvent.h"
 
 using namespace cugl;
 using namespace cugl::netcode;
@@ -70,7 +72,7 @@ static std::string hex2dec(const std::string hex) {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetEventController> network, std::shared_ptr<SoundController> sound) {
+bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
     // Initialize the scene to a locked height
     if (assets == nullptr) {
            return false;
@@ -82,7 +84,8 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     Size dimen = getSize();
 
 
-    _network = network;
+    _networkController = networkController;
+    _network = networkController->getNetwork();
     _sound = sound;
     
     // Start up the input handler
@@ -202,11 +205,18 @@ void HostScene::update(float timestep) {
      */
 #pragma mark BEGIN SOLUTION
     if(_network->getStatus() == NetEventController::Status::CONNECTED){
+        
+        if (!_networkController->getPlayerColorAdded()){
+            _networkController->addPlayerColor();
+        }
+        
+        
         if (!_startGameClicked) {
             updateText(_startgame, "Start Game");
             _startgame->activate();
         }
         else {
+            
             updateText(_startgame, "Starting");
             _startgame->deactivate();
         }

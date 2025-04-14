@@ -26,16 +26,48 @@
 
 #pragma mark -
 #pragma mark Object Textures
+
+// PLAYER TEXTURES
 /** The texture for the character avatar */
 #define PLAYER_TEXTURE    "dude"
+// RED
 /** The animation texture for when the player is idle */
-#define PLAYER_IDLE_TEXTURE    "player-idle"
+#define PLAYER_RED_IDLE_TEXTURE    "player-red-idle"
 /** The animation texture for when the player is walking */
-#define PLAYER_WALK_TEXTURE    "player-walk"
+#define PLAYER_RED_WALK_TEXTURE    "player-red-walk"
 /** The animation texture for when the player is gliding */
-#define PLAYER_GLIDE_TEXTURE    "player-glide"
+#define PLAYER_RED_GLIDE_TEXTURE    "player-red-glide"
 /** The animation texture for when the player is jumping */
-#define PLAYER_JUMP_TEXTURE    "player-jump"
+#define PLAYER_RED_JUMP_TEXTURE    "player-red-jump"
+// BLUE
+/** The animation texture for when the player is idle */
+#define PLAYER_BLUE_IDLE_TEXTURE    "player-blue-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_BLUE_WALK_TEXTURE    "player-blue-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_BLUE_GLIDE_TEXTURE    "player-blue-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_BLUE_JUMP_TEXTURE    "player-blue-jump"
+// GREEN
+/** The animation texture for when the player is idle */
+#define PLAYER_GREEN_IDLE_TEXTURE    "player-green-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_GREEN_WALK_TEXTURE    "player-green-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_GREEN_GLIDE_TEXTURE    "player-green-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_GREEN_JUMP_TEXTURE    "player-green-jump"
+// YELLOW
+/** The animation texture for when the player is idle */
+#define PLAYER_YELLOW_IDLE_TEXTURE    "player-yellow-idle"
+/** The animation texture for when the player is walking */
+#define PLAYER_YELLOW_WALK_TEXTURE    "player-yellow-walk"
+/** The animation texture for when the player is gliding */
+#define PLAYER_YELLOW_GLIDE_TEXTURE    "player-yellow-glide"
+/** The animation texture for when the player is jumping */
+#define PLAYER_YELLOW_JUMP_TEXTURE    "player-yellow-jump"
+
+
 /** The key for the tile texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
 /** The key for the platform tile texture in the asset manager */
@@ -44,8 +76,10 @@
 #define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
+/** Name of the fan texture for windobstacle*/
+#define FAN_TEXTURE "static_fan"
+/** Name of the gust texture for windobstacle*/
+#define GUST_TEXTURE "static_gust"
 /** Name of the mushroom texture*/
 #define MUSHROOM_TEXTURE "mushroom"
 /** The key for the spike texture in the asset manager */
@@ -158,6 +192,15 @@
 /** The number of frame to wait before reinitializing the game */
 #define SCOREBOARD_COUNT 150
 
+#pragma mark -
+#pragma mark Build Phase Constants
+/** The maximum number of rows on the grid */
+#define MAX_ROWS 9
+/** The number of rows on the bottom of the grid removed for build phase */
+#define ROW_OFFSET_BOT 2
+/** The number of rows on the top of the grid removed for build phase */
+#define ROW_OFFSET_TOP 1
+
 
 #pragma mark -
 #pragma mark Audio Constants
@@ -239,7 +282,7 @@ enum Item {
     /** A treasure */
     TREASURE,
     /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
-    TILE_ALPHA,
+    TILE_ITEM,
     /** A mushroom */
     MUSHROOM,
     /** An art object */
@@ -358,6 +401,13 @@ static std::map<std::string, Item> jsonTypeToItemType
     {"rocky2", Item::ROCKY_2}
 };
 
+/**
+ Returns whether a tag contains the player keyword.
+ */
+bool tagContainsPlayer(std::string tag);
+
 }
+
+
 
 #endif /* __CONSTANTS_H__ */

@@ -49,6 +49,8 @@ private:
     std::shared_ptr<scene2::PolygonNode> _growingWallNode;
     /** Reference to the treasure */
     std::shared_ptr<Treasure> _treasure;
+    /** Reference to goal position */
+    Vec2 _goalPos;
    
     std::shared_ptr<NetworkController> _networkController;
 
@@ -89,6 +91,10 @@ public:
      * @param The platform being created (that has not yet been added to the physics world).
      */
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
+
+    /*Creates a 1 by 1 tile*/
+    std::shared_ptr<Object> createTile(Vec2 pos, Size size, string jsonType);
+
     /**
      * Creates a moving platform.
      *
@@ -162,6 +168,8 @@ public:
     }
 
     std::shared_ptr<Treasure> getTreasure() {return _treasure;}
+
+    Vec2 getGoalPos() {return _goalPos;}
     
 
     

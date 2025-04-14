@@ -17,6 +17,7 @@
 #include <cugl/netcode/CUNetcodeConfig.h>
 #include <cugl/physics2/distrib/CUNetEventController.h>
 #include "SoundController.h"
+#include "NetworkController.h"
 
 
 
@@ -46,6 +47,11 @@ protected:
     
     /** The network configuration */
     cugl::netcode::NetcodeConfig _config;
+    
+    /** The network controller */
+    std::shared_ptr<NetworkController> _networkController;
+    
+    /** The network */
     std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
 
     /** The sound controller */
@@ -94,7 +100,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetEventController> network, std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
     /**
      * Sets whether the scene is currently active

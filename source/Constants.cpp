@@ -14,8 +14,6 @@
 #define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 /** Name of the treasure texture */
 #define TREASURE_TEXTURE "treasure"
 
@@ -67,7 +65,7 @@ std::string itemToString(Item item) {
             return "spike";
         case TREASURE:
             return "treasure";
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return "tile";
         case MUSHROOM:
             return "mushroom";
@@ -93,7 +91,7 @@ cugl::Size itemToSize(Item item) {
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
@@ -122,7 +120,7 @@ cugl::Size itemToGridSize(Item item) {
             return cugl::Size(1, 1);
         case TREASURE:
             return cugl::Size(1, 1);
-        case TILE_ALPHA:
+        case TILE_ITEM:
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
@@ -149,12 +147,12 @@ std::string itemToAssetName(Item item) {
         case (MOVING_PLATFORM):
             return GLIDING_LOG_TEXTURE;
         case (WIND):
-            return WIND_TEXTURE;
+            return FAN_TEXTURE;
         case (SPIKE):
             return SPIKE_TILE_TEXTURE;
         case (TREASURE):
             return TREASURE_TEXTURE;
-        case (TILE_ALPHA):
+        case (TILE_ITEM):
             return TILE_TEXTURE;
         case (MUSHROOM):
             return MUSHROOM_TEXTURE;
@@ -217,5 +215,12 @@ bool itemIsArtObject(Item item)
 }
 
 
+
+/**
+ Returns whether a tag contains the player keyword.
+ */
+bool tagContainsPlayer(std::string tag){
+    return tag.find("player") != std::string::npos;
+}
 
 }
