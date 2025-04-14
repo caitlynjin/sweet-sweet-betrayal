@@ -423,7 +423,7 @@ public:
     void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
     /** Increments an animation film strip */
-    void doStrip(cugl::ActionFunction action);
+    void doStrip(cugl::ActionFunction action, float duration);
     
     /** Sets which animation color strip to use for the player */
     void setAnimationColors(ColorType color);
