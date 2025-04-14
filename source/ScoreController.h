@@ -12,6 +12,8 @@
 #include <cugl/cugl.h>
 #include "ScoreEvent.h"
 #include <unordered_map>
+#include "PlayerModel.h"
+#include "ColorEvent.h"
 
 class ScoreController {
 private:
@@ -23,6 +25,15 @@ private:
         int score;
         ScoreEvent::ScoreType scoreType;
     };
+    
+    //constant for scoreboard initialization
+    Vec2 bar_position;
+    Vec2 glider_position;
+    Vec2 offset_betw_points;
+    Vec2 offset_betw_players;
+    
+    //stores first dot position for each player for reference later
+    std::unordered_map<std::string, Vec2> _playerBaseDotPos;
 
 
     /** Pointer to the AssetManager for texture access, etc. */
@@ -31,10 +42,22 @@ private:
     //             playerID             roundNumber  score, scoreType
     std::unordered_map<int, std::unordered_map<int, RoundScore>> _playerRoundScores;
 
-
     //             playerID  total_scoe
     std::unordered_map<int, int> _playerTotalScores;
     
+    //maps player UID to color
+    std::unordered_map<int, ColorType> _playerColors;
+    
+    Vec2 _anchor;
+    
+    //list storing all the nodes created
+    std::unordered_map<std::string, std::shared_ptr<scene2::PolygonNode>> _scoreIcons;
+    
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
+    
+    cugl::scene2::Scene2* _scoreboardParent;
+    
+
 public:
 
     /**
@@ -90,14 +113,55 @@ public:
 
     int getRoundScore(int playerID, int round) const;
     
+    const std::unordered_map<int, ColorType>& getPlayerColors() const {
+        return _playerColors;
+    }
+    
     ScoreEvent::ScoreType getRoundScoreType(int playerID, int round) const;
     
     void sendScoreEvent(const std::shared_ptr<NetEventController>& network, int playerID, ScoreEvent::ScoreType type, int roundNum);
+    
+    void setPlayerColors(const std::unordered_map<int, ColorType>& colors) {
+        _playerColors = colors;
+
+        CULog("=== Player Colors Set ===\n");
+        for (const auto& pair : _playerColors) {
+            int playerID = pair.first;
+            ColorType color = pair.second;
+
+            std::string colorStr = colorToString(color);  // Assuming you have this helper
+        }
+    }
+
+        
+    std::string colorToString(ColorType color) const {
+        switch (color) {
+            case ColorType::RED:    return "playerRed";
+            case ColorType::BLUE:   return "playerBlue";
+            case ColorType::GREEN:  return "playerGreen";
+            case ColorType::YELLOW: return "playerYellow";
+            default:                return "playerRed";
+        }
+    }
+    //set scoreboard visible by looping over all elements
+    void setScoreboardVisible(bool visible) {
+        for (auto const& entry : _scoreIcons) {
+            entry.second->setVisible(visible);
+        }
+    }
     
     /** 
         Iterates through all players and checks for a win.
      */
     bool checkWinCondition();
+    
+    void initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor, std::vector<std::shared_ptr<PlayerModel>> playerList, float size_width, float size_height);
+    
+    std::shared_ptr<scene2::PolygonNode> createIcon(const std::string& textureKey,
+                                                    float scale,
+                                                    const Vec2& position,
+                                                    const Vec2 &anchor,
+                                                    bool visible = false);
     
     /**
      * The method called to indicate the start of a deterministic loop.
