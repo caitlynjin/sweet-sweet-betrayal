@@ -112,6 +112,7 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     _filledIcon = _player1Icon->getTexture();
     
     _player2Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider"));    
+    _emptyIcon = _player2Icon->getTexture();
     
     _player3Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider_2"));
     
@@ -164,6 +165,10 @@ void HostScene::reset(){
     _sendCount = 0;
     _receiveCount = 0;
     _totalPing = 0;
+    
+    _player2Icon->setTexture(_emptyIcon);
+    _player3Icon->setTexture(_emptyIcon);
+    _player4Icon->setTexture(_emptyIcon);
 }
 
 /**
@@ -255,11 +260,22 @@ void HostScene::update(float timestep) {
         if (_network->getNumPlayers() >= 2){
             _player2Icon->setTexture(_filledIcon);
         }
-        else if (_network->getNumPlayers() >= 3){
+        else{
+            _player2Icon->setTexture(_emptyIcon);
+        }
+        
+        if (_network->getNumPlayers() >= 3){
             _player3Icon->setTexture(_filledIcon);
         }
-        else if (_network->getNumPlayers() == 4){
+        else{
+            _player3Icon->setTexture(_emptyIcon);
+        }
+        
+        if (_network->getNumPlayers() == 4){
             _player4Icon->setTexture(_filledIcon);
+        }
+        else{
+            _player4Icon->setTexture(_emptyIcon);
         }
 	}
 #pragma mark END SOLUTION

@@ -164,6 +164,11 @@ public:
      * Returns whether the back button has been clicked
      */
     bool getBackClicked() { return _backClicked; }
+    
+    /**
+     Resets the scene properties.
+     */
+    void reset() override;
 
 private:
     /**
@@ -201,6 +206,7 @@ private:
      * Set the gameid labels to match the characters in the given gameid array.
      */
     void setGameIDLabels(std::array<char, 5> gameid);
+    
 };
 
 #endif /* __NL_GAME_SCENE_H__ */
