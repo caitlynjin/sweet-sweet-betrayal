@@ -19,6 +19,7 @@
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
+#include "Thorn.h"
 #include "Message.h"
 
 using namespace cugl;
@@ -279,6 +280,32 @@ class MushroomFactory : public ObstacleFactory {
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
 
+/**
+ * The factory class for thorn objects.
+ */
+class ThornFactory : public ObstacleFactory {
+    public:
+        std::shared_ptr<AssetManager> _assets;
+        LWSerializer _serializer;
+        LWDeserializer _deserializer;
+
+        static std::shared_ptr<ThornFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+            auto f = std::make_shared<ThornFactory>();
+            f->init(assets);
+            return f;
+        }
+
+        void init(std::shared_ptr<AssetManager>& assets) {
+            _assets = assets;
+        }
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size);
+
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size);
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+    };
+
 
 /**
  * This class is the scene for the UI of the game.
@@ -361,6 +388,10 @@ protected:
     /** Variables for Mushroom Factory (external, not nested) */
     std::shared_ptr<MushroomFactory> _mushroomFact;
     Uint32 _mushroomFactID;
+
+    /** Variables for Thorn Factory */
+    std::shared_ptr<ThornFactory> _thornFact;
+    Uint32 _thornFactID;
 
 public:
 #pragma mark -
@@ -448,6 +479,9 @@ public:
 
         _mushroomFact = MushroomFactory::alloc(_assets);
         _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
+
+        _thornFact = ThornFactory::alloc(_assets);
+        _thornFactID = _network->getPhysController()->attachFactory(_thornFact);
     }
     
     /**
@@ -657,7 +691,14 @@ public:
      * @return the mushroom being created
      */
     std::shared_ptr<Object> createMushroomNetworked(Vec2 pos, Size size, float scale);
-    
+
+    /**
+     * Creates a networked thorn.
+     *
+     * @return the thorn being created
+     */
+    std::shared_ptr<Object> createThornNetworked(Vec2 pos, Size size);
+
     /**
      * The method called to update the game mode.
      *
