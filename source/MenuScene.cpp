@@ -95,7 +95,7 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
             _choice = Choice::BACK;
         }
     });
-    CULog("scene");
+    
     addChild(scene);
     setActive(false);
     return true;
@@ -113,6 +113,14 @@ void MenuScene::dispose() {
         Scene2::dispose();
     }
 }
+
+/**
+ * Resets all properties of the scene.
+ */
+void MenuScene::reset(){
+    _choice = Choice::NONE;
+}
+
 /**
  * Sets whether the scene is currently active
  *
