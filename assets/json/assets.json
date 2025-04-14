@@ -6,7 +6,7 @@
             "wrapT": "repeat"
         },
         "tile": {
-            "file": "textures/1x1-tile.png",
+            "file": "textures/alphatile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
@@ -108,7 +108,7 @@
             "file": "textures/glide-button.PNG"
         },
         "background": {
-            "file": "textures/backgrounds/background.png"
+            "file": "textures/backgrounds/background2.png"
         },
         "host-join-background": {
             "file": "textures/backgrounds/host-join-background.png"
