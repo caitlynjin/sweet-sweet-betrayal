@@ -8,6 +8,7 @@
 #include "BuildPhaseController.h"
 #include "Constants.h"
 #include "Platform.h"
+#include "Tile.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
@@ -32,9 +33,9 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Constants
 /** List of all inventory items that are placeable */
-std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, SPIKE_TILE_ICON, MUSHROOM_ICON };
+std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON };
 
 
 #pragma mark -
@@ -375,6 +376,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0),  "default");
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
+        case (THORN):
+            return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
             return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
         case (TREASURE):
@@ -382,10 +385,10 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             // No need to make it networked here since this code should only run in the level editor.
             // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
-        case (TILE_ALPHA):
+        case (TILE_ITEM):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
-            obj->setItemType(TILE_ALPHA);
+            obj = _objectController->createTile(gridPos, itemToSize(item));
+            obj->setItemType(TILE_ITEM);
             return obj;
         case (NONE):
             return nullptr;

@@ -78,10 +78,12 @@
 #define LOG_ICON   "icon-log"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** Name of the fan texture for windobstacle*/
+#define FAN_TEXTURE "static_fan"
+/** Name of the gust texture for windobstacle*/
+#define GUST_TEXTURE "static_gust"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
 /** Name of the wind icon*/
 #define WIND_ICON "icon-wind"
 /** Name of the mushroom texture*/
@@ -90,8 +92,10 @@
 #define MUSHROOM_ICON   "icon-mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
+/** The key for the thorn texture in the asset manager */
+#define THORN_TEXTURE "thorns_obstacle"
 /** The key for the inventory icon for the thorns */
-#define SPIKE_TILE_ICON "icon-thorn"
+#define THORN_TILE_ICON "icon-thorn"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -130,8 +134,10 @@
 #define BLUE_ICON "blue-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
-/** The image for the trash can icon */
-#define TRASH "trash"
+/** The image for the trash can closed icon */
+#define TRASH_CLOSED "trash-closed"
+/** The image for the trash can open icon */
+#define TRASH_OPEN "trash-open"
 
 
 #pragma mark -
@@ -151,6 +157,8 @@
 #define MESSAGE_FONT    "retro"
 /** The font for Round and Gem info */
 #define INFO_FONT    "marker"
+/** The font for the timer */
+#define TIMER_FONT  "yeasty flavorsRegular66.53518676757812"
 
 
 #pragma mark -
@@ -269,10 +277,12 @@ enum Item {
     WIND,
     /** A spike */
     SPIKE,
+    /** The thorn */
+    THORN,
     /** A treasure */
     TREASURE,
     /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
-    TILE_ALPHA,
+    TILE_ITEM,
     /** A mushroom */
     MUSHROOM,
     /** No type */

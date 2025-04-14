@@ -51,13 +51,13 @@
 #pragma mark -
 #pragma mark Physics Constants
 /** Cooldown (in animation frames) for jumping */
-#define JUMP_COOLDOWN 5
+#define JUMP_COOLDOWN 2
 /** Cooldown (in animation frames) for shooting */
 #define SHOOT_COOLDOWN 20
 /** The amount to shrink the body fixture (vertically) relative to the image */
-#define PLAYER_VSHRINK 0.95f
+#define PLAYER_VSHRINK 0.8f
 /** The amount to shrink the body fixture (horizontally) relative to the image */
-#define PLAYER_HSHRINK 0.6f
+#define PLAYER_HSHRINK 0.73f
 /** The amount to shrink the sensor fixture (horizontally) relative to the image */
 #define PLAYER_SSHRINK 0.6f
 /** Height of the sensor attached to the player's feet */
@@ -71,6 +71,8 @@
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define AIR_DAMPING 2.5f
+#define SPRITE_ANCHOR Vec2(0.625f,0.27f)
+#define SPRITE_POSITION Vec2(-13.0f,0.0f)
 /** Define the time settings for animation */
 #define DURATION 1.0f
 #define WALKPACE 50
@@ -109,7 +111,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
 
     MovingPlat = nullptr;
 
-    if (CapsuleObstacle::init(pos, nsize*0.5))
+    if (CapsuleObstacle::init(pos, nsize*0.5, cugl::poly2::Capsule::FULL))
     {
         setDensity(PLAYER_DENSITY);
         setFriction(0.0f);      // HE WILL STICK TO WALLS IF YOU FORGET
@@ -162,8 +164,9 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _idleSpriteNode->setAnchor(0.6,0.3);
-    _idleSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    
+    _idleSpriteNode->setAnchor(SPRITE_ANCHOR.x, SPRITE_ANCHOR.y);
+    _idleSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
     
@@ -189,8 +192,8 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _walkSpriteNode->setAnchor(0.6,0.3);
-    _walkSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _walkSpriteNode->setAnchor(SPRITE_ANCHOR.x, SPRITE_ANCHOR.y);
+    _walkSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
     
@@ -217,8 +220,8 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) 
         _node = scene2::SceneNode::alloc();
     }
 
-    _glideSpriteNode->setAnchor(0.6,0.3);
-    _glideSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _glideSpriteNode->setAnchor(SPRITE_ANCHOR.x, SPRITE_ANCHOR.y);
+    _glideSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_glideSpriteNode);
     _glideSpriteNode->setVisible(false);
     
@@ -244,8 +247,8 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     if (!_node) {
         _node = scene2::SceneNode::alloc();
     }
-    _jumpSpriteNode->setAnchor(0.6,0.3);
-    _jumpSpriteNode->setPosition(Vec2(-13.0, 0.0f));
+    _jumpSpriteNode->setAnchor(SPRITE_ANCHOR.x, SPRITE_ANCHOR.y);
+    _jumpSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_jumpSpriteNode);
     _jumpSpriteNode->setVisible(false);
     
@@ -270,11 +273,11 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
  * @param action The film strip action
  * @param slide  The associated movement slide
  */
-void PlayerModel::doStrip(cugl::ActionFunction action) {
+void PlayerModel::doStrip(cugl::ActionFunction action, float duration = DURATION) {
     if (_timeline->isActive(ACT_KEY)) {
         // NO OP
     } else {
-        _timeline->add(ACT_KEY, action, DURATION);
+        _timeline->add(ACT_KEY, action, duration);
     }
 }
 
@@ -515,7 +518,7 @@ void PlayerModel::update(float dt)
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(true);
         }
-        doStrip(_jumpAction);
+        doStrip(_jumpAction, 0.5f);
     } else if (getVX() == 0  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
@@ -531,7 +534,7 @@ void PlayerModel::update(float dt)
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(false);
         }
-        doStrip(_walkAction);
+        doStrip(_walkAction, 0.5f);
     }
     
 //     Should not move when immobile
@@ -564,7 +567,7 @@ void PlayerModel::update(float dt)
         If they stop holding jump partway during a jump, dampen their velocity*/
         _jumpTimer -= dt;
 
-        if (!_holdingJump and _jumpTimer > 0) {
+        if (!_holdingJump and _jumpTimer > 0 and _isDampEnabled) {
             b2Vec2 vel = _body->GetLinearVelocity();
             if (vel.y > 0) {
                 vel.y = vel.y * JUMP_STOP_DAMPING;

@@ -28,6 +28,9 @@
         "spike_tile": {
             "file": "textures/1x1-spike-tile.png"
         },
+        "thorns_obstacle": {
+            "file": "textures/thorns-obstacle.png"
+        },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
         },
@@ -52,8 +55,11 @@
         "goal": {
             "file": "textures/goaldoor.png"
         },
-        "up": {
-            "file": "textures/up.png"
+        "static_fan": {
+            "file":      "textures/static-fan.png"
+        },
+        "static_gust": {
+            "file":      "textures/static-gust.png"
         },
         "dpad": {
             "file": "textures/dpad.png",
@@ -108,7 +114,7 @@
             "file": "textures/glide-button.PNG"
         },
         "background": {
-            "file": "textures/backgrounds/background.png"
+            "file": "textures/backgrounds/background2.png"
         },
         "host-join-background": {
             "file": "textures/backgrounds/host-join-background.png"
@@ -116,8 +122,11 @@
         "button": {
             "file": "textures/button.png"
         },
-        "trash": {
-            "file": "textures/trash.png"
+        "trash-closed": {
+            "file": "textures/trash-closed.png"
+        },
+        "trash-open": {
+            "file": "textures/trash-open.png"
         },
         "frame": {
             "file": "textures/frame.png"
@@ -224,6 +233,15 @@
         "leftgliders": {
             "file": "textures/leftgliders.png"
         },
+        "end-background": {
+           "file": "textures/end-background.png"
+       },
+       "button_quit": {
+           "file": "textures/button_quit.png"
+       },
+       "button_restart": {
+           "file": "textures/button_restart.png"
+       },
         "roomcode-background": {
             "file": "textures/backgrounds/roomcode-background.png"
         },
@@ -399,6 +417,17 @@
         }
     },
     "widgets": {
+        "colorbutton" : "widgets/colorbutton.json",
+        "textbutton" : "widgets/textbutton.json",
+        "textfield" : "widgets/textfield.json",
+        "labelbox" : "widgets/labelbox.json",
+        "menu" : "widgets/menu.json",
+        "textbutton2" : "widgets/textbutton2.json",
+        "start" : "widgets/start.json",
+        "startbutton" : "widgets/textbutton.json",
+        "end" : "widgets/end.json",
+        "join" : "widgets/join.json",
+        "numlabel" : "widgets/numlabel.json",
         "colorbutton": "widgets/colorbutton.json",
         "textbutton": "widgets/textbutton.json",
         "textfield": "widgets/textfield.json",
@@ -428,6 +457,16 @@
             },
             "data": {
                 "key": "menu"
+            }
+        },
+        "end" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the end/congradulation screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "end"
             }
         },
         "host": {

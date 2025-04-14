@@ -154,6 +154,19 @@ void HostScene::dispose() {
 }
 
 /**
+ * Resets all properties of the scene and network related properties.
+ */
+void HostScene::reset(){
+    _startGameClicked = false;
+    _backClicked = false;
+    _hostMessageSent = false;
+    
+    _sendCount = 0;
+    _receiveCount = 0;
+    _totalPing = 0;
+}
+
+/**
  * Sets whether the scene is currently active
  *
  * This method should be used to toggle all the UI elements.  Buttons
@@ -172,6 +185,7 @@ void HostScene::setActive(bool value) {
 #pragma mark BEGIN SOLUTION
         if (value) {
             _backout->activate();
+            _startgame->activate();
             _network->disconnect();
             _network->connectAsHost();
             _backClicked = false;
@@ -258,6 +272,7 @@ void HostScene::startGame(){
     //Call the network controller to start the game and set the _startGameClicked to true.
 #pragma mark BEGIN SOLUTION
     _network->startGame();
+//    _network->ga
     _startGameClicked = true;
 #pragma mark END SOLUTION
 }

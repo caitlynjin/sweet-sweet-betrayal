@@ -108,6 +108,11 @@ public:
     void dispose() override;
     
     /**
+     * Resets all properties of the scene and network related properties.
+     */
+    void reset() override;
+    
+    /**
      * Initializes the controller contents, and starts the game
      *
      * In previous labs, this method "started" the scene.  But in this

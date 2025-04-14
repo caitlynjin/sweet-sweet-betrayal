@@ -19,7 +19,7 @@ class ScoreController {
 private:
     // CONSTANTS
     /** The score needed to win */
-    int const WIN_SCORE = 6;
+    int const WIN_SCORE = 10;
     
     struct RoundScore {
         int score;
@@ -124,7 +124,7 @@ public:
     void setPlayerColors(const std::unordered_map<int, ColorType>& colors) {
         _playerColors = colors;
 
-        CULog("=== Player Colors Set ===\n");
+//        CULog("=== Player Colors Set ===\n");
         for (const auto& pair : _playerColors) {
             int playerID = pair.first;
             ColorType color = pair.second;

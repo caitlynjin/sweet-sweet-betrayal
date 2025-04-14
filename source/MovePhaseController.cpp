@@ -236,6 +236,10 @@ void MovePhaseController::preUpdate(float dt) {
     int player_index = 0;
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
+        if (!player->isVisible() && !player->isDead()) {
+            player->setVisible(true);
+        }
+
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
             if (player_index == 0){
@@ -308,9 +312,6 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
-            else if (fixtureName == "gust") {
-                return wind->getRayDist(i);
-            }
             wind->setRayDist(i, fraction);
             return fraction;
             };
@@ -358,6 +359,9 @@ void MovePhaseController::killPlayer(){
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
+        // Hide player
+        player->setVisible(false);
+
         // If player had treasure, remove from their possession
         if (player->hasTreasure){
             player->removeTreasure();
@@ -415,7 +419,8 @@ void MovePhaseController::processModeChange(bool value) {
 
     _movePhaseScene.resetCameraPos();
     _uiScene.disableUI(value);
-    
+
+
 }
 
 #pragma mark -
@@ -547,14 +552,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // Set grounded for all players (not just local player)
-    if (tagContainsPlayer(bd1->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd1->getName())) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
         }
     }
 
-    if (tagContainsPlayer(bd2->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd2->getName())) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
@@ -571,6 +576,11 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
             // If we hit a spike, we are DEAD
             else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
+                killPlayer();
+            }
+
+            // If we hit a thorn, we are DEAD
+            else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
                 killPlayer();
             }
 

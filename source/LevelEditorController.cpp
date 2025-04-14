@@ -207,8 +207,8 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ALPHA };
-    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ITEM };
+    assetNames = { LOG_TEXTURE, FAN_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
 
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -501,6 +501,8 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0), "default");
     case (SPIKE):
         return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "default");
+    case (THORN):
+        return _networkController->createThornNetworked(gridPos, itemToSize(item));
     case (MUSHROOM):
         return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _levelEditorScene.getScale());
     case (TREASURE):
@@ -508,10 +510,10 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         // No need to make it networked here since this code should only run in the level editor.
         // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
         return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
-    case (TILE_ALPHA):
+    case (TILE_ITEM):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
-        obj->setItemType(TILE_ALPHA);
+        obj = _objectController->createTile(gridPos, itemToSize(item));
+        obj->setItemType(TILE_ITEM);
         return obj;
     case (NONE):
         return nullptr;

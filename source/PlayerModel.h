@@ -140,9 +140,12 @@ protected:
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
-
+    //Handles jump damping. Jumptimer starts counting down upon jumping. During this time, release jump to dampen your vertical velocity.
     float _jumpTimer = 0.0f;
+
     bool _holdingJump;
+    //False if we are on PC
+    bool _isDampEnabled = true;
 
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
@@ -420,7 +423,7 @@ public:
     void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
     /** Increments an animation film strip */
-    void doStrip(cugl::ActionFunction action);
+    void doStrip(cugl::ActionFunction action, float duration);
     
     /** Sets which animation color strip to use for the player */
     void setAnimationColors(ColorType color);
@@ -614,6 +617,9 @@ public:
     void setJumpHold(bool value) { _holdingJump = value; }
 
     bool getJumpHold() { return _holdingJump; }
+
+    /**Enable/disable jump damping*/
+    void setJumpDamping(bool value) { _isDampEnabled = value; }
     
 #pragma mark -
 #pragma mark Physics Methods
@@ -669,7 +675,23 @@ public:
     
     /** Reset the player */
     void reset();
-	
+
+#pragma mark -
+#pragma mark Helpers
+    /**
+     * Checks whether the player is visible or not.
+     */
+    bool isVisible() {
+        return _node->isVisible();
+    }
+
+    /**
+     * Sets whether the player is visible or not.
+     */
+    void setVisible(bool value) {
+        _node->setVisible(value);
+    }
+
 };
 
 #endif /* __PF_PLAYER_MODEL_H__ */
