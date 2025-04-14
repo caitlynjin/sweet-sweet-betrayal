@@ -90,10 +90,10 @@
             "file": "textures/ready.png"
         },
         "left_button": {
-            "file": "textures/left_button.png"
+            "file": "textures/left-scroll-arrow.png"
         },
         "right_button": {
-            "file": "textures/ready_button.png"
+            "file": "textures/right-scroll-arrow.png"
         },
         "brush_button": {
             "file": "textures/brush_button.png"
@@ -202,6 +202,12 @@
         },
         "icon-mushroom": {
             "file": "textures/icon-mushroom.png"
+        },
+        "icon-thorn": {
+            "file": "textures/icon-thorn.png"
+        },
+        "icon-wind": {
+            "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
             "file": "textures/settingsbutton.png"

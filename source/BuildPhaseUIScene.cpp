@@ -166,7 +166,7 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
 
     // Set the darkened overlay
     _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.2));
+    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.1));
     _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
     _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
     _inventoryOverlay->setVisible(false);
