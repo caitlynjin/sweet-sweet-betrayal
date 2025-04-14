@@ -185,6 +185,7 @@ void NetworkController::fixedUpdate(float step){
             _scoreController->processScoreEvent(sEvent);
         }
     }
+    _scoreController->setPlayerColors(_playerColorsById);
 
 }
 
