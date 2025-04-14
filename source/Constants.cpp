@@ -160,6 +160,10 @@ std::string itemToAssetName(Item item) {
             return nullptr;
     }
 }
+bool itemIsArtObject(Item item)
+{
+    return item == Item::ART_OBJECT;
+}
 
 
 

@@ -87,6 +87,13 @@ void GridManager::setObject(Vec2 cellPos, Item item) {
     }
 }
 
+/** Gets the object in the cell at this row and column .
+ * @param cellPos    the cell position
+ */
+std::shared_ptr<Object> GridManager::getObject(Vec2 cellPos) {
+    return posToObjMap[std::make_pair(cellPos.x, cellPos.y)];
+}
+
 /**
  * Sets the sprite node's visibility to false
  */
@@ -111,7 +118,12 @@ void GridManager::addObject(std::shared_ptr<Object> obj) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
-            hasObjMap[posPair] = true;
+            if (obj->getItemType() != Item::ART_OBJECT) {
+                hasObjMap[posPair] = true;
+            }
+            if (itemIsArtObject(obj->getItemType())) {
+                posToArtObjMap[posPair].push_back(obj);
+            }
         }
     }
 };
@@ -138,8 +150,14 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
-            posToObjMap[posPair] = obj;
-            hasObjMap[posPair] = true;
+            if (itemIsArtObject(obj->getItemType())) {
+                posToArtObjMap[posPair].push_back(obj);
+            }
+            else {
+                posToObjMap[posPair] = obj;
+                hasObjMap[posPair] = true;
+            }
+            
         }
     }
 };
@@ -155,14 +173,22 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
 std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
     // Find object in object map
     auto posPair = std::make_pair(cellPos.x, cellPos.y);
-
+    std::shared_ptr<Object> obj;
+    bool movingArtObject = false;
     auto it = posToObjMap.find(posPair);
     if (it == posToObjMap.end()) {
         // If unable to find object
-        return nullptr;
+        auto it = posToArtObjMap.find(posPair);
+        if (it == posToArtObjMap.end()) {
+            return nullptr;
+        }
+        else {
+            obj = it->second[0];
+        }
     }
-
-    std::shared_ptr<Object> obj = it->second;
+    else {
+        obj = it->second;
+    }
     Size size = itemToGridSize(obj->getItemType());
 
     // Clear all positions the object occupies
@@ -173,8 +199,19 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(originPosX + i, originPosY + j);
-            posToObjMap.erase(posPair);
-            hasObjMap.erase(posPair);
+            if (movingArtObject) {
+                auto artObjs = posToArtObjMap[posPair];
+                artObjs.erase(std::remove(artObjs.begin(), artObjs.end(), obj), artObjs.end());
+                if (artObjs.size() == 0) {
+                    posToArtObjMap.erase(posPair);
+                }
+
+            }
+            else {
+                posToObjMap.erase(posPair);
+                hasObjMap.erase(posPair);
+            }
+            
         }
     }
 
@@ -191,8 +228,9 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
  *
  * @param cellPos    the cell position
  * @param size          the amount of area this object takes up (including its movement)
+ * @param item      the item type
  */
-bool GridManager::canPlace(Vec2 cellPos, Size size) {
+bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // Find object in object map
@@ -200,6 +238,23 @@ bool GridManager::canPlace(Vec2 cellPos, Size size) {
 
             if (hasObjMap.find(posPair) != hasObjMap.end()) {
                 return false;   // Object exists in position
+                // TODO : if it's an art object, instead check if artobjmap has that itemtype in it at that spot
+            }
+            
+            if (posToArtObjMap.find(posPair) != posToArtObjMap.end()) { // there is an art object there
+                // loop through objs and make sure none of them have same itemType
+                auto objs = posToArtObjMap[posPair];
+                for (auto it = objs.begin(); it != objs.end(); ++it) {
+                    if ((*it)->getItemType() == item) {
+                        return false;
+                    }
+                    if ((*it)->getItemType() == Item::ART_OBJECT) {
+                        auto e = 4;
+                    }
+                    if (item == Item::ART_OBJECT) {
+                        auto e = 5;
+                    }
+                }
             }
         }
     }

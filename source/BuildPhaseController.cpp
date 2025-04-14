@@ -198,7 +198,7 @@ void BuildPhaseController::preUpdate(float dt) {
             }
         } else {
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
@@ -227,7 +227,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     _gridManager->addMoveableObject(gridPos, obj);
 

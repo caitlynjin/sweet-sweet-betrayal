@@ -36,6 +36,8 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     _angle = angle;
     _itemType = Item::ART_OBJECT;
     _jsonType = jsonType;
+    _itemType = jsonTypeToItemType[jsonType];
+    CULog("jsonType is %s", jsonType.c_str());
     _box = cugl::physics2::BoxObstacle::alloc(pos, size);
     _box->setDebugColor(Color4::YELLOW);
     _box->setPosition(pos + size/2);
@@ -77,7 +79,8 @@ std::map<std::string, std::any> ArtObject::getMap() {
         {"scale", double(_drawScale)},
         {"angle", double(_angle)},
         {"layer", long(_layer)},
-        {"type", std::string(_jsonType)}
+        {"type", std::string(_jsonType)},
+        {"itemType", long()}
     };
     return m;
 }

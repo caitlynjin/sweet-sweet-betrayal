@@ -251,6 +251,9 @@ cugl::Size itemToSize(Item item);
  */
 cugl::Size itemToGridSize(Item item);
 
+/** Gets whether or not this item is an art object. */
+bool itemIsArtObject(Item item);
+
 /**
  * Returns the corresponding asset name to the item.
  *
@@ -261,12 +264,17 @@ cugl::Size itemToGridSize(Item item);
 std::string itemToAssetName(Item item);
 
 static std::map<std::string, int> jsonTypeToLayer {
-    {"default", -1}
+    {"default", 1}
 };
 
 static std::map<std::string, std::string> jsonTypeToAsset
 {
     {"default", EARTH_TEXTURE}
+};
+
+static std::map<std::string, Item> jsonTypeToItemType
+{
+    {"default", Item::ART_OBJECT}
 };
 
 }

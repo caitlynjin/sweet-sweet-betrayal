@@ -130,12 +130,11 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
 
     _gridManager = GridManager::alloc(DEFAULT_HEIGHT, DEFAULT_WIDTH, _scale * 2, offset, assets);
 
-    // Initialize movement phase controller
-    // TODO: fix this part
-    shared_ptr<scene2::SceneNode> _worldnode = scene2::OrderedNode::alloc();
-    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _worldnode->setPosition(_offset);
-    _worldnode->setScale(_worldnode->getScale() * 2);
+    shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    worldnode->setPosition(_offset);
+    worldnode->setScale(worldnode->getScale() * 2);
+    shared_ptr<scene2::SceneNode> _worldnode = dynamic_pointer_cast<scene2::SceneNode>(worldnode);
     addChild(_worldnode);
 
     shared_ptr<scene2::SceneNode> _debugnode = scene2::SceneNode::alloc();
@@ -296,7 +295,7 @@ void LevelEditorController::preUpdate(float dt) {
                     _gridManager->setObject(gridPosWithOffset, _selectedItem);
                 }
             }
-            if (_uiScene.isPaintMode() && _gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+            if (_uiScene.isPaintMode() && (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem))) {
                 std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                 // might go back to addObject() for levelEditor??? just keep this in mind
                 _gridManager->addMoveableObject(gridPos, obj);
@@ -370,7 +369,7 @@ void LevelEditorController::preUpdate(float dt) {
             Vec2 screenPos = _input->getPosOnDrag();
             Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
                     _selectedObject->setPosition(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
@@ -401,7 +400,7 @@ void LevelEditorController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     // might go back to addObject() for levelEditor??? just keep this in mind
                     _gridManager->addMoveableObject(gridPos, obj);
@@ -491,6 +490,7 @@ void LevelEditorController::render() {
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item) {
+    CULog("There are %d objects", _objectController->getObjects()->size());
     shared_ptr<Object> obj;
     switch (item) {
     case (PLATFORM):
