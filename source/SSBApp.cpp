@@ -486,6 +486,7 @@ void SSBApp::resetScenes(){
     _startscreen.reset();
     _mainmenu.reset();
     _hostgame.reset();
+    _joingame.reset();
 }
 
 /**

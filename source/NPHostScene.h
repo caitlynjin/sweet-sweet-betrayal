@@ -56,6 +56,7 @@ protected:
     
     /** The texture to use when the player icon gets filled */
     std::shared_ptr<graphics::Texture> _filledIcon;
+    std::shared_ptr<graphics::Texture> _emptyIcon;
 
     /** Whether the startGame button had been pressed. */
     bool _startGameClicked = false;

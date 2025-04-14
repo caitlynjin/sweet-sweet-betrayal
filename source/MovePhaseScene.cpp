@@ -241,7 +241,7 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false));
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
         _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     

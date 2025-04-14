@@ -152,6 +152,13 @@ void ClientScene::dispose() {
     }
 }
 
+void ClientScene::reset() {
+    _backClicked = false;
+    _gameID = {' ', ' ', ' ', ' ', ' '};
+    _gameIDLength = 0;
+    setGameIDLabels(_gameID);
+}
+
 /**
  * Sets whether the scene is currently active
  *
@@ -212,6 +219,10 @@ void ClientScene::setActive(bool value) {
             // If any were pressed, reset them
             _startgame->setDown(false);
             _backout->setDown(false);
+            
+            _gameID = {' ', ' ', ' ', ' ', ' '};
+            _gameIDLength = 0;
+            setGameIDLabels(_gameID);
             
         }
 #pragma mark END SOLUTION
@@ -308,3 +319,4 @@ void ClientScene::setGameIDLabels(std::array<char, 5> gameid){
     _gameid4->setText(std::string(1, gameid[3]));
     _gameid5->setText(std::string(1, gameid[4]));
 }
+
