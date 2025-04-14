@@ -40,10 +40,48 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _startgame;
     /** The back button for the menu scene */
     std::shared_ptr<cugl::scene2::Button> _backout;
-    /** The game id label (for updating) */
-    std::shared_ptr<cugl::scene2::TextField> _gameid;
     /** The players label (for updating) */
     std::shared_ptr<cugl::scene2::Label> _player;
+    
+    /** The game id entered in by the user represented by an array*/
+    std::array<char, 5> _gameID;
+    /** Number of index in gameID array  that isn't empty (' ') */
+    int _gameIDLength;
+    
+    /** Gameid textfield no. 1*/
+    std::shared_ptr<cugl::scene2::Label> _gameid1;
+    /** Gameid textfield no. 2*/
+    std::shared_ptr<cugl::scene2::Label> _gameid2;
+    /** Gameid textfield no. 3*/
+    std::shared_ptr<cugl::scene2::Label> _gameid3;
+    /** Gameid textfield no. 4*/
+    std::shared_ptr<cugl::scene2::Label> _gameid4;
+    /** Gameid textfield no. 5*/
+    std::shared_ptr<cugl::scene2::Label> _gameid5;
+
+    /** The numpad button for 0 */
+    std::shared_ptr<cugl::scene2::Button> _button0;
+    /** The numpad button for 1 */
+    std::shared_ptr<cugl::scene2::Button> _button1;
+    /** The numpad button for 2 */
+    std::shared_ptr<cugl::scene2::Button> _button2;
+    /** The numpad button for 3 */
+    std::shared_ptr<cugl::scene2::Button> _button3;
+    /** The numpad button for 4 */
+    std::shared_ptr<cugl::scene2::Button> _button4;
+    /** The numpad button for 5 */
+    std::shared_ptr<cugl::scene2::Button> _button5;
+    /** The numpad button for 6 */
+    std::shared_ptr<cugl::scene2::Button> _button6;
+    /** The numpad button for 7 */
+    std::shared_ptr<cugl::scene2::Button> _button7;
+    /** The numpad button for 8 */
+    std::shared_ptr<cugl::scene2::Button> _button8;
+    /** The numpad button for 9 */
+    std::shared_ptr<cugl::scene2::Button> _button9;
+    
+    /** The delete button */
+    std::shared_ptr<cugl::scene2::Button> _deleteButton;
     
     /** The network configuration */
     cugl::netcode::NetcodeConfig _config;
@@ -148,6 +186,21 @@ private:
      * networking.
      */
     void configureStartButton();
+    
+    /**
+     * Adds the num character to the end of the game ID. If the game ID is full (already 6 digits), do nothing.
+     */
+    void appendGameID(char num);
+    
+    /**
+     * Sets the character in the last non-empty index of game ID to empty. If the game ID is empty, do nothing.
+     */
+    void deleteGameID();
+    
+    /**
+     * Set the gameid labels to match the characters in the given gameid array.
+     */
+    void setGameIDLabels(std::array<char, 5> gameid);
 };
 
 #endif /* __NL_GAME_SCENE_H__ */
