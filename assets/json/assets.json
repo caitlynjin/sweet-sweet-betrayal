@@ -119,8 +119,11 @@
         "button": {
             "file": "textures/button.png"
         },
-        "trash": {
-            "file": "textures/trash.png"
+        "trash-closed": {
+            "file": "textures/trash-closed.png"
+        },
+        "trash-open": {
+            "file": "textures/trash-open.png"
         },
         "frame": {
             "file": "textures/frame.png"

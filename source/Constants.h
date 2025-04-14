@@ -132,8 +132,10 @@
 #define BLUE_ICON "blue-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
-/** The image for the trash can icon */
-#define TRASH "trash"
+/** The image for the trash can closed icon */
+#define TRASH_CLOSED "trash-closed"
+/** The image for the trash can open icon */
+#define TRASH_OPEN "trash-open"
 
 
 #pragma mark -
@@ -153,6 +155,8 @@
 #define MESSAGE_FONT    "retro"
 /** The font for Round and Gem info */
 #define INFO_FONT    "marker"
+/** The font for the timer */
+#define TIMER_FONT  "yeasty flavorsRegular66.53518676757812"
 
 
 #pragma mark -
