@@ -25,6 +25,15 @@ private:
         int score;
         ScoreEvent::ScoreType scoreType;
     };
+    
+    //constant for scoreboard initialization
+    Vec2 bar_position;
+    Vec2 glider_position;
+    Vec2 offset_betw_points;
+    Vec2 offset_betw_players;
+    
+    //stores first dot position for each player for reference later
+    std::unordered_map<std::string, Vec2> _playerBaseDotPos;
 
 
     /** Pointer to the AssetManager for texture access, etc. */
@@ -45,6 +54,8 @@ private:
     std::unordered_map<std::string, std::shared_ptr<scene2::PolygonNode>> _scoreIcons;
     
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
+    
+    cugl::scene2::Scene2* _scoreboardParent;
     
 
 public:

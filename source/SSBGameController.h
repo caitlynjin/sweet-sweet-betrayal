@@ -79,6 +79,9 @@ protected:
     
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
+    
+    // Countdown between build ready and dispaying scoreboard
+    int _beforeScoreBoard = 10;
 
 public:
 #pragma mark -
