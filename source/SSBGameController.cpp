@@ -179,17 +179,14 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
  */
 void SSBGameController::dispose()
 {
-    if (_active)
-    {
-        _world = nullptr;
-        _gridManager->getGridNode() = nullptr;
+    _world = nullptr;
+    _gridManager->getGridNode() = nullptr;
 
-        _input->dispose();
-        _backgroundScene.dispose();
-        _buildPhaseController->dispose();
-        _movePhaseController->dispose();
-        Scene2::dispose();
-    }
+    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    _movePhaseController->dispose();
+    Scene2::dispose();
 }
 
 #pragma mark -
@@ -203,14 +200,14 @@ void SSBGameController::dispose()
 void SSBGameController::reset()
 {
     // Clear the world
-    
     _world->clear();
     
     // Reset all controllers
     _networkController->reset();
     _buildPhaseController->reset();
     _movePhaseController->reset();
-    // object controller?
+        
+    _hasVictory = false;
 }
 
 #pragma mark -
@@ -280,6 +277,22 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
+//            //TODO: Segment into switchToBuild()
+//            if (_scoreCountdown == -1){
+//                _scoreCountdown = SCOREBOARD_COUNT;
+//                _movePhaseController->scoreboardActive(true);
+//            }
+//            if (_scoreCountdown == 0){
+//                _movePhaseController->scoreboardActive(false);
+//                _movePhaseController->resetRound();
+//                setBuildingMode(!_buildingMode);
+//                _networkController->resetRound();
+////                _movePhaseController->resetRound();
+//                _scoreCountdown = -1;
+//                // Check for win condition
+//                if (_networkController->checkWinCondition()){
+//                    _hasVictory = true;
+//                }
             if (_beforeScoreBoard == 0) {
                 //TODO: Segment into switchToBuild()
                 if (_scoreCountdown == -1){
@@ -294,7 +307,9 @@ void SSBGameController::preUpdate(float dt)
     //                _movePhaseController->resetRound();
                     _scoreCountdown = -1;
                     // Check for win condition
-                    _networkController->checkWinCondition();
+                    if (_networkController->checkWinCondition()){
+                        _hasVictory = true;
+                    }
                     _beforeScoreBoard = 15;
                 }
             } else {

@@ -69,6 +69,16 @@ void NetworkController::dispose(){
 //    }
 }
 
+void NetworkController::resetNetwork(){
+    _network->disconnect();
+    _network->dispose();
+    _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
+    _network->attachEventType<MessageEvent>();
+    _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ScoreEvent>();
+    _localID = _network->getShortUID();
+}
+
 /**
      * The method called to update the game mode.
      *
@@ -266,6 +276,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
 //            _network
             break;
         case Message::RESET_LEVEL:
+            CULog("Reset received");
             _resetLevel = true;
             break;
         default:
@@ -403,7 +414,7 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size s
 
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
     CULog("creating mushroom");
-    auto params = _mushroomFact->serializeParams(pos, size, scale);
+    auto params = _mushroomFact->serializeParams(pos + size/2, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
@@ -419,6 +430,26 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
         return nullptr;
     }
 }
+
+std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size size) {
+    CULog("creating thorn");
+    auto params = _thornFact->serializeParams(pos + size/2, size);
+    auto pair = _network->getPhysController()->addSharedObstacle(_thornFactID, params);
+
+    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
+    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+
+    if (boxObstacle) {
+        std::shared_ptr<Thorn> thorn = Thorn::alloc(pos, size, boxObstacle);
+        thorn->setSceneNode(sprite);
+        _objects->push_back(thorn);
+        return thorn;
+    } else {
+        CULog("Error: Expected a BoxObstacle but got a different type");
+        return nullptr;
+    }
+}
+
 
 
 /**
@@ -645,7 +676,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     poly *= scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
 
-    
     return std::make_pair(box, sprite);
 }
 
@@ -703,18 +733,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> MovingPlatFactory::createObstacle(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
     std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     
     box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
@@ -724,10 +742,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     box->setDebugColor(DEBUG_COLOR);
     box->setName("movingPlatform");
 
-  
-    poly *= scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-    
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
     return std::make_pair(box, sprite);
 }
 
@@ -858,31 +874,20 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
-
-    // float blendingOffset = 0.01f;
-
-    // Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
-
-    // EarclipTriangulator triangulator;
-    // triangulator.set(poly.vertices);
-    // triangulator.calculate();
-    // poly.setIndices(triangulator.getTriangulation());
-    // triangulator.clear();
-    
     std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
+
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    box->setBodyType(b2_dynamicBody);
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setName("mushroom");
+    box->setDebugColor(DEBUG_COLOR);
+    box->setShared(true);
+
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
-    
-    auto mushroom = Mushroom::alloc(pos, size, scale);
-    mushroom->getObstacle()->setBodyType(b2_dynamicBody);
-    mushroom->getObstacle()->setDensity(BASIC_DENSITY);
-    mushroom->getObstacle()->setFriction(BASIC_FRICTION);
-    mushroom->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    mushroom->getObstacle()->setName("mushroom");
-    mushroom->getObstacle()->setDebugColor(Color4::YELLOW);
-    mushroom->setPosition(pos);
-    mushroom->getObstacle()->setShared(true);
-    
-    return std::make_pair(mushroom->getObstacle(), sprite);
+
+    return std::make_pair(box, sprite);
 }
 
 
@@ -914,4 +919,53 @@ MushroomFactory::createObstacle(const std::vector<std::byte>& params) {
     float scale = _deserializer.readFloat();
     
     return createObstacle(pos, size, scale);
+}
+
+#pragma mark -
+#pragma mark Thorn Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ThornFactory::createObstacle(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(THORN_TEXTURE);
+
+    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
+    box->setBodyType(b2_dynamicBody);
+    box->setDensity(BASIC_DENSITY);
+    box->setFriction(BASIC_FRICTION);
+    box->setRestitution(BASIC_RESTITUTION);
+    box->setName("thorn");
+    box->setDebugColor(DEBUG_COLOR);
+    box->setShared(true);
+
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(texture, 1, 1);
+
+    return std::make_pair(box, sprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+ThornFactory::serializeParams(Vec2 pos, Size size) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ThornFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+
+    return createObstacle(pos, size);
 }

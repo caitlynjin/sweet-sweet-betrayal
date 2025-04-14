@@ -25,6 +25,7 @@ void ScoreController::dispose() {
 void ScoreController::reset() {
     _playerRoundScores.clear();
     _playerTotalScores.clear();
+    
 }
 
 void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event) {
@@ -114,6 +115,7 @@ void ScoreController::sendScoreEvent(const std::shared_ptr<NetEventController>& 
 bool ScoreController::checkWinCondition(){
     for (const auto& pair : _playerTotalScores){
         if (pair.second >= WIN_SCORE){
+            CULog("PLAYER WON");
             return true;
         }
     }

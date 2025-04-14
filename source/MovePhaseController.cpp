@@ -236,6 +236,10 @@ void MovePhaseController::preUpdate(float dt) {
     int player_index = 0;
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
+        if (!player->isVisible() && !player->isDead()) {
+            player->setVisible(true);
+        }
+
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
             if (player_index == 0){
@@ -358,6 +362,9 @@ void MovePhaseController::killPlayer(){
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
+        // Hide player
+        player->setVisible(false);
+
         // If player had treasure, remove from their possession
         if (player->hasTreasure){
             player->removeTreasure();
@@ -415,7 +422,8 @@ void MovePhaseController::processModeChange(bool value) {
 
     _movePhaseScene.resetCameraPos();
     _uiScene.disableUI(value);
-    
+
+
 }
 
 #pragma mark -
@@ -571,6 +579,11 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
             // If we hit a spike, we are DEAD
             else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
+                killPlayer();
+            }
+
+            // If we hit a thorn, we are DEAD
+            else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
                 killPlayer();
             }
 

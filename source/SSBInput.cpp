@@ -117,6 +117,7 @@ void PlatformInput::dispose() {
         Touchscreen* touch = Input::get<Touchscreen>();
         touch->removeBeginListener(LISTENER_KEY);
         touch->removeEndListener(LISTENER_KEY);
+        touch->removeMotionListener(LISTENER_KEY);
 #endif
         _active = false;
     }
