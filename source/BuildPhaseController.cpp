@@ -8,6 +8,7 @@
 #include "BuildPhaseController.h"
 #include "Constants.h"
 #include "Platform.h"
+#include "Tile.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
@@ -384,7 +385,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
         case (TILE_ITEM):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+            obj = _objectController->createTile(gridPos, itemToSize(item));
             obj->setItemType(TILE_ITEM);
             return obj;
         case (NONE):

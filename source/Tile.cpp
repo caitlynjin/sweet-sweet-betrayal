@@ -45,14 +45,10 @@ using namespace cugl;
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
 bool Tile::init(const Vec2 pos, const Size size) {
-    return Tile::init(pos, size, "default");
-}
-bool Tile::init(const Vec2 pos, const Size size, string jsonType) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2, Size(nsize.width, nsize.height));
     _size = size;
     _itemType = Item::TILE_ITEM;
-    _jsonType = jsonType;
     _position = pos;
     return true;
 }

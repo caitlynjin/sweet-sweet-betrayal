@@ -54,6 +54,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 	json->appendValue("height", double(levelSize.getIHeight()));
 	//json->appendArray("objects");
 	innerArray->appendChild(createJsonObjectList("platforms", platforms));
+	//innerArray->appendChild(createJsonObjectList("tiles", tiles));
 	innerArray->appendChild(createJsonObjectList("spikes", spikes));
 	innerArray->appendChild(createJsonObjectList("treasures", treasures));
 	innerArray->appendChild(createJsonObjectList("windObstacles", windObstacles));
@@ -66,15 +67,20 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 
 void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<shared_ptr<Object>>* objects) {
 	vector<shared_ptr<Platform>> platforms;
+	vector<shared_ptr<Tile>> tiles;
 	vector<shared_ptr<Spike>> spikes;
 	vector<shared_ptr<WindObstacle>> windObstacles;
 	vector<shared_ptr<Treasure>> treasures;
+
 	string key;
 	for (auto it = (*objects).begin(); it != (*objects).end(); ++it) {
 		key = (*it)->getJsonKey();
 		// Apparently you can't use a switch statement with strings in C++...
 		if (key == "platforms") {
 			platforms.push_back(dynamic_pointer_cast<Platform>(*it));
+		}
+		else if (key == "tiles") {
+			tiles.push_back(dynamic_pointer_cast<Tile>(*it));
 		}
 		else if (key == "spikes") {
 			spikes.push_back(dynamic_pointer_cast<Spike>(*it));
@@ -85,6 +91,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 		else if (key == "windObstacles") {
 			windObstacles.push_back(dynamic_pointer_cast<WindObstacle>(*it));
 		}
+		
 	}
 	createJsonFromLevel(fileName, levelSize, platforms, spikes, treasures, windObstacles);
 }
@@ -117,6 +124,13 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					theSize,
 					(*it2)->get("type")->asString()
+				));
+			}
+			else if ((*it)->get("name")->_stringValue == string("tiles")) {
+				Size theSize = Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat());
+				allLevelObjects.push_back(Tile::alloc(
+					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
+					theSize
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("spikes")) {

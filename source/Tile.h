@@ -43,11 +43,6 @@ public:
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Tile and link it to a physics object.
     */
-    static std::shared_ptr<Tile> alloc(const Vec2 position, const Size size, string jsonType) {
-        std::shared_ptr<Tile> result = std::make_shared<Tile>();
-        return (result->init(position, size, jsonType) ? result : nullptr);
-    }
-
     static std::shared_ptr<Tile> alloc(const Vec2 position, const Size size) {
         std::shared_ptr<Tile> result = std::make_shared<Tile>();
         return (result->init(position, size) ? result : nullptr);
@@ -62,8 +57,6 @@ public:
     bool init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
     bool init(const Vec2 pos, const Size size);
-
-    bool init(const Vec2 pos, const Size size, string jsonType);
 
     // Map for JSON level management
     std::map<std::string, std::any> getMap() override;

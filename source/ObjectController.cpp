@@ -8,6 +8,7 @@
 #include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
+#include "Tile.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
 #include <box2d/b2_contact.h>
@@ -50,6 +51,46 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
     _debugnode = debug_node;
     _gameObjects = gameObjects;
 };
+/**
+Creates a 1 by 1 tile
+*/
+std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size) {
+    CULog("MADE PLATFORM");
+    std::shared_ptr<Tile> tile = Tile::alloc(pos, size);
+
+    std::shared_ptr<Texture> image;
+    image = _assets->get<Texture>(TILE_TEXTURE);
+
+    float blendingOffset = 0.01f;
+
+    Poly2 poly(Rect(tile->getPosition().x, tile->getPosition().y, tile->getSize().width - blendingOffset, tile->getSize().height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+
+    // Set the physics attributes
+    tile->getObstacle()->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    tile->getObstacle()->setDensity(BASIC_DENSITY);
+    tile->getObstacle()->setFriction(BASIC_FRICTION);
+    tile->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    tile->getObstacle()->setDebugColor(DEBUG_COLOR);
+    tile->getObstacle()->setName("tile");
+
+    poly *= _scale;
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    tile->setSceneNode(sprite);
+
+    addObstacle(tile->getObstacle(), sprite, 1); // All walls share the same texture
+
+
+    _gameObjects->push_back(tile);
+
+    return tile;
+}
 std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
     if (plat->getJsonType() == "tile") {
@@ -82,6 +123,8 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
 
     poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    sprite->setAnchor(sprite->getAnchor().x, sprite->getAnchor().y + plat->getSize().height*0.25f );
+    
     plat->setSceneNode(sprite);
 
     addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture

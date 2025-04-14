@@ -510,7 +510,7 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
     case (TILE_ITEM):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        obj = _objectController->createPlatform(gridPos, itemToSize(item), "tile");
+        obj = _objectController->createTile(gridPos, itemToSize(item));
         obj->setItemType(TILE_ITEM);
         return obj;
     case (NONE):

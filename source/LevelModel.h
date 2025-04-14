@@ -12,6 +12,7 @@
 #include <any>
 #include "Object.h"
 #include "Platform.h"
+#include "Tile.h"
 #include "Spike.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
