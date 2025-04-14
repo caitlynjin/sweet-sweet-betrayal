@@ -722,18 +722,6 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> MovingPlatFactory::createObstacle(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
     std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     
     box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
@@ -743,10 +731,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     box->setDebugColor(DEBUG_COLOR);
     box->setName("movingPlatform");
 
-  
-    poly *= scale;
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
-    
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
     return std::make_pair(box, sprite);
 }
 
