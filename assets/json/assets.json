@@ -10,6 +10,106 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "tile-inner": {
+            "file": "textures/tile-inner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-left-edge": {
+            "file": "textures/tile-left-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-right-edge": {
+            "file": "textures/tile-right-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-top-edge": {
+            "file": "textures/top-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-topleft-corner": {
+            "file": "textures/topleft-corner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-topright-corner": {
+            "file": "textures/topright-corner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "spike-left": {
+            "file": "textures/1x1-left-spike-tile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "spike-right": {
+            "file": "textures/1x1-right-spike-tile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "spike-up": {
+            "file": "textures/1x1-up-spike-tile.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-bottom-edge": {
+            "file": "textures/1x1-tile-bottom-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-1": {
+            "file": "textures/decorations/decoration-crack-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-2": {
+            "file": "textures/decorations/decoration-crack-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-3": {
+            "file": "textures/decorations/decoration-crack-3.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-4": {
+            "file": "textures/decorations/decoration-crack-4.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-5": {
+            "file": "textures/decorations/decoration-crack-5.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-large-1": {
+            "file": "textures/decorations/decoration-crack-large-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-moss-1": {
+            "file": "textures/decorations/decoration-moss-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-moss-2": {
+            "file": "textures/decorations/decoration-moss-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-rocky-1": {
+            "file": "textures/decorations/decoration-rocky-texture-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-rocky-2": {
+            "file": "textures/decorations/decoration-rocky-texture-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "log_obstacle": {
             "file": "textures/3x0.5-log-obstacle.png",
             "wrapS": "repeat",
@@ -35,39 +135,39 @@
             "file": "textures/strawberry.png"
         },
         "dude": {
-            "file":     "textures/red-single.png"
+            "file": "textures/red-single.png"
         },
         "treasure": {
-            "file":     "textures/strawberry-jewel.png"
+            "file": "textures/strawberry-jewel.png"
         },
         "mushroom": {
-            "file":     "textures/mushroom.png"
+            "file": "textures/mushroom.png"
         },
         "spinner": {
-            "file":     "textures/barrier.png"
+            "file": "textures/barrier.png"
         },
         "bullet": {
-            "file":      "textures/bullet.png"
+            "file": "textures/bullet.png"
         },
         "goal": {
-            "file":      "textures/goaldoor.png"
+            "file": "textures/goaldoor.png"
         },
         "up": {
-            "file":      "textures/up.png"
+            "file": "textures/up.png"
         },
         "dpad": {
-            "file":     "textures/dpad.png",
-            "wrapS":     "clamp",
-            "wrapT":     "clamp",
-            "atlas":     {
-                "up"   : [0,     0, 127, 127],
-                "down" : [128,   0, 255, 127],
-                "left" : [0,   128, 127, 255],
-                "right": [128, 128, 255, 255]
+            "file": "textures/dpad.png",
+            "wrapS": "clamp",
+            "wrapT": "clamp",
+            "atlas": {
+                "up": [ 0, 0, 127, 127 ],
+                "down": [ 128, 0, 255, 127 ],
+                "left": [ 0, 128, 127, 255 ],
+                "right": [ 128, 128, 255, 255 ]
             }
         },
         "ready_button": {
-            "file":     "textures/ready_button.png"
+            "file": "textures/ready_button.png"
         },
         "left_button": {
             "file": "textures/left_button.png"
@@ -76,34 +176,34 @@
             "file": "textures/brush_button.png"
         },
         "eraser_button": {
-            "file":  "textures/eraser_button.png"
+            "file": "textures/eraser_button.png"
         },
         "jump-button": {
-          "file":     "textures/jump-button.PNG"
+            "file": "textures/jump-button.PNG"
         },
         "glide-button": {
-          "file":     "textures/glide-button.PNG"
+            "file": "textures/glide-button.PNG"
         },
         "background": {
-            "file":     "textures/background.png"
+            "file": "textures/background.png"
         },
-        "host-join-background":{
+        "host-join-background": {
             "file": "textures/host-join-background.png"
         },
-        "start-background":{
+        "start-background": {
             "file": "textures/start-background.png"
         },
         "button": {
-            "file":  "textures/button.png"
+            "file": "textures/button.png"
         },
         "trash": {
-            "file":  "textures/trash.png"
+            "file": "textures/trash.png"
         },
         "frame": {
-            "file":  "textures/frame.png"
+            "file": "textures/frame.png"
         },
         "left": {
-            "file":  "textures/left_arrow.png"
+            "file": "textures/left_arrow.png"
         },
         "player-idle": {
             "file": "textures/red-idle.png"
@@ -118,16 +218,16 @@
             "file": "textures/red-jump.png"
         },
         "progress-bar": {
-            "file":  "textures/progress-bar.png"
+            "file": "textures/progress-bar.png"
         },
         "red-icon": {
-            "file":  "textures/red.png"
+            "file": "textures/red.png"
         },
         "blue-icon": {
-            "file":  "textures/blue.png"
+            "file": "textures/blue.png"
         },
         "treasure-icon": {
-            "file":  "textures/treasure.png"
+            "file": "textures/treasure.png"
         },
         "back": {
             "file": "textures/back.png"

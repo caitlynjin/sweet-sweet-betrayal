@@ -74,7 +74,7 @@ std::string itemToString(Item item) {
         case ART_OBJECT:
             return "art object";
         default:
-            return "unknown";
+            return "default";
     }
 }
 
@@ -100,6 +100,8 @@ cugl::Size itemToSize(Item item) {
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
+            return cugl::Size(1, 1);
+        default:
             return cugl::Size(1, 1);
     }
 }
@@ -127,6 +129,8 @@ cugl::Size itemToGridSize(Item item) {
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
+            return cugl::Size(1, 1);
+        default:
             return cugl::Size(1, 1);
     }
 }
@@ -156,13 +160,60 @@ std::string itemToAssetName(Item item) {
             return MUSHROOM_TEXTURE;
         case (ART_OBJECT):
             return EARTH_TEXTURE; // for debugging - this is not sustainable
+        case (TILE_TOP):
+            return EARTH_TEXTURE;
+        case (TILE_BOTTOM):
+            return EARTH_TEXTURE;
+        case (TILE_INNER):
+            return EARTH_TEXTURE;
+        case (TILE_LEFT):
+            return EARTH_TEXTURE;
+        case (TILE_RIGHT):
+            return EARTH_TEXTURE;
+        case (TILE_TOPLEFT):
+            return EARTH_TEXTURE;
+        case (TILE_TOPRIGHT):
+            return EARTH_TEXTURE;
+        case (CRACK_1):
+            return CRACK1_TEXTURE;
+        case (CRACK_2):
+            return CRACK2_TEXTURE;
+        case (CRACK_3):
+            return CRACK3_TEXTURE;
+        case (CRACK_4):
+            return CRACK4_TEXTURE;
+        case (CRACK_5):
+            return CRACK5_TEXTURE;
+        case (CRACK_LARGE_1):
+            return CRACKLARGE1_TEXTURE;
+        case (MOSS_1):
+            return MOSS1_TEXTURE;
+        case (MOSS_2):
+            return MOSS2_TEXTURE;
+        case (ROCKY_1):
+            return ROCKY1_TEXTURE;
+        case (ROCKY_2):
+            return ROCKY2_TEXTURE;
         case (NONE):
             return nullptr;
     }
 }
 bool itemIsArtObject(Item item)
 {
-    return item == Item::ART_OBJECT;
+    std::vector<Item> items = {
+        ART_OBJECT,
+        CRACK_1,
+    CRACK_2,
+    CRACK_3,
+    CRACK_4,
+    CRACK_5,
+    CRACK_LARGE_1,
+    MOSS_1,
+    MOSS_2,
+    ROCKY_1,
+    ROCKY_2,
+    };
+    return std::find(items.begin(), items.end(), item) != items.end();
 }
 
 
