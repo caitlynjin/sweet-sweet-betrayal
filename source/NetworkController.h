@@ -418,6 +418,11 @@ public:
      */
     void dispose();
     
+    /**
+     Resets the properties of the network
+     */
+    void resetNetwork();
+    
     /** This method allocates a NetworkController. */
     static std::shared_ptr<NetworkController> alloc(const std::shared_ptr<AssetManager>& assets) {
         std::shared_ptr<NetworkController> result = std::make_shared<NetworkController>();
@@ -794,10 +799,12 @@ public:
     /**
      Checks if win condition has been met and sends a message to reset the level.
      */
-    void checkWinCondition(){
-        if (_scoreController->checkWinCondition()){
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
-        }
+    bool checkWinCondition(){
+//        if (_scoreController->checkWinCondition()){
+//            
+//          _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
+//        }
+        return _scoreController->checkWinCondition();
     }
 
 };

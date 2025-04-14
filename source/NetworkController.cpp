@@ -69,6 +69,16 @@ void NetworkController::dispose(){
 //    }
 }
 
+void NetworkController::resetNetwork(){
+    _network->disconnect();
+    _network->dispose();
+    _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
+    _network->attachEventType<MessageEvent>();
+    _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ScoreEvent>();
+    _localID = _network->getShortUID();
+}
+
 /**
      * The method called to update the game mode.
      *
@@ -266,6 +276,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
 //            _network
             break;
         case Message::RESET_LEVEL:
+            CULog("Reset received");
             _resetLevel = true;
             break;
         default:
