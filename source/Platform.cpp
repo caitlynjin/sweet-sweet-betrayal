@@ -13,7 +13,8 @@ using namespace cugl::graphics;
  */
 void Platform::setPosition(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + _size / 2);
+    _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
+    
 }
 
 void Platform::update(float timestep) {
@@ -106,7 +107,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
-    //_box = _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, size.height * 0.25), Size(size.width, size.height * 0.5));
+    _box  = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
     _box->setBodyType(b2_kinematicBody);
     Vec2 direction = _endPos - _startPos;
     direction.normalize();
@@ -124,7 +125,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
-    //_box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, size.height * 0.25), Size(size.width, size.height * 0.5));
+    _box = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
     _box = box;
     _box->setBodyType(b2_kinematicBody);
     Vec2 direction = _endPos - _startPos;
