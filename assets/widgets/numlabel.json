@@ -16,7 +16,7 @@
             "type" : "Anchored"
         },
         "data"   : {
-            "anchor"  : [0.5,0.5],
+            "anchor"  : [0,0],
             "size"    : [350, 75]
         },
         "children": {
@@ -33,10 +33,6 @@
                         108.58
                     ],
                     "angle": 0,
-                    "position": [
-                        491.42,
-                        0.42
-                    ],
                     "visible": true
                 },
                 "layout": {
@@ -47,9 +43,9 @@
                     "y_offset": 0
                 }
             },
-			"text": {
-				"type"   : "TextField",
-				"data": {
+            "text": {
+                "type"   : "TextField",
+                "data": {
                     "anchor": [
                         0,
                         1
@@ -59,17 +55,14 @@
                         108.58
                     ],
                     "angle": 0,
-                    "position": [
-                        491.42,
-                        0.42
-                    ],
                     "visible": true,
-					"font"     : "gyparody",
-					"text"     : "Text",
-					"halign"   : "left",
-					"valign"   : "middle",
-					"cursor": true
-				},
+                    "font"     : "yeasty flavorsRegular66.53518676757812",
+                    "foreground" : [40, 104, 74, 256],
+                    "text"     : "Text",
+                    "halign"   : "left",
+                    "valign"   : "middle",
+                    "cursor": true
+                },
                 "layout": {
                     "x_anchor": "left",
                     "y_anchor": "top",
@@ -78,11 +71,9 @@
                     "y_offset": 0,
                     "priority" : 1
                 }
-			}
-		},
-		"layout" : {
-			"x_anchor" : "center",
-			"y_anchor" : "middle"
-		}
+            }
+        },
+        "layout" : {
+        }
     }
 }
