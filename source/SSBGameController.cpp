@@ -206,7 +206,7 @@ void SSBGameController::reset()
     _networkController->reset();
     _buildPhaseController->reset();
     _movePhaseController->reset();
-    
+        
     _hasVictory = false;
 }
 
