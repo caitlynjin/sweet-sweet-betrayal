@@ -6,7 +6,7 @@
             "wrapT": "repeat"
         },
         "tile": {
-            "file": "textures/alphatile.png",
+            "file": "textures/1x1-tile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
@@ -21,7 +21,7 @@
             "wrapT": "repeat"
         },
         "platform_tile": {
-            "file": "textures/alphaplatform.png",
+            "file": "textures/3x0.5-platform-tile.png",
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
