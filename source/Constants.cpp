@@ -15,7 +15,7 @@
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the wind texture*/
-#define WIND_TEXTURE "up"
+#define FAN_TEXTURE "up"
 /** Name of the treasure texture */
 #define TREASURE_TEXTURE "treasure"
 
@@ -139,7 +139,7 @@ std::string itemToAssetName(Item item) {
         case (MOVING_PLATFORM):
             return GLIDING_LOG_TEXTURE;
         case (WIND):
-            return WIND_TEXTURE;
+            return FAN_TEXTURE;
         case (SPIKE):
             return SPIKE_TILE_TEXTURE;
         case (TREASURE):

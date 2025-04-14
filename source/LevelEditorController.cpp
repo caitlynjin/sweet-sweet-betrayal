@@ -208,7 +208,7 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<std::string> assetNames;
         
     inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ITEM };
-    assetNames = { LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
+    assetNames = { LOG_TEXTURE, FAN_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
 
     _uiScene.initInventory(inventoryItems, assetNames);
 

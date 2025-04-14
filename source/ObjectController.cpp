@@ -230,19 +230,21 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  */
 std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
 {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(WIND_TEXTURE);
+    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
+    std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
+    std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
+    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
+
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
 
     // Allow movement of obstacle
     wind->getObstacle()->setBodyType(b2_dynamicBody);
-
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-
-    //wind->setTrajectory(gust);
     wind->setPosition(pos);
 
-    addObstacle(wind->getObstacle(), sprite, 1); // All walls share the same texture
-    wind->setSceneNode(sprite);
+    addObstacle(wind->getObstacle(), fanSprite, 1); 
+    wind->setSceneNode(fanSprite);
+    //Set the texture of the gust
+    wind->setGustSprite(gustSprite);
 
     _gameObjects->push_back(wind);
 

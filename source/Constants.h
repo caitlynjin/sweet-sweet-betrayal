@@ -76,8 +76,10 @@
 #define LOG_TEXTURE   "log_obstacle"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
-/** Name of the wind texture*/
-#define WIND_TEXTURE "up"
+/** Name of the fan texture for windobstacle*/
+#define FAN_TEXTURE "static-fan"
+/** Name of the gust texture for windobstacle*/
+#define GUST_TEXTURE "static-gust"
 /** Name of the mushroom texture*/
 #define MUSHROOM_TEXTURE "mushroom"
 /** The key for the spike texture in the asset manager */

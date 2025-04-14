@@ -47,14 +47,14 @@ shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any>& d
 */
 
 void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<shared_ptr<Platform>>& platforms, vector<shared_ptr<Spike>>& spikes,
-	vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles) {
+	vector<shared_ptr<Treasure>>& treasures, vector<shared_ptr<WindObstacle>>& windObstacles, vector<shared_ptr<Tile>>& tiles) {
 	shared_ptr<JsonValue> json = JsonValue::allocObject();
 	shared_ptr<JsonValue> innerArray = JsonValue::allocArray();
 	json->appendValue("width", double(levelSize.getIWidth()));
 	json->appendValue("height", double(levelSize.getIHeight()));
-	//json->appendArray("objects");
+	json->appendArray("objects");
 	innerArray->appendChild(createJsonObjectList("platforms", platforms));
-	//innerArray->appendChild(createJsonObjectList("tiles", tiles));
+	innerArray->appendChild(createJsonObjectList("tiles", tiles));
 	innerArray->appendChild(createJsonObjectList("spikes", spikes));
 	innerArray->appendChild(createJsonObjectList("treasures", treasures));
 	innerArray->appendChild(createJsonObjectList("windObstacles", windObstacles));
@@ -93,7 +93,7 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 		}
 		
 	}
-	createJsonFromLevel(fileName, levelSize, platforms, spikes, treasures, windObstacles);
+	createJsonFromLevel(fileName, levelSize, platforms, spikes, treasures, windObstacles, tiles);
 }
 
 /**
@@ -151,6 +151,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("windObstacles")) {
+
 				allLevelObjects.push_back(WindObstacle::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),

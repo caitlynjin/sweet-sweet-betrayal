@@ -35,7 +35,7 @@ using namespace Constants;
 /** List of all inventory items that are placeable */
 std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
+std::vector<std::string> allAssetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, FAN_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
 
 
 #pragma mark -

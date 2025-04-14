@@ -307,9 +307,6 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
-            else if (fixtureName == "gust") {
-                return wind->getRayDist(i);
-            }
             wind->setRayDist(i, fraction);
             return fraction;
             };
@@ -546,14 +543,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
     // Set grounded for all players (not just local player)
-    if (tagContainsPlayer(bd1->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd1->getName())) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
         }
     }
 
-    if (tagContainsPlayer(bd2->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+    if (tagContainsPlayer(bd2->getName())) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
