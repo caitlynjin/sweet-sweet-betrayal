@@ -127,6 +127,8 @@ void MovePhaseController::resetRound() {
 void MovePhaseController::reset() {
     // TODO: Need to properly reset
     _currRound = 1;
+    _mushroomCooldown = 0;
+    
     
     setFailure(false);
     setComplete(false);
@@ -315,7 +317,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
 
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-            if (fixtureName == "player") {
+            if (tagContainsPlayer("player")) {
                 CULog("plyr Callback!");
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
@@ -558,8 +560,20 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    // See if we have landed on the ground.
+    // Set grounded for all players (not just local player)
+    if (tagContainsPlayer(bd1->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
+    }
 
+    if (tagContainsPlayer(bd2->getName()) && bd2->getName() != "gust" && bd1->getName() != "gust") {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+            player->setGrounded(true);
+        }
+    }
     //Handles all Player Collisions in this section
         if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
             //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
@@ -584,11 +598,11 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 }
             }
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
-            else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && bd1->getName() != "player") ||
-                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && bd2->getName() != "player"))
+            else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && !tagContainsPlayer(bd1->getName())) ||
+                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName())))
                 && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
                 //Set player to grounded
-                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                // _movePhaseScene.getLocalPlayer()->setGrounded(true);
                 // Could have more than one ground
                 _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 

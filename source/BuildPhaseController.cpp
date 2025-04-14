@@ -29,6 +29,13 @@ using namespace cugl::physics2;
 using namespace cugl::audio;
 using namespace Constants;
 
+#pragma mark -
+#pragma mark Constants
+/** List of all inventory items that are placeable */
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
+/** List of all corresponding textures to items that are placeable */
+std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_ICON };
+
 
 #pragma mark -
 #pragma mark Constructors
@@ -62,24 +69,9 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 
     // Initalize UI Scene
     _uiScene.init(assets, _gridManager);
-    std::vector<Item> inventoryItems;
-    std::vector<std::string> assetNames;
-
-    inventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, SPIKE, MUSHROOM };
-    assetNames = { LOG_TEXTURE, GLIDING_LOG_TEXTURE, WIND_TEXTURE, SPIKE_TILE_TEXTURE, MUSHROOM_TEXTURE };
-    
+    randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
-
-    std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
-    for (size_t i = 0; i < inventoryButtons.size(); i++) {
-        inventoryButtons[i]->addListener([this, item = inventoryItems[i]](const std::string &name, bool down) {
-            if (down) {
-                _selectedItem = item;
-                _input->setInventoryStatus(PlatformInput::PLACING);
-            }
-        });
-    }
-
+    addInvButtonListeners();
     _uiScene.activateInventory(true);
 
     return true;
@@ -100,8 +92,16 @@ void BuildPhaseController::dispose() {
  */
 void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
+    randomizeItems();
+    addInvButtonListeners();
     _uiScene.reset();
+    
+    // Reset controller variables
     _itemsPlaced = 0;
+    _selectedItem = NONE;
+    _selectedObject = nullptr;
+    _prevPos = Vec2(0, 0);
+    _readyMessageSent = false;
 }
 
 /**
@@ -297,8 +297,6 @@ void BuildPhaseController::render() {
  * @param value whether the level is in building mode.
  */
 void BuildPhaseController::processModeChange(bool value) {
-
-
     _buildPhaseScene.setVisible(value);
     _buildPhaseScene.resetCameraPos();
 
@@ -306,13 +304,57 @@ void BuildPhaseController::processModeChange(bool value) {
     _itemsPlaced = 0;
 
     if (value){
+        randomizeItems();
+        addInvButtonListeners();
         _uiScene.setIsReady(false);
         _networkController->resetRound();
     }
-    
-    
 }
 
+/**
+ * Randomizes the items in the inventory and selects only a `count` of these items.
+ *
+ * @param count     the number of items to select
+ */
+void BuildPhaseController::randomizeItems(int count) {
+    std::vector<std::pair<Item, std::string>> pairedItems;
+    for (int i = 0; i < allInventoryItems.size(); ++i) {
+        pairedItems.emplace_back(allInventoryItems[i], allAssetNames[i]);
+    }
+
+    // Shuffle the full set
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(pairedItems.begin(), pairedItems.end(), g);
+
+    // Clear previous round
+    inventoryItems.clear();
+    assetNames.clear();
+
+    // Take the first `count` items
+    for (int i = 0; i < count; ++i) {
+        inventoryItems.push_back(pairedItems[i].first);
+        assetNames.push_back(pairedItems[i].second);
+        CULog("%s", pairedItems[i].second.c_str());
+    }
+
+    _uiScene.setInventoryButtons(inventoryItems, assetNames);
+}
+
+/**
+ * Adds the inventory button listeners.
+ */
+void BuildPhaseController::addInvButtonListeners() {
+    std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
+    for (size_t i = 0; i < inventoryButtons.size(); i++) {
+        inventoryButtons[i]->addListener([this, item = inventoryItems[i]](const std::string &name, bool down) {
+            if (down) {
+                _selectedItem = item;
+                _input->setInventoryStatus(PlatformInput::PLACING);
+            }
+        });
+    }
+}
 
 /**
  * Creates an item of type item and places it at the grid position.
@@ -366,13 +408,14 @@ Vec2 BuildPhaseController::snapToGrid(const Vec2 &gridPos, Item item) {
     int yGrid = gridPos.y;
 
     // Snaps the placement to inside the grid
-    int maxRows = _gridManager->getNumRows() - 1;
-    int maxCols = _gridManager->getNumColumns() - 1;
+    int minRow = ROW_OFFSET_BOT;
+    int maxRow = MAX_ROWS - ROW_OFFSET_TOP - 1;
+    int maxCol = _gridManager->getNumColumns() - 1;
 
     xGrid = xGrid < 0 ? 0 : xGrid;
-    yGrid = yGrid < 0 ? 0 : yGrid;
-    xGrid = xGrid + offset.width > maxCols ? maxCols - offset.width : xGrid;
-    yGrid = yGrid + offset.height > maxRows ? maxRows - offset.height : yGrid;
+    yGrid = yGrid < minRow ? minRow : yGrid;
+    xGrid = xGrid + offset.width > maxCol ? maxCol - offset.width : xGrid;
+    yGrid = yGrid + offset.height > maxRow ? maxRow - offset.height : yGrid;
 
     return Vec2(xGrid, yGrid);
 }

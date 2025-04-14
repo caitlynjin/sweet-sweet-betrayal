@@ -44,7 +44,9 @@ public:
         /** User wants to host a game */
         HOST,
         /** User wants to join a game */
-        JOIN
+        JOIN,
+        /** User wants to return to the previous scene */
+        BACK
     };
 
 protected:
@@ -57,10 +59,12 @@ protected:
     PlatformInput _input;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
-    
+    /** The menu button for creating/hosting a game */
     std::shared_ptr<cugl::scene2::Button> _hostbutton;
-       /** The menu button for joining a game */
+    /** The menu button for joining a game */
     std::shared_ptr<cugl::scene2::Button> _joinbutton;
+    /** The menu button for returning to the previous scene  */
+    std::shared_ptr<cugl::scene2::Button> _backbutton;
     /** The player menu choice */
     Choice _choice;
 

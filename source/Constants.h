@@ -74,12 +74,18 @@
 #define PLATFORM_TILE_TEXTURE   "platform_tile"
 /** The key for the 3x0.5 platform texture in the asset manager */
 #define LOG_TEXTURE   "log_obstacle"
+/** The key for the inventory icon for the log */
+#define LOG_ICON   "icon-log"
 /** The key for the moving platform texture in the asset manager*/
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
+/** The key for the inventory icon for the gliding log */
+#define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
 /** Name of the mushroom texture*/
 #define MUSHROOM_TEXTURE "mushroom"
+/** The key for the inventory icon for the mushroom */
+#define MUSHROOM_ICON   "icon-mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
 /** The key for the win door texture in the asset manager */
@@ -171,6 +177,15 @@
 #define EXIT_COUNT 240
 /** The number of frame to wait before reinitializing the game */
 #define SCOREBOARD_COUNT 150
+
+#pragma mark -
+#pragma mark Build Phase Constants
+/** The maximum number of rows on the grid */
+#define MAX_ROWS 9
+/** The number of rows on the bottom of the grid removed for build phase */
+#define ROW_OFFSET_BOT 2
+/** The number of rows on the top of the grid removed for build phase */
+#define ROW_OFFSET_TOP 1
 
 
 #pragma mark -

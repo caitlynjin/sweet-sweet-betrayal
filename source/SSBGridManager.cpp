@@ -23,14 +23,18 @@ using namespace Constants;
 /**
  * Initializes the grid layout on the screen for build mode.
  */
-void GridManager::initGrid() {
+void GridManager::initGrid(bool isLevelEditor) {
     _grid->removeAllChildren();
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
-    gridLayout->setGridSize(_columns, _rows);
+    gridLayout->setGridSize(_columns, MAX_ROWS);
 
-    for (int row = 0; row < _rows; ++row) {
+    for (int row = 0; row < MAX_ROWS; ++row) {
         for (int col = 0; col < _columns; ++col) {
+            if (!isLevelEditor && (row < ROW_OFFSET_BOT || row >= MAX_ROWS - ROW_OFFSET_TOP)) {
+                continue;
+            }
+
             Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
 
             std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
