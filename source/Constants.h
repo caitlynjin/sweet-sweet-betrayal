@@ -82,12 +82,16 @@
 #define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind texture*/
 #define WIND_TEXTURE "up"
+/** Name of the wind icon*/
+#define WIND_ICON "icon-wind"
 /** Name of the mushroom texture*/
 #define MUSHROOM_TEXTURE "mushroom"
 /** The key for the inventory icon for the mushroom */
 #define MUSHROOM_ICON   "icon-mushroom"
 /** The key for the spike texture in the asset manager */
 #define SPIKE_TILE_TEXTURE "spike_tile"
+/** The key for the inventory icon for the thorns */
+#define SPIKE_TILE_ICON "icon-thorn"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
