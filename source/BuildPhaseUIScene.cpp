@@ -129,15 +129,16 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         }
     });
 
-    std::shared_ptr<scene2::PolygonNode> trashNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TRASH));
+    std::shared_ptr<scene2::PolygonNode> trashNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TRASH_CLOSED));
     trashNode->setScale(0.8f);
     _trashButton = scene2::Button::alloc(trashNode);
     _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
     _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
 
-    _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(MESSAGE_FONT));
+    _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(TIMER_FONT));
     _timer->setAnchor(Vec2::ANCHOR_CENTER);
     _timer->setPosition(_size.width * 0.5f, _size.height * 0.9f);
+    _timer->setForeground(Color4 (255,62,62));
 
     addChild(_rightButton);
     addChild(_readyButton);
