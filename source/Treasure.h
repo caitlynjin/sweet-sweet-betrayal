@@ -31,6 +31,12 @@ protected:
     float _drawScale;
     /** The scene graph node for the Treasure. */
     std::shared_ptr<scene2::SceneNode> _node;
+    
+    /** The length of the treasur's steal cooldown */
+    int const STEAL_COOLDOWN = 30;
+    
+    /** The current progress of the steal cooldown */
+    float _stealCooldown = 0.0f;
 
 public:
     
@@ -96,7 +102,22 @@ public:
      * Sets the taken status of the treasure.
      * @param taken Whether the treasure has been taken by a player.
      */
-    void setTaken(bool taken) { _taken = taken; }
+    void setTaken(bool taken) {
+        _taken = taken;
+        
+        if (taken){
+            _stealCooldown = STEAL_COOLDOWN;
+        }
+    }
+    
+    
+    /**
+     * Returns whether the treasure can be stolen  by a player.
+     * @return True if stealable, false otherwise
+     */
+    bool isStealable() {
+        return _stealCooldown <= 0;
+    }
 
     /**
      * Returns whether the treasure has been taken by a player.

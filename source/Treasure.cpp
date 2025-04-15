@@ -16,6 +16,10 @@ void Treasure::update(float timestep) {
 //    if (_node != nullptr) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
+    
+    if (_stealCooldown > 0){
+        _stealCooldown -= 0.1f;
+    }
 }
 
 string Treasure::getJsonKey() {
