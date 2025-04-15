@@ -267,6 +267,15 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Reset treasure
             resetTreasure();
             break;
+        case Message::TREASURE_STOLEN:
+            // Remove treasure from all player references
+            for (auto player : _playerList){
+                if (player->hasTreasure){
+                    player->removeTreasure();
+                }
+            }
+            _treasure->setTaken(false);
+            break;
         case Message::TREASURE_WON:
             // Reset treasure
             resetTreasureRandom();

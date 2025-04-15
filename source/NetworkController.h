@@ -654,6 +654,13 @@ public:
     }
     
     /**
+     Returns the treasure being networked.
+     */
+    std::shared_ptr<Treasure> getTreasure(){
+        return _treasure;
+    }
+    
+    /**
      Picks the next spawn point for the treasure at random.
      
      If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
