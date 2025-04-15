@@ -350,9 +350,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         // Required because it crashes if you try to set up a networked treasure during build mode
         if (!levelEditing) {
             //TODO: Change so that NetworkController has a list of treasure positions, then MovePhaseScene will init the treasure based on these positions
-//            _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
-//                _scale,
-//                false)));
+            _networkController->addTreasureSpawn(obj->getPosition());
         }
         else {
             createTreasure(std::dynamic_pointer_cast<Treasure>(obj));

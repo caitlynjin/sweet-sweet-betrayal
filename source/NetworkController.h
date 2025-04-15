@@ -335,6 +335,12 @@ protected:
     /** Current spawn location for the treasure */
     Vec2 _treasureSpawn;
     
+    /** List of all possible treasure spawn points */
+    std::vector<Vec2> _tSpawnPoints;
+    
+    /** List of all spawn points that have currently been used  */
+    std::vector<Vec2> _usedSpawns;
+    
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
     
@@ -539,6 +545,11 @@ public:
     void resetTreasure();
     
     /**
+     Resets the treasure to its spawn location and removes any possession
+     */
+    void resetTreasureRandom();
+    
+    /**
      * Sets whether this local user is the host.
      *
      * @param isHost whether is host.
@@ -630,6 +641,24 @@ public:
     void addPlayerColor();
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
 
+#pragma mark -
+#pragma mark Treasure Handling
+    
+    /**
+     Adds a position for a treasure to spawn at.
+     
+     @param pos the spawn position of the treasure.
+     */
+    void addTreasureSpawn(const Vec2& pos){
+        _tSpawnPoints.push_back(pos);
+    }
+    
+    /**
+     Picks the next spawn point for the treasure at random.
+     
+     If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
+     */
+    Vec2 pickRandSpawn();
     
 #pragma mark -
 #pragma mark Message Handling
@@ -683,7 +712,7 @@ public:
     *
     * @return the treasure being created
     */
-    std::shared_ptr<Object> createTreasureClient(Vec2 pos, Size size, float scale, bool taken);
+    std::shared_ptr<Object> createTreasureClient(float scale);
 
     /**
      * Creates a networked mushroom.

@@ -59,11 +59,6 @@ float GOAL_POS[] = { 39.0f, 3.0f };
 
 float DUDE_POS[] = { 1.0f, 3.0f};
 
-/** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
-
-/** The initial position of the treasure (for testing) */
-float TREASURE_POS_TEST[1][2] = {{5.5f, 4.0f}};
 
 #pragma mark -
 #pragma mark Constructors
@@ -199,11 +194,15 @@ void MovePhaseScene::populate() {
 
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
+        // Create Spawn Point for the treasure
+        Vec2 spawnPoint = _networkController->pickRandSpawn();
+        
+        
         _treasure = std::dynamic_pointer_cast<Treasure>(
-            _networkController->createTreasureNetworked(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false)
+            _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
         );
         _networkController->setTreasure(_treasure);
-        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        _networkController->setTreasureSpawn(spawnPoint);
     }
 
 }
@@ -241,8 +240,8 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS[0]), Size(1, 1), _scale, false));
-        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
+//        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     
     // Update objects
@@ -274,7 +273,7 @@ void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->resetMovement();
     if (_localPlayer->hasTreasure){
         _localPlayer->removeTreasure();
-        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_LOST));
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_WON));
     }
     
     std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
@@ -288,7 +287,7 @@ void MovePhaseScene::resetPlayerProperties() {
  * Set the next position for the treasure based on the current gem count.
  */
 void MovePhaseScene::setNextTreasure(int count) {
-    _treasure->setPosition(Vec2(TREASURE_POS[count]));
+//    _treasure->setPosition(Vec2(TREASURE_POS[count]));
 }
 
 /**
