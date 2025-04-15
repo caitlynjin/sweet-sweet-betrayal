@@ -15,17 +15,22 @@
 using namespace cugl;
 using namespace std;
 
-class Treasure : public Object {
+class Treasure : public physics2::BoxObstacle {
 
 private:
     /** The BoxObstacle wrapped by this Treasure object */
-    std::shared_ptr<cugl::physics2::BoxObstacle> _box;
+//    std::shared_ptr<cugl::physics2::BoxObstacle> _box;
     /**owned by a player**/
     bool _taken = false;
     
 protected:
     /** The texture for the treasure */
     std::string _treasureTexture;
+    
+    /** This allows different textures and sizes to be assigned to different "types" of the same object */
+    std::string _jsonType;
+    
+    Size _size;
     
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _drawScale;
@@ -40,26 +45,36 @@ protected:
     
     /** The initial color of the treasure */
     Color4 _initColor;
+    
 
 public:
     
-    Treasure() : Object() {}
-
-    Treasure(Vec2 pos) : Object(pos) {}
+    Treasure() : BoxObstacle() {}
+    
+//    Treasure(Vec2 pos) : Object(pos) {}
 
     /** The update method for the spike */
     void update(float timestep) override;
 
-    string getJsonKey() override;
+    string getJsonKey();
+    
+    string getJsonType(){
+        return _jsonType;
+    };
+    
+    Size getSize(){
+        return _size;
+    }
 
     ~Treasure(void) override { dispose(); }
 
     void dispose();
     
-    virtual void setPosition(const cugl::Vec2& position) override;
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
+    virtual void setPosition(const cugl::Vec2& position);
+    
+//    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
+//        return _box;
+//    }
 
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Spike and link it to a physics object.
@@ -101,7 +116,7 @@ public:
         _initColor = _node->getColor();
     }
 
-    std::map<std::string, std::any> getMap() override;
+    std::map<std::string, std::any> getMap();
     /**
      * Sets the taken status of the treasure.
      * @param taken Whether the treasure has been taken by a player.

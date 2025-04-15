@@ -143,12 +143,12 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("treasures")) {
-				allLevelObjects.push_back(Treasure::alloc(
-					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
-					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
-					(*it2)->get("scale")->asFloat(),
-					(*it2)->get("type")->asString()
-				));
+//				allLevelObjects.push_back(Treasure::alloc(
+//					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
+//					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
+//					(*it2)->get("scale")->asFloat(),
+//					(*it2)->get("type")->asString()
+//				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("windObstacles")) {
 

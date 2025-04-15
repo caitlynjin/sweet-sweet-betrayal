@@ -131,9 +131,9 @@ public:
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
     * @param size The size of the treasure in Box2D coordinates.
     */
-    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
+    std::shared_ptr<Treasure> createTreasure(Vec2 pos, Size size, string jsonType);
 
-    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
+    std::shared_ptr<Treasure> createTreasure(std::shared_ptr<Treasure> treasure);
     /**creates teh goal door**/
     std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);
     /**

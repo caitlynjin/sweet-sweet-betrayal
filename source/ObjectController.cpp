@@ -256,7 +256,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     return createWindObstacle(wind->getPosition(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
 }
 
-std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
+std::shared_ptr<Treasure> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
     Vec2 treasurePos = pos;
@@ -264,16 +264,16 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
     _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(),sprite);
-    _treasure->getObstacle()->setName("treasure");
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    addObstacle(_treasure,sprite);
+    _treasure->setName("treasure");
+    _treasure->setDebugColor(Color4::YELLOW);
 
     _treasure->setPosition(pos);
-    _gameObjects->push_back(_treasure);
+//    _gameObjects->push_back(_treasure);
     return _treasure;
 }
 
-std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
+std::shared_ptr<Treasure> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
     return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 

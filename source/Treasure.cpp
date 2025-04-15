@@ -16,9 +16,20 @@ void Treasure::update(float timestep) {
 //    if (_node != nullptr) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
+    
+    BoxObstacle::update(timestep);
+    if (_node != nullptr)
+    {
+        _node->setPosition(getPosition() * _drawScale);
+        _node->setAngle(getAngle());
+    }
+    
     if (_stealCooldown > 0){
         _stealCooldown -= 0.1f;
-        _node->setColor(Color4::GREEN);
+        
+        if (_node){
+            _node->setColor(Color4::GREEN);
+        }
     }
     else{
         if (_node){
@@ -26,7 +37,6 @@ void Treasure::update(float timestep) {
         }
     }
     
-    CULog("Is taken: %d", _taken);
 }
 
 string Treasure::getJsonKey() {
@@ -34,7 +44,7 @@ string Treasure::getJsonKey() {
 }
 
 void Treasure::setPosition(const cugl::Vec2 &position){
-    _box->setPosition(position);
+    BoxObstacle::setPosition(position);
     if (_node != nullptr) {
         _node->setPosition(position*_drawScale);
     }
@@ -62,27 +72,36 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale) {
     return Treasure::init(pos, size, scale, "default");
 }
 bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonType) {
-    Size nsize = size;
     _treasureTexture = "";
-    _position = pos;
-    _size = size;
+//    _position = pos;
+//    _size = size;
     _jsonType = jsonType;
     _drawScale = scale;
-    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
-    _box->setSensor(true);
-    return true;
-}
-bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-//    Size nsize = size;
-    _treasureTexture = "";
-    _position = pos;
     _size = size;
-    _jsonType = "default";
-    _drawScale = scale;
-    _taken = taken;
-    _box = box;
-    return true;
+    
+    if (BoxObstacle::init(pos, size*0.5))
+    {
+        setDebugColor(Color4::YELLOW);
+        setSensor(true);
+//        setName("treasure");
+        
+        _node = scene2::SpriteNode::alloc();
+
+        return true;
+    }
+    return false;
 }
+//bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+////    Size nsize = size;
+//    _treasureTexture = "";
+//    _position = pos;
+//    _size = size;
+//    _jsonType = "default";
+//    _drawScale = scale;
+//    _taken = taken;
+//    _box = box;
+//    return true;
+//}
 
 void Treasure::reset(){
     _taken = false;
@@ -90,10 +109,10 @@ void Treasure::reset(){
 
 std::map<std::string, std::any> Treasure::getMap() {
     std::map<std::string, std::any> m = {
-        {"x", double(_position.x)},
-        {"y", double(_position.y)},
-        {"width", double(_size.getIWidth())},
-        {"height", double(_size.getIHeight())},
+        {"x", double(getX())},
+        {"y", double(getY())},
+        {"width", double(getWidth())},
+        {"height", double(getHeight())},
         {"scale", double(_drawScale)},
          {"type", std::string(_jsonType)}
     };

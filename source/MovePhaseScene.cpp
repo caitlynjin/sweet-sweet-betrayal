@@ -195,12 +195,13 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         // Create Spawn Point for the treasure
+        _networkController->addTreasureSpawn(Vec2(14.5, 7.5));
         Vec2 spawnPoint = _networkController->pickRandSpawn();
         
         
-        _treasure = std::dynamic_pointer_cast<Treasure>(
-            _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
-        );
+        _treasure =
+            _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false);
+        _treasure->testInt = 5;
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }
@@ -240,7 +241,22 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
+        const auto& obstacles = _world->getObstacles();
+        for (const auto& obstacle : obstacles) {
+            
+            if (obstacle->getName() == "treasure"){
+                // Try to cast to Treasure and add to our list if successful
+                auto treasure = std::dynamic_pointer_cast<Treasure>(obstacle);
+                if (treasure) {
+                    _treasure = treasure;
+                    _networkController->setTreasure(_treasure);
+                    
+                } else {
+                    CULog("Found player but casting failed");
+                }
+            }
+        }
+//        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
 //        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     

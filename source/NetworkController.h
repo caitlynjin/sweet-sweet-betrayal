@@ -712,7 +712,7 @@ public:
      *
      * @return the treasure being created
      */
-    std::shared_ptr<Object> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
+    std::shared_ptr<Treasure> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
    
     /**
     * Creates a networked treasure on the client end.
