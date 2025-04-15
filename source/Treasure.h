@@ -31,6 +31,15 @@ protected:
     float _drawScale;
     /** The scene graph node for the Treasure. */
     std::shared_ptr<scene2::SceneNode> _node;
+    
+    /** The length of the treasure's steal cooldown */
+    int const STEAL_COOLDOWN = 30;
+    
+    /** The current progress of the steal cooldown */
+    float _stealCooldown = 0.0f;
+    
+    /** The initial color of the treasure */
+    Color4 _initColor;
 
 public:
     
@@ -89,6 +98,7 @@ public:
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
         _node = node;
         _node->setPosition(getPosition() * _drawScale);
+        _initColor = _node->getColor();
     }
 
     std::map<std::string, std::any> getMap() override;
@@ -96,7 +106,26 @@ public:
      * Sets the taken status of the treasure.
      * @param taken Whether the treasure has been taken by a player.
      */
-    void setTaken(bool taken) { _taken = taken; }
+    void setTaken(bool taken) {
+        _taken = taken;
+        
+        if (_taken){
+            _stealCooldown = STEAL_COOLDOWN;
+//            _node->setColor(Color4::GREEN);
+        }
+        // HOW TO CHANGE TRANSPARENCY
+//        cugl::Color4 currentColor = _node->getColor();
+//        _node->setColor(cugl::Color4(currentColor.r, currentColor.g, currentColor.b, 200.0f));
+//        
+    }
+    
+    /**
+     * Returns whether the treasure has been taken by a player.
+     * @return True if taken, false otherwise.
+     */
+    bool isStealable() {
+        return _stealCooldown <= 0;
+    }
 
     /**
      * Returns whether the treasure has been taken by a player.

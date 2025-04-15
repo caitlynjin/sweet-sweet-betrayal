@@ -566,6 +566,13 @@ public:
     }
     
     /**
+     * Returns whether this local user is the host.
+     */
+    std::shared_ptr<Treasure> getTreasure(){
+        return _treasure;
+    }
+    
+    /**
      * Returns the set of player objects in game
      */
     std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){

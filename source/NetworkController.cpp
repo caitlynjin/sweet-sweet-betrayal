@@ -258,9 +258,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             // Increment number of players needed to be reset
             _numReset++;
             break;
-            
         case Message::TREASURE_TAKEN:
-            // Increment number of players needed to be reset
             _treasure->setTaken(true);
             break;
         case Message::TREASURE_LOST:
@@ -387,11 +385,11 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
     auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
 
     auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
+    std::shared_ptr<scene2::SceneNode> spriteNet = pair.second;
     
     if (boxObstacle) {
         std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
-        treasure->setSceneNode(sprite);
+        treasure->setSceneNode(spriteNet);
         _objects->push_back(treasure);
         return treasure;
     } else {
@@ -404,6 +402,7 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
     // Find the hitbox in network world
     std::shared_ptr<cugl::physics2::BoxObstacle> box;
     const auto& obstacles = _world->getObstacles();
+        
     for (const auto& obstacle : obstacles) {
         if (obstacle->getName() == "treasure"){
             box = std::dynamic_pointer_cast<BoxObstacle>(obstacle);

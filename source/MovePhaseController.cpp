@@ -587,10 +587,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //Treasure Collection
             else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
             {
-                if (!_movePhaseScene.getLocalPlayer()->hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
+                if (!_movePhaseScene.getLocalPlayer()->hasTreasure)
                 {
-                    _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
-                    _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
+                    // Check if the treasure is stealable
+                    if (_networkController->getTreasure()->isStealable()){
+                        //TODO: First need to release treasure from player who currently has it
+                        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
+                        _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
+                    }
                 }
             }
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
