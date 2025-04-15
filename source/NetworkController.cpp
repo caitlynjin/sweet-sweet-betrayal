@@ -501,7 +501,6 @@ Vec2 NetworkController::pickRandSpawn(){
     if (maxIndex > 0){
         bool foundSpawn = false;
         while (!foundSpawn){
-            CULog("randomizing");
             randomIndex = static_cast<int>(random->getClosedSint64(0, maxIndex));
             Vec2 randSpawn = _tSpawnPoints[randomIndex];
             
