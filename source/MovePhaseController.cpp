@@ -588,7 +588,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //Treasure Collection
             else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
             {
-                if (!_movePhaseScene.getLocalPlayer()->hasTreasure)
+                std::shared_ptr<PlayerModel> localPlayer = _movePhaseScene.getLocalPlayer();
+                if (!localPlayer->hasTreasure && !localPlayer->isDead())
                 {
                     CULog("Local player does not have treasure");
                     // Check if the treasure is stealable
