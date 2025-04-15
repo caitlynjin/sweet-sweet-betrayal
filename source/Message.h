@@ -19,6 +19,7 @@ enum class Message {
     TREASURE_LOST,    // Signal that a player has lost possession of a treasure
     TREASURE_STOLEN,  // Signal that a player has lost treasure due to a steal
     TREASURE_WON,     // Signal that a player has won a treasure
+    MAKE_UNSTEALABLE, // Signal to make treasure unstealable
     SCORE_UPDATE,     // Signal a score update
     RESET_LEVEL       // Signal a level to reset
 };

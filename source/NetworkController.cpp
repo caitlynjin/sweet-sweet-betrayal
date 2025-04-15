@@ -49,6 +49,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
     _network->attachEventType<ScoreEvent>();
+    _network->attachEventType<TreasureEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -89,23 +90,27 @@ void NetworkController::resetNetwork(){
      */
 void NetworkController::update(float timestep){
     // Process messaging events
-    
-    if(_network->isInAvailable()){
-        auto e = _network->popInEvent();
-        // Check for MessageEvent
-        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            processMessageEvent(mEvent);
-        }
-        // Check for ColorEvent
-        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
-            processColorEvent(cEvent);
-        }
-        // // Check for ScoreEvent
-        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
-            _scoreController->processScoreEvent(sEvent);
-        }
-        
-    }
+//    
+//    if(_network->isInAvailable()){
+//        auto e = _network->popInEvent();
+//        // Check for MessageEvent
+//        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+//            processMessageEvent(mEvent);
+//        }
+//        // Check for ColorEvent
+//        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+//            processColorEvent(cEvent);
+//        }
+//        // Check for ScoreEvent
+//        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+//            _scoreController->processScoreEvent(sEvent);
+//        }
+//        // Check for TreasureEvent
+//        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
+//            processTreasureEvent(tEvent);
+//        }
+//        
+//    }
 }
 
 
@@ -182,6 +187,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for ScoreEvent
         if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
             _scoreController->processScoreEvent(sEvent);
+        }
+        // Check for TreasureEvent
+        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
+            processTreasureEvent(tEvent);
         }
     }
     _scoreController->setPlayerColors(_playerColorsById);
@@ -260,8 +269,9 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             break;
             
         case Message::TREASURE_TAKEN:
-            // Increment number of players needed to be reset
+            // Set the treasure as taken
             _treasure->setTaken(true);
+            CULog("Treasure taken processed");
             break;
         case Message::TREASURE_LOST:
             // Reset treasure
@@ -272,13 +282,17 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             for (auto player : _playerList){
                 if (player->hasTreasure){
                     player->removeTreasure();
+                    _treasure->setTaken(false);
                 }
             }
-            _treasure->setTaken(false);
             break;
         case Message::TREASURE_WON:
             // Reset treasure
             resetTreasureRandom();
+            break;
+        case Message::MAKE_UNSTEALABLE:
+            // Make treasure unstealable
+            _treasure->setStealable(false);
             break;
         case Message::HOST_START:
             // Send message for everyone to send player id and color
@@ -311,9 +325,24 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     _playerIDs.push_back(playerID);
 }
 
+
+/**
+ * This method takes a TreasureEvent and processes it.
+ */
+void NetworkController::processTreasureEvent(const std::shared_ptr<TreasureEvent>& event){
+    int playerID = event->getPlayerID();
+    
+    ColorType color = _playerColorsById[playerID];
+    
+    if (_color == color){
+        _localPlayer->gainTreasure(_treasure);
+    }
+}
+
 /** Resets the treasure to remove possession and return to spawn location */
 void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
+    _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPosition(_treasureSpawn);
     }
@@ -324,6 +353,7 @@ void NetworkController::resetTreasure(){
 /** Resets the treasure to remove possession and return to random spawn location */
 void NetworkController::resetTreasureRandom(){
     _treasure->setTaken(false);
+    _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPosition(pickRandSpawn());
     }

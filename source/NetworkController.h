@@ -16,6 +16,7 @@
 #include "MessageEvent.h"
 #include "ColorEvent.h"
 #include "ScoreEvent.h"
+#include "TreasureEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
@@ -341,6 +342,9 @@ protected:
     /** List of all spawn points that have currently been used  */
     std::vector<Vec2> _usedSpawns;
     
+    /** The local player */
+    std::shared_ptr<PlayerModel> _localPlayer;
+    
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
     
@@ -517,6 +521,23 @@ public:
         _treasureSpawn = spawn;
     }
     
+    
+    /**
+     * Sets the local player.
+     *
+     * @param player the reference to the local player
+     */
+    void setLocalPlayer(std::shared_ptr<PlayerModel> player){
+        _localPlayer = player;
+    }
+    
+    /**
+     Returns the reference to the local player.
+     */
+    std::shared_ptr<PlayerModel> getLocalPlayer(){
+        return _localPlayer;
+    }
+    
     /**
      * Returns the spawn location of the treasure
      */
@@ -679,6 +700,11 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+    
+    /**
+     * This method takes a TreasureEvent and processes it.
+     */
+    void processTreasureEvent(const std::shared_ptr<TreasureEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects

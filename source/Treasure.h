@@ -23,6 +23,9 @@ private:
     /**owned by a player**/
     bool _taken = false;
     
+    /** Whether the treasure is stealable */
+    bool _isStealable = true;
+    
 protected:
     /** The texture for the treasure */
     std::string _treasureTexture;
@@ -116,7 +119,17 @@ public:
      * @return True if stealable, false otherwise
      */
     bool isStealable() {
-        return _stealCooldown <= 0;
+        if (_stealCooldown > 0){
+            _isStealable = false;
+        }
+        else{
+            _isStealable = true;
+        }
+        return _isStealable;
+    }
+    
+    void setStealable(bool value){
+        _isStealable = value;
     }
 
     /**
