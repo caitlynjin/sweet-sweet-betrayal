@@ -391,6 +391,7 @@ void MovePhaseController::reachedGoal(){
         // Send message to network that the player has ended their movement phase
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
         if (player->hasTreasure){
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MAKE_UNSTEALABLE));
             _networkController->getScoreController()->sendScoreEvent(
                 _networkController->getNetwork(),
                 _networkController->getNetwork()->getShortUID(),
@@ -587,10 +588,26 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //Treasure Collection
             else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
             {
-                if (!_movePhaseScene.getLocalPlayer()->hasTreasure && !_movePhaseScene.getTreasure()->isTaken())
+                std::shared_ptr<PlayerModel> localPlayer = _movePhaseScene.getLocalPlayer();
+                if (!localPlayer->hasTreasure && !localPlayer->isDead())
                 {
-                    _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
-                    _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
+                    CULog("Local player does not have treasure");
+                    // Check if the treasure is stealable
+                    if (_networkController->getTreasure()->isStealable()){
+                        CULog("treasure is stealable");
+                        // If the treasure is taken, release from player who has it
+                        if (_networkController->getTreasure()->isTaken()){
+                            CULog("Someone has the treasure");
+                            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_STOLEN));
+                        }
+                        
+                        // Local player takes treasure
+                        CULog("Local Player takes treasure");
+                        _network->pushOutEvent(TreasureEvent::allocTreasureEvent(_network->getShortUID()));
+                        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
+//                        CULog("Local Player takes treasure");
+//                        _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
+                    }
                 }
             }
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION

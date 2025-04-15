@@ -546,7 +546,14 @@
 					"width":	1,
 					"x":	14.500000,
 					"y":	7.500000
-				}]
+				},{
+                    "height":    1,
+                    "scale":    64,
+                    "type":    "default",
+                    "width":    1,
+                    "x":    23.500000,
+                    "y":    6.500000
+                }]
 		}, {
 			"name":	"emptyObjectList",
 			"objects":	[]

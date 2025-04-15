@@ -55,7 +55,7 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     
     std::string iconTextureKey;
     if (type == ScoreEvent::ScoreType::END_TREASURE) {
-        iconTextureKey = "score-treasure";
+        iconTextureKey = "score-treasure";        
     }
     else if (type == ScoreEvent::ScoreType::END) {
         iconTextureKey = "score-finish";

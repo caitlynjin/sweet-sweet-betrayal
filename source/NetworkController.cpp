@@ -49,6 +49,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
     _network->attachEventType<ScoreEvent>();
+    _network->attachEventType<TreasureEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -89,23 +90,27 @@ void NetworkController::resetNetwork(){
      */
 void NetworkController::update(float timestep){
     // Process messaging events
-    
-    if(_network->isInAvailable()){
-        auto e = _network->popInEvent();
-        // Check for MessageEvent
-        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-            processMessageEvent(mEvent);
-        }
-        // Check for ColorEvent
-        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
-            processColorEvent(cEvent);
-        }
-        // // Check for ScoreEvent
-        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
-            _scoreController->processScoreEvent(sEvent);
-        }
-        
-    }
+//    
+//    if(_network->isInAvailable()){
+//        auto e = _network->popInEvent();
+//        // Check for MessageEvent
+//        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
+//            processMessageEvent(mEvent);
+//        }
+//        // Check for ColorEvent
+//        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
+//            processColorEvent(cEvent);
+//        }
+//        // Check for ScoreEvent
+//        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
+//            _scoreController->processScoreEvent(sEvent);
+//        }
+//        // Check for TreasureEvent
+//        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
+//            processTreasureEvent(tEvent);
+//        }
+//        
+//    }
 }
 
 
@@ -183,6 +188,10 @@ void NetworkController::fixedUpdate(float step){
         if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
             _scoreController->processScoreEvent(sEvent);
         }
+        // Check for TreasureEvent
+        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
+            processTreasureEvent(tEvent);
+        }
     }
     _scoreController->setPlayerColors(_playerColorsById);
 
@@ -225,7 +234,7 @@ void NetworkController::reset(){
     // Reset network in-game variables
     _numReady = 0;
     _numReset = 0;
-    resetTreasure();
+    resetTreasureRandom();
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
@@ -260,12 +269,30 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             break;
             
         case Message::TREASURE_TAKEN:
-            // Increment number of players needed to be reset
+            // Set the treasure as taken
             _treasure->setTaken(true);
+            CULog("Treasure taken processed");
             break;
         case Message::TREASURE_LOST:
             // Reset treasure
             resetTreasure();
+            break;
+        case Message::TREASURE_STOLEN:
+            // Remove treasure from all player references
+            for (auto player : _playerList){
+                if (player->hasTreasure){
+                    player->removeTreasure();
+                    _treasure->setTaken(false);
+                }
+            }
+            break;
+        case Message::TREASURE_WON:
+            // Reset treasure
+            resetTreasureRandom();
+            break;
+        case Message::MAKE_UNSTEALABLE:
+            // Make treasure unstealable
+            _treasure->setStealable(false);
             break;
         case Message::HOST_START:
             // Send message for everyone to send player id and color
@@ -298,10 +325,38 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     _playerIDs.push_back(playerID);
 }
 
+
+/**
+ * This method takes a TreasureEvent and processes it.
+ */
+void NetworkController::processTreasureEvent(const std::shared_ptr<TreasureEvent>& event){
+    int playerID = event->getPlayerID();
+    
+    ColorType color = _playerColorsById[playerID];
+    
+    if (_color == color){
+        _localPlayer->gainTreasure(_treasure);
+    }
+}
+
 /** Resets the treasure to remove possession and return to spawn location */
 void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
-    _treasure->setPosition(_treasureSpawn);
+    _treasure->setStealable(true);
+    if (_isHost){
+        _treasure->setPosition(_treasureSpawn);
+    }
+    
+}
+
+
+/** Resets the treasure to remove possession and return to random spawn location */
+void NetworkController::resetTreasureRandom(){
+    _treasure->setTaken(false);
+    _treasure->setStealable(true);
+    if (_isHost){
+        _treasure->setPosition(pickRandSpawn());
+    }
     
 }
 
@@ -384,13 +439,12 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
     }
 }
 
-std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size size, float scale, bool isTaken){
+std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
     // Find the hitbox in network world
     std::shared_ptr<cugl::physics2::BoxObstacle> box;
     const auto& obstacles = _world->getObstacles();
     for (const auto& obstacle : obstacles) {
         if (obstacle->getName() == "treasure"){
-            CULog("treasure is set for client");
             box = std::dynamic_pointer_cast<BoxObstacle>(obstacle);
             break;
         }
@@ -399,14 +453,16 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(Vec2 pos, Size s
     // Rest of initialization
     std::shared_ptr<Texture> image;
     std::shared_ptr<scene2::PolygonNode> sprite;
-    Vec2 treasurePos = pos;
     image = _assets->get<Texture>("treasure");
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/scale,scale, false, box);
+    _treasure = Treasure::alloc(box->getPosition(),image->getSize()/scale,scale, false, box);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
-
-    _treasure->setPosition(pos);
+    
+    // THIS MIGHT BE THE SOLUTION FOR MOVING PLATFORM
+    _treasure->setPosition(box->getPosition());
+//
+//    _treasure->setPosition(pos);
     _objects->push_back(_treasure);
     return _treasure;
 }
@@ -465,6 +521,50 @@ std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, 
     return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
 }
 
+#pragma mark -
+#pragma mark Treasure Handling
+
+/**
+ Picks the next spawn point for the treasure at random.
+ 
+ If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
+ */
+Vec2 NetworkController::pickRandSpawn(){
+    int maxIndex = static_cast<int>(_tSpawnPoints.size()) - 1;
+    Vec2 spawnPoint;
+    
+    // Random number generator
+    std::shared_ptr<cugl::Random> random = cugl::Random::alloc();
+    int randomIndex;
+    
+    if (maxIndex > 0){
+        bool foundSpawn = false;
+        while (!foundSpawn){
+            randomIndex = static_cast<int>(random->getClosedSint64(0, maxIndex));
+            Vec2 randSpawn = _tSpawnPoints[randomIndex];
+            
+            // Check if random spawn has already been used recently
+            if (std::count(_usedSpawns.begin(), _usedSpawns.end(), randSpawn) == 0){
+                spawnPoint = randSpawn;
+                foundSpawn = true;
+            }
+        }
+    }
+    else{
+        spawnPoint = _tSpawnPoints[0];
+    }
+    
+    // Add spawn point to used spawn list
+    _usedSpawns.push_back(spawnPoint);
+    
+    // Check if we can clear _usedSpawns
+    if (_usedSpawns.size() == _tSpawnPoints.size()){
+        _usedSpawns.clear();
+    }
+    
+    _treasureSpawn = spawnPoint;
+    return spawnPoint;
+}
 
 #pragma mark -
 #pragma mark Helpers
