@@ -9,19 +9,97 @@
 			"name":	"tiles",
 			"objects":	[{
 					"height":	1,
-					"type":	"tileLeft",
+					"type":	"tileBottom",
 					"width":	1,
 					"x":	0,
 					"y":	0
 				}, {
 					"height":	1,
-					"type":	"tileLeft",
+					"type":	"tileInner",
 					"width":	1,
 					"x":	0,
 					"y":	0
 				}, {
 					"height":	1,
-					"type":	"tileTopLeft",
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
+					"width":	1,
+					"x":	0,
+					"y":	0
+				}, {
+					"height":	1,
+					"type":	"tileInner",
 					"width":	1,
 					"x":	0,
 					"y":	0

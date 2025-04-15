@@ -224,7 +224,7 @@ void LevelEditorUIScene::initInventory(std::vector<Item> inventoryItems, std::ve
         addChild(itemButton);
         yOffset += 80;
         count = (count + 1);
-        if (count >= 10) {
+        if (count >= 11) {
             count = 0;
             page_temp++;
         }

@@ -18,6 +18,7 @@
 #include <cugl/physics2/distrib/CUNetEventController.h>
 #include "SoundController.h"
 #include "NetworkController.h"
+#include <array>
 
 
 

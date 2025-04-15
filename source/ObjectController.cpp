@@ -60,7 +60,7 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
     std::shared_ptr<Tile> tile = Tile::alloc(pos, size, jsonType);
 
     std::shared_ptr<Texture> image;
-    image = _assets->get<Texture>(TILE_TEXTURE);
+    image = _assets->get<Texture>(jsonTypeToAsset[jsonType]);
 
     float blendingOffset = 0.01f;
 
@@ -413,6 +413,9 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
     }
     else if (key == "artObjects") {
         createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
+    }
+    else if (key == "tiles") {
+        createTile(obj->getPosition(), obj->getSize(), obj->getJsonType());
     }
 }
 

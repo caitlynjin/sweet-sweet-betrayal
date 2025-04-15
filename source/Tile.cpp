@@ -1,7 +1,7 @@
 #include "Tile.h"
 #include "Object.h"
 
-#define JSON_KEY  "Tiles";
+#define JSON_KEY  "tiles";
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -47,6 +47,7 @@ using namespace cugl;
 bool Tile::init(const Vec2 pos, const Size size, std::string jsonType) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2, Size(nsize.width, nsize.height));
+    _position = pos;
     _size = size;
     _jsonType = jsonType;
     _itemType = jsonTypeToItemType[jsonType];

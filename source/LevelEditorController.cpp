@@ -316,10 +316,12 @@ void LevelEditorController::preUpdate(float dt) {
                 CULog("length before erase: %d", (*(_objectController->getObjects())).size());
                 auto it = (*(_objectController->getObjects())).begin();
                 int index = 0;
+                
                 // This code erases an object from ObjectController, but not from the world.
-                /*while (it != (*(_objectController->getObjects())).end()) {
+                while (it != (*(_objectController->getObjects())).end()) {
                     if (**it == *obj) {
-                        (*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
+                        //(*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
+                        //_gridManager->deleteObject(obj);
                         CULog("%d", (*(_objectController->getObjects())).size());
                         break;
                     }
@@ -331,7 +333,7 @@ void LevelEditorController::preUpdate(float dt) {
                     }
                     index++;
                     ++it;
-                }*/
+                }
 
                 /*This code doesn't really work as is but I left it in for now. */
                 //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
@@ -424,7 +426,7 @@ void LevelEditorController::preUpdate(float dt) {
 
     //CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
-    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 2240) {
+    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 4480) {
         _levelEditorScene.getCamera()->translate(10, 0);
         _levelEditorScene.getCamera()->update();
     }
@@ -444,7 +446,11 @@ void LevelEditorController::preUpdate(float dt) {
         // Load the level stored in this file
 
         // TODO: (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
+        for (auto& obj : _gridManager->objToPosMap) {
+            //_gridManager->deleteObject(obj.first);
+        }
         _objectController->getObjects()->clear();
+        _world->clear();
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
         for (auto& obj : objects) {

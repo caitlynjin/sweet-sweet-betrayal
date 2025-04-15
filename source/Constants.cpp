@@ -159,19 +159,19 @@ std::string itemToAssetName(Item item) {
         case (ART_OBJECT):
             return EARTH_TEXTURE; // for debugging - this is not sustainable
         case (TILE_TOP):
-            return EARTH_TEXTURE;
+            return TOP_TILE_TEXTURE;
         case (TILE_BOTTOM):
-            return EARTH_TEXTURE;
+            return BOTTOM_TILE_TEXTURE;
         case (TILE_INNER):
-            return EARTH_TEXTURE;
+            return INNER_TILE_TEXTURE;
         case (TILE_LEFT):
-            return EARTH_TEXTURE;
+            return LEFT_TILE_TEXTURE;
         case (TILE_RIGHT):
-            return EARTH_TEXTURE;
+            return RIGHT_TILE_TEXTURE;
         case (TILE_TOPLEFT):
-            return EARTH_TEXTURE;
+            return TOPLEFT_TILE_TEXTURE;
         case (TILE_TOPRIGHT):
-            return EARTH_TEXTURE;
+            return TOPRIGHT_TILE_TEXTURE;
         case (CRACK_1):
             return CRACK1_TEXTURE;
         case (CRACK_2):

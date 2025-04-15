@@ -121,7 +121,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
     worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     worldnode->setPosition(_offset);
-    shared_ptr<scene2::SceneNode> _worldNode = dynamic_pointer_cast<scene2::SceneNode>(worldnode);
+    shared_ptr<scene2::SceneNode> _worldnode = dynamic_pointer_cast<scene2::SceneNode>(worldnode);
     addChild(_worldnode);
 
     _debugnode = scene2::SceneNode::alloc();
