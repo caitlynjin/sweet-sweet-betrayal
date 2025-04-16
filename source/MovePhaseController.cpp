@@ -552,15 +552,15 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    // Set grounded for all players (not just local player)
-    if (tagContainsPlayer(bd1->getName())) {
+    // Set grounded for all non-local players 
+    if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
+        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2) ) {
             player->setGrounded(true);
         }
     }
 
-    if (tagContainsPlayer(bd2->getName())) {
+    if (tagContainsPlayer(bd2->getName()) && bd2 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
         if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
             player->setGrounded(true);
@@ -613,9 +613,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
             else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && !tagContainsPlayer(bd1->getName())) ||
                 (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName())))
-                && (bd1->getName() != "gust" && bd2->getName() != "gust")) {
+                ) {
                 //Set player to grounded
-                // _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                _movePhaseScene.getLocalPlayer()->setGrounded(true);
                 // Could have more than one ground
                 _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 
