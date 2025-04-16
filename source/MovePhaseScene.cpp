@@ -201,7 +201,7 @@ void MovePhaseScene::populate() {
         
         _treasure =
             _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false);
-        _treasure->testInt = 5;
+//        _treasure->testInt = 5;
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }
