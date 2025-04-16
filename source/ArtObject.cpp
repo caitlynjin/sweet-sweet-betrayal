@@ -50,13 +50,15 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     _itemType = jsonTypeToItemType[jsonType];
     CULog("jsonType is %s", jsonType.c_str());
     
-    if (
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(pos, size);
     
-    _box = cugl::physics2::BoxObstacle::alloc(pos, size);
-    _box->setBodyType(b2_staticBody);
-    _box->setDebugColor(Color4::YELLOW);
-    _box->setPosition(_position + size/2);
-    _box->setAngle(angle);
+    if (PolygonObstacle::init(rect)){
+        setBodyType(b2_staticBody);
+        setDebugColor(Color4::YELLOW);
+        setPosition(_position + size/2);
+        setAngle(angle);
+    }
 
     return true;
 }

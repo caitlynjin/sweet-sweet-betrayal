@@ -55,9 +55,9 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
 /**
 Creates a 1 by 1 tile
 */
-std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string jsonType) {
+std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string jsonType, float scale) {
     CULog("MADE PLATFORM");
-    std::shared_ptr<Tile> tile = Tile::alloc(pos, size, jsonType);
+    std::shared_ptr<Tile> tile = Tile::alloc(pos, size, jsonType, scale);
 
     std::shared_ptr<Texture> image;
     image = _assets->get<Texture>(jsonTypeToAsset[jsonType]);
@@ -74,18 +74,18 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
     triangulator.clear();
 
     // Set the physics attributes
-    tile->getObstacle()->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
-    tile->getObstacle()->setDensity(BASIC_DENSITY);
-    tile->getObstacle()->setFriction(BASIC_FRICTION);
-    tile->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    tile->getObstacle()->setDebugColor(DEBUG_COLOR);
-    tile->getObstacle()->setName("tile");
+    tile->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    tile->setDensity(BASIC_DENSITY);
+    tile->setFriction(BASIC_FRICTION);
+    tile->setRestitution(BASIC_RESTITUTION);
+    tile->setDebugColor(DEBUG_COLOR);
+    tile->setName("tile");
 
     poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     tile->setSceneNode(sprite);
 
-    addObstacle(tile->getObstacle(), sprite, 1); // All walls share the same texture
+    addObstacle(tile, sprite, 1); // All walls share the same texture
 
 
     _gameObjects->push_back(tile);
@@ -115,12 +115,12 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     triangulator.clear();
 
     // Set the physics attributes
-    plat->getObstacle()->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
-    plat->getObstacle()->setDensity(BASIC_DENSITY);
-    plat->getObstacle()->setFriction(BASIC_FRICTION);
-    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-    plat->getObstacle()->setName("platform");
+    plat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    plat->setDensity(BASIC_DENSITY);
+    plat->setFriction(BASIC_FRICTION);
+    plat->setRestitution(BASIC_RESTITUTION);
+    plat->setDebugColor(DEBUG_COLOR);
+    plat->setName("platform");
 
     poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
@@ -128,7 +128,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     
     plat->setSceneNode(sprite);
 
-    addObstacle(plat->getObstacle(), sprite, 1); // All walls share the same texture
+    addObstacle(plat, sprite, 1); // All walls share the same texture
     
     
     _gameObjects->push_back(plat);
@@ -177,17 +177,17 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
     poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
 
-    plat->getObstacle()->setDensity(BASIC_DENSITY);
-    plat->getObstacle()->setFriction(BASIC_FRICTION);
-    plat->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    plat->getObstacle()->setDebugColor(DEBUG_COLOR);
-    plat->getObstacle()->setName("movingPlatform");
+    plat->setDensity(BASIC_DENSITY);
+    plat->setFriction(BASIC_FRICTION);
+    plat->setRestitution(BASIC_RESTITUTION);
+    plat->setDebugColor(DEBUG_COLOR);
+    plat->setName("movingPlatform");
 
     poly *= _scale;
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image, poly);
     plat->setSceneNode(sprite);
 
-    addObstacle(plat->getObstacle(), sprite, 1);
+    addObstacle(plat, sprite, 1);
     _gameObjects->push_back(plat);
 
     return plat;
@@ -208,16 +208,16 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
     std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
 
     // Set the physics attributes
-    spk->getObstacle()->setBodyType(b2_staticBody);
-    spk->getObstacle()->setDensity(BASIC_DENSITY);
-    spk->getObstacle()->setFriction(BASIC_FRICTION);
-    spk->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    spk->getObstacle()->setDebugColor(DEBUG_COLOR);
-    spk->getObstacle()->setName("spike");
+    spk->setBodyType(b2_staticBody);
+    spk->setDensity(BASIC_DENSITY);
+    spk->setFriction(BASIC_FRICTION);
+    spk->setRestitution(BASIC_RESTITUTION);
+    spk->setDebugColor(DEBUG_COLOR);
+    spk->setName("spike");
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
     spk->setSceneNode(sprite, spk->getAngle());
-    addObstacle(spk->getObstacle(), sprite);
+    addObstacle(spk, sprite);
     _gameObjects->push_back(spk);
     return spk;
 }
@@ -239,10 +239,10 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
 
     // Allow movement of obstacle
-    wind->getObstacle()->setBodyType(b2_dynamicBody);
+    wind->setBodyType(b2_dynamicBody);
     wind->setPosition(pos);
 
-    addObstacle(wind->getObstacle(), fanSprite, 1); 
+    addObstacle(wind, fanSprite, 1);
     wind->setSceneNode(fanSprite);
     //Set the texture of the gust
     wind->setGustSprite(gustSprite);
@@ -265,9 +265,9 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
     _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
-    addObstacle(_treasure->getObstacle(),sprite);
-    _treasure->getObstacle()->setName("treasure");
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    addObstacle(_treasure,sprite);
+    _treasure->setName("treasure");
+    _treasure->setDebugColor(Color4::YELLOW);
 
     _treasure->setPosition(pos);
     _gameObjects->push_back(_treasure);
@@ -321,15 +321,15 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
      * to add the sprite nodes just for art objects to all the game scenes.
      * So we keep the physics body for consistency, and just disable it for art objects.
      */
-    art->getObstacle()->setBodyType(b2_staticBody);
-    art->getObstacle()->setDensity(BASIC_DENSITY);
-    art->getObstacle()->setFriction(BASIC_FRICTION);
-    art->getObstacle()->setRestitution(BASIC_RESTITUTION);
-    art->getObstacle()->setDebugColor(DEBUG_COLOR);
-    art->getObstacle()->setName("artObject");
+    art->setBodyType(b2_staticBody);
+    art->setDensity(BASIC_DENSITY);
+    art->setFriction(BASIC_FRICTION);
+    art->setRestitution(BASIC_RESTITUTION);
+    art->setDebugColor(DEBUG_COLOR);
+    art->setName("artObject");
     // Disable ArtObject collision physics
-    art->getObstacle()->setSensor(true);
-    addObstacle(art->getObstacle(), sprite);
+    art->setSensor(true);
+    addObstacle(art, sprite);
 
     _gameObjects->push_back(art);
 
@@ -423,7 +423,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
     }
     else if (key == "tiles") {
-        createTile(obj->getPositionInit(), obj->getSize(), obj->getJsonType());
+        createTile(obj->getPositionInit(), obj->getSize(), obj->getJsonType(), _scale);
     }
 }
 

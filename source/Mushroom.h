@@ -25,11 +25,7 @@ public:
 
     void dispose() override;
 
-    void setPosition(const cugl::Vec2& position) override;
-
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
+    void setPositionInit(const cugl::Vec2& position) override;
 
     static std::shared_ptr<Mushroom> alloc(const Vec2 position, const Size size, float scale) {
         std::shared_ptr<Mushroom> result = std::make_shared<Mushroom>();

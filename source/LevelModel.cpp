@@ -153,7 +153,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 				allLevelObjects.push_back(Tile::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
 					theSize,
-					(*it2)->get("type")->asString()
+					(*it2)->get("type")->asString(), _scale
 				));
 			}
 			else if ((*it)->get("name")->_stringValue == string("spikes")) {

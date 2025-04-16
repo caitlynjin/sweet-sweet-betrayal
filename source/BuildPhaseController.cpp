@@ -147,8 +147,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject->setPositionInit(gridPosWithOffset);
                 
                 // Trigger obstacle update listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
             } else {
                 _gridManager->setObject(gridPosWithOffset, _selectedItem);
@@ -223,8 +223,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 }
 
                 // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
 
                 // Reset selected object
@@ -412,7 +412,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
         case (TILE_ITEM):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            obj = _objectController->createTile(gridPos, itemToSize(item), "default");
+            obj = _objectController->createTile(gridPos, itemToSize(item), "default", _buildPhaseScene.getScale());
             obj->setItemType(TILE_ITEM);
             return obj;
         case (NONE):

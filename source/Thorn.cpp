@@ -18,9 +18,9 @@ using namespace cugl::graphics;
  *
  * @param position   The position
  */
-void Thorn::setPosition(const cugl::Vec2& position) {
+void Thorn::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + _size/2);
+    PolygonObstacle::setPosition(position + _size/2);
 }
 
 string Thorn::getJsonKey() {
@@ -30,8 +30,8 @@ string Thorn::getJsonKey() {
 void Thorn::dispose() {
     Object::dispose();
 
-    _box->markRemoved(true);
-    _box = nullptr;
+    markRemoved(true);
+//    _box = nullptr;
 }
 
 
@@ -56,8 +56,15 @@ bool Thorn::init(const Vec2 pos, const Size size, string jsonType) {
     _position = pos;
     _itemType = Item::THORN;
     _size = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos + size/2, size);
-    return true;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(pos + size/2, size);
+    
+    if (PolygonObstacle::init(rect)){
+        return true;
+    }
+
+    return false;
 }
 
 /** Init method used for networked thorns */

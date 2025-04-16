@@ -421,22 +421,9 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
     }
 }
 std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken) {
-    CULog("creating treasure");
     auto params = _treasureFact->serializeParams(pos, size, scale, taken);
     auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
-
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-    
-    if (boxObstacle) {
-        std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
-        treasure->setSceneNode(sprite);
-        _objects->push_back(treasure);
-        return treasure;
-    } else {
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
+    return std::dynamic_pointer_cast<Treasure>(pair.first);
 }
 
 std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
@@ -457,7 +444,7 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
     _treasure = Treasure::alloc(box->getPosition(),image->getSize()/scale,scale, false, box);
     sprite = scene2::PolygonNode::allocWithTexture(image);
     _treasure->setSceneNode(sprite);
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    _treasure->setDebugColor(Color4::YELLOW);
     
     // THIS MIGHT BE THE SOLUTION FOR MOVING PLATFORM
     _treasure->setPositionInit(box->getPosition());
@@ -904,12 +891,12 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
     
     treasure->setSceneNode(sprite);
-    treasure->getObstacle()->setName("treasure");
-    treasure->getObstacle()->setDebugColor(Color4::YELLOW);
+    treasure->setName("treasure");
+    treasure->setDebugColor(Color4::YELLOW);
     treasure->setPositionInit(pos);
-    treasure->getObstacle()->setShared(true);
+    treasure->setShared(true);
     
-    return std::make_pair(treasure->getObstacle(), sprite);
+    return std::make_pair(treasure, sprite);
 }
 
 /**

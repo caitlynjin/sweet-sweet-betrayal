@@ -93,7 +93,7 @@ public:
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
 
     /*Creates a 1 by 1 tile*/
-    std::shared_ptr<Object> createTile(Vec2 pos, Size size, string jsonType);
+    std::shared_ptr<Object> createTile(Vec2 pos, Size size, string jsonType, float scale);
 
     /**
      * Creates a moving platform.

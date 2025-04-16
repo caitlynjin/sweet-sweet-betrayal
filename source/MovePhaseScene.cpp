@@ -56,7 +56,7 @@ using namespace Constants;
 float GOAL_POS[] = { 47.0f, 4.0f };
 /** The initial position of the dude */
 
-float DUDE_POS[] = { 1.0f, 3.0f};
+float DUDE_POS[] = { 1.0f, 4.0f};
 
 
 #pragma mark -
@@ -152,6 +152,7 @@ void MovePhaseScene::populate() {
 
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
+    level->setScale(_scale);
     std::string key;
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
     _gridManager->clear();

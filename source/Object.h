@@ -100,10 +100,6 @@ public:
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
 
-    /**
-     * Gets the obstacle of this object.
-     */
-    virtual std::shared_ptr<cugl::physics2::Obstacle> getObstacle() { return nullptr; };
 
     /**
      * Get the item type of the object.

@@ -291,8 +291,8 @@ void LevelEditorController::preUpdate(float dt) {
                     _selectedObject->setPositionInit(gridPosWithOffset);
 
                     // Trigger obstacle update listener
-                    if (_selectedObject->getObstacle()->getListener()) {
-                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                    if (_selectedObject->getListener()) {
+                        _selectedObject->getListener()(_selectedObject.get());
                     }
                 }
                 else {
@@ -341,8 +341,8 @@ void LevelEditorController::preUpdate(float dt) {
                 //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
                 //CULog("length before erase: %d", (*(_objectController->getObjects())).size());
                 obj->setPositionInit(Vec2(2, 2));
-                if (obj->getObstacle()->getListener()) {
-                    obj->getObstacle()->getListener()(obj->getObstacle().get());
+                if (obj->getListener()) {
+                    obj->getListener()(obj.get());
                 }
             }
         }
@@ -395,8 +395,8 @@ void LevelEditorController::preUpdate(float dt) {
                 }
 
                 // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
 
                 // Reset selected object
@@ -503,6 +503,7 @@ void LevelEditorController::render() {
 std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item) {
     CULog("There are %d objects", _objectController->getObjects()->size());
     shared_ptr<Object> obj;
+    float scale = _levelEditorScene.getScale();
     switch (item) {
     case (PLATFORM):
         return _objectController->createPlatform(gridPos, itemToSize(item), "log");
@@ -525,35 +526,35 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return nullptr;
     case (TILE_ITEM):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        obj = _objectController->createTile(gridPos, itemToSize(item), "default");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "default", scale);
         obj->setItemType(TILE_ITEM);
         return obj;
     case (TILE_TOP):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTop");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTop", scale);
         obj->setItemType(TILE_ITEM);
         return obj;
     case (TILE_BOTTOM):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottom");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottom", scale);
         obj->setItemType(TILE_BOTTOM);
         return obj;
     case (TILE_INNER):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInner");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInner", scale);
         obj->setItemType(TILE_INNER);
         return obj;
     case (TILE_LEFT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileLeft");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileLeft", scale);
         obj->setItemType(TILE_LEFT);
         return obj;
     case (TILE_RIGHT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileRight");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileRight", scale);
         obj->setItemType(TILE_RIGHT);
         return obj;
     case (TILE_TOPLEFT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopLeft");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopLeft", scale);
         obj->setItemType(TILE_TOPLEFT);
         return obj;
     case (TILE_TOPRIGHT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight");
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight", scale);
         obj->setItemType(TILE_TOPRIGHT);
         return obj;
 

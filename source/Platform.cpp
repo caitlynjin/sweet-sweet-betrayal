@@ -11,15 +11,15 @@ using namespace cugl::graphics;
  *
  * @param position   The position
  */
-void Platform::setPosition(const cugl::Vec2& position) {
+void Platform::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
+    PolygonObstacle::setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
     
 }
 
 void Platform::update(float timestep) {
     if (!_moving) return;
-    Vec2 pos = _box->getPosition();
+    Vec2 pos = getPosition();
     Vec2 target = _forward ? _endPos+_size/2 : _startPos+_size/2;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
@@ -32,16 +32,16 @@ void Platform::update(float timestep) {
     Vec2 step = direction * (_speed * timestep);
 
     //if next step will move over the end_pos
-    if (distance < _speed * timestep || toTarget.dot(_box->getLinearVelocity() * timestep) < 0) {
+    if (distance < _speed * timestep || toTarget.dot(getLinearVelocity() * timestep) < 0) {
         CULog("turning");
         pos = target;
-        _box->setPosition(pos);
+        setPosition(pos);
         _forward = !_forward;
         Vec2 newTarget = _forward ? _endPos+_size/2 : _startPos+_size/2;
         Vec2 direction = newTarget - pos;
         direction.normalize();         
         Vec2 velocity = direction * _speed;
-        _box->setLinearVelocity(velocity);
+        setLinearVelocity(velocity);
     }
 
 }
@@ -53,8 +53,8 @@ string Platform::getJsonKey() {
 void Platform::dispose() {
     Object::dispose();
 
-    _box->markRemoved(true);
-    _box = nullptr;
+    markRemoved(true);
+//    _box = nullptr;
 }
 
 
@@ -77,24 +77,39 @@ bool Platform::init(const Vec2 pos, const Size size) {
 }
 bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
+    
     
     _size = size;
     _itemType = Item::PLATFORM;
     _jsonType = jsonType;
     _position = pos;
-    return true;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
+        
+    if (PolygonObstacle::init(rect)){
+        return true;
+    }
+    
+    return false;
 }
 
 // Init method used for networked platforms
 bool Platform::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
     Size nsize = size;
-    // The long platform is shorter in height
-    _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
     _size = size;
     _itemType = Item::PLATFORM;
     _position = pos;
-    return true;
+    
+    // The long platform is shorter in height
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
+        
+    if (PolygonObstacle::init(rect)){
+        return true;
+    }
+
+    return false;
 }
 
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
@@ -107,12 +122,24 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
+    
+    
     _box  = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
-    _box->setBodyType(b2_kinematicBody);
-    Vec2 direction = _endPos - _startPos;
-    direction.normalize();
-    _box->setLinearVelocity(direction * _speed);
-    return true;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
+        
+    if (PolygonObstacle::init(rect)){
+        setBodyType(b2_kinematicBody);
+        Vec2 direction = _endPos - _startPos;
+        direction.normalize();
+        setLinearVelocity(direction * _speed);
+        
+        return true;
+    }
+    
+    
+    return false;
 }
 //for networked moving platform 
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
@@ -125,6 +152,8 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _position = pos;
     _size = size;
     //enable moving
+    
+    
     _box = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
     _box = box;
     _box->setBodyType(b2_kinematicBody);

@@ -54,12 +54,9 @@ public:
 
     ~Treasure(void) override { dispose(); }
 
-    void dispose();
+    void dispose() override;
     
-    virtual void setPosition(const cugl::Vec2& position) override;
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
+    virtual void setPositionInit(const cugl::Vec2& position) override;
 
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Spike and link it to a physics object.
@@ -97,7 +94,7 @@ public:
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
         _node = node;
-        _node->setPosition(getPosition() * _drawScale);
+        _node->setPosition(getPositionInit() * _drawScale);
     }
 
     std::map<std::string, std::any> getMap() override;
@@ -137,7 +134,6 @@ public:
      * @return True if taken, false otherwise.
      */
     bool isTaken() const {
-        CULog("treasure taken");
         return _taken; }
     
     void reset();

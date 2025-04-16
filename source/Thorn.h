@@ -34,11 +34,8 @@ public:
      *
      * @param position   The position
      */
-    void setPosition(const cugl::Vec2& position) override;
+    void setPositionInit(const cugl::Vec2& position) override;
 
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
 
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Thorn and link it to a physics object.
