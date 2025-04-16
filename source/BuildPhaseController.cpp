@@ -392,6 +392,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return obj;
         case (NONE):
             return nullptr;
+        default:
+            return nullptr;
     }
 }
 

@@ -580,6 +580,8 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "rocky2");
     case (NONE):
         return nullptr;
+    default:
+        return nullptr;
     }
 }
 
