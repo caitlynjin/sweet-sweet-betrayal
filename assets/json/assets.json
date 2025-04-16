@@ -108,10 +108,10 @@
             "file": "textures/eraser_button.png"
         },
         "jump-button": {
-            "file": "textures/jump-button.PNG"
+            "file": "textures/jump-button.png"
         },
         "glide-button": {
-            "file": "textures/glide-button.PNG"
+            "file": "textures/glide-button.png"
         },
         "background": {
             "file": "textures/backgrounds/background2.png"
