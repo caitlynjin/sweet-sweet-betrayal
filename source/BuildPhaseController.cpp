@@ -263,13 +263,35 @@ void BuildPhaseController::preUpdate(float dt) {
 
 //    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
+    if ((_uiScene.getRightPressed() || _uiScene.getLeftPressed()) && !_accelerationStarted){
+        _accelerationStarted = true;
+        _accelerationStart = Application::get()->getEllapsedMicros();
+    }
+    else if (!(_uiScene.getRightPressed() || _uiScene.getLeftPressed())){
+        _accelerationStarted = false;
+    }
+
     // TODO: Segment out to another method, uiSceneUpdate()
     if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
-        _buildPhaseScene.getCamera()->translate(10, 0);
+        Uint64 currentTime = Application::get()->getEllapsedMicros();
+        Uint64 elapsedTime = currentTime - _accelerationStart;
+        if (elapsedTime < 2000000){
+            _buildPhaseScene.getCamera()->translate(10, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(20, 0);
+        }
         _buildPhaseScene.getCamera()->update();
     }
     if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 0){
-        _buildPhaseScene.getCamera()->translate(-10, 0);
+        Uint64 currentTime = Application::get()->getEllapsedMicros();
+        Uint64 elapsedTime = currentTime - _accelerationStart;
+        if (elapsedTime < 2000000){
+            _buildPhaseScene.getCamera()->translate(-10, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(-20, 0);
+        }
         _buildPhaseScene.getCamera()->update();
     }
 

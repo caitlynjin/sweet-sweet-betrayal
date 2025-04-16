@@ -57,6 +57,10 @@ protected:
     int _itemsPlaced = 0;
     /** Whether the message has been sent */
     bool _readyMessageSent = false;
+    /** Whether acceleration timer has started for camera button */
+    bool _accelerationStarted = false;
+    /** Starting time for acceleration timer */
+    Uint64 _accelerationStart;
 
 
 public:
