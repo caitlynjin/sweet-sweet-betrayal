@@ -14,7 +14,25 @@ shared_ptr<JsonValue> LevelModel::createJsonObjectList(string name, vector<share
 	}
 	for (auto it = objects.begin(); it != objects.end(); ++it) {
 		objData = (*it)->getMap();
+		if (name == "artObjects") {
+			if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), (*it)->getJsonType()) != xOffsetArtObjects.end()) {
+				//(*it)->setPosition(Vec2((*it)->getPosition().x - 32, (*it)->getPosition().y));
+
+			}
+			if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), (*it)->getJsonType()) != yOffsetArtObjects.end()) {
+				//(*it)->setPosition(Vec2((*it)->getPosition().x, (*it)->getPosition().y - 32));
+			}
+		}
 		innerArray->appendChild(createJsonObject(objData));
+		if (name == "artObjects") {
+			if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), (*it)->getJsonType()) != xOffsetArtObjects.end()) {
+				//(*it)->setPosition(Vec2((*it)->getPosition().x + 32, (*it)->getPosition().y));
+
+			}
+			if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), (*it)->getJsonType()) != yOffsetArtObjects.end()) {
+				//(*it)->setPosition(Vec2((*it)->getPosition().x, (*it)->getPosition().y + 32));
+			}
+		}
 	}
 	json->appendChild("objects", innerArray);
 	return json;
@@ -37,7 +55,6 @@ shared_ptr<JsonValue> LevelModel::createJsonObject(map<std::string, std::any>& d
 			json->appendValue(it->first, std::any_cast<long>(it->second));
 		}
 		// Add other types here if necessary
-		
 	}
 	return json;
 }
@@ -95,7 +112,8 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 			windObstacles.push_back(dynamic_pointer_cast<WindObstacle>(*it));
 		}
 		else if (key == "artObjects") {
-			artObjects.push_back(dynamic_pointer_cast<ArtObject>(*it));
+			auto artObj = dynamic_pointer_cast<ArtObject>(*it);
+			artObjects.push_back(artObj);
 		}
 	}
 	createJsonFromLevel(fileName, levelSize, platforms, spikes, treasures, windObstacles, tiles, artObjects);
@@ -163,6 +181,27 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat()), Vec2(0, 3.0f),
 					(*it2)->get("type")->asString()
 				));
+			}
+			else if ((*it)->get("name")->_stringValue == string("artObjects")) {
+				Vec2 pos = Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat());
+				if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), (*it2)->get("type")->asString()) != xOffsetArtObjects.end()) {
+					pos.x -= 0.5;
+
+				}
+				if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), (*it2)->get("type")->asString()) != yOffsetArtObjects.end()) {
+					pos.y -= 0.5;
+
+				}
+				auto artObj = ArtObject::alloc(
+					pos,
+					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
+					(*it2)->get("scale")->asFloat(),
+					(*it2)->get("angle")->asFloat(),
+					(*it2)->get("layer")->asInt(),
+					(*it2)->get("type")->asString()
+				);
+
+				allLevelObjects.push_back(artObj);
 			}
 		}
 	}

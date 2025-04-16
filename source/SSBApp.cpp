@@ -77,6 +77,7 @@ void SSBApp::onShutdown()
     _mainmenu.dispose();
     _hostgame.dispose();
     _joingame.dispose();
+    _victory.dispose();
 
     // Is this correct way of diposing networkController?
     _networkController->dispose();
@@ -189,6 +190,8 @@ void SSBApp::preUpdate(float dt)
         _hostgame.setSpriteBatch(_batch);
         _joingame.init(_assets, _networkController, _sound);
         _joingame.setSpriteBatch(_batch);
+        _victory.init(_assets, _sound, _networkController);
+        _victory.setSpriteBatch(_batch);
         _status = START;
     }
     else
@@ -204,17 +207,42 @@ void SSBApp::preUpdate(float dt)
         case HOST:
             updateHostScene(dt);
             break;
-
         case CLIENT:
             updateClientScene(dt);
             break;
-
         case GAME:
             _gameController.preUpdate(dt);
+            //TODO: Check for a victory
+                if (_gameController.getHasVictory()){
+                    _gameController.setActive(false);
+//                    _gameController.reset();
+                    _victory.setActive(true);
+                    _status = VICTORY;
+                }
             break;
-
         case LEVEL_EDITOR:
             _levelEditorController.preUpdate(dt);
+            break;
+        case VICTORY:
+            _victory.preUpdate(dt);
+            //TODO: Check for restart
+                if (_networkController->getResetLevel()){
+                    // Reset the level and return back to the game scene
+//                    _victory.reset();
+                    _victory.setActive(false);
+                    _gameController.reset();
+                    _gameController.setActive(true);
+                    _status = GAME;
+                }
+            //TODO: Check for quit to main menu
+                if (_victory.getChoice() == VictoryScene::Choice::QUIT){
+                    _victory.setActive(false);
+                    _victory.reset();
+                    _startscreen.setActive(true);
+                    //TODO: resetGame() method
+                    resetScenes();
+                    _status = START;
+                }
             break;
 
         default:
@@ -255,6 +283,9 @@ void SSBApp::fixedUpdate()
     else if (_status == LEVEL_EDITOR) {
         _levelEditorController.fixedUpdate(time);
     }
+    else if (_status == VICTORY){
+        _victory.fixedUpdate(time);
+    }
     if (_network)
     {
         _network->updateNet();
@@ -294,6 +325,9 @@ void SSBApp::postUpdate(float dt)
     }
     else if (_status == LEVEL_EDITOR) {
         _levelEditorController.postUpdate(time);
+    }
+    else if (_status == VICTORY){
+        _victory.postUpdate(time);
     }
 }
 /**
@@ -375,6 +409,7 @@ void SSBApp::updateHostScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
+        CULog("HANDSHAKE");
         _networkController->setIsHost(true);
         _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
@@ -382,6 +417,7 @@ void SSBApp::updateHostScene(float timestep)
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
+        CULog("INGAME");
         _hostgame.setActive(false);
         _gameController.setActive(true);
         _status = GAME;
@@ -440,6 +476,19 @@ void SSBApp::updateClientScene(float timestep)
 #pragma mark END SOLUTION
 }
 
+void SSBApp::resetScenes(){
+    // Reset network
+//    _networkController->resetNetwork();
+    _gameController.reset();
+    _network->disconnect();
+    _gameController.dispose();
+    
+    _startscreen.reset();
+    _mainmenu.reset();
+    _hostgame.reset();
+    _joingame.reset();
+}
+
 /**
  * The method called to draw the application to the screen.
  *
@@ -472,6 +521,9 @@ void SSBApp::draw()
         _gameController.render();
     case LEVEL_EDITOR:
         _levelEditorController.render();
+        break;
+    case VICTORY:
+        _victory.render();
         break;
     default:
         break;

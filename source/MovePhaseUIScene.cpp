@@ -80,7 +80,8 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
+    _networkController = networkController;
     if (assets == nullptr)
     {
         return false;
@@ -194,13 +195,21 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
     _treasureIcon->setVisible(false);
     addChild(_treasureIcon);
     
+    _scoreboardOverlay = scene2::PolygonNode::allocWithPoly(Rect(0, 0, _size.width, _size.height));
+    _scoreboardOverlay->setColor(Color4(0, 0, 0, 192)); // 192/255 ~75% opacity black
+    _scoreboardOverlay->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _scoreboardOverlay->setPosition(0, 0);
+    _scoreboardOverlay->setVisible(false);
+    
+    addChild(_scoreboardOverlay);
+    
     // Add scoreboard node
-    _scoreboardNode = scene2::Label::allocWithText("Round Over!", _assets->get<Font>(INFO_FONT));
-    _scoreboardNode->setAnchor(Vec2::ANCHOR_CENTER);
-    _scoreboardNode->setPosition(_size.width * .5,_size.height * .7);
-    _scoreboardNode->setForeground(INFO_COLOR);
-    _scoreboardNode->setVisible(false);
-    addChild(_scoreboardNode);
+//    _scoreboardNode = scene2::Label::allocWithText("Round Over!", _assets->get<Font>(INFO_FONT));
+//    _scoreboardNode->setAnchor(Vec2::ANCHOR_CENTER);
+//    _scoreboardNode->setPosition(_size.width * .5,_size.height * .7);
+//    _scoreboardNode->setForeground(INFO_COLOR);
+//    _scoreboardNode->setVisible(false);
+//    addChild(_scoreboardNode);
     
     // KEEP THIS FOR REFERENCE, WILL NEED ONCE SCORING UI IS IN
     // Add player score nodes
@@ -213,6 +222,8 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 //    _playerScores.push_back(playerScore);
 
     _numPlayers = players;
+    _scoreController = scoreController;
+    
 
     return true;
 }
@@ -225,7 +236,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
  * This method disposes of the world and creates a new one.
  */
 void MovePhaseUIScene::reset() {
-    
+    scoreBoardInitialized = false;
 }
 
 /**
@@ -234,7 +245,12 @@ void MovePhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseUIScene::preUpdate(float dt) {
-
+    if (!scoreBoardInitialized) {
+        auto playerList = _networkController->getPlayerList();
+        CULog("Calling initScoreboardNodes with %d players", (int)playerList.size());
+        _scoreController->initScoreboardNodes(this, Vec2::ANCHOR_CENTER, _networkController->getPlayerList(), _size.width, _size.height);
+        scoreBoardInitialized = true;
+    }
 }
 
 /**

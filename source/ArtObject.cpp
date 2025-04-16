@@ -29,9 +29,20 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     return ArtObject::init(pos, size, scale, angle, "default");
 }
 
+bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, int layer, string jsonType) {
+    _layer = layer;
+    return ArtObject::init(pos, size, scale, angle, jsonType);
+}
+
 bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, string jsonType) {
     _drawScale = scale;
     _position = pos;
+    if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), jsonType) != xOffsetArtObjects.end()) {
+        _position += Vec2(0.5, 0);
+    }
+    if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), jsonType) != yOffsetArtObjects.end()) {
+        _position += Vec2(0, 0.5);
+    }
     _size = size;
     _angle = angle;
     _itemType = Item::ART_OBJECT;
@@ -40,7 +51,7 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     CULog("jsonType is %s", jsonType.c_str());
     _box = cugl::physics2::BoxObstacle::alloc(pos, size);
     _box->setDebugColor(Color4::YELLOW);
-    _box->setPosition(pos + size/2);
+    _box->setPosition(_position + size/2);
     _box->setAngle(angle);
     _box->setEnabled(false);
 
@@ -70,6 +81,19 @@ void ArtObject::dispose() {
     }
 }
 
+void ArtObject::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node, float angle) {
+    _node = node;
+    _node->setPosition(getPosition() * _drawScale);
+    _node->setAngle(angle);
+}
+
+void ArtObject::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
+    _node = node;
+    _node->setPosition(getPosition() * _drawScale);
+    _node->setAngle(0);
+}
+
+
 std::map<std::string, std::any> ArtObject::getMap() {
     std::map<std::string, std::any> m = {
         {"x", double(_position.x)},
@@ -80,7 +104,6 @@ std::map<std::string, std::any> ArtObject::getMap() {
         {"angle", double(_angle)},
         {"layer", long(_layer)},
         {"type", std::string(_jsonType)},
-        {"itemType", long()}
     };
     return m;
 }

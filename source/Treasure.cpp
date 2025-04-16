@@ -16,6 +16,10 @@ void Treasure::update(float timestep) {
 //    if (_node != nullptr) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
+    
+    if (_stealCooldown > 0){
+        _stealCooldown -= 0.1f;
+    }
 }
 
 string Treasure::getJsonKey() {
@@ -75,6 +79,7 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std
 
 void Treasure::reset(){
     _taken = false;
+    _isStealable = true;
 }
 
 std::map<std::string, std::any> Treasure::getMap() {

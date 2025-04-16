@@ -216,7 +216,7 @@ void LevelEditorUIScene::initInventory(std::vector<Item> inventoryItems, std::ve
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
         itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10 - page_temp * 40, _size.height - 100 - count * 40);
+        itemButton->setPosition(_size.width - 10 - page_temp * 60, _size.height - 100 - count * 40);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();

@@ -16,9 +16,11 @@
 #include "MessageEvent.h"
 #include "ColorEvent.h"
 #include "ScoreEvent.h"
+#include "TreasureEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
+#include "Thorn.h"
 #include "Message.h"
 
 using namespace cugl;
@@ -279,6 +281,32 @@ class MushroomFactory : public ObstacleFactory {
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
 
+/**
+ * The factory class for thorn objects.
+ */
+class ThornFactory : public ObstacleFactory {
+    public:
+        std::shared_ptr<AssetManager> _assets;
+        LWSerializer _serializer;
+        LWDeserializer _deserializer;
+
+        static std::shared_ptr<ThornFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+            auto f = std::make_shared<ThornFactory>();
+            f->init(assets);
+            return f;
+        }
+
+        void init(std::shared_ptr<AssetManager>& assets) {
+            _assets = assets;
+        }
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size);
+
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size);
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+    };
+
 
 /**
  * This class is the scene for the UI of the game.
@@ -307,6 +335,15 @@ protected:
     
     /** Current spawn location for the treasure */
     Vec2 _treasureSpawn;
+    
+    /** List of all possible treasure spawn points */
+    std::vector<Vec2> _tSpawnPoints;
+    
+    /** List of all spawn points that have currently been used  */
+    std::vector<Vec2> _usedSpawns;
+    
+    /** The local player */
+    std::shared_ptr<PlayerModel> _localPlayer;
     
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
@@ -362,6 +399,10 @@ protected:
     std::shared_ptr<MushroomFactory> _mushroomFact;
     Uint32 _mushroomFactID;
 
+    /** Variables for Thorn Factory */
+    std::shared_ptr<ThornFactory> _thornFact;
+    Uint32 _thornFactID;
+
 public:
 #pragma mark -
 #pragma mark Constructors
@@ -386,6 +427,11 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose();
+    
+    /**
+     Resets the properties of the network
+     */
+    void resetNetwork();
     
     /** This method allocates a NetworkController. */
     static std::shared_ptr<NetworkController> alloc(const std::shared_ptr<AssetManager>& assets) {
@@ -443,6 +489,9 @@ public:
 
         _mushroomFact = MushroomFactory::alloc(_assets);
         _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
+
+        _thornFact = ThornFactory::alloc(_assets);
+        _thornFactID = _network->getPhysController()->attachFactory(_thornFact);
     }
     
     /**
@@ -472,6 +521,23 @@ public:
         _treasureSpawn = spawn;
     }
     
+    
+    /**
+     * Sets the local player.
+     *
+     * @param player the reference to the local player
+     */
+    void setLocalPlayer(std::shared_ptr<PlayerModel> player){
+        _localPlayer = player;
+    }
+    
+    /**
+     Returns the reference to the local player.
+     */
+    std::shared_ptr<PlayerModel> getLocalPlayer(){
+        return _localPlayer;
+    }
+    
     /**
      * Returns the spawn location of the treasure
      */
@@ -498,6 +564,11 @@ public:
      Resets the treasure to its spawn location and removes any possession
      */
     void resetTreasure();
+    
+    /**
+     Resets the treasure to its spawn location and removes any possession
+     */
+    void resetTreasureRandom();
     
     /**
      * Sets whether this local user is the host.
@@ -591,6 +662,31 @@ public:
     void addPlayerColor();
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
 
+#pragma mark -
+#pragma mark Treasure Handling
+    
+    /**
+     Adds a position for a treasure to spawn at.
+     
+     @param pos the spawn position of the treasure.
+     */
+    void addTreasureSpawn(const Vec2& pos){
+        _tSpawnPoints.push_back(pos);
+    }
+    
+    /**
+     Returns the treasure being networked.
+     */
+    std::shared_ptr<Treasure> getTreasure(){
+        return _treasure;
+    }
+    
+    /**
+     Picks the next spawn point for the treasure at random.
+     
+     If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
+     */
+    Vec2 pickRandSpawn();
     
 #pragma mark -
 #pragma mark Message Handling
@@ -604,6 +700,11 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+    
+    /**
+     * This method takes a TreasureEvent and processes it.
+     */
+    void processTreasureEvent(const std::shared_ptr<TreasureEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -644,7 +745,7 @@ public:
     *
     * @return the treasure being created
     */
-    std::shared_ptr<Object> createTreasureClient(Vec2 pos, Size size, float scale, bool taken);
+    std::shared_ptr<Object> createTreasureClient(float scale);
 
     /**
      * Creates a networked mushroom.
@@ -652,7 +753,14 @@ public:
      * @return the mushroom being created
      */
     std::shared_ptr<Object> createMushroomNetworked(Vec2 pos, Size size, float scale);
-    
+
+    /**
+     * Creates a networked thorn.
+     *
+     * @return the thorn being created
+     */
+    std::shared_ptr<Object> createThornNetworked(Vec2 pos, Size size);
+
     /**
      * The method called to update the game mode.
      *
@@ -753,10 +861,12 @@ public:
     /**
      Checks if win condition has been met and sends a message to reset the level.
      */
-    void checkWinCondition(){
-        if (_scoreController->checkWinCondition()){
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
-        }
+    bool checkWinCondition(){
+//        if (_scoreController->checkWinCondition()){
+//            
+//          _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
+//        }
+        return _scoreController->checkWinCondition();
     }
 
 };

@@ -19,6 +19,7 @@
 #include "MessageEvent.h"
 
 using namespace cugl;
+using namespace cugl::graphics;
 using namespace cugl::netcode;
 using namespace std;
 
@@ -96,10 +97,26 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
 
-    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.center.start"));
+    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.start"));
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.back"));
-    _gameid = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.center.game.field.text"));
-    _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.center.players.field.text"));
+    _gameid = scene2::Label::allocWithText("0", _assets->get<Font>("gyparody"));
+    _gameid->setAnchor(Vec2::ANCHOR_CENTER);
+    _gameid->setPosition(_size.width * .50,_size.height * .65);
+    _gameid->setContentWidth(_size.width * .3);
+    _gameid->setForeground(Color4::BLACK);
+    _gameid->setVisible(true);
+    scene->addChild(_gameid);
+    
+    
+    _player1Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.redglider"));
+    _filledIcon = _player1Icon->getTexture();
+    
+    _player2Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider"));    
+    _emptyIcon = _player2Icon->getTexture();
+    
+    _player3Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider_2"));
+    
+    _player4Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider_3"));
     
     // Program the buttons
     _backout->addListener([this](const std::string& name, bool down) {
@@ -138,6 +155,23 @@ void HostScene::dispose() {
 }
 
 /**
+ * Resets all properties of the scene and network related properties.
+ */
+void HostScene::reset(){
+    _startGameClicked = false;
+    _backClicked = false;
+    _hostMessageSent = false;
+    
+    _sendCount = 0;
+    _receiveCount = 0;
+    _totalPing = 0;
+    
+    _player2Icon->setTexture(_emptyIcon);
+    _player3Icon->setTexture(_emptyIcon);
+    _player4Icon->setTexture(_emptyIcon);
+}
+
+/**
  * Sets whether the scene is currently active
  *
  * This method should be used to toggle all the UI elements.  Buttons
@@ -156,6 +190,7 @@ void HostScene::setActive(bool value) {
 #pragma mark BEGIN SOLUTION
         if (value) {
             _backout->activate();
+            _startgame->activate();
             _network->disconnect();
             _network->connectAsHost();
             _backClicked = false;
@@ -185,8 +220,8 @@ void HostScene::setActive(bool value) {
  * @param text      The new text value
  */
 void HostScene::updateText(const std::shared_ptr<scene2::Button>& button, const std::string text) {
-    auto label = std::dynamic_pointer_cast<scene2::Label>(button->getChildByName("up")->getChildByName("label"));
-    label->setText(text);
+//    auto label = std::dynamic_pointer_cast<scene2::Label>(button->getChildByName("up")->getChildByName("label"));
+//    label->setText(text);
 
 }
 
@@ -221,7 +256,27 @@ void HostScene::update(float timestep) {
             _startgame->deactivate();
         }
 		_gameid->setText(hex2dec(_network->getRoomID()));
-        _player->setText(std::to_string(_network->getNumPlayers()));
+//        _player->setText(std::to_string(_network->getNumPlayers()));
+        if (_network->getNumPlayers() >= 2){
+            _player2Icon->setTexture(_filledIcon);
+        }
+        else{
+            _player2Icon->setTexture(_emptyIcon);
+        }
+        
+        if (_network->getNumPlayers() >= 3){
+            _player3Icon->setTexture(_filledIcon);
+        }
+        else{
+            _player3Icon->setTexture(_emptyIcon);
+        }
+        
+        if (_network->getNumPlayers() == 4){
+            _player4Icon->setTexture(_filledIcon);
+        }
+        else{
+            _player4Icon->setTexture(_emptyIcon);
+        }
 	}
 #pragma mark END SOLUTION
 }
@@ -233,6 +288,7 @@ void HostScene::startGame(){
     //Call the network controller to start the game and set the _startGameClicked to true.
 #pragma mark BEGIN SOLUTION
     _network->startGame();
+//    _network->ga
     _startGameClicked = true;
 #pragma mark END SOLUTION
 }

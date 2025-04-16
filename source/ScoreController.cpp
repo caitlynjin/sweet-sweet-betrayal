@@ -7,6 +7,8 @@
 
 #include "ScoreController.h"
 
+using namespace cugl::graphics;
+
 ScoreController::ScoreController() {}
 
 bool ScoreController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
@@ -23,6 +25,7 @@ void ScoreController::dispose() {
 void ScoreController::reset() {
     _playerRoundScores.clear();
     _playerTotalScores.clear();
+    
 }
 
 void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event) {
@@ -30,17 +33,45 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     int round = event->getRoundNumber();
     int score = event->getScore();
     ScoreEvent::ScoreType type = event->getScoreType();
-
+    
+    //update total score
+    int prevTotal = _playerTotalScores[playerID];
+    _playerTotalScores[playerID] += score;
+    int newTotal = _playerTotalScores[playerID];
+        
+    //update round score
     RoundScore rs;
     rs.score = score;
     rs.scoreType = type;
-
-    // Assuming _playerRoundScores is now a mapping from playerID to a mapping of round to RoundScore.
     _playerRoundScores[playerID][round] = rs;
-    _playerTotalScores[playerID] += score;
     
     CULog("Processed ScoreEvent: PlayerID = %d, Round = %d, Score = %d (Type: %d), Total Score = %d\n",
           playerID, round, score, static_cast<int>(type), _playerTotalScores[playerID]);
+    
+    //update scoreboardUI
+    auto it = _playerColors.find(playerID);
+    ColorType color = it->second;
+    std::string playerName = colorToString(color);
+    
+    std::string iconTextureKey;
+    if (type == ScoreEvent::ScoreType::END_TREASURE) {
+        iconTextureKey = "score-treasure";        
+    }
+    else if (type == ScoreEvent::ScoreType::END) {
+        iconTextureKey = "score-finish";
+    }
+    auto newTexture = _assets->get<Texture>(iconTextureKey);
+    
+    for (int i = prevTotal; i < newTotal; i++) {
+        
+        Vec2 basePos = _playerBaseDotPos[playerName];
+        Vec2 overlayPos = basePos + offset_betw_points * static_cast<float>(i);
+        auto newIconNode = createIcon(iconTextureKey, 1.0f, overlayPos, _anchor, false);
+        _scoreboardParent->addChild(newIconNode);
+        _scoreIcons[playerName + "-" + iconTextureKey + "-" + std::to_string(i)] = newIconNode;
+        CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
+                      iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
+    }
 }
 
 int ScoreController::getTotalScore(int playerID) const {
@@ -84,11 +115,134 @@ void ScoreController::sendScoreEvent(const std::shared_ptr<NetEventController>& 
 bool ScoreController::checkWinCondition(){
     for (const auto& pair : _playerTotalScores){
         if (pair.second >= WIN_SCORE){
+            CULog("PLAYER WON");
             return true;
         }
     }
     return false;
 }
+
+void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor,
+                                          std::vector<std::shared_ptr<PlayerModel>> playerList,
+                                          float size_width, float size_height) {
+    _anchor = anchor;
+    _scoreboardParent = parent;
+
+    float scale = 1.0f;
+    bar_position = Vec2(size_width * 0.5f, size_height * 0.8f);
+    glider_position = Vec2(size_width * 0.25f, size_height * 0.8f);
+    offset_betw_points = Vec2(size_width * 0.05f, 0);
+    offset_betw_players = Vec2(0, -size_height * 0.2f);
+
+    _playerList = playerList;
+
+    for (auto& player : _playerList) {
+        std::string name = player->getName();
+
+        if (name == "playerRed") {
+            CULog("Red player detected");
+            _scoreIcons["red-bar"] = createIcon("red-bar", scale, bar_position, anchor, false);
+            parent->addChild(_scoreIcons["red-bar"]);
+            _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, false);
+            parent->addChild(_scoreIcons["redglider"]);
+            float glider_width = _scoreIcons["redglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            _playerBaseDotPos[name] = base_dot_position;
+
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
+        }
+        else if (name == "playerBlue") {
+            CULog("Blue player detected");
+            _scoreIcons["blue-bar"] = createIcon("blue-bar", scale, bar_position, anchor, false);
+            parent->addChild(_scoreIcons["blue-bar"]);
+            _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, false);
+            parent->addChild(_scoreIcons["blueglider"]);
+            float glider_width = _scoreIcons["blueglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            _playerBaseDotPos[name] = base_dot_position;
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
+        }
+        else if (name == "playerGreen") {
+            CULog("Green player detected");
+            _scoreIcons["green-bar"] = createIcon("green-bar", scale, bar_position, anchor, false);
+            parent->addChild(_scoreIcons["green-bar"]);
+            _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, false);
+            parent->addChild(_scoreIcons["greenglider"]);
+            float glider_width = _scoreIcons["greenglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            _playerBaseDotPos[name] = base_dot_position;
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
+        }
+        else if (name == "playerYellow") {
+            CULog("Yellow player detected");
+            _scoreIcons["yellow-bar"] = createIcon("yellow-bar", scale, bar_position, anchor, false);
+            parent->addChild(_scoreIcons["yellow-bar"]);
+            _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, false);
+            parent->addChild(_scoreIcons["yellowglider"]);
+            float glider_width = _scoreIcons["yellowglider"]->getContentSize().width;
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            _playerBaseDotPos[name] = base_dot_position;
+
+            for (int i = 0; i < 10; ++i) {
+                std::string dot_key = name + "-dot-" + std::to_string(i);
+                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
+                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
+                parent->addChild(_scoreIcons[dot_key]);
+            }
+        }
+
+        bar_position += offset_betw_players;
+        glider_position += offset_betw_players;
+    }
+}
+
+//    _scoreIcons["score-finish"] = createIcon("score-finish", scale, basePos + Vec2(7 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-finish"]);
+//
+//    _scoreIcons["score-trapkill"] = createIcon("score-trapkill", scale, basePos + Vec2(8 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-trapkill"]);
+//
+//    _scoreIcons["score-treasure"] = createIcon("score-treasure", scale, basePos + Vec2(9 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-treasure"]);
+//
+//    _scoreIcons["scoreboard-background"] = createIcon("scoreboard-background", 0.2f, basePos + Vec2(10 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["scoreboard-background"]);
+
+
+
+std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::string& textureKey,
+                                                                   float scale,
+                                                                   const Vec2& position,
+                                                                   const Vec2 &anchor,
+                                                                   bool visible) {
+    auto tex = _assets->get<Texture>(textureKey);
+    auto node = scene2::PolygonNode::allocWithTexture(tex);
+    node->setAnchor(anchor);
+    node->setScale(scale);
+    node->setPosition(position);
+    node->setVisible(visible);
+    return node;
+}
+
+
 
 /**
  * The method called to indicate the start of a deterministic loop.

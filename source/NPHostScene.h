@@ -46,6 +46,17 @@ protected:
     std::shared_ptr<cugl::scene2::Label> _gameid;
     /** The players label (for updating) */
     std::shared_ptr<cugl::scene2::Label> _player;
+    
+    std::shared_ptr<cugl::scene2::Label> _textField;
+    /** The player icons for showing players joined */
+    std::shared_ptr<cugl::scene2::PolygonNode> _player1Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player2Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player3Icon;
+    std::shared_ptr<cugl::scene2::PolygonNode> _player4Icon;
+    
+    /** The texture to use when the player icon gets filled */
+    std::shared_ptr<graphics::Texture> _filledIcon;
+    std::shared_ptr<graphics::Texture> _emptyIcon;
 
     /** Whether the startGame button had been pressed. */
     bool _startGameClicked = false;
@@ -96,6 +107,11 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose() override;
+    
+    /**
+     * Resets all properties of the scene and network related properties.
+     */
+    void reset() override;
     
     /**
      * Initializes the controller contents, and starts the game

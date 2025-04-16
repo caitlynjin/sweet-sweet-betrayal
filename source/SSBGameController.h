@@ -77,8 +77,14 @@ protected:
     /** Whether we are in build mode */
     bool _buildingMode;
     
+    /** Whether a player has won the level */
+    bool _hasVictory = false;;
+    
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
+    
+    // Countdown between build ready and dispaying scoreboard
+    int _beforeScoreBoard = 15;
 
 public:
 #pragma mark -
@@ -261,6 +267,18 @@ public:
      * @param value whether the level is in building mode.
      */
     void setBuildingMode(bool value);
+    
+    /**
+     * Sets whether a player has won the current level.
+     *
+     * @param value whether a player has won
+     */
+    void setHasVictory(bool value);
+    
+    /**
+     Returns whether a player has won the current level.
+     */
+    bool getHasVictory() {return _hasVictory;};
 
 #pragma mark -
 #pragma mark Helpers

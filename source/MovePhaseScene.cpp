@@ -58,11 +58,6 @@ float GOAL_POS[] = { 39.0f, 3.0f };
 
 float DUDE_POS[] = { 1.0f, 3.0f};
 
-/** The initial position of the treasure */
-float TREASURE_POS[3][2] = { {14.5f, 7.5f}, {3.5f, 7.5f}, {9.5f, 1.5f}};
-
-/** The initial position of the treasure (for testing) */
-float TREASURE_POS_TEST[1][2] = {{5.5f, 4.0f}};
 
 #pragma mark -
 #pragma mark Constructors
@@ -159,7 +154,7 @@ void MovePhaseScene::populate() {
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
@@ -178,6 +173,7 @@ void MovePhaseScene::populate() {
     }
     ColorType playerColor = _networkController->getLocalColor();
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    _networkController->setLocalPlayer(_localPlayer);
 
     // This is set to false to counter race condition with collision filtering
     // NetworkController sets this back to true once it sets collision filtering to all players
@@ -199,11 +195,15 @@ void MovePhaseScene::populate() {
 
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
+        // Create Spawn Point for the treasure
+        Vec2 spawnPoint = _networkController->pickRandSpawn();
+        
+        
         _treasure = std::dynamic_pointer_cast<Treasure>(
-            _networkController->createTreasureNetworked(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false)
+            _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
         );
         _networkController->setTreasure(_treasure);
-        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
+        _networkController->setTreasureSpawn(spawnPoint);
     }
 
 }
@@ -241,8 +241,8 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(Vec2(TREASURE_POS_TEST[0]), Size(1, 1), _scale, false));
-        _networkController->setTreasureSpawn(TREASURE_POS_TEST[0]);
+        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
+//        _networkController->setTreasureSpawn(TREASURE_POS[0]);
     }
     
     // Update objects
@@ -274,7 +274,7 @@ void MovePhaseScene::resetPlayerProperties() {
     _localPlayer->resetMovement();
     if (_localPlayer->hasTreasure){
         _localPlayer->removeTreasure();
-        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_LOST));
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_WON));
     }
     
     std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
@@ -288,7 +288,7 @@ void MovePhaseScene::resetPlayerProperties() {
  * Set the next position for the treasure based on the current gem count.
  */
 void MovePhaseScene::setNextTreasure(int count) {
-    _treasure->setPosition(Vec2(TREASURE_POS_TEST[count]));
+//    _treasure->setPosition(Vec2(TREASURE_POS[count]));
 }
 
 /**

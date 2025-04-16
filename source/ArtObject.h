@@ -68,9 +68,14 @@ public:
         std::shared_ptr<ArtObject> result = std::make_shared<ArtObject>();
         return (result->init(position, size, scale, angle, jsonType) ? result : nullptr);
     }
+    static std::shared_ptr<ArtObject> alloc(const Vec2 position, const Size size, float scale, float angle, int layer, string jsonType) {
+        std::shared_ptr<ArtObject> result = std::make_shared<ArtObject>();
+        return (result->init(position, size, scale, angle, layer, jsonType) ? result : nullptr);
+    }
 
     bool init(const Vec2 pos, const Size size, float scale, float angle, int layer);
     bool init(const Vec2 pos, const Size size, float scale, float angle, string jsonType);
+    bool init(const Vec2 pos, const Size size, float scale, float angle, int layer, string jsonType);
 
     /**
      * Sets the scene graph node representing this Spike.
@@ -81,17 +86,9 @@ public:
      *
      * @param node  The scene graph node representing this Spike, which has been added to the world node already.
      */
-    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node, float angle) {
-        _node = node;
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(angle);
-    }
+    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node, float angle); 
 
-    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
-        _node = node;
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(0);
-    }
+    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
 
 
     std::map<std::string, std::any> getMap() override;

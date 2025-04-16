@@ -292,6 +292,14 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
+    Vec2 offset = Vec2(0, 0);
+    if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), art->getJsonType()) != xOffsetArtObjects.end()) {
+        offset += Vec2(32, 0);
+    }
+    if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), art->getJsonType()) != yOffsetArtObjects.end()) {
+        offset += Vec2(0, 32);
+    }
+
     Poly2 poly(Rect(art->getPosition().x, art->getPosition().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
@@ -399,9 +407,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         // Required because it crashes if you try to set up a networked treasure during build mode
         if (!levelEditing) {
             //TODO: Change so that NetworkController has a list of treasure positions, then MovePhaseScene will init the treasure based on these positions
-//            _treasure = (std::dynamic_pointer_cast<Treasure> (_networkController->createTreasureNetworked(obj->getPosition(), obj->getSize(),
-//                _scale,
-//                false)));
+            _networkController->addTreasureSpawn(obj->getPosition());
         }
         else {
             createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
