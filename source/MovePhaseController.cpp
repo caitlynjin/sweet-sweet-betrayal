@@ -304,10 +304,15 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
         /**Generates the appropriate callback function for this wind object*/
         
         auto callback = [this, wind, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
+            b2Body* body = f->GetBody();
+            physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
+
+            // Set grounded for all non-local players 
+             
 
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
-            if (tagContainsPlayer("player")) {
+            if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
                 CULog("plyr Callback!");
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
