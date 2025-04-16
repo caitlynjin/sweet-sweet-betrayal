@@ -99,11 +99,11 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
 
     _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.start"));
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.back"));
-    _gameid = scene2::Label::allocWithText("0", _assets->get<Font>("gyparody"));
+    _gameid = scene2::Label::allocWithText("0", _assets->get<Font>("yeasty flavorsRegular66.53518676757812"));
     _gameid->setAnchor(Vec2::ANCHOR_CENTER);
-    _gameid->setPosition(_size.width * .50,_size.height * .65);
+    _gameid->setPosition(_size.width * .50 + 10,_size.height * .65);
     _gameid->setContentWidth(_size.width * .3);
-    _gameid->setForeground(Color4::BLACK);
+    _gameid->setForeground(Color4::WHITE);
     _gameid->setVisible(true);
     scene->addChild(_gameid);
     
