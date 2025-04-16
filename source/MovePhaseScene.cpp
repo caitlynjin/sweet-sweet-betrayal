@@ -113,10 +113,9 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
-    shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
-    worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    worldnode->setPosition(_offset);
-    shared_ptr<scene2::SceneNode> _worldnode = dynamic_pointer_cast<scene2::SceneNode>(worldnode);
+    _worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _worldnode->setPosition(_offset);
     addChild(_worldnode);
 
     _debugnode = scene2::SceneNode::alloc();
