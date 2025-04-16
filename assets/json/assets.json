@@ -10,6 +10,91 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "tile-inner": {
+            "file": "textures/tile-inner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-left-edge": {
+            "file": "textures/tile-left-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-right-edge": {
+            "file": "textures/tile-right-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-top-edge": {
+            "file": "textures/top-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-topleft-corner": {
+            "file": "textures/topleft-corner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-topright-corner": {
+            "file": "textures/topright-corner.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-bottom-edge": {
+            "file": "textures/tile-bottom-edge.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-1": {
+            "file": "textures/decorations/decoration-crack-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-2": {
+            "file": "textures/decorations/decoration-crack-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-3": {
+            "file": "textures/decorations/decoration-crack-3.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-4": {
+            "file": "textures/decorations/decoration-crack-4.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-5": {
+            "file": "textures/decorations/decoration-crack-5.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-crack-large-1": {
+            "file": "textures/decorations/decoration-crack-large-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-moss-1": {
+            "file": "textures/decorations/decoration-moss-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-moss-2": {
+            "file": "textures/decorations/decoration-moss-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-rocky-1": {
+            "file": "textures/decorations/decoration-rocky-texture-1.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "decoration-rocky-2": {
+            "file": "textures/decorations/decoration-rocky-texture-2.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "log_obstacle": {
             "file": "textures/3x0.5-log-obstacle.png",
             "wrapS": "repeat",
@@ -26,7 +111,7 @@
             "wrapT": "repeat"
         },
         "spike_tile": {
-            "file": "textures/1x1-spike-tile.png"
+            "file": "textures/1x1-up-spike.png"
         },
         "thorns_obstacle": {
             "file": "textures/thorns-obstacle.png"

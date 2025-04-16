@@ -6,7 +6,6 @@
 //
 
 #include "MovePhaseScene.h"
-#include "Constants.h"
 #include "Platform.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
@@ -54,7 +53,7 @@ using namespace Constants;
 #pragma mark Level Geography
 
 /** The goal door position */
-float GOAL_POS[] = { 39.0f, 3.0f };
+float GOAL_POS[] = { 47.0f, 4.0f };
 /** The initial position of the dude */
 
 float DUDE_POS[] = { 1.0f, 3.0f};
@@ -114,7 +113,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     // Create the scene graph
     std::shared_ptr<Texture> image;
-    _worldnode = scene2::SceneNode::alloc();
+    _worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
     _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
     _worldnode->setPosition(_offset);
     addChild(_worldnode);
@@ -154,7 +153,8 @@ void MovePhaseScene::populate() {
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
+    _gridManager->clear();
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);

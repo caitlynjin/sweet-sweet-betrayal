@@ -1,7 +1,7 @@
 #include "Tile.h"
 #include "Object.h"
 
-#define JSON_KEY  "Tiles";
+#define JSON_KEY  "tiles";
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -44,22 +44,24 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Tile::init(const Vec2 pos, const Size size) {
+bool Tile::init(const Vec2 pos, const Size size, std::string jsonType) {
     Size nsize = size;
     _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2, Size(nsize.width, nsize.height));
-    _size = size;
-    _itemType = Item::TILE_ITEM;
     _position = pos;
+    _size = size;
+    _jsonType = jsonType;
+    _itemType = jsonTypeToItemType[jsonType];
     return true;
 }
 
 // Init method used for networked Tiles
-bool Tile::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
+bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
     Size nsize = size;
     // The long Tile is shorter in height
     _box = box;
     _size = size;
-    _itemType = Item::TILE_ITEM;
+    _jsonType = jsonType;
+    _itemType = jsonTypeToItemType[jsonType];
     _position = pos;
     return true;
 }

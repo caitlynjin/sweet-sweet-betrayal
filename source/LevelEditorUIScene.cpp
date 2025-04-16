@@ -209,18 +209,26 @@ void LevelEditorUIScene::initInventory(std::vector<Item> inventoryItems, std::ve
     addChild(_inventoryBackground);
 
     float yOffset = 0;
+    float count = 0;
+    float page_temp = 0;
     for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
     {
         std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
         std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
         itemButton->setAnchor(Vec2::ANCHOR_TOP_RIGHT);
-        itemButton->setPosition(_size.width - 10, _size.height - 100 - yOffset);
+        itemButton->setPosition(_size.width - 10 - page_temp * 60, _size.height - 100 - count * 40);
+        itemButton->setScale(itemButton->getScale() / 2);
         itemButton->setName(itemToString(inventoryItems[itemNo]));
         itemButton->setVisible(true);
         itemButton->activate();
         _inventoryButtons.push_back(itemButton);
         addChild(itemButton);
         yOffset += 80;
+        count = (count + 1);
+        if (count >= 11) {
+            count = 0;
+            page_temp++;
+        }
     }
 }
 

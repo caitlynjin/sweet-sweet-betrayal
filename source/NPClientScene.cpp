@@ -13,6 +13,7 @@
 #include <cugl/cugl.h>
 #include <iostream>
 #include <sstream>
+#include <array>
 
 #include "NPClientScene.h"
 

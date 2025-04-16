@@ -17,6 +17,7 @@
 #include "WindObstacle.h"
 #include "LevelModel.h"
 #include "ObjectController.h"
+#include "ArtObject.h"
 
 #include <ctime>
 #include <string>
@@ -54,12 +55,12 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
 /**
 Creates a 1 by 1 tile
 */
-std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size) {
+std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string jsonType) {
     CULog("MADE PLATFORM");
-    std::shared_ptr<Tile> tile = Tile::alloc(pos, size);
+    std::shared_ptr<Tile> tile = Tile::alloc(pos, size, jsonType);
 
     std::shared_ptr<Texture> image;
-    image = _assets->get<Texture>(TILE_TEXTURE);
+    image = _assets->get<Texture>(jsonTypeToAsset[jsonType]);
 
     float blendingOffset = 0.01f;
 
@@ -277,6 +278,64 @@ std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasur
     return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
 }
 
+std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
+    return createArtObject(ArtObject::alloc(pos, size, scale, angle, jsonType));
+}
+
+std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObject> art) {
+    std::shared_ptr<Texture> image;
+
+    image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
+    if (image == nullptr) {
+        image = _assets->get<Texture>("earth");
+    }
+    // Removes the black lines that display from wrapping
+    float blendingOffset = 0.01f;
+
+    Vec2 offset = Vec2(0, 0);
+    if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), art->getJsonType()) != xOffsetArtObjects.end()) {
+        offset += Vec2(32, 0);
+    }
+    if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), art->getJsonType()) != yOffsetArtObjects.end()) {
+        offset += Vec2(0, 32);
+    }
+
+    Poly2 poly(Rect(art->getPosition().x, art->getPosition().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
+
+    // Call this on a polygon to get a solid shape
+    EarclipTriangulator triangulator;
+    triangulator.set(poly.vertices);
+    triangulator.calculate();
+    poly.setIndices(triangulator.getTriangulation());
+    triangulator.clear();
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    art->setSceneNode(sprite);
+    if (jsonTypeToLayer.find(art->getJsonType()) != jsonTypeToLayer.end()) {
+        // jsonType IS in the map
+        art->setLayer(jsonTypeToLayer[art->getJsonType()]);
+    }
+    CULog("layer is %d", art->getLayer());
+    /* ArtObjects are still objects, and thus still have BoxObstacles.
+     * They also need this to be rendered properly in the physics world.
+     * Otherwise we'd have to have separate logic using an addChild method 
+     * to add the sprite nodes just for art objects to all the game scenes.
+     * So we keep the physics body for consistency, and just disable it for art objects.
+     */
+    art->getObstacle()->setBodyType(b2_staticBody);
+    art->getObstacle()->setDensity(BASIC_DENSITY);
+    art->getObstacle()->setFriction(BASIC_FRICTION);
+    art->getObstacle()->setRestitution(BASIC_RESTITUTION);
+    art->getObstacle()->setDebugColor(DEBUG_COLOR);
+    art->getObstacle()->setName("artObject");
+    // Disable ArtObject collision physics
+    art->getObstacle()->setSensor(true);
+    addObstacle(art->getObstacle(), sprite);
+
+    _gameObjects->push_back(art);
+
+    return art;
+}
+
 std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
     std::shared_ptr<scene2::PolygonNode> sprite;
@@ -359,6 +418,12 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
     }
     else if (key == "windObstacles") {
         createWindObstacle(std::dynamic_pointer_cast<WindObstacle>(obj));
+    }
+    else if (key == "artObjects") {
+        createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
+    }
+    else if (key == "tiles") {
+        createTile(obj->getPosition(), obj->getSize(), obj->getJsonType());
     }
 }
 

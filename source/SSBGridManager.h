@@ -23,6 +23,8 @@ class GridManager {
 public:
     /** Maps grid positions to moveable world objects */
     std::map<std::pair<int, int>, std::shared_ptr<Object>> posToObjMap;
+    /** Maps grid positions to moveable art objects */
+    std::map<std::pair<int, int>, std::vector<std::shared_ptr<Object>>> posToArtObjMap;
     /** Maps grid positions to whether there exists an object (moveable or non-moveable) that contains the grid box */
     std::map<std::pair<int, int>, bool> hasObjMap;
     /** Maps moveable world objects to bottom left position of objects */
@@ -83,6 +85,9 @@ public:
      */
     void initGrid(bool isEditor);
 
+    /** Clears the object maps */
+    void clear();
+
 #pragma mark -
 #pragma mark Attribute Properties
     /**
@@ -111,6 +116,11 @@ public:
      */
     void setObject(Vec2 cellPos, Item item);
 
+    /** Gets the object in the cell at this row and column.
+     * Does NOT work for ArtObjects - use a separate method for that.
+     * @param cellPos    the cell position
+     */
+    std::shared_ptr<Object> getObject(Vec2 cellPos);
     /**
      * Sets the sprite node's visibility to false
      */
@@ -149,8 +159,9 @@ public:
      *
      * @param cellPos    the cell position
      * @param size          the amount of area this object takes up (including its movement)
+     * @param item      the item type
      */
-    bool canPlace(Vec2 cellPos, Size size);
+    bool canPlace(Vec2 cellPos, Size size, Item item);
 
     /**
      * Deletes the object at this cell position from the world.
