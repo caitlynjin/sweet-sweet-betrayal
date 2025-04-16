@@ -179,6 +179,9 @@ void SSBApp::preUpdate(float dt)
         _network = _networkController->getNetwork();
         _sound = SoundController::alloc(_assets);
 
+        //_sound->addMusicToQueue("win");
+        //_sound->addMusicToQueue("lose");
+
         _loading.dispose();
         _startscreen.init(_assets, _sound);
         _startscreen.setActive(true);

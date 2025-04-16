@@ -266,6 +266,12 @@ bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
     return true;
 };
 
+void GridManager::clear() {
+    posToArtObjMap.clear();
+    posToObjMap.clear();
+    objToPosMap.clear();
+}
+
 /**
  * Deletes the object at this cell position from the world.
  *

@@ -154,6 +154,7 @@ void MovePhaseScene::populate() {
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     std::string key;
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
+    _gridManager->clear();
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);

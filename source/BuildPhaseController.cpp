@@ -170,13 +170,16 @@ void BuildPhaseController::preUpdate(float dt) {
             // If object exists
             if (obj) {
                 CULog("Selected existing object");
-                _selectedObject = obj;
-                _selectedItem = obj->getItemType();
+                if (!itemIsArtObject(obj->getItemType())) {
+                    _selectedObject = obj;
+                    _selectedItem = obj->getItemType();
+                    // Set the current position of the object
+                    _prevPos = _selectedObject->getPosition();
 
-                // Set the current position of the object
-                _prevPos = _selectedObject->getPosition();
+                    _input->setInventoryStatus(PlatformInput::PLACING);
+                }
 
-                _input->setInventoryStatus(PlatformInput::PLACING);
+                
             }
         }
     }

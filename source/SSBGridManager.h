@@ -85,6 +85,9 @@ public:
      */
     void initGrid(bool isEditor);
 
+    /** Clears the object maps */
+    void clear();
+
 #pragma mark -
 #pragma mark Attribute Properties
     /**

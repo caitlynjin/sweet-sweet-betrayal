@@ -58,6 +58,10 @@ void SoundController::playMusic(std::string key) {
 	_musicQueue->play(_soundMap[key]);
 }
 
+void SoundController::addMusicToQueue(std::string key) {
+	_musicQueue->enqueue(_soundMap[key]);
+}
+
 /**
 * Stops the sound with the specified key.
 *

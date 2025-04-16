@@ -327,6 +327,8 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     art->getObstacle()->setRestitution(BASIC_RESTITUTION);
     art->getObstacle()->setDebugColor(DEBUG_COLOR);
     art->getObstacle()->setName("artObject");
+    // Disable ArtObject collision physics
+    art->getObstacle()->setSensor(true);
     addObstacle(art->getObstacle(), sprite);
 
     _gameObjects->push_back(art);
