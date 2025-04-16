@@ -53,7 +53,7 @@ using namespace Constants;
 #pragma mark Level Geography
 
 /** The goal door position */
-float GOAL_POS[] = { 39.0f, 3.0f };
+float GOAL_POS[] = { 47.0f, 4.0f };
 /** The initial position of the dude */
 
 float DUDE_POS[] = { 1.0f, 3.0f};

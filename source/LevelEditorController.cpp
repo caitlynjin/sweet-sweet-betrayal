@@ -47,7 +47,7 @@ using namespace Constants;
 #define FIXED_TIMESTEP_S 0.02f
 
 /** The goal door position */
-float GOAL_POSITION[] = { 39.0f, 3.0f };
+float GOAL_POSITION[] = { 47.0f, 4.0f };
 
 #pragma mark -
 #pragma mark Constructors
