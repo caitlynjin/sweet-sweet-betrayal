@@ -38,17 +38,13 @@ public:
     /** The update method for the spike */
     void update(float timestep) override;
 
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
-
     string getJsonKey() override;
 
     ~ArtObject(void) override { dispose(); }
 
-    void dispose();
+    void dispose() override;
 
-    void setPosition(const cugl::Vec2& position) override;
+    void setPositionInit(const cugl::Vec2& position) override;
 
     void setLayer(int layer);
 

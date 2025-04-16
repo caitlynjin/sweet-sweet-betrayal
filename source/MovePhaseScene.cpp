@@ -159,7 +159,7 @@ void MovePhaseScene::populate() {
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
         _gridManager->addObject(obj);
-        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
+        CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
     }
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
@@ -284,12 +284,6 @@ void MovePhaseScene::resetPlayerProperties() {
 
 }
 
-/**
- * Set the next position for the treasure based on the current gem count.
- */
-void MovePhaseScene::setNextTreasure(int count) {
-//    _treasure->setPosition(Vec2(TREASURE_POS[count]));
-}
 
 /**
  * Converts from screen to Box2D coordinates.

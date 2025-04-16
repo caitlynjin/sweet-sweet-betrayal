@@ -344,7 +344,7 @@ void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
     _treasure->setStealable(true);
     if (_isHost){
-        _treasure->setPosition(_treasureSpawn);
+        _treasure->setPositionInit(_treasureSpawn);
     }
     
 }
@@ -355,7 +355,7 @@ void NetworkController::resetTreasureRandom(){
     _treasure->setTaken(false);
     _treasure->setStealable(true);
     if (_isHost){
-        _treasure->setPosition(pickRandSpawn());
+        _treasure->setPositionInit(pickRandSpawn());
     }
     
 }
@@ -460,9 +460,8 @@ std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
     _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
     
     // THIS MIGHT BE THE SOLUTION FOR MOVING PLATFORM
-    _treasure->setPosition(box->getPosition());
+    _treasure->setPositionInit(box->getPosition());
 //
-//    _treasure->setPosition(pos);
     _objects->push_back(_treasure);
     return _treasure;
 }
@@ -907,7 +906,7 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     treasure->setSceneNode(sprite);
     treasure->getObstacle()->setName("treasure");
     treasure->getObstacle()->setDebugColor(Color4::YELLOW);
-    treasure->setPosition(pos);
+    treasure->setPositionInit(pos);
     treasure->getObstacle()->setShared(true);
     
     return std::make_pair(treasure->getObstacle(), sprite);

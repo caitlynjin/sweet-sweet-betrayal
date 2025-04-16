@@ -49,6 +49,9 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     _jsonType = jsonType;
     _itemType = jsonTypeToItemType[jsonType];
     CULog("jsonType is %s", jsonType.c_str());
+    
+    if (
+    
     _box = cugl::physics2::BoxObstacle::alloc(pos, size);
     _box->setBodyType(b2_staticBody);
     _box->setDebugColor(Color4::YELLOW);
@@ -62,7 +65,8 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
  *
  * @param position   The position
  */
-void ArtObject::setPosition(const cugl::Vec2& position) {
+void ArtObject::setPositionInit(const cugl::Vec2& position) {
+    PolygonObstacle::setPosition(position);
     _position = position;
     _node->setPosition((position + _size / 2) * _drawScale);
 }
@@ -83,13 +87,13 @@ void ArtObject::dispose() {
 
 void ArtObject::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node, float angle) {
     _node = node;
-    _node->setPosition(getPosition() * _drawScale);
+    _node->setPosition(getPositionInit() * _drawScale);
     _node->setAngle(angle);
 }
 
 void ArtObject::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
     _node = node;
-    _node->setPosition(getPosition() * _drawScale);
+    _node->setPosition(getPositionInit() * _drawScale);
     _node->setAngle(0);
 }
 

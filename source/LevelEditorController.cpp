@@ -167,8 +167,8 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
         _objectController->processLevelObject(obj, true);
         // This is necessary to remove the object with the eraser.
         // Also, in level editor, everything should be moveable.
-        _gridManager->addMoveableObject(obj->getPosition(), obj);
-        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
+        _gridManager->addMoveableObject(obj->getPositionInit(), obj);
+        CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
     }
 
 
@@ -288,7 +288,7 @@ void LevelEditorController::preUpdate(float dt) {
 
                 if (_selectedObject) {
                     // Move the existing object to new position
-                    _selectedObject->setPosition(gridPosWithOffset);
+                    _selectedObject->setPositionInit(gridPosWithOffset);
 
                     // Trigger obstacle update listener
                     if (_selectedObject->getObstacle()->getListener()) {
@@ -328,9 +328,9 @@ void LevelEditorController::preUpdate(float dt) {
                         break;
                     }
                     else {
-                        CULog("%f", (**it).getPosition().x);
-                        CULog("%f", (*obj).getPosition().x);
-                        CULog("%f", (*obj).getPosition().y);
+                        CULog("%f", (**it).getPositionInit().x);
+                        CULog("%f", (*obj).getPositionInit().x);
+                        CULog("%f", (*obj).getPositionInit().y);
                         CULog("");
                     }
                     index++;
@@ -340,7 +340,7 @@ void LevelEditorController::preUpdate(float dt) {
                 /*This code doesn't really work as is but I left it in for now. */
                 //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
                 //CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                obj->setPosition(Vec2(2, 2));
+                obj->setPositionInit(Vec2(2, 2));
                 if (obj->getObstacle()->getListener()) {
                     obj->getObstacle()->getListener()(obj->getObstacle().get());
                 }
@@ -364,7 +364,7 @@ void LevelEditorController::preUpdate(float dt) {
                     _selectedItem = obj->getItemType();
 
                     // Set the current position of the object
-                    _prevPos = _selectedObject->getPosition();
+                    _prevPos = _selectedObject->getPositionInit();
 
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
@@ -377,14 +377,14 @@ void LevelEditorController::preUpdate(float dt) {
             if (_selectedObject) {
                 if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
-                    _selectedObject->setPosition(_prevPos);
+                    _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 }
                 else {
                     // Move the existing object to new position
                     CULog("Reposition object");
-                    _selectedObject->setPosition(gridPos);
+                    _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType() == Item::PLATFORM) {
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
@@ -457,7 +457,7 @@ void LevelEditorController::preUpdate(float dt) {
         vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
         for (auto& obj : objects) {
             _objectController->processLevelObject(obj, true);
-            _gridManager->addMoveableObject(obj->getPosition(), obj);
+            _gridManager->addMoveableObject(obj->getPositionInit(), obj);
         }
 
         // To avoid rerunning the loading logic next frame

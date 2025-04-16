@@ -64,7 +64,7 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
 
     float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(tile->getPosition().x, tile->getPosition().y, tile->getSize().width - blendingOffset, tile->getSize().height - blendingOffset));
+    Poly2 poly(Rect(tile->getPositionInit().x, tile->getPositionInit().y, tile->getSize().width - blendingOffset, tile->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -105,7 +105,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
+    Poly2 poly(Rect(plat->getPositionInit().x, plat->getPositionInit().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -168,7 +168,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(plat->getPosition().x, plat->getPosition().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
+    Poly2 poly(Rect(plat->getPositionInit().x, plat->getPositionInit().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -254,7 +254,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
 std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    return createWindObstacle(wind->getPosition(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
+    return createWindObstacle(wind->getPositionInit(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
 }
 
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
@@ -275,7 +275,7 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
 }
 
 std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPosition(), _treasure->getSize(), _treasure->getJsonType());
+    return createTreasure(_treasure->getPositionInit(), _treasure->getSize(), _treasure->getJsonType());
 }
 
 std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
@@ -300,7 +300,7 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
         offset += Vec2(0, 32);
     }
 
-    Poly2 poly(Rect(art->getPosition().x, art->getPosition().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
+    Poly2 poly(Rect(art->getPositionInit().x, art->getPositionInit().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
 
     // Call this on a polygon to get a solid shape
     EarclipTriangulator triangulator;
@@ -409,7 +409,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         // Required because it crashes if you try to set up a networked treasure during build mode
         if (!levelEditing) {
             //TODO: Change so that NetworkController has a list of treasure positions, then MovePhaseScene will init the treasure based on these positions
-            _networkController->addTreasureSpawn(obj->getPosition());
+            _networkController->addTreasureSpawn(obj->getPositionInit());
         }
         else {
             createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
@@ -423,7 +423,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
     }
     else if (key == "tiles") {
-        createTile(obj->getPosition(), obj->getSize(), obj->getJsonType());
+        createTile(obj->getPositionInit(), obj->getSize(), obj->getJsonType());
     }
 }
 
