@@ -262,11 +262,11 @@ void BuildPhaseController::preUpdate(float dt) {
 
     // TODO: Segment out to another method, uiSceneUpdate()
     if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
-        _buildPhaseScene.getCamera()->translate(10, 0);
+        _buildPhaseScene.getCamera()->translate(20, 0);
         _buildPhaseScene.getCamera()->update();
     }
     if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 0){
-        _buildPhaseScene.getCamera()->translate(-10, 0);
+        _buildPhaseScene.getCamera()->translate(-20, 0);
         _buildPhaseScene.getCamera()->update();
     }
 
