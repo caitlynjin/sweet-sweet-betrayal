@@ -12,8 +12,6 @@ constexpr int RAYS = 3;
 class WindObstacle : public Object {
 
 private:
-	/** The BoxObstacle wrapped by this WindObstacle object */
-	std::shared_ptr<cugl::physics2::BoxObstacle> _gust;
 
 	/*The direction of where the wind wind will push you*/
 	Vec2 _windForce;
@@ -41,7 +39,7 @@ public:
      *
      * @param position   The position
      */
-    void setPosition(const cugl::Vec2& position) override;
+    void setPositionInit(const cugl::Vec2& position) override;
 
 	/** The update method for the WindObstacle */
 	void update(float timestep) override;
@@ -55,12 +53,6 @@ public:
 	/** Disposal */
 	~WindObstacle(void) override { dispose(); }
 	void dispose() override;
-
-
-	/** Return the obstacle */
-	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-		return _gust;
-	}
 
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.

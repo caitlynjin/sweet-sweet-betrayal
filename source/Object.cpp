@@ -29,12 +29,12 @@ Object::Object(Vec2 pos) {
     _sceneNode = nullptr;
 }
 
-Object::Object() {
-	_position = Vec2(0, 0);
-	_texture = nullptr;
-    _itemType = NONE;
-    _sceneNode = nullptr;
-}
+//Object::Object() {
+//	_position = Vec2(0, 0);
+//	_texture = nullptr;
+//    _itemType = NONE;
+//    _sceneNode = nullptr;
+//}
 
 void Object::update(float timestep) { }
 
@@ -42,7 +42,7 @@ void Object::setTexture(const std::shared_ptr<graphics::Texture>& texture) {
 	_texture = texture;
 }
 
-void Object::setPosition(const cugl::Vec2& position) {
+void Object::setPositionInit(const cugl::Vec2& position) {
 	_position = position;
 }
 
@@ -96,5 +96,5 @@ std::map<std::string, std::any> Object::getMap() {
 }
 
 bool operator==(Object self, Object other) {
-	return self.getPosition() == other.getPosition() && self.getSize() == other.getSize();
+	return self.getPositionInit() == other.getPositionInit() && self.getSize() == other.getSize();
 }

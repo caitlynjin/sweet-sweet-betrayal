@@ -17,8 +17,19 @@ void Treasure::update(float timestep) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
     
+    PolygonObstacle::update(timestep);
+    if (_node != nullptr)
+    {
+        _node->setPosition(getPosition() * _drawScale);
+        _node->setAngle(getAngle());
+    }
+    
     if (_stealCooldown > 0){
         _stealCooldown -= 0.1f;
+        _node->setColor(Color4::GREEN);
+    }
+    else{
+        _node->setColor(Color4::WHITE);
     }
 }
 
@@ -26,8 +37,10 @@ string Treasure::getJsonKey() {
     return JSON_KEY;
 }
 
-void Treasure::setPosition(const cugl::Vec2 &position){
-    _box->setPosition(position);
+void Treasure::setPositionInit(const cugl::Vec2 &position){
+    _position = position;
+    PolygonObstacle::setPosition(position);
+    
     if (_node != nullptr) {
         _node->setPosition(position*_drawScale);
     }
@@ -61,21 +74,23 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _size = size;
     _jsonType = jsonType;
     _drawScale = scale;
-    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize);
-    _box->setSensor(true);
-    return true;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(Vec2(), nsize*0.5);
+    
+    if (PolygonObstacle::init(rect)){
+        setSensor(true);
+        setName("treasure");
+        setDebugColor(Color4::YELLOW);
+        setPosition(pos);
+        _node = scene2::SpriteNode::alloc();
+        
+        return true;
+    }
+
+    return false;
 }
-bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-//    Size nsize = size;
-    _treasureTexture = "";
-    _position = pos;
-    _size = size;
-    _jsonType = "default";
-    _drawScale = scale;
-    _taken = taken;
-    _box = box;
-    return true;
-}
+
 
 void Treasure::reset(){
     _taken = false;

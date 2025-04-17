@@ -144,11 +144,11 @@ void BuildPhaseController::preUpdate(float dt) {
             
             if (_selectedObject) {
                 // Move the existing object to new position
-                _selectedObject->setPosition(gridPosWithOffset);
+                _selectedObject->setPositionInit(gridPosWithOffset + Vec2(0.5f, 0.5f));
                 
                 // Trigger obstacle update listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
             } else {
                 _gridManager->setObject(gridPosWithOffset, _selectedItem);
@@ -174,7 +174,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
                     // Set the current position of the object
-                    _prevPos = _selectedObject->getPosition();
+                    _prevPos = _selectedObject->getPositionInit();
 
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
@@ -206,13 +206,13 @@ void BuildPhaseController::preUpdate(float dt) {
             if (_selectedObject) {
                 if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
-                    _selectedObject->setPosition(_prevPos);
+                    _selectedObject->setPositionInit(_prevPos + Vec2(0.5f, 0.5f));
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
-                    _selectedObject->setPosition(gridPos);
+                    _selectedObject->setPositionInit(gridPos + Vec2(0.5f, 0.5f));
                     if (_selectedObject->getItemType()== Item::PLATFORM) {
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
@@ -223,8 +223,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 }
 
                 // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
 
                 // Reset selected object
@@ -398,7 +398,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (MOVING_PLATFORM):
             return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
         case (WIND):
-            return _objectController->createWindObstacle(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0),  "default");
+            return _networkController->createWindNetworked(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0));
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
         case (THORN):
@@ -412,7 +412,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
         case (TILE_ITEM):
             // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-            obj = _objectController->createTile(gridPos, itemToSize(item), "default");
+            obj = _objectController->createTile(gridPos, itemToSize(item), "default", _buildPhaseScene.getScale());
             obj->setItemType(TILE_ITEM);
             return obj;
         case (NONE):

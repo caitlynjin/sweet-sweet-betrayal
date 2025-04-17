@@ -114,7 +114,7 @@ void GridManager::setSpriteInvisible(){
  *@param obj    the object
  */
 void GridManager::addObject(std::shared_ptr<Object> obj) {
-    Vec2 cellPos = obj->getPosition();
+    Vec2 cellPos = obj->getPositionInit();
     Size size = obj->getSize();
 
     // Add the object to every position it exists in

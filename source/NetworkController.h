@@ -20,6 +20,7 @@
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
+#include "WindObstacle.h"
 #include "Thorn.h"
 #include "Message.h"
 
@@ -309,6 +310,33 @@ class ThornFactory : public ObstacleFactory {
 
 
 /**
+ * The factory class for wind objects.
+ */
+class WindFactory : public ObstacleFactory {
+    public:
+        std::shared_ptr<AssetManager> _assets;
+        LWSerializer _serializer;
+        LWDeserializer _deserializer;
+
+        static std::shared_ptr<WindFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+            auto f = std::make_shared<WindFactory>();
+            f->init(assets);
+            return f;
+        }
+
+        void init(std::shared_ptr<AssetManager>& assets) {
+            _assets = assets;
+        }
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength);
+
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength);
+
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+    };
+
+
+/**
  * This class is the scene for the UI of the game.
  *
  * Since the game itself has a camera that moves along with the player,
@@ -402,6 +430,10 @@ protected:
     /** Variables for Thorn Factory */
     std::shared_ptr<ThornFactory> _thornFact;
     Uint32 _thornFactID;
+    
+    /** Variables for Wind Factory */
+    std::shared_ptr<WindFactory> _windFact;
+    Uint32 _windFactID;
 
 public:
 #pragma mark -
@@ -471,28 +503,7 @@ public:
      *
      * @param world the world to be used for networked physics.
      */
-    void setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
-        _world = world;
-        
-        // Setup factories
-        _platFact = PlatformFactory::alloc(_assets);
-        _platFactId = _network->getPhysController()->attachFactory(_platFact);
-
-        _dudeFact = DudeFactory::alloc(_assets);
-        _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
-        
-        _movingPlatFact = MovingPlatFactory::alloc(_assets);
-        _movingPlatFactID = _network->getPhysController()->attachFactory(_movingPlatFact);
-        // Setup Treasure Factory
-        _treasureFact = TreasureFactory::alloc(_assets);
-        _treasureFactID = _network->getPhysController()->attachFactory(_treasureFact);
-
-        _mushroomFact = MushroomFactory::alloc(_assets);
-        _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
-
-        _thornFact = ThornFactory::alloc(_assets);
-        _thornFactID = _network->getPhysController()->attachFactory(_thornFact);
-    }
+    void setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world);
     
     /**
      * Sets the network world.
@@ -739,13 +750,6 @@ public:
      * @return the treasure being created
      */
     std::shared_ptr<Object> createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken);
-   
-    /**
-    * Creates a networked treasure on the client end.
-    *
-    * @return the treasure being created
-    */
-    std::shared_ptr<Object> createTreasureClient(float scale);
 
     /**
      * Creates a networked mushroom.
@@ -760,6 +764,14 @@ public:
      * @return the thorn being created
      */
     std::shared_ptr<Object> createThornNetworked(Vec2 pos, Size size);
+    
+    
+    /**
+     * Creates a networked wind obstacle.
+     *
+     * @return the thorn being created
+     */
+    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str);
 
     /**
      * The method called to update the game mode.

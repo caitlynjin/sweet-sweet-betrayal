@@ -23,6 +23,7 @@ class LevelModel {
 private:
 	Size _levelSize;
 	vector<shared_ptr<Object>> _objects;
+    float _scale = 1.0f;
 
 	
 public: 
@@ -59,6 +60,10 @@ public:
 	vector<shared_ptr<Object>> getObjects() {
 		return _objects;
 	}
+    
+    void setScale(float scale){
+        _scale = scale;
+    }
 };
 
 #endif /* __LEVEL_MODEL_H__ */

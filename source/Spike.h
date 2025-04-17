@@ -9,9 +9,6 @@ using namespace std;
 
 class Spike : public Object {
 
-private:
-	/** The BoxObstacle wrapped by this Spike object */
-	std::shared_ptr<cugl::physics2::PolygonObstacle> _hitbox;
     
 protected:
     /** The texture for the spike */
@@ -44,11 +41,7 @@ public:
      *
      * @param position   The position
      */
-    void setPosition(const cugl::Vec2& position) override;
-
-	std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-		return _hitbox;
-	}
+    void setPositionInit(const cugl::Vec2& position) override;
 
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the Spike and link it to a physics object.
@@ -82,7 +75,7 @@ public:
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node, float angle) {
         _node = node;
-        _node->setPosition(getPosition() * _drawScale);
+        _node->setPosition(getPositionInit() * _drawScale);
         _node->setAngle(angle);
     }
 

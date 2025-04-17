@@ -56,7 +56,7 @@ using namespace Constants;
 float GOAL_POS[] = { 47.0f, 4.0f };
 /** The initial position of the dude */
 
-float DUDE_POS[] = { 1.0f, 3.0f};
+float DUDE_POS[] = { 1.0f, 4.0f};
 
 
 #pragma mark -
@@ -152,6 +152,7 @@ void MovePhaseScene::populate() {
 
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
+    level->setScale(_scale);
     std::string key;
     vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
     _gridManager->clear();
@@ -159,7 +160,7 @@ void MovePhaseScene::populate() {
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj);
         _gridManager->addObject(obj);
-        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
+        CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
     }
 #pragma mark : Dude
     std::shared_ptr<scene2::SceneNode> node = scene2::SceneNode::alloc();
@@ -241,11 +242,24 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
-//        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        const auto& obstacles = _world->getObstacles();
+        for (const auto& obstacle : obstacles) {
+            
+            if (obstacle->getName() == "treasure"){
+                // Try to cast to Treasure and add to our list if successful
+                auto treasure = std::dynamic_pointer_cast<Treasure>(obstacle);
+                if (treasure) {
+                    _treasure = treasure;
+                    _networkController->setTreasure(_treasure);
+                    
+                } else {
+                    CULog("Found player but casting failed");
+                }
+            }
+        }
     }
     
-    // Update objects
+    
     _camera->update();
 }
 
@@ -284,12 +298,6 @@ void MovePhaseScene::resetPlayerProperties() {
 
 }
 
-/**
- * Set the next position for the treasure based on the current gem count.
- */
-void MovePhaseScene::setNextTreasure(int count) {
-//    _treasure->setPosition(Vec2(TREASURE_POS[count]));
-}
 
 /**
  * Converts from screen to Box2D coordinates.
