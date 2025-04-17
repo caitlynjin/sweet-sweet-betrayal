@@ -9,7 +9,7 @@ using namespace cugl::graphics;
 
 void Mushroom::setPositionInit(const cugl::Vec2 &position){
     _position = position;
-    PolygonObstacle::setPosition(position + _size / 2);
+    PolygonObstacle::setPosition(position);
 }
 
 void Mushroom::dispose() {
@@ -31,21 +31,13 @@ bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
     Size nsize = size;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + size/2, Size(nsize.width, nsize.height));
+    Poly2 rect = factory.makeRect(Vec2(-1.0f, -1.0f), Size(nsize.width*0.8, nsize.height));
     
     if (PolygonObstacle::init(rect)){
+        setPosition(pos);
         setSensor(true);
         return true;
         }
 
     return false;
-}
-
-// For networking: using an already-created BoxObstacle.
-bool Mushroom::init(const Vec2 pos, const Size size, float scale, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    _position = pos;
-    _size = size;
-    _box = box;
-    _itemType = Item::MUSHROOM;
-    return true;
 }

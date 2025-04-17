@@ -55,9 +55,10 @@ bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, float sca
     _drawScale = 1.0f;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + size / 2, Size(nsize.width, nsize.height));
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), Size(nsize.width, nsize.height));
         
     if (PolygonObstacle::init(rect)){
+        setPosition(pos + size / 2);
         return true;
     }
     

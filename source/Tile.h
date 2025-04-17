@@ -66,11 +66,7 @@ public:
 
     // Gets if this is a wall
     bool isWall() { return _wall; }
-    
-    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
-        _node = node;
-        _node->setPosition(getPosition() * _drawScale);
-    }
+
 
 };
 

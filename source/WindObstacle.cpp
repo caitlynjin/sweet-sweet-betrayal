@@ -16,7 +16,7 @@ using namespace cugl::graphics;
  */
 void WindObstacle::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size / 2);
+    PolygonObstacle::setPosition(position);
 }
 
 void WindObstacle::update(float timestep) {
@@ -92,9 +92,10 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     setTrajectory(Vec2(0, 3.0f));
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + _size/2, nsize);
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), nsize);
         
     if (PolygonObstacle::init(rect)){
+        setPosition(pos);
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);

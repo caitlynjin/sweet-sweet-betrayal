@@ -20,7 +20,7 @@ using namespace cugl::graphics;
  */
 void Thorn::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size/2);
+    PolygonObstacle::setPosition(position);
 }
 
 string Thorn::getJsonKey() {
@@ -58,22 +58,14 @@ bool Thorn::init(const Vec2 pos, const Size size, string jsonType) {
     _size = size;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + size/2, size);
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
     
     if (PolygonObstacle::init(rect)){
+        setPosition(pos);
         return true;
     }
 
     return false;
-}
-
-/** Init method used for networked thorns */
-bool Thorn::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    _box = box;
-    _size = size;
-    _itemType = Item::THORN;
-    _position = pos;
-    return true;
 }
 
 std::map<std::string, std::any> Thorn::getMap() {

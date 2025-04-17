@@ -51,9 +51,10 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     CULog("jsonType is %s", jsonType.c_str());
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos, size);
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -1.0f), size);
     
     if (PolygonObstacle::init(rect)){
+
         setBodyType(b2_staticBody);
         setDebugColor(Color4::YELLOW);
         setPosition(_position + size/2);

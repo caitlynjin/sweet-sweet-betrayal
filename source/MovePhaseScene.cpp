@@ -242,11 +242,24 @@ void MovePhaseScene::reset() {
 void MovePhaseScene::preUpdate(float dt) {
     // Set up treasure for non-host player    
     if (_treasure == nullptr && !_networkController->getIsHost()){
-        _treasure = std::dynamic_pointer_cast<Treasure>(_networkController->createTreasureClient(_scale));
-//        _networkController->setTreasureSpawn(TREASURE_POS[0]);
+        const auto& obstacles = _world->getObstacles();
+        for (const auto& obstacle : obstacles) {
+            
+            if (obstacle->getName() == "treasure"){
+                // Try to cast to Treasure and add to our list if successful
+                auto treasure = std::dynamic_pointer_cast<Treasure>(obstacle);
+                if (treasure) {
+                    _treasure = treasure;
+                    _networkController->setTreasure(_treasure);
+                    
+                } else {
+                    CULog("Found player but casting failed");
+                }
+            }
+        }
     }
     
-    // Update objects
+    
     _camera->update();
 }
 

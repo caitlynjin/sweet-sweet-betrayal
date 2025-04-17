@@ -26,6 +26,10 @@ void Treasure::update(float timestep) {
     
     if (_stealCooldown > 0){
         _stealCooldown -= 0.1f;
+        _node->setColor(Color4::GREEN);
+    }
+    else{
+        _node->setColor(Color4::WHITE);
     }
 }
 
@@ -72,13 +76,9 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _drawScale = scale;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos, nsize*0.5);
+    Poly2 rect = factory.makeRect(Vec2(), nsize*0.5);
     
-    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize*0.5);
-    _box->setName("treasure");
-    _box->setSensor(true);
-    
-    if (physics2::PolygonObstacle::init(rect)){
+    if (PolygonObstacle::init(rect)){
         setSensor(true);
         setName("treasure");
         setDebugColor(Color4::YELLOW);
@@ -88,7 +88,7 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
         return true;
     }
 
-    return true;
+    return false;
 }
 bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
 //    Size nsize = size;

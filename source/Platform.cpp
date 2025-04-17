@@ -13,14 +13,16 @@ using namespace cugl::graphics;
  */
 void Platform::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
+    PolygonObstacle::setPosition(position);
     
 }
 
 void Platform::update(float timestep) {
+    PolygonObstacle::update(timestep);
+    
     if (!_moving) return;
     Vec2 pos = getPosition();
-    Vec2 target = _forward ? _endPos+_size/2 : _startPos+_size/2;
+    Vec2 target = _forward ? _endPos : _startPos;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
 //    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
@@ -37,7 +39,7 @@ void Platform::update(float timestep) {
         pos = target;
         setPosition(pos);
         _forward = !_forward;
-        Vec2 newTarget = _forward ? _endPos+_size/2 : _startPos+_size/2;
+        Vec2 newTarget = _forward ? _endPos : _startPos;
         Vec2 direction = newTarget - pos;
         direction.normalize();         
         Vec2 velocity = direction * _speed;
@@ -85,32 +87,16 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     _position = pos;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
+    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(nsize.width, nsize.height * 0.5));
         
     if (PolygonObstacle::init(rect)){
+        setPosition(pos);
         return true;
     }
     
     return false;
 }
 
-// Init method used for networked platforms
-bool Platform::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    Size nsize = size;
-    _size = size;
-    _itemType = Item::PLATFORM;
-    _position = pos;
-    
-    // The long platform is shorter in height
-    PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos + size / 2 + Vec2(0, nsize.height * 0.25), Size(nsize.width, nsize.height * 0.5));
-        
-    if (PolygonObstacle::init(rect)){
-        return true;
-    }
-
-    return false;
-}
 
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
     if (!init(pos, size)) return false;
@@ -121,15 +107,16 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     _forward  = true;
     _position = pos;
     _size = size;
+    _itemType = Item::MOVING_PLATFORM;
     //enable moving
     
     
-    _box  = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
+    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(_size.width, _size.height * 0.5));
         
     if (PolygonObstacle::init(rect)){
+        setPosition(pos);
         setBodyType(b2_kinematicBody);
         Vec2 direction = _endPos - _startPos;
         direction.normalize();
@@ -140,27 +127,6 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     
     
     return false;
-}
-//for networked moving platform 
-bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    if (!init(pos, size)) return false;
-    _moving = true;
-    _startPos = start;
-    _endPos   = end;
-    _speed    = speed;
-    _forward  = true;
-    _position = pos;
-    _size = size;
-    //enable moving
-    
-    
-    _box = cugl::physics2::BoxObstacle::alloc(_startPos + _size / 2 + Vec2(0, _size.height * 0.25), Size(_size.width, _size.height * 0.5));
-    _box = box;
-    _box->setBodyType(b2_kinematicBody);
-    Vec2 direction = _endPos - _startPos;
-    direction.normalize();
-    _box->setLinearVelocity(direction * _speed);
-    return true;
 }
 
 std::map<std::string, std::any> Platform::getMap() {
