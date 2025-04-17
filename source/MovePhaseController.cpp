@@ -84,7 +84,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _numPlayers, _networkController->getScoreController(),_networkController);
+    _uiScene.init(assets, _networkController->getScoreController(),_networkController);
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 

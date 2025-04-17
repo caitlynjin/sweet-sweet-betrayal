@@ -72,8 +72,6 @@ protected:
     float _levelWidth;
     /** Starting player position */
     float _playerStart;
-    /** Number of players */
-    int _numPlayers;
 
     /** Whether we have completed this "game" */
     bool _complete;

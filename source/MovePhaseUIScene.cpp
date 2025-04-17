@@ -80,7 +80,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -223,7 +223,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 //    addChild(playerScore);
 //    _playerScores.push_back(playerScore);
 
-    _numPlayers = players;
+    _playerList = _networkController->getPlayerList();
     _scoreController = scoreController;
     
 
@@ -261,9 +261,10 @@ void MovePhaseUIScene::preUpdate(float dt) {
  * @param value whether the level is in building mode.
  */
 void MovePhaseUIScene::disableUI(bool value) {
+    int numPlayers = _playerList.size();
     _progressBar->setVisible(!value);
     _redIcon->setVisible(!value);
-    if (_numPlayers > 1){
+    if (numPlayers > 1){
         _blueIcon->setVisible(!value);
     }
 

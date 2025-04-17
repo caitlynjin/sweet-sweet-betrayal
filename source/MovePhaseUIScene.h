@@ -78,8 +78,8 @@ protected:
     int const TOTAL_ROUNDS = 5;
     /** The total amount of gems */
     int const TOTAL_GEMS = 3;
-    /** The number of players */
-    int _numPlayers;
+    /** The list of players */
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
 
     /** Whether player is jumping */
     bool _didjump;
@@ -129,7 +129,6 @@ public:
      * @return true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<cugl::AssetManager>& assets,
-              int players,
               const std::shared_ptr<ScoreController>& scoreController,
               std::shared_ptr<NetworkController> networkController);
 
