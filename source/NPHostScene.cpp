@@ -103,7 +103,7 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     _gameid->setAnchor(Vec2::ANCHOR_CENTER);
     _gameid->setPosition(_size.width * .50,_size.height * .65);
     _gameid->setContentWidth(_size.width * .3);
-    _gameid->setForeground(Color4::WHITE);
+    _gameid->setForeground(Color4::BLACK);
     _gameid->setVisible(true);
     scene->addChild(_gameid);
     
