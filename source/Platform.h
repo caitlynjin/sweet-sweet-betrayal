@@ -38,11 +38,7 @@ public:
      *
      * @param position   The position
      */
-    void setPosition(const cugl::Vec2& position) override;
-
-    std::shared_ptr<cugl::physics2::Obstacle> getObstacle() override {
-        return _box;
-    }
+    void setPositionInit(const cugl::Vec2& position) override;
 
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the Platform and link it to a physics object.
@@ -56,21 +52,14 @@ public:
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
         return (result->init(position, size) ? result : nullptr);
     }
-    
-    static std::shared_ptr<Platform> alloc(const Vec2 position, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-        std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->init(position, size, box) ? result : nullptr);
-    }
+
   
     // New alloc method for moving platform.
     static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
         return (result->initMoving(position, size, start, end, speed) ? result : nullptr);
     }
-    static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-        std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->initMoving(position, size, start, end, speed, box) ? result : nullptr);
-    }
+
 
 
     
@@ -84,7 +73,7 @@ public:
 
     // New init for moving platform.
     bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed);
-    bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed, std::shared_ptr<cugl::physics2::BoxObstacle> box);
+
 
     // Map for JSON level management
     std::map<std::string, std::any> getMap() override;

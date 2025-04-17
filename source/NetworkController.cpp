@@ -344,7 +344,7 @@ void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
     _treasure->setStealable(true);
     if (_isHost){
-        _treasure->setPosition(_treasureSpawn);
+        _treasure->setPositionInit(_treasureSpawn);
     }
     
 }
@@ -355,7 +355,7 @@ void NetworkController::resetTreasureRandom(){
     _treasure->setTaken(false);
     _treasure->setStealable(true);
     if (_isHost){
-        _treasure->setPosition(pickRandSpawn());
+        _treasure->setPositionInit(pickRandSpawn());
     }
     
 }
@@ -376,24 +376,10 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
     // pair holds the boxObstacle and sprite to be used for the platform
     // Already added to _world after this call
     auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
-
-    // Cast the obstacle to a BoxObstacle
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-
+    std::shared_ptr<Platform> plat = std::dynamic_pointer_cast<Platform>(pair.first);
+    _objects->push_back(plat);
+    return plat;
     
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-    // Check if the cast was successful
-    if (boxObstacle) {
-        // Assign the boxObstacle that was made to the platform
-        std::shared_ptr<Platform> plat = Platform::alloc(pos, size, boxObstacle);
-        plat->setSceneNode(sprite);
-        _objects->push_back(plat);
-        return plat;
-    } else {
-        // Handle case where the obstacle is not a BoxObstacle
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
 }
 /**
  * Creates a networked moving platform.
@@ -405,105 +391,43 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
     auto params = _movingPlatFact->serializeParams(pos + size/2, size, end + size/2, speed, scale);
 
     auto pair = _network->getPhysController()->addSharedObstacle(_movingPlatFactID, params);
-
-    // Attempt to cast the obstacle to a BoxObstacle.
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-    if (boxObstacle) {
-        std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed, boxObstacle);
-        plat->setSceneNode(sprite);
-        _objects->push_back(plat);
-        return plat;
-    } else {
-        
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
+    std::shared_ptr<Platform> plat = std::dynamic_pointer_cast<Platform>(pair.first);
+    _objects->push_back(plat);
+    return plat;
 }
+
 std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken) {
-    CULog("creating treasure");
     auto params = _treasureFact->serializeParams(pos, size, scale, taken);
     auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
-
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-    
-    if (boxObstacle) {
-        std::shared_ptr<Treasure> treasure = Treasure::alloc(pos, size, scale, taken, boxObstacle);
-        treasure->setSceneNode(sprite);
-        _objects->push_back(treasure);
-        return treasure;
-    } else {
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
-}
-
-std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
-    // Find the hitbox in network world
-    std::shared_ptr<cugl::physics2::BoxObstacle> box;
-    const auto& obstacles = _world->getObstacles();
-    for (const auto& obstacle : obstacles) {
-        if (obstacle->getName() == "treasure"){
-            box = std::dynamic_pointer_cast<BoxObstacle>(obstacle);
-            break;
-        }
-    }
-    
-    // Rest of initialization
-    std::shared_ptr<Texture> image;
-    std::shared_ptr<scene2::PolygonNode> sprite;
-    image = _assets->get<Texture>("treasure");
-    _treasure = Treasure::alloc(box->getPosition(),image->getSize()/scale,scale, false, box);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _treasure->setSceneNode(sprite);
-    _treasure->getObstacle()->setDebugColor(Color4::YELLOW);
-    
-    // THIS MIGHT BE THE SOLUTION FOR MOVING PLATFORM
-    _treasure->setPosition(box->getPosition());
-//
-//    _treasure->setPosition(pos);
-    _objects->push_back(_treasure);
-    return _treasure;
+    std::shared_ptr<Treasure> treasure = std::dynamic_pointer_cast<Treasure>(pair.first);
+    _objects->push_back(treasure);
+    return treasure;
 }
 
 
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
-    CULog("creating mushroom");
     auto params = _mushroomFact->serializeParams(pos + size/2, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
-
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
-    
-    if (boxObstacle) {
-        std::shared_ptr<Mushroom> mushroom = Mushroom::alloc(pos, size, scale, boxObstacle);
-        mushroom->setSceneNode(sprite);
-        _objects->push_back(mushroom);
-        return mushroom;
-    } else {
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
+    std::shared_ptr<Mushroom> mushroom = std::dynamic_pointer_cast<Mushroom>(pair.first);
+    _objects->push_back(mushroom);
+    return mushroom;
 }
 
 std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size size) {
-    CULog("creating thorn");
     auto params = _thornFact->serializeParams(pos + size/2, size);
     auto pair = _network->getPhysController()->addSharedObstacle(_thornFactID, params);
+    std::shared_ptr<Thorn> thorn = std::dynamic_pointer_cast<Thorn>(pair.first);
+    _objects->push_back(thorn);
+    return thorn;
+}
 
-    auto boxObstacle = std::dynamic_pointer_cast<cugl::physics2::BoxObstacle>(pair.first);
-    std::shared_ptr<scene2::SceneNode> sprite = pair.second;
 
-    if (boxObstacle) {
-        std::shared_ptr<Thorn> thorn = Thorn::alloc(pos, size, boxObstacle);
-        thorn->setSceneNode(sprite);
-        _objects->push_back(thorn);
-        return thorn;
-    } else {
-        CULog("Error: Expected a BoxObstacle but got a different type");
-        return nullptr;
-    }
+std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str) {
+    auto params = _windFact->serializeParams(pos + size/2, size, dir, str);
+    auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
+    std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
+    _objects->push_back(wind);
+    return wind;
 }
 
 
@@ -568,6 +492,32 @@ Vec2 NetworkController::pickRandSpawn(){
 
 #pragma mark -
 #pragma mark Helpers
+
+void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
+    _world = world;
+    
+    // Setup factories
+    _platFact = PlatformFactory::alloc(_assets);
+    _platFactId = _network->getPhysController()->attachFactory(_platFact);
+
+    _dudeFact = DudeFactory::alloc(_assets);
+    _dudeFactID = _network->getPhysController()->attachFactory(_dudeFact);
+    
+    _movingPlatFact = MovingPlatFactory::alloc(_assets);
+    _movingPlatFactID = _network->getPhysController()->attachFactory(_movingPlatFact);
+    // Setup Treasure Factory
+    _treasureFact = TreasureFactory::alloc(_assets);
+    _treasureFactID = _network->getPhysController()->attachFactory(_treasureFact);
+
+    _mushroomFact = MushroomFactory::alloc(_assets);
+    _mushroomFactID = _network->getPhysController()->attachFactory(_mushroomFact);
+
+    _thornFact = ThornFactory::alloc(_assets);
+    _thornFactID = _network->getPhysController()->attachFactory(_thornFact);
+    
+    _windFact = WindFactory::alloc(_assets);
+    _windFactID = _network->getPhysController()->attachFactory(_windFact);
+}
 
 /**
  * This method attempts to set all the collision filters for the networked players.
@@ -760,23 +710,22 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     triangulator.calculate();
     poly.setIndices(triangulator.getTriangulation());
     triangulator.clear();
-
-    // Set the physics attributes
-    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     
-    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
-    box->setDensity(BASIC_DENSITY);
-    box->setFriction(BASIC_FRICTION);
-    box->setRestitution(BASIC_RESTITUTION);
-    box->setDebugColor(DEBUG_COLOR);
-    box->setName("platform");
+    auto plat = Platform::alloc(pos, size, LOG_TEXTURE);
     
-    box->setShared(true);
+    plat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    plat->setDensity(BASIC_DENSITY);
+    plat->setFriction(BASIC_FRICTION);
+    plat->setRestitution(BASIC_RESTITUTION);
+    plat->setDebugColor(DEBUG_COLOR);
+    plat->setName("platform");
+    
+    plat->setShared(true);
 
     poly *= scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
 
-    return std::make_pair(box, sprite);
+    return std::make_pair(plat, sprite);
 }
 
 /**
@@ -832,19 +781,19 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> MovingPlatFactory::createObstacle(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
-
-    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
     
-    box->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
-    box->setDensity(BASIC_DENSITY);
-    box->setFriction(BASIC_FRICTION);
-    box->setRestitution(BASIC_RESTITUTION);
-    box->setDebugColor(DEBUG_COLOR);
-    box->setName("movingPlatform");
+    std::shared_ptr<Platform> movPlat = Platform::allocMoving(pos, size, pos, end, speed);
+    
+    movPlat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
+    movPlat->setDensity(BASIC_DENSITY);
+    movPlat->setFriction(BASIC_FRICTION);
+    movPlat->setRestitution(BASIC_RESTITUTION);
+    movPlat->setDebugColor(DEBUG_COLOR);
+    movPlat->setName("movingPlatform");
 
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
 
-    return std::make_pair(box, sprite);
+    return std::make_pair(movPlat, sprite);
 }
 
 
@@ -905,12 +854,12 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
     
     treasure->setSceneNode(sprite);
-    treasure->getObstacle()->setName("treasure");
-    treasure->getObstacle()->setDebugColor(Color4::YELLOW);
-    treasure->setPosition(pos);
-    treasure->getObstacle()->setShared(true);
+//    treasure->setName("treasure");
+//    treasure->setDebugColor(Color4::YELLOW);
+    treasure->setPositionInit(pos);
+    treasure->setShared(true);
     
-    return std::make_pair(treasure->getObstacle(), sprite);
+    return std::make_pair(treasure, sprite);
 }
 
 /**
@@ -975,19 +924,20 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
     std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
-
-    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
-    box->setBodyType(b2_dynamicBody);
-    box->setDensity(BASIC_DENSITY);
-    box->setFriction(BASIC_FRICTION);
-    box->setRestitution(BASIC_RESTITUTION);
-    box->setName("mushroom");
-    box->setDebugColor(DEBUG_COLOR);
-    box->setShared(true);
+    
+    std::shared_ptr<Mushroom> mush = Mushroom::alloc(pos, size, scale);
+    
+    mush->setBodyType(b2_dynamicBody);
+    mush->setDensity(BASIC_DENSITY);
+    mush->setFriction(BASIC_FRICTION);
+    mush->setRestitution(BASIC_RESTITUTION);
+    mush->setName("mushroom");
+    mush->setDebugColor(DEBUG_COLOR);
+    mush->setShared(true);
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
 
-    return std::make_pair(box, sprite);
+    return std::make_pair(mush, sprite);
 }
 
 
@@ -1028,18 +978,19 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 ThornFactory::createObstacle(Vec2 pos, Size size) {
     std::shared_ptr<Texture> texture = _assets->get<Texture>(THORN_TEXTURE);
 
-    std::shared_ptr<cugl::physics2::BoxObstacle> box = cugl::physics2::BoxObstacle::alloc(pos, Size(size.width, size.height));
-    box->setBodyType(b2_dynamicBody);
-    box->setDensity(BASIC_DENSITY);
-    box->setFriction(BASIC_FRICTION);
-    box->setRestitution(BASIC_RESTITUTION);
-    box->setName("thorn");
-    box->setDebugColor(DEBUG_COLOR);
-    box->setShared(true);
+    std:shared_ptr<Thorn> thorn = Thorn::alloc(pos, size);
+    
+    thorn->setBodyType(b2_dynamicBody);
+    thorn->setDensity(BASIC_DENSITY);
+    thorn->setFriction(BASIC_FRICTION);
+    thorn->setRestitution(BASIC_RESTITUTION);
+    thorn->setName("thorn");
+    thorn->setDebugColor(DEBUG_COLOR);
+    thorn->setShared(true);
 
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(texture, 1, 1);
 
-    return std::make_pair(box, sprite);
+    return std::make_pair(thorn, sprite);
 }
 
 
@@ -1068,4 +1019,69 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
     Size size(width, height);
 
     return createObstacle(pos, size);
+}
+
+
+#pragma mark -
+#pragma mark Wind Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength) {
+    
+    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
+    std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
+    std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
+    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
+
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+    
+    
+    wind->setBodyType(b2_dynamicBody);
+    wind->setPositionInit(pos);
+    wind->setSceneNode(fanSprite);
+    wind->setGustSprite(gustSprite);
+    
+    // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
+
+    return std::make_pair(wind, fanSprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+WindFactory::serializeParams(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+    _serializer.writeFloat(windDirection.x);
+    _serializer.writeFloat(windDirection.y);
+    _serializer.writeFloat(windStrength.x);
+    _serializer.writeFloat(windStrength.y);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+WindFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+    
+    float dirX = _deserializer.readFloat();
+    float dirY = _deserializer.readFloat();
+    Vec2 dir(dirX, dirY);
+    
+    float strX = _deserializer.readFloat();
+    float strY = _deserializer.readFloat();
+    Vec2 str(strX, strY);
+
+    return createObstacle(pos, size, dir, str);
 }

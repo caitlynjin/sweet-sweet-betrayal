@@ -166,7 +166,25 @@
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
 /** The key for the earth texture in the asset manager */
-#define EARTH_TEXTURE   "gray"
+#define EARTH_TEXTURE   "earth"
+
+#define TOP_TILE_TEXTURE "tile-top-edge"
+#define BOTTOM_TILE_TEXTURE "tile-bottom-edge"
+#define INNER_TILE_TEXTURE "tile-inner"
+#define LEFT_TILE_TEXTURE "tile-left-edge"
+#define RIGHT_TILE_TEXTURE "tile-right-edge"
+#define TOPLEFT_TILE_TEXTURE "tile-topleft-corner"
+#define TOPRIGHT_TILE_TEXTURE "tile-topright-corner"
+#define CRACK1_TEXTURE "decoration-crack-1"
+#define CRACK2_TEXTURE "decoration-crack-2"
+#define CRACK3_TEXTURE "decoration-crack-3"
+#define CRACK4_TEXTURE "decoration-crack-4"
+#define CRACK5_TEXTURE "decoration-crack-5"
+#define CRACKLARGE1_TEXTURE "decoration-crack-large-1"
+#define MOSS1_TEXTURE "decoration-moss-1"
+#define MOSS2_TEXTURE "decoration-moss-2"
+#define ROCKY1_TEXTURE "decoration-rocky-1"
+#define ROCKY2_TEXTURE "decoration-rocky-2"
 
 
 #pragma mark -
@@ -243,81 +261,178 @@
 
 namespace Constants {
 
-enum JsonType {
-    /** 1x1 tile */
-    TILE,
-    /** 3x0.5 platform tile */
-    PLATFORM_TILE,
-    /** 3x0.5 log obstacle */
-    LOG,
-    /** 3x0.5 gliding log obstacle */
-    GLIDING_LOG,
-    /** 1x1 spike tile */
-    SPIKE_TILE
-};
+    enum JsonType {
+        /** 1x1 tile */
+        TILE,
+        /** 3x0.5 platform tile */
+        PLATFORM_TILE,
+        /** 3x0.5 log obstacle */
+        LOG,
+        /** 3x0.5 gliding log obstacle */
+        GLIDING_LOG,
+        /** 1x1 spike tile */
+        SPIKE_TILE
+    };
 
-/**
- * Convert a JsonType to the corresponding string.
- */
-std::string jsonTypeToString(JsonType type);
+    /**
+     * Convert a JsonType to the corresponding string.
+     */
+    std::string jsonTypeToString(JsonType type);
 
-/*
-    * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
-    *
-    * @return The scale difference for mobile vs desktop
-    */
-float getSystemScale();
+    /*
+        * Returns the additional scale factor needed to differentiate Box2D scaling on mobile and desktop.
+        *
+        * @return The scale difference for mobile vs desktop
+        */
+    float getSystemScale();
 
-enum Item {
-    /** A standard platform */
-    PLATFORM,
-    /** A moving platform */
-    MOVING_PLATFORM,
-    /** A wind object */
-    WIND,
-    /** A spike */
-    SPIKE,
-    /** The thorn */
-    THORN,
-    /** A treasure */
-    TREASURE,
-    /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
-    TILE_ITEM,
-    /** A mushroom */
-    MUSHROOM,
-    /** No type */
-    NONE
-};
+    enum Item {
+        /** A standard platform */
+        PLATFORM,
+        /** A moving platform */
+        MOVING_PLATFORM,
+        /** A wind object */
+        WIND,
+        /** A spike */
+        SPIKE,
+        /** The thorn */
+        THORN,
+        /** A treasure */
+        TREASURE,
+        /** A tile, representing a 1x1 platform. There should eventually be multiple tiles. */
+        TILE_ITEM,
+        /** A mushroom */
+        MUSHROOM,
+        /** An art object */
+        ART_OBJECT,
+
+        TILE_TOP,
+        TILE_BOTTOM,
+        TILE_INNER,
+        TILE_LEFT,
+        TILE_RIGHT,
+        TILE_TOPLEFT,
+        TILE_TOPRIGHT,
+        CRACK_1,
+        CRACK_2,
+        CRACK_3,
+        CRACK_4,
+        CRACK_5,
+        CRACK_LARGE_1,
+        MOSS_1,
+        MOSS_2,
+        ROCKY_1,
+        ROCKY_2,
+
+        /** No type */
+        NONE
+    };
 
 
 
 #pragma mark -
 #pragma mark Identification Functions
 
-/**
- * Convert an Item enum to the corresponding string.
- */
-std::string itemToString(Item item);
+    /**
+     * Convert an Item enum to the corresponding string.
+     */
+    std::string itemToString(Item item);
 
-/**
- * Gets the default size of this Item..
- */
-cugl::Size itemToSize(Item item);
+    /**
+     * Gets the default size of this Item..
+     */
+    cugl::Size itemToSize(Item item);
 
-/**
- * Gets the grid size of this item.
- * e.g. if the obstacle moves, the size will account for entire width/height of its movement as well.
- */
-cugl::Size itemToGridSize(Item item);
+    /**
+     * Gets the grid size of this item.
+     * e.g. if the obstacle moves, the size will account for entire width/height of its movement as well.
+     */
+    cugl::Size itemToGridSize(Item item);
 
-/**
- * Returns the corresponding asset name to the item.
- *
- * @return the item's asset name
- *
- * @param item The item
- */
-std::string itemToAssetName(Item item);
+    /** Gets whether or not this item is an art object. */
+    bool itemIsArtObject(Item item);
+
+    /**
+     * Returns the corresponding asset name to the item.
+     *
+     * @return the item's asset name
+     *
+     * @param item The item
+     */
+    std::string itemToAssetName(Item item);
+
+    static std::vector<std::string> xOffsetArtObjects{
+        "crackLarge1"
+    };
+
+        static std::vector<std::string> yOffsetArtObjects{
+            "crack1",
+            "crack2",
+            "crack3",
+            "crack4",
+            "crack5",
+            "crackLarge1",
+            "moss1",
+            "moss2"
+    };
+
+static std::map<std::string, int> jsonTypeToLayer {
+    {"default", 1},
+    {"crack1", 1},
+    {"crack2", 1},
+    {"crack3", 1},
+    {"crack4", 1},
+    {"crack5", 1},
+    {"crackLarge1", 1},
+    {"moss1", 1},
+    {"moss2", 1},
+    {"rocky1", 1},
+    {"rocky2",1}
+};
+
+static std::map<std::string, std::string> jsonTypeToAsset
+{
+    {"default", EARTH_TEXTURE},
+    { "tileTop", TOP_TILE_TEXTURE },
+    {"tileBottom", BOTTOM_TILE_TEXTURE},
+    {"tileInner", INNER_TILE_TEXTURE},
+    {"tileLeft", LEFT_TILE_TEXTURE},
+    {"tileRight", RIGHT_TILE_TEXTURE},
+    {"tileTopLeft", TOPLEFT_TILE_TEXTURE},
+    {"tileTopRight", TOPRIGHT_TILE_TEXTURE},
+    {"crack1", CRACK1_TEXTURE},
+    {"crack2", CRACK2_TEXTURE},
+    {"crack3", CRACK3_TEXTURE},
+    {"crack4", CRACK4_TEXTURE},
+    {"crack5", CRACK5_TEXTURE},
+    {"crackLarge1", CRACKLARGE1_TEXTURE},
+    {"moss1", MOSS1_TEXTURE},
+    {"moss2", MOSS2_TEXTURE},
+    {"rocky1", ROCKY1_TEXTURE},
+    {"rocky2", ROCKY2_TEXTURE}
+};
+
+static std::map<std::string, Item> jsonTypeToItemType
+{
+    {"default", Item::ART_OBJECT},
+    {"tileTop", Item::TILE_TOP},
+    {"tileBottom", Item::TILE_BOTTOM},
+    {"tileInner", Item::TILE_INNER},
+    {"tileLeft", Item::TILE_LEFT},
+    {"tileRight", Item::TILE_RIGHT},
+    {"tileTopLeft", Item::TILE_TOPLEFT},
+    {"tileTopRight", Item::TILE_TOPRIGHT},
+    {"crack1", Item::CRACK_1},
+    {"crack2", Item::CRACK_2},
+    {"crack3", Item::CRACK_3},
+    {"crack4", Item::CRACK_4},
+    {"crack5", Item::CRACK_5},
+    {"crackLarge1", Item::CRACK_LARGE_1},
+    {"moss1", Item::MOSS_1},
+    {"moss2", Item::MOSS_2},
+    {"rocky1", Item::ROCKY_1},
+    {"rocky2", Item::ROCKY_2}
+};
 
 /**
  Returns whether a tag contains the player keyword.

@@ -47,7 +47,7 @@ using namespace Constants;
 #define FIXED_TIMESTEP_S 0.02f
 
 /** The goal door position */
-float GOAL_POSITION[] = { 39.0f, 3.0f };
+float GOAL_POSITION[] = { 47.0f, 4.0f };
 
 #pragma mark -
 #pragma mark Constructors
@@ -130,12 +130,11 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
 
     _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets);
 
-    // Initialize movement phase controller
-    // TODO: fix this part
-    shared_ptr<scene2::SceneNode> _worldnode = scene2::SceneNode::alloc();
-    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _worldnode->setPosition(_offset);
-    _worldnode->setScale(_worldnode->getScale() * 2);
+    shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    worldnode->setPosition(_offset);
+    worldnode->setScale(worldnode->getScale() * 2);
+    shared_ptr<scene2::SceneNode> _worldnode = dynamic_pointer_cast<scene2::SceneNode>(worldnode);
     addChild(_worldnode);
 
     shared_ptr<scene2::SceneNode> _debugnode = scene2::SceneNode::alloc();
@@ -168,8 +167,8 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
         _objectController->processLevelObject(obj, true);
         // This is necessary to remove the object with the eraser.
         // Also, in level editor, everything should be moveable.
-        _gridManager->addMoveableObject(obj->getPosition(), obj);
-        CULog("new object position: (%f, %f)", obj->getPosition().x, obj->getPosition().y);
+        _gridManager->addMoveableObject(obj->getPositionInit(), obj);
+        CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
     }
 
 
@@ -207,8 +206,12 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_ITEM };
-    assetNames = { LOG_TEXTURE, FAN_TEXTURE, SPIKE_TILE_TEXTURE, TREASURE_TEXTURE, TILE_TEXTURE };
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT,
+                       CRACK_1, CRACK_2, CRACK_3, CRACK_4, CRACK_5, CRACK_LARGE_1, MOSS_1, MOSS_2, ROCKY_1, ROCKY_2
+    };
+    for (auto it = inventoryItems.begin(); it != inventoryItems.end(); ++it) {
+        assetNames.push_back(itemToAssetName(*it));
+    }
 
     _uiScene.initInventory(inventoryItems, assetNames);
 
@@ -285,18 +288,18 @@ void LevelEditorController::preUpdate(float dt) {
 
                 if (_selectedObject) {
                     // Move the existing object to new position
-                    _selectedObject->setPosition(gridPosWithOffset);
+                    _selectedObject->setPositionInit(gridPosWithOffset);
 
                     // Trigger obstacle update listener
-                    if (_selectedObject->getObstacle()->getListener()) {
-                        _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                    if (_selectedObject->getListener()) {
+                        _selectedObject->getListener()(_selectedObject.get());
                     }
                 }
                 else {
                     _gridManager->setObject(gridPosWithOffset, _selectedItem);
                 }
             }
-            if (_uiScene.isPaintMode() && _gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+            if (_uiScene.isPaintMode() && (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem))) {
                 std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                 // might go back to addObject() for levelEditor??? just keep this in mind
                 _gridManager->addMoveableObject(gridPos, obj);
@@ -315,29 +318,31 @@ void LevelEditorController::preUpdate(float dt) {
                 CULog("length before erase: %d", (*(_objectController->getObjects())).size());
                 auto it = (*(_objectController->getObjects())).begin();
                 int index = 0;
+                
                 // This code erases an object from ObjectController, but not from the world.
-                /*while (it != (*(_objectController->getObjects())).end()) {
+                while (it != (*(_objectController->getObjects())).end()) {
                     if (**it == *obj) {
-                        (*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
+                        //(*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
+                        //_gridManager->deleteObject(obj);
                         CULog("%d", (*(_objectController->getObjects())).size());
                         break;
                     }
                     else {
-                        CULog("%f", (**it).getPosition().x);
-                        CULog("%f", (*obj).getPosition().x);
-                        CULog("%f", (*obj).getPosition().y);
+                        CULog("%f", (**it).getPositionInit().x);
+                        CULog("%f", (*obj).getPositionInit().x);
+                        CULog("%f", (*obj).getPositionInit().y);
                         CULog("");
                     }
                     index++;
                     ++it;
-                }*/
+                }
 
                 /*This code doesn't really work as is but I left it in for now. */
                 //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
                 //CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                obj->setPosition(Vec2(2, 2));
-                if (obj->getObstacle()->getListener()) {
-                    obj->getObstacle()->getListener()(obj->getObstacle().get());
+                obj->setPositionInit(Vec2(2, 2));
+                if (obj->getListener()) {
+                    obj->getListener()(obj.get());
                 }
             }
         }
@@ -359,7 +364,7 @@ void LevelEditorController::preUpdate(float dt) {
                     _selectedItem = obj->getItemType();
 
                     // Set the current position of the object
-                    _prevPos = _selectedObject->getPosition();
+                    _prevPos = _selectedObject->getPositionInit();
 
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
@@ -370,16 +375,16 @@ void LevelEditorController::preUpdate(float dt) {
             Vec2 screenPos = _input->getPosOnDrag();
             Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
-                    _selectedObject->setPosition(_prevPos);
+                    _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 }
                 else {
                     // Move the existing object to new position
                     CULog("Reposition object");
-                    _selectedObject->setPosition(gridPos);
+                    _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType() == Item::PLATFORM) {
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
@@ -390,8 +395,8 @@ void LevelEditorController::preUpdate(float dt) {
                 }
 
                 // Trigger listener
-                if (_selectedObject->getObstacle()->getListener()) {
-                    _selectedObject->getObstacle()->getListener()(_selectedObject->getObstacle().get());
+                if (_selectedObject->getListener()) {
+                    _selectedObject->getListener()(_selectedObject.get());
                 }
 
                 // Reset selected object
@@ -401,9 +406,10 @@ void LevelEditorController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem))) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     // might go back to addObject() for levelEditor??? just keep this in mind
+                    CULog("%d is _selectedItem", _selectedItem);
                     _gridManager->addMoveableObject(gridPos, obj);
 
                     _itemsPlaced += 1;
@@ -422,7 +428,7 @@ void LevelEditorController::preUpdate(float dt) {
 
     //CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
-    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 2240) {
+    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 6720) {
         _levelEditorScene.getCamera()->translate(10, 0);
         _levelEditorScene.getCamera()->update();
     }
@@ -442,12 +448,16 @@ void LevelEditorController::preUpdate(float dt) {
         // Load the level stored in this file
 
         // TODO: (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
+        for (auto& obj : _gridManager->objToPosMap) {
+            //_gridManager->deleteObject(obj.first);
+        }
         _objectController->getObjects()->clear();
+        _world->clear();
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
         for (auto& obj : objects) {
             _objectController->processLevelObject(obj, true);
-            _gridManager->addMoveableObject(obj->getPosition(), obj);
+            _gridManager->addMoveableObject(obj->getPositionInit(), obj);
         }
 
         // To avoid rerunning the loading logic next frame
@@ -491,7 +501,9 @@ void LevelEditorController::render() {
  * @param item  The type of the item to be placed/created
  */
 std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item) {
+    CULog("There are %d objects", _objectController->getObjects()->size());
     shared_ptr<Object> obj;
+    float scale = _levelEditorScene.getScale();
     switch (item) {
     case (PLATFORM):
         return _objectController->createPlatform(gridPos, itemToSize(item), "log");
@@ -510,12 +522,66 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         // No need to make it networked here since this code should only run in the level editor.
         // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
         return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
+    case (ART_OBJECT):
+        return nullptr;
     case (TILE_ITEM):
         // For now, this is the same as any other platform (but not networked, and should only be accessible from the level editor).
-        obj = _objectController->createTile(gridPos, itemToSize(item));
+        obj = _objectController->createTile(gridPos, itemToSize(item), "default", scale);
         obj->setItemType(TILE_ITEM);
         return obj;
+    case (TILE_TOP):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTop", scale);
+        obj->setItemType(TILE_ITEM);
+        return obj;
+    case (TILE_BOTTOM):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottom", scale);
+        obj->setItemType(TILE_BOTTOM);
+        return obj;
+    case (TILE_INNER):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInner", scale);
+        obj->setItemType(TILE_INNER);
+        return obj;
+    case (TILE_LEFT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileLeft", scale);
+        obj->setItemType(TILE_LEFT);
+        return obj;
+    case (TILE_RIGHT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileRight", scale);
+        obj->setItemType(TILE_RIGHT);
+        return obj;
+    case (TILE_TOPLEFT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopLeft", scale);
+        obj->setItemType(TILE_TOPLEFT);
+        return obj;
+    case (TILE_TOPRIGHT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight", scale);
+        obj->setItemType(TILE_TOPRIGHT);
+        return obj;
+
+
+    case (CRACK_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack1");
+    case (CRACK_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack2");
+    case (CRACK_3):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack3");
+    case (CRACK_4):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack4");
+    case (CRACK_5):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack5");
+    case (CRACK_LARGE_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crackLarge1");
+    case (MOSS_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "moss1");
+    case (MOSS_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "moss2");
+    case (ROCKY_1):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "rocky1");
+    case (ROCKY_2):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "rocky2");
     case (NONE):
+        return nullptr;
+    default:
         return nullptr;
     }
 }

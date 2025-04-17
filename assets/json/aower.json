@@ -1,0 +1,48 @@
+{
+	"width":	100,
+	"height":	100,
+	"objects":	[],
+	"objectTypes":	[{
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"tiles",
+			"objects":	[{
+					"height":	1,
+					"type":	"tileTop",
+					"width":	1,
+					"x":	11,
+					"y":	5
+				}]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"emptyObjectList",
+			"objects":	[]
+		}, {
+			"name":	"artObjects",
+			"objects":	[{
+					"angle":	0,
+					"height":	1,
+					"layer":	1,
+					"scale":	64,
+					"type":	"rocky1",
+					"width":	1,
+					"x":	10,
+					"y":	4
+				}, {
+					"angle":	0,
+					"height":	1,
+					"layer":	1,
+					"scale":	64,
+					"type":	"moss2",
+					"width":	1,
+					"x":	11,
+					"y":	5.500000
+				}]
+		}]
+}

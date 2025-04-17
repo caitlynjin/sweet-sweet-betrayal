@@ -11,9 +11,9 @@ using namespace cugl::graphics;
  *
  * @param position   The position
  */
-void Spike::setPosition(const cugl::Vec2& position) {
+void Spike::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    _hitbox->setPosition(position + _size/2);
+    PolygonObstacle::setPosition(position + _size/2);
     _node->setPosition((position + _size/2) * _drawScale);
 }
 
@@ -26,9 +26,6 @@ string Spike::getJsonKey() {
 
 void Spike::dispose() {
     Object::dispose();
-
-    _hitbox->markRemoved(true);
-    _hitbox = nullptr;
 
     if (_node && _node->getParent()) {
         _node->removeFromParent();
@@ -69,13 +66,17 @@ bool Spike::init(const Vec2 pos, const Size size, float scale, float angle, stri
     
     PolyFactory factory;
     Poly2 triangle = factory.makeTriangle(posA, posB, posC);
-    _hitbox = physics2::PolygonObstacle::alloc(triangle);
-    _hitbox->setDebugColor(Color4::YELLOW);
-    _hitbox->setPosition(pos + size / 2);
-    _hitbox->setAngle(angle);
+    
+    if (PolygonObstacle::init(triangle)){
+        setDebugColor(Color4::YELLOW);
+        setPosition(pos + size / 2);
+        setAngle(angle);
+        
+        return true;
+    }
     
     
-    return true;
+    return false;
 }
 
 std::map<std::string, std::any> Spike::getMap() {

@@ -1,7 +1,7 @@
 #include "Tile.h"
 #include "Object.h"
 
-#define JSON_KEY  "Tiles";
+#define JSON_KEY  "tiles";
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -11,9 +11,9 @@ using namespace cugl::graphics;
  *
  * @param position   The position
  */
-void Tile::setPosition(const cugl::Vec2& position) {
+void Tile::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    _box->setPosition(position + _size / 2);
+    PolygonObstacle::setPosition(position + _size / 2);
 }
 
 void Tile::update(float timestep) {
@@ -27,8 +27,8 @@ string Tile::getJsonKey() {
 void Tile::dispose() {
     Object::dispose();
 
-    _box->markRemoved(true);
-    _box = nullptr;
+    markRemoved(true);
+//    _box = nullptr;
 }
 
 using namespace cugl;
@@ -44,25 +44,27 @@ using namespace cugl;
  *
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool Tile::init(const Vec2 pos, const Size size) {
+bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, float scale) {
     Size nsize = size;
-    _box = cugl::physics2::BoxObstacle::alloc(pos + size / 2, Size(nsize.width, nsize.height));
-    _size = size;
-    _itemType = Item::TILE_ITEM;
     _position = pos;
-    return true;
+    _size = size;
+    _jsonType = jsonType;
+    _itemType = jsonTypeToItemType[jsonType];
+//    float testScale = 1.0f;
+    CULog("Tile drawscale: %f", scale);
+    _drawScale = 1.0f;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), Size(nsize.width, nsize.height));
+        
+    if (PolygonObstacle::init(rect)){
+        setPosition(pos + size / 2);
+        return true;
+    }
+    
+    return false;
 }
 
-// Init method used for networked Tiles
-bool Tile::init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-    Size nsize = size;
-    // The long Tile is shorter in height
-    _box = box;
-    _size = size;
-    _itemType = Item::TILE_ITEM;
-    _position = pos;
-    return true;
-}
 
 std::map<std::string, std::any> Tile::getMap() {
     std::map<std::string, std::any> m = {

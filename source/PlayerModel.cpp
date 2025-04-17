@@ -534,7 +534,7 @@ void PlayerModel::update(float dt)
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(false);
         }
-        doStrip(_walkAction, 0.5f);
+        doStrip(_walkAction, 0.3f);
     }
     
 //     Should not move when immobile

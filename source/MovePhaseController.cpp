@@ -609,7 +609,6 @@ void MovePhaseController::beginContact(b2Contact *contact)
     //Handles all Player Collisions in this section
         if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
             //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
-            
             // If we hit the "win" door, we are done
             if (bd2 == _movePhaseScene.getGoalDoor().get() || bd1 == _movePhaseScene.getGoalDoor().get()){
                 reachedGoal();
@@ -628,6 +627,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //Treasure Collection
             else if (bd2->getName() == "treasure" ||bd1->getName() == "treasure")
             {
+                CULog("Treasure collision");
                 std::shared_ptr<PlayerModel> localPlayer = _movePhaseScene.getLocalPlayer();
                 if (!localPlayer->hasTreasure && !localPlayer->isDead())
                 {

@@ -7,7 +7,7 @@
 using namespace cugl;
 using namespace Constants;
 
-class Object {
+class Object : public physics2::PolygonObstacle {
 
 protected:
 	/** The position of the object */
@@ -38,13 +38,13 @@ public:
 
 	Object(Vec2 pos);
 
-	Object();
+    Object() : PolygonObstacle() { }
 
     /**
      * Gets the position of the object.
      * @return the position of the object
      */
-    const cugl::Vec2& getPosition() const { return _position; }
+    const cugl::Vec2& getPositionInit() const { return _position; }
 
 
     /**
@@ -71,7 +71,7 @@ public:
 	 *
 	 * @param position   The position
 	 */
-	virtual void setPosition(const cugl::Vec2& position);
+	virtual void setPositionInit(const cugl::Vec2& position);
 
 	/**Gets the trajectory*/
 	const cugl::Vec2& getTrajectory() const { return _trajectory; }
@@ -100,10 +100,6 @@ public:
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
 
-    /**
-     * Gets the obstacle of this object.
-     */
-    virtual std::shared_ptr<cugl::physics2::Obstacle> getObstacle() { return nullptr; };
 
     /**
      * Get the item type of the object.

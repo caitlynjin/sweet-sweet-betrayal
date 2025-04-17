@@ -14,12 +14,14 @@ using namespace cugl::graphics;
  *
  * @param position   The position
  */
-void WindObstacle::setPosition(const cugl::Vec2& position) {
+void WindObstacle::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    _gust->setPosition(position + _size / 2);
+    PolygonObstacle::setPosition(position);
 }
 
 void WindObstacle::update(float timestep) {
+    PolygonObstacle::update(timestep);
+    
     _playerHits = 0;
 
     for (auto it = 0; it != RAYS; ++it) {
@@ -46,8 +48,8 @@ string WindObstacle::getJsonKey() {
 void WindObstacle::dispose() {
     Object::dispose();
 
-    _gust->markRemoved(true);
-    _gust = nullptr;
+    markRemoved(true);
+//    _gust = nullptr;
 }
 
 using namespace cugl;
@@ -77,12 +79,6 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _position = pos;
     _size = size;
     _jsonType = jsonType;
-
-    _gust = cugl::physics2::BoxObstacle::alloc(pos + _size/2, nsize);
-    _gust->setDensity(0.0f);
-    _gust->setFriction(0.0f);
-    _gust->setRestitution(0.0f);
-    _gust->setName("gust");
     
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/
@@ -96,7 +92,21 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _windDirection = windDirection;
     _windForce = windStrength;
     setTrajectory(Vec2(0, 3.0f));
-    return true;
+    
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), nsize);
+        
+    if (PolygonObstacle::init(rect)){
+        setPosition(pos);
+        setDensity(0.0f);
+        setFriction(0.0f);
+        setRestitution(0.0f);
+        setName("gust");
+        return true;
+    }
+    
+    
+    return false;
     /*Finally intialize the wind gust effect**/
     
 }

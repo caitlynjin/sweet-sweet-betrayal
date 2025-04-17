@@ -91,6 +91,13 @@ public:
 	* @param key The key identifying the music track */
 	void playMusic(std::string key);
 
+	/** Adds the music track to the end of the queue.
+	 * This will play automatically when all music tracks earlier in the queue are finished playing. 
+	 * @param key The key identifying the music track
+	 
+	 */
+	void addMusicToQueue(std::string key);
+
 	/**
 	* Stops the sound with the specified key.
 	*

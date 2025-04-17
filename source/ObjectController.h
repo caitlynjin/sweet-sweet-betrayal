@@ -23,6 +23,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
 #include "NetworkController.h"
+#include "ArtObject.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -92,7 +93,7 @@ public:
     std::shared_ptr<Object> createPlatform(std::shared_ptr<Platform> plat);
 
     /*Creates a 1 by 1 tile*/
-    std::shared_ptr<Object> createTile(Vec2 pos, Size size);
+    std::shared_ptr<Object> createTile(Vec2 pos, Size size, string jsonType, float scale);
 
     /**
      * Creates a moving platform.
@@ -134,6 +135,11 @@ public:
     std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
 
     std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
+
+    /** Creates an art object */
+    std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
+    std::shared_ptr<Object> createArtObject(Vec2 pos, Size size, float scale, float angle, string jsonType);
+
     /**creates teh goal door**/
     std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);
     /**
