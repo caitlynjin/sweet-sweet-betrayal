@@ -14,7 +14,6 @@ using namespace cugl::graphics;
 void Platform::setPosition(const cugl::Vec2& position) {
     _position = position;
     _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
-    
 }
 
 void Platform::update(float timestep) {
@@ -25,8 +24,6 @@ void Platform::update(float timestep) {
     float distance = toTarget.length();
 //    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
 //          pos.x, pos.y, target.x, target.y, distance, _speed, _forward);
-
-
     Vec2 direction = toTarget;
     direction.normalize();
     Vec2 step = direction * (_speed * timestep);

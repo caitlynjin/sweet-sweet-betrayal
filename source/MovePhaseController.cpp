@@ -283,9 +283,6 @@ void MovePhaseController::preUpdate(float dt) {
                                                                     getCamera()->getPosition().x),
                                     getCamera()->getPosition().y, 0));
     }
-
-    
-
     _movePhaseScene.preUpdate(dt);
     
     // TODO: This code should be handled in Mushroom class, why is it here?
@@ -307,11 +304,8 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
             b2Body* body = f->GetBody();
             physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
 
-            // Set grounded for all non-local players 
-             
-
+            // Set grounded for all non-local players
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
-            //_movePhaseScene.getLocalPlayer()->addWind(wind_cast->getTrajectory());
             if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
                 CULog("plyr Callback!");
                 wind->setPlayerDist(i, fraction);
@@ -532,6 +526,47 @@ void MovePhaseController::nextRound(bool reachedGoal) {
 
 #pragma mark -
 #pragma mark Collision Handling
+
+//Collision filtering method-Right exists for pass thorugh platforms exclusively
+void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+
+    b2Fixture* fix1 = contact->GetFixtureA();
+    b2Fixture* fix2 = contact->GetFixtureB();
+
+    contact->GetChildIndexA();
+
+    b2Body* body1 = fix1->GetBody();
+    b2Body* body2 = fix2->GetBody();
+
+    std::string* fd1 = reinterpret_cast<std::string*>(fix1->GetUserData().pointer);
+    std::string* fd2 = reinterpret_cast<std::string*>(fix2->GetUserData().pointer);
+
+    physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
+    physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
+   
+    if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
+        if (bd2->getName() == "platform") {
+            Platform* plat = dynamic_cast<Platform*>(bd2);
+            PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+            if (player->getFeetHeight() < plat->getPlatformTop()) {
+                //contact->SetEnabled(false);
+            }   
+        }
+    }
+
+    else if (tagContainsPlayer(bd2->getName()) && bd2 == _movePhaseScene.getLocalPlayer().get()) {
+        if (bd1->getName() == "platform") {
+            PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+            Platform* plat = dynamic_cast<Platform*>(bd1);
+            
+            
+            if (player->getFeetHeight() < plat->getPlatformTop()) {
+                //contact->SetEnabled(false);
+            }
+        }
+    }
+}
+
 /**
  * Processes the start of a collision
  *

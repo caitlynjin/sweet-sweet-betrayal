@@ -149,6 +149,7 @@ protected:
 
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
+    
 	/** Reference to the sensor name (since a constant cannot have a pointer) */
 	std::string _sensorName;
 	/** The node for debugging the sensor */
@@ -582,6 +583,8 @@ public:
      * @return the name of the ground sensor
      */
     std::string* getSensorName() { return &_sensorName; }
+
+    float getFeetHeight() {return _sensorNode->getPositionY();}
     
     /**
      * Returns true if this character is facing right

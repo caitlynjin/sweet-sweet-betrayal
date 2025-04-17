@@ -119,6 +119,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
     _world->activateCollisionCallbacks(true);
+    _world->beforeSolve = [this](b2Contact *contact, const b2Manifold *oldManifold) {
+        _movePhaseController->beforeSolve(contact, oldManifold);
+    };
     _world->onBeginContact = [this](b2Contact *contact)
     {
         _movePhaseController->beginContact(contact);
