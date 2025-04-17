@@ -17,6 +17,13 @@ void Treasure::update(float timestep) {
 //        _node->setPosition(getPosition()*_drawScale);
 //    }
     
+    PolygonObstacle::update(timestep);
+    if (_node != nullptr)
+    {
+        _node->setPosition(getPosition() * _drawScale);
+        _node->setAngle(getAngle());
+    }
+    
     if (_stealCooldown > 0){
         _stealCooldown -= 0.1f;
     }
@@ -65,18 +72,23 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _drawScale = scale;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(pos, nsize);
+    Poly2 rect = factory.makeRect(pos, nsize*0.5);
     
-    if (PolygonObstacle::alloc(rect)){
+    _box = cugl::physics2::BoxObstacle::alloc(pos, nsize*0.5);
+    _box->setName("treasure");
+    _box->setSensor(true);
+    
+    if (physics2::PolygonObstacle::init(rect)){
         setSensor(true);
-        
         setName("treasure");
         setDebugColor(Color4::YELLOW);
+        setPosition(pos);
+        _node = scene2::SpriteNode::alloc();
         
         return true;
     }
 
-    return false;
+    return true;
 }
 bool Treasure::init(const Vec2 pos, const Size size, float scale,bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
 //    Size nsize = size;

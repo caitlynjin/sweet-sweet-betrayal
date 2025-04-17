@@ -423,7 +423,9 @@ std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 po
 std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Size size, float scale, bool taken) {
     auto params = _treasureFact->serializeParams(pos, size, scale, taken);
     auto pair = _network->getPhysController()->addSharedObstacle(_treasureFactID, params);
-    return std::dynamic_pointer_cast<Treasure>(pair.first);
+    std::shared_ptr<Treasure> treasure = std::dynamic_pointer_cast<Treasure>(pair.first);
+    _objects->push_back(treasure);
+    return treasure;
 }
 
 std::shared_ptr<Object> NetworkController::createTreasureClient(float scale){
