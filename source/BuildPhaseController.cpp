@@ -144,7 +144,7 @@ void BuildPhaseController::preUpdate(float dt) {
             
             if (_selectedObject) {
                 // Move the existing object to new position
-                _selectedObject->setPositionInit(gridPosWithOffset);
+                _selectedObject->setPositionInit(gridPosWithOffset + Vec2(0.5f, 0.5f));
                 
                 // Trigger obstacle update listener
                 if (_selectedObject->getListener()) {
@@ -206,13 +206,13 @@ void BuildPhaseController::preUpdate(float dt) {
             if (_selectedObject) {
                 if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
-                    _selectedObject->setPositionInit(_prevPos);
+                    _selectedObject->setPositionInit(_prevPos + Vec2(0.5f, 0.5f));
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
-                    _selectedObject->setPositionInit(gridPos);
+                    _selectedObject->setPositionInit(gridPos + Vec2(0.5f, 0.5f));
                     if (_selectedObject->getItemType()== Item::PLATFORM) {
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
