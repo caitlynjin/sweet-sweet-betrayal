@@ -70,18 +70,11 @@ public:
         std::shared_ptr<Treasure> result = std::make_shared<Treasure>();
         return (result->init(position, size, scale, jsonType) ? result : nullptr);
     }
-    /** for networking */
-    static std::shared_ptr<Treasure> alloc(const Vec2 position, const Size size, float scale, bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-        std::shared_ptr<Treasure> result = std::make_shared<Treasure>();
-        return (result->init(position, size, scale, taken, box) ? result : nullptr);
-    }
 
     bool init(const Vec2 pos, const Size size, float scale);
 
     bool init(const Vec2 pos, const Size size, float scale, string jsonType);
 
-    /** for networking */
-    bool init(const Vec2 pos, const Size size, float scale, bool taken, std::shared_ptr<cugl::physics2::BoxObstacle> box);
     
     /**
      * Sets the scene graph node representing this Treasure.

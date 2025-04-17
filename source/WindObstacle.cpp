@@ -20,6 +20,8 @@ void WindObstacle::setPositionInit(const cugl::Vec2& position) {
 }
 
 void WindObstacle::update(float timestep) {
+    PolygonObstacle::update(timestep);
+    
     _playerHits = 0;
 
     for (auto it = 0; it != RAYS; ++it) {

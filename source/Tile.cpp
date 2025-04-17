@@ -65,17 +65,6 @@ bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, float sca
     return false;
 }
 
-// Init method used for networked Tiles
-//bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-//    Size nsize = size;
-//    // The long Tile is shorter in height
-//    _box = box;
-//    _size = size;
-//    _jsonType = jsonType;
-//    _itemType = jsonTypeToItemType[jsonType];
-//    _position = pos;
-//    return true;
-//}
 
 std::map<std::string, std::any> Tile::getMap() {
     std::map<std::string, std::any> m = {

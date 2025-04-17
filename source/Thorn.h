@@ -49,15 +49,10 @@ public:
         std::shared_ptr<Thorn> result = std::make_shared<Thorn>();
         return (result->init(position, size, jsonType) ? result : nullptr);
     }
-    static std::shared_ptr<Thorn> alloc(const Vec2 position, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-        std::shared_ptr<Thorn> result = std::make_shared<Thorn>();
-        return (result->init(position, size, box) ? result : nullptr);
-    }
+
 
     bool init(const Vec2 pos, const Size size);
     bool init(const Vec2 pos, const Size size, string jsonType);
-    /** Init method used for networked thorns */
-    bool init(const Vec2 pos, const Size size, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
     std::map<std::string, std::any> getMap() override;
 };

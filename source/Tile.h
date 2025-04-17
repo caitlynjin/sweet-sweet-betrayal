@@ -51,13 +51,6 @@ public:
         return (result->init(position, size, jsonType, scale) ? result : nullptr);
     }
 
-    static std::shared_ptr<Tile> alloc(const Vec2 position, const Size size, std::string jsonType, std::shared_ptr<cugl::physics2::BoxObstacle> box) {
-        std::shared_ptr<Tile> result = std::make_shared<Tile>();
-        return (result->init(position, size, jsonType, box) ? result : nullptr);
-    }
-
-    // New init method for networked Tiles
-    bool init(const Vec2 pos, const Size size, std::string jsonType, std::shared_ptr<cugl::physics2::BoxObstacle> box);
 
     bool init(const Vec2 pos, const Size size, std::string jsonType, float scale);
 
