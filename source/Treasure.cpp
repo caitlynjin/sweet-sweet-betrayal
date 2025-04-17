@@ -70,6 +70,9 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     if (PolygonObstacle::alloc(rect)){
         setSensor(true);
         
+        setName("treasure");
+        setDebugColor(Color4::YELLOW);
+        
         return true;
     }
 

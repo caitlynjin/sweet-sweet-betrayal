@@ -50,7 +50,9 @@ bool Tile::init(const Vec2 pos, const Size size, std::string jsonType, float sca
     _size = size;
     _jsonType = jsonType;
     _itemType = jsonTypeToItemType[jsonType];
-    _drawScale = scale;
+//    float testScale = 1.0f;
+    CULog("Tile drawscale: %f", scale);
+    _drawScale = 1.0f;
     
     PolyFactory factory;
     Poly2 rect = factory.makeRect(pos + size / 2, Size(nsize.width, nsize.height));

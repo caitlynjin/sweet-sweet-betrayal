@@ -891,8 +891,8 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
     
     treasure->setSceneNode(sprite);
-    treasure->setName("treasure");
-    treasure->setDebugColor(Color4::YELLOW);
+//    treasure->setName("treasure");
+//    treasure->setDebugColor(Color4::YELLOW);
     treasure->setPositionInit(pos);
     treasure->setShared(true);
     
