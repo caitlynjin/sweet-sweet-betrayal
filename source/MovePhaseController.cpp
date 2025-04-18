@@ -84,7 +84,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _numPlayers, _networkController->getScoreController(),_networkController);
+    _uiScene.init(assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -232,47 +232,14 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setDidJump(false);
     }
 
+    updateProgressBar(_movePhaseScene.getLocalPlayer());
+
     // TODO: Segment into progressBarUpdate method
-    int player_index = 0;
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
-        if (!player->isVisible() && !player->isDead()) {
-            player->setVisible(true);
+        if (player->getName() != _movePhaseScene.getLocalPlayer()->getName()){
+            updateProgressBar(player);
         }
-
-        float player_pos = player->getPosition().x;
-        if (player_pos < _playerStart){
-            if (player_index == 0){
-                _uiScene.setRedIcon(0, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(0, _levelWidth);
-            }
-        }
-        else if (player_pos > _levelWidth){
-            if (player_index == 0){
-                _uiScene.setRedIcon(_levelWidth, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(_levelWidth, _levelWidth);
-            }
-        }
-        else{
-            if (player_index == 0){
-                _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
-            }
-        }
-
-        if (player->hasTreasure){
-            _uiScene.setTreasureIcon(true, player_index);
-        }
-        else{
-            _uiScene.setTreasureIcon(false, player_index);
-        }
-        player_index += 1;
     }
     
 
@@ -719,5 +686,33 @@ void MovePhaseController::endContact(b2Contact *contact)
     {
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(false);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(nullptr);
+    }
+}
+
+void MovePhaseController::updateProgressBar(std::shared_ptr<PlayerModel> player) {
+    string playerTag = player->getName();
+    if (!player->isVisible() && !player->isDead()) {
+        player->setVisible(true);
+    }
+    if (player->isDead()){
+        _uiScene.removePlayerIcon(playerTag);
+    }
+
+    float player_pos = player->getPosition().x;
+    if (player_pos < _playerStart){
+        _uiScene.setPlayerIcon(0, _levelWidth, playerTag);
+    }
+    else if (player_pos > _levelWidth){
+        _uiScene.setPlayerIcon(_levelWidth, _levelWidth, playerTag);
+    }
+    else{
+        _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, playerTag);
+    }
+
+    if (player->hasTreasure){
+        _uiScene.setTreasureIcon(true, playerTag);
+    }
+    else{
+        _uiScene.setTreasureIcon(false, playerTag);
     }
 }

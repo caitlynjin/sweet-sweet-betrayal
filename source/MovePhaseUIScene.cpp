@@ -65,6 +65,8 @@ void MovePhaseUIScene::dispose() {
         _progressBar = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
+        _greenIcon = nullptr;
+        _yellowIcon = nullptr;
         _treasureIcon = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
@@ -80,7 +82,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int players, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, string local) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -178,22 +180,40 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 
     _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
     _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _redIcon->setScale(0.05f);
+    if (local == "playerRed"){ _redIcon->setScale(0.05f); }
+    else { _redIcon->setScale(0.025f); }
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
     addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _blueIcon->setScale(0.05f);
+    if (local == "playerBlue"){ _blueIcon->setScale(0.05f); }
+    else { _blueIcon->setScale(0.025f); }
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
     addChild(_blueIcon);
 
+    _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
+    _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    if (local == "playerGreen"){ _greenIcon->setScale(0.05f); }
+    else { _greenIcon->setScale(0.025f); }
+    _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _greenIcon->setVisible(false);
+    addChild(_greenIcon);
+
+    _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
+    _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    if (local == "playerYellow"){ _yellowIcon->setScale(0.05f); }
+    else { _yellowIcon->setScale(0.025f); }
+    _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _yellowIcon->setVisible(false);
+    addChild(_yellowIcon);
+
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _treasureIcon->setScale(0.025f);
-    _treasureIcon->setPosition(_redIcon->getPosition());
+    _treasureIcon->setPosition(_redIcon->getPosition().x, _redIcon->getPosition().y + 10);
     _treasureIcon->setVisible(false);
     addChild(_treasureIcon);
     
@@ -223,7 +243,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, int pla
 //    addChild(playerScore);
 //    _playerScores.push_back(playerScore);
 
-    _numPlayers = players;
+    _playerList = _networkController->getPlayerList();
     _scoreController = scoreController;
     
 
@@ -262,9 +282,21 @@ void MovePhaseUIScene::preUpdate(float dt) {
  */
 void MovePhaseUIScene::disableUI(bool value) {
     _progressBar->setVisible(!value);
-    _redIcon->setVisible(!value);
-    if (_numPlayers > 1){
-        _blueIcon->setVisible(!value);
+
+    for (auto& player : _networkController->getPlayerList()){
+        string playerTag = player->getName();
+        if (playerTag == "playerRed"){
+            _redIcon->setVisible(!value);
+        }
+        else if (playerTag == "playerBlue"){
+            _blueIcon->setVisible(!value);
+        }
+        else if (playerTag == "playerGreen"){
+            _greenIcon->setVisible(!value);
+        }
+        else if (playerTag == "playerYellow"){
+            _yellowIcon->setVisible(!value);
+        }
     }
 
     if (value){
@@ -389,21 +421,51 @@ void MovePhaseUIScene::updateRound(int cur, int total) {
 //    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
-void MovePhaseUIScene::setRedIcon(float pos, float width) {
+void MovePhaseUIScene::setPlayerIcon(float pos, float width, string tag) {
     float cur = (pos * _progressBar->getWidth()) / width;
-    _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    if (tag == "playerRed"){
+        _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (tag == "playerBlue"){
+        _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (tag == "playerGreen"){
+        _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (tag == "playerYellow"){
+        _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
 }
 
-void MovePhaseUIScene::setBlueIcon(float pos, float width) {
-    float cur = (pos * _progressBar->getWidth()) / width;
-    _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
-}
-
-void MovePhaseUIScene::setTreasureIcon(bool has, int color) {
-    if (color == 0 && has) {
-        _treasureIcon->setPosition(_redIcon->getPosition());
+void MovePhaseUIScene::setTreasureIcon(bool has, string tag) {
+    if (tag == "playerRed" && has) {
+        _treasureIcon->setPosition(_redIcon->getPosition().x, _redIcon->getPosition().y + 10);
+    }
+    else if (tag == "playerBlue" && has){
+        _treasureIcon->setPosition(_blueIcon->getPosition().x, _blueIcon->getPosition().y + 10);
+    }
+    else if (tag == "playerGreen" && has){
+        _treasureIcon->setPosition(_greenIcon->getPosition().x, _greenIcon->getPosition().y + 10);
+    }
+    else if (tag == "playerYellow" && has){
+        _treasureIcon->setPosition(_yellowIcon->getPosition().x, _yellowIcon->getPosition().y + 10);
     }
     _treasureIcon->setVisible(has);
+}
+
+void MovePhaseUIScene::removePlayerIcon(string tag) {
+    if (tag == "playerRed"){
+        _redIcon->setVisible(false);
+    }
+    else if (tag == "playerBlue"){
+        _blueIcon->setVisible(false);
+    }
+    else if (tag == "playerGreen"){
+        _greenIcon->setVisible(false);
+    }
+    else if (tag == "playerYellow"){
+        _yellowIcon->setVisible(false);
+    }
 }
 
 

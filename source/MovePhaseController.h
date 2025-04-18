@@ -72,8 +72,6 @@ protected:
     float _levelWidth;
     /** Starting player position */
     float _playerStart;
-    /** Number of players */
-    int _numPlayers;
 
     /** Whether we have completed this "game" */
     bool _complete;
@@ -167,6 +165,13 @@ public:
         _uiScene.setScoreboardVisible(value);
         _uiScene.disableUI(value);
     };
+
+    /**
+     * Updates progress bar
+     *
+     * @param player information of player position and treasure status
+     */
+    void updateProgressBar(std::shared_ptr<PlayerModel> player);
     
 
 #pragma mark -
