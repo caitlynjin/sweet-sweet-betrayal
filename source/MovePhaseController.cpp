@@ -219,7 +219,7 @@ void MovePhaseController::preUpdate(float dt) {
             windUpdate(wind_cast, dt);
         }
 
-        (*it)->update(dt);
+//        (*it)->update(dt);
     }
 
     // TODO: Segment into uiUpdate method

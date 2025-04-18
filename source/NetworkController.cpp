@@ -847,19 +847,24 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
 
     std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
-    
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
+//    
+//    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
     
 
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
+//    treasure->setSceneNode(sprite);
     
-    treasure->setSceneNode(sprite);
-//    treasure->setName("treasure");
-//    treasure->setDebugColor(Color4::YELLOW);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
+    treasure->setAnimation(animNode);
+    
+    
+    
+    treasure->setName("treasure");
+    treasure->setDebugColor(Color4::YELLOW);
     treasure->setPositionInit(pos);
     treasure->setShared(true);
     
-    return std::make_pair(treasure, sprite);
+    return std::make_pair(treasure, treasure->getSceneNode());
 }
 
 /**
