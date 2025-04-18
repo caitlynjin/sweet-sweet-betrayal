@@ -135,7 +135,7 @@ public:
     bool init(const std::shared_ptr<cugl::AssetManager>& assets,
               const std::shared_ptr<ScoreController>& scoreController,
               std::shared_ptr<NetworkController> networkController,
-              string host);
+              string local);
 
 
 #pragma mark -
