@@ -65,6 +65,8 @@ void MovePhaseUIScene::dispose() {
         _progressBar = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
+        _greenIcon = nullptr;
+        _yellowIcon = nullptr;
         _treasureIcon = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
@@ -190,6 +192,20 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _blueIcon->setVisible(false);
     addChild(_blueIcon);
 
+    _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
+    _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    _greenIcon->setScale(0.05f);
+    _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _greenIcon->setVisible(false);
+    addChild(_greenIcon);
+
+    _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
+    _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
+    _yellowIcon->setScale(0.05f);
+    _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
+    _yellowIcon->setVisible(false);
+    addChild(_yellowIcon);
+
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _treasureIcon->setScale(0.025f);
@@ -261,11 +277,23 @@ void MovePhaseUIScene::preUpdate(float dt) {
  * @param value whether the level is in building mode.
  */
 void MovePhaseUIScene::disableUI(bool value) {
-    int numPlayers = _playerList.size();
     _progressBar->setVisible(!value);
-    _redIcon->setVisible(!value);
-    if (numPlayers > 1){
-        _blueIcon->setVisible(!value);
+
+    int player_index = 0;
+    for (auto& player : _networkController->getPlayerList()){
+        if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::RED)){
+            _redIcon->setVisible(!value);
+        }
+        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::BLUE)){
+            _blueIcon->setVisible(!value);
+        }
+        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::GREEN)){
+            _greenIcon->setVisible(!value);
+        }
+        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::YELLOW)){
+            _yellowIcon->setVisible(!value);
+        }
+        player_index += 1;
     }
 
     if (value){
@@ -390,14 +418,20 @@ void MovePhaseUIScene::updateRound(int cur, int total) {
 //    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
-void MovePhaseUIScene::setRedIcon(float pos, float width) {
+void MovePhaseUIScene::setPlayerIcon(float pos, float width, ColorType color) {
     float cur = (pos * _progressBar->getWidth()) / width;
-    _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
-}
-
-void MovePhaseUIScene::setBlueIcon(float pos, float width) {
-    float cur = (pos * _progressBar->getWidth()) / width;
-    _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    if (color == ColorType::RED){
+        _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (color == ColorType::BLUE){
+        _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (color == ColorType::GREEN){
+        _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
+    else if (color == ColorType::YELLOW){
+        _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
+    }
 }
 
 void MovePhaseUIScene::setTreasureIcon(bool has, int color) {
@@ -405,6 +439,21 @@ void MovePhaseUIScene::setTreasureIcon(bool has, int color) {
         _treasureIcon->setPosition(_redIcon->getPosition());
     }
     _treasureIcon->setVisible(has);
+}
+
+void MovePhaseUIScene::removePlayerIcon(ColorType color) {
+    if (color == ColorType::RED){
+        _redIcon->setVisible(false);
+    }
+    else if (color == ColorType::BLUE){
+        _blueIcon->setVisible(false);
+    }
+    else if (color == ColorType::GREEN){
+        _greenIcon->setVisible(false);
+    }
+    else if (color == ColorType::YELLOW){
+        _yellowIcon->setVisible(false);
+    }
 }
 
 

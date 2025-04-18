@@ -276,6 +276,12 @@
         "blue-icon": {
             "file": "textures/blue.png"
         },
+        "green-icon": {
+            "file": "textures/green.png"
+        },
+        "yellow-icon": {
+            "file": "textures/yellow.png"
+        },
         "treasure-icon": {
             "file": "textures/treasure.png"
         },

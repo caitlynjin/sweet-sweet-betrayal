@@ -61,6 +61,10 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
     /** Reference to the blue icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
+    /** Reference to the green icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _greenIcon;
+    /** Reference to the yellow icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _yellowIcon;
     /** Reference to the treasure icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
     //grey overlay
@@ -261,20 +265,20 @@ public:
     void setScoreImageFull(int index);
 
     /**
-     * Sets current position of red player icon
+     * Sets current position of player icon
      *
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void setRedIcon(float pos, float width);
+    void setPlayerIcon(float pos, float width, ColorType color);
 
     /**
-     * Sets current position of blue player icon
+     * Removes player icon
      *
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void setBlueIcon(float pos, float width);
+    void removePlayerIcon(ColorType color);
 
     /**
      * Has treasure icon appear in player icon on progress bar if player collects it

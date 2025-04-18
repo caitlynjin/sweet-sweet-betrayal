@@ -132,6 +132,10 @@
 #define RED_ICON "red-icon"
 /** The image for the blue icon */
 #define BLUE_ICON "blue-icon"
+/** The image for the green icon */
+#define GREEN_ICON "green-icon"
+/** The image for the yellow icon */
+#define YELLOW_ICON "yellow-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
 /** The image for the trash can closed icon */

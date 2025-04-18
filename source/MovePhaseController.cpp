@@ -240,30 +240,19 @@ void MovePhaseController::preUpdate(float dt) {
             player->setVisible(true);
         }
 
+        if (player->isDead()){
+            _uiScene.removePlayerIcon(_networkController->getPlayerColor(player_index));
+        }
+
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
-            if (player_index == 0){
-                _uiScene.setRedIcon(0, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(0, _levelWidth);
-            }
+            _uiScene.setPlayerIcon(0, _levelWidth, _networkController->getPlayerColor(player_index));
         }
         else if (player_pos > _levelWidth){
-            if (player_index == 0){
-                _uiScene.setRedIcon(_levelWidth, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(_levelWidth, _levelWidth);
-            }
+            _uiScene.setPlayerIcon(_levelWidth, _levelWidth, _networkController->getPlayerColor(player_index));
         }
         else{
-            if (player_index == 0){
-                _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
-            }
+            _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, _networkController->getPlayerColor(player_index));
         }
 
         if (player->hasTreasure){
