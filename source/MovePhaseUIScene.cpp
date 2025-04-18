@@ -434,9 +434,18 @@ void MovePhaseUIScene::setPlayerIcon(float pos, float width, ColorType color) {
     }
 }
 
-void MovePhaseUIScene::setTreasureIcon(bool has, int color) {
-    if (color == 0 && has) {
+void MovePhaseUIScene::setTreasureIcon(bool has, ColorType color) {
+    if (color == ColorType::RED && has) {
         _treasureIcon->setPosition(_redIcon->getPosition());
+    }
+    else if (color == ColorType::BLUE && has){
+        _treasureIcon->setPosition(_blueIcon->getPosition());
+    }
+    else if (color == ColorType::GREEN && has){
+        _treasureIcon->setPosition(_greenIcon->getPosition());
+    }
+    else if (color == ColorType::YELLOW && has){
+        _treasureIcon->setPosition(_yellowIcon->getPosition());
     }
     _treasureIcon->setVisible(has);
 }

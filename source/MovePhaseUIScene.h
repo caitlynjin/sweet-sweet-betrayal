@@ -286,7 +286,7 @@ public:
      * @param has       Whether or not the player has the treasure
      * @param color     Which color icon the treasure will appear on top of
      */
-    void setTreasureIcon(bool has, int color);
+    void setTreasureIcon(bool has, ColorType color);
 
 
     /**
