@@ -24,110 +24,17 @@ void Treasure::update(float timestep) {
         _node->setAngle(getAngle());
     }
     
-    updateAnimation(timestep);
-    
-    // Should be called every frame
-    updateCooldown();
-}
-
-/**
- Checks if the cooldown is currently active and needs to be updated.
- Also returns treasure back to original state once cooldown is over.
- */
-void Treasure::updateCooldown(){
-    // Update flashing and cooldown when first stolen
     if (_stealCooldown > 0){
         _stealCooldown -= 0.1f;
-        updateFlash();
+        _node->setColor(Color4::GREEN);
     }
     else{
-        // Check if current alpha needs to be reset back to normal
-        Color4 currColor = _node->getColor();
-        if (currColor.a != 255.0f){
-            currColor.a += FLASH_RATE;
-            _node->setColor(currColor);
-            _decreaseAlpha = true;
-        }
+        _node->setColor(Color4::WHITE);
     }
-}
-
-/**
- Updates the flashing effect of the treasure to represent currently in cooldown
- */
-void Treasure::updateFlash(){
-    Color4 currColor = _node->getColor();
-    float alpha = currColor.a;
-    
-    if (_decreaseAlpha){
-        alpha -= FLASH_RATE;
-        if (alpha < MIN_ALPHA){
-            _decreaseAlpha = false;
-        }
-    }
-    else{
-        alpha += FLASH_RATE;
-        if (alpha > MAX_ALPHA){
-            _decreaseAlpha = true;
-        }
-    }
-    
-    currColor.a = alpha;
-    _node->setColor(currColor);
 }
 
 string Treasure::getJsonKey() {
     return JSON_KEY;
-}
-
-void Treasure::updateAnimation(float timestep){
-    // Update animation
-//    std::vector<int> frames = _spinAnimateSprite->getSequence();
-//    for (int i = 0; i < frames.size(); i++) {
-//        CULog("Frame %d: %d", i, frames[i]);
-//    }
-    doStrip(_spinAction, DURATION);
-    _timeline->update(timestep);
-    
-    
-}
-
-void Treasure::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite){
-    _spinSpriteNode = sprite;
-
-    _node = _spinSpriteNode;
-    _spinSpriteNode->setVisible(true);
-//    _node->setScale(0.065f);
-    
-    _timeline = ActionTimeline::alloc();
-
-    // Create the frame sequence
-    // For an 8x8 spritesheet
-    const int span = 64;
-    std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
-        forward.push_back(ii);
-    }
-    // Loop back to beginning
-    forward.push_back(0);
-    
-    // Create animation
-    _spinAnimateSprite = AnimateSprite::alloc(forward);
-    _spinAction = _spinAnimateSprite->attach<scene2::SpriteNode>(_spinSpriteNode);
-}
-
-/**
- * Performs a film strip action
- *
- * @param action The film strip action
- * @param slide  The associated movement slide
- */
-void Treasure::doStrip(cugl::ActionFunction action, float duration = DURATION) {
-
-    if (_timeline->isActive(ACT_KEY)) {
-        // NO OP
-    } else {
-        _timeline->add(ACT_KEY, action, duration);
-    }
 }
 
 void Treasure::setPositionInit(const cugl::Vec2 &position){

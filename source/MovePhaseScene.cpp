@@ -203,8 +203,6 @@ void MovePhaseScene::populate() {
         _treasure = std::dynamic_pointer_cast<Treasure>(
             _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
         );
-//        
-//        _treasure = std::dynamic_pointer_cast<Treasure>(_objectController->createTreasure(spawnPoint, Size(1,1), "default"));
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }

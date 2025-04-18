@@ -135,21 +135,6 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     offset_betw_players = Vec2(0, -size_height * 0.2f);
 
     _playerList = playerList;
-    
-    static const std::unordered_map<std::string,int> colorPriority = {
-        {"playerRed",    0},
-        {"playerBlue",   1},
-        {"playerGreen",  2},
-        {"playerYellow", 3}
-    };
-    
-    //sort with priority
-    std::sort(_playerList.begin(), _playerList.end(),
-        [&](auto const &a, auto const &b){
-            return colorPriority.at(a->getName())
-                 < colorPriority.at(b->getName());
-        }
-    );
 
     for (auto& player : _playerList) {
         std::string name = player->getName();
@@ -228,6 +213,18 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
         glider_position += offset_betw_players;
     }
 }
+
+//    _scoreIcons["score-finish"] = createIcon("score-finish", scale, basePos + Vec2(7 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-finish"]);
+//
+//    _scoreIcons["score-trapkill"] = createIcon("score-trapkill", scale, basePos + Vec2(8 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-trapkill"]);
+//
+//    _scoreIcons["score-treasure"] = createIcon("score-treasure", scale, basePos + Vec2(9 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["score-treasure"]);
+//
+//    _scoreIcons["scoreboard-background"] = createIcon("scoreboard-background", 0.2f, basePos + Vec2(10 * spacing, 0), anchor, true);
+//    parent->addChild(_scoreIcons["scoreboard-background"]);
 
 
 

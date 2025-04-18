@@ -158,7 +158,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
 #pragma mark Animation
 
 /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
-void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _idleSpriteNode = sprite;
     
     if (!_node) {
@@ -172,8 +172,9 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     
     _timeline = ActionTimeline::alloc();
     
+    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 1; ii < span; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -185,7 +186,7 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
 }
 
 /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
-void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _walkSpriteNode = sprite;
     
     if (!_node) {
@@ -198,8 +199,9 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     
     _timeline = ActionTimeline::alloc();
     
+    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 1; ii < span; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -211,7 +213,7 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
 }
 
 /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
-void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _glideSpriteNode = sprite;
     
     if (!_node) {
@@ -225,8 +227,9 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     
     _timeline = ActionTimeline::alloc();
     
+    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 1; ii < span; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -238,7 +241,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
 }
 
 /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
-void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _jumpSpriteNode = sprite;
     
     if (!_node) {
@@ -251,8 +254,9 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     
     _timeline = ActionTimeline::alloc();
     
+    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 1; ii < span; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -587,7 +591,7 @@ void PlayerModel::update(float dt)
         // it follows the player
         if (_treasure != nullptr)
         {
-            _treasure->setPosition(getPosition() + Vec2(0.0f, 1.2f));
+            _treasure->setPosition(getPosition());
         }
     }
         

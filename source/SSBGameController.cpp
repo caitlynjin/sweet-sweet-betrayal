@@ -258,10 +258,11 @@ void SSBGameController::preUpdate(float dt)
     _networkController->preUpdate(dt);
     _input->update(dt);
     
+    // Update all game objects
+    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+        (*it)->update(dt);
+    }
 
-//    if (_networkController->getIsHost() && _networkController->getTreasure() != nullptr){
-//        _networkController->getTreasure()->updateAnimation(dt);
-//    }
 
     // Update logic for Build Phase
     if (_buildingMode){
@@ -326,7 +327,6 @@ void SSBGameController::preUpdate(float dt)
     if (_scoreCountdown > 0){
         _scoreCountdown -= 1;
     }
-    
 }
 
 /**
@@ -362,19 +362,6 @@ void SSBGameController::fixedUpdate(float step)
 
     // Update all controllers
     _networkController->fixedUpdate(step);
-    
-    
-    // Update all game objects
-//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-//        (*it)->update(step);
-//    }
-    
-    if (_networkController->getIsHost()){
-        CULog("Is host");
-    }
-    else{
-        CULog("Is client");
-    }
 
 
 }

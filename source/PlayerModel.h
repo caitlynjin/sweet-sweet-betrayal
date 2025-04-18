@@ -412,16 +412,16 @@ public:
     }
     
     /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
-    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
-
+    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
     /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
-    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
-
+    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
     /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
-    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
-
+    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+    
     /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
-    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
     /** Increments an animation film strip */
     void doStrip(cugl::ActionFunction action, float duration);

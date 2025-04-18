@@ -285,9 +285,6 @@
         "treasure-icon": {
             "file": "textures/treasure.png"
         },
-        "treasure-sheet": {
-            "file": "textures/strawberry-sheet.png"
-        },
         "back": {
             "file": "textures/buttons/back.png"
         },
@@ -298,10 +295,10 @@
             "file": "textures/inventory.png"
         },
         "icon-log": {
-            "file": "textures/icon-log.png"
+            "file": "textures/icon-log.PNG"
         },
         "icon-moving-log": {
-            "file": "textures/icon-moving-log.png"
+            "file": "textures/icon-moving-log.PNG"
         },
         "icon-mushroom": {
             "file": "textures/icon-mushroom.png"
