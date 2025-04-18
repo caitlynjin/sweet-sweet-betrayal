@@ -548,9 +548,9 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
         if (bd2->getName() == "platform") {
             Platform* plat = dynamic_cast<Platform*>(bd2);
             PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-            if (player->getFeetHeight() < plat->getPlatformTop()) {
-                //contact->SetEnabled(false);
-            }   
+            //if (player->getFeetHeight() < plat->getPlatformTop()) {
+            //    //contact->SetEnabled(false);
+            //}   
         }
     }
 
@@ -560,9 +560,9 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
             Platform* plat = dynamic_cast<Platform*>(bd1);
             
             
-            if (player->getFeetHeight() < plat->getPlatformTop()) {
-                //contact->SetEnabled(false);
-            }
+            //if (player->getFeetHeight() < plat->getPlatformTop()) {
+            //    //contact->SetEnabled(false);
+            //}
         }
     }
 }

@@ -13,6 +13,7 @@ using namespace cugl::graphics;
  */
 void Platform::setPositionInit(const cugl::Vec2& position) {
     _position = position;
+    PolygonObstacle::setPosition(position);
     _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
 }
 
