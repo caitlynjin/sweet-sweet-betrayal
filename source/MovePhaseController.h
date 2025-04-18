@@ -263,6 +263,8 @@ public:
 
 #pragma mark -
 #pragma mark Collision Handling
+    void beforeSolve(b2Contact* contact, const b2Manifold* oldManifold);
+
     /**
     * Processes the start of a collision
     *
