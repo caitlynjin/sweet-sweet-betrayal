@@ -263,14 +263,20 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
     Vec2 treasurePos = pos;
     image = _assets->get<Texture>("treasure");
     _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    _treasure->setSceneNode(sprite);
-    addObstacle(_treasure,sprite);
+    
+    
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
+    _treasure->setAnimation(animNode);
+    
+    
+//    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure,_treasure->getSceneNode());
     _treasure->setName("treasure");
     _treasure->setDebugColor(Color4::YELLOW);
 
     _treasure->setPosition(pos);
     _gameObjects->push_back(_treasure);
+    _networkController->setTreasure(_treasure);
     return _treasure;
 }
 

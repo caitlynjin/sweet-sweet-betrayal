@@ -591,7 +591,7 @@ void PlayerModel::update(float dt)
         // it follows the player
         if (_treasure != nullptr)
         {
-            _treasure->setPosition(getPosition());
+            _treasure->setPosition(getPosition() + Vec2(0.0f, 1.2f));
         }
     }
         
