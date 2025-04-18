@@ -584,7 +584,10 @@ public:
      */
     std::string* getSensorName() { return &_sensorName; }
 
-    float getFeetHeight() {return _sensorNode->getPositionY();}
+    float getFeetHeight() {return _sensorNode->getWorldPosition().y;
+    //_debug->getChildByName(_sensorName)->getWorldPosition().y;
+    }
+    
     
     /**
      * Returns true if this character is facing right

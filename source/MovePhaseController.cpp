@@ -543,26 +543,45 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
 
     physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
     physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
+
+    
    
     if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
         if (bd2->getName() == "platform") {
             Platform* plat = dynamic_cast<Platform*>(bd2);
-            PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-            //if (player->getFeetHeight() < plat->getPlatformTop()) {
-            //    //contact->SetEnabled(false);
-            //}   
+
+            if (plat != nullptr && _movePhaseScene.getLocalPlayer().get()->getLinearVelocity().y>0.0f) {
+                if (_movePhaseScene.getLocalPlayer().get()->getFeetHeight() < plat->getPlatformTop()) {
+                    contact->SetEnabled(false);
+                    if ((_movePhaseScene.getLocalPlayer().get()->getFeetHeight() + 2.0f) < plat->getPlatformTop()) {
+                        _movePhaseScene.getLocalPlayer().get()->setGrounded(false);
+                    }
+
+                }
+            }
         }
     }
 
     else if (tagContainsPlayer(bd2->getName()) && bd2 == _movePhaseScene.getLocalPlayer().get()) {
         if (bd1->getName() == "platform") {
-            PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
             Platform* plat = dynamic_cast<Platform*>(bd1);
+            PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+            CULog("playerfeetheight %d", _movePhaseScene.getLocalPlayer()->getPosition().y);
+            CULog("playerotherstuff %v", body2->GetPosition().y);
+            CULog("playerotherstuff %d", player->getPosition().y);
             
+            CULog("plattop %d", plat->getPlatformTop());
+            CULog("platTopTop %d", bd1->getBody()->GetPosition());
             
-            //if (player->getFeetHeight() < plat->getPlatformTop()) {
-            //    //contact->SetEnabled(false);
-            //}
+            if (plat != nullptr && _movePhaseScene.getLocalPlayer().get()->getLinearVelocity().y > 0.0f) {
+                if (_movePhaseScene.getLocalPlayer().get()->getFeetHeight() < plat->getPlatformTop()) {
+                    contact->SetEnabled(false);
+                    
+                    /*if ((player->getFeetHeight()+2.0f) < plat->getPlatformTop()) {
+                        player->setGrounded(false);
+                    }*/
+                }
+            }
         }
     }
 }

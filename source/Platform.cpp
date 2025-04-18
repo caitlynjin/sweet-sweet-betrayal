@@ -2,6 +2,7 @@
 #include "Object.h"
 
 #define JSON_KEY  "platforms";
+#define PASSTHROUGH_THRESHOLD 0.1f;
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -85,6 +86,7 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
     _position = pos;
     
     PolyFactory factory;
+    //Produce a platform of half height
     Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(nsize.width, nsize.height * 0.5));
         
     if (PolygonObstacle::init(rect)){
