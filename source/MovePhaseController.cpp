@@ -84,7 +84,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _networkController->getScoreController(),_networkController);
+    _uiScene.init(assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -232,33 +232,13 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setDidJump(false);
     }
 
+    updateProgressBar(_movePhaseScene.getLocalPlayer());
+
     // TODO: Segment into progressBarUpdate method
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
-        string playerTag = player->getName();
-        if (!player->isVisible() && !player->isDead()) {
-            player->setVisible(true);
-        }
-        if (player->isDead()){
-            _uiScene.removePlayerIcon(playerTag);
-        }
-
-        float player_pos = player->getPosition().x;
-        if (player_pos < _playerStart){
-            _uiScene.setPlayerIcon(0, _levelWidth, playerTag);
-        }
-        else if (player_pos > _levelWidth){
-            _uiScene.setPlayerIcon(_levelWidth, _levelWidth, playerTag);
-        }
-        else{
-            _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, playerTag);
-        }
-
-        if (player->hasTreasure){
-            _uiScene.setTreasureIcon(true, playerTag);
-        }
-        else{
-            _uiScene.setTreasureIcon(false, playerTag);
+        if (player->getName() != _movePhaseScene.getLocalPlayer()->getName()){
+            updateProgressBar(player);
         }
     }
     
@@ -706,5 +686,33 @@ void MovePhaseController::endContact(b2Contact *contact)
     {
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(false);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(nullptr);
+    }
+}
+
+void MovePhaseController::updateProgressBar(std::shared_ptr<PlayerModel> player) {
+    string playerTag = player->getName();
+    if (!player->isVisible() && !player->isDead()) {
+        player->setVisible(true);
+    }
+    if (player->isDead()){
+        _uiScene.removePlayerIcon(playerTag);
+    }
+
+    float player_pos = player->getPosition().x;
+    if (player_pos < _playerStart){
+        _uiScene.setPlayerIcon(0, _levelWidth, playerTag);
+    }
+    else if (player_pos > _levelWidth){
+        _uiScene.setPlayerIcon(_levelWidth, _levelWidth, playerTag);
+    }
+    else{
+        _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, playerTag);
+    }
+
+    if (player->hasTreasure){
+        _uiScene.setTreasureIcon(true, playerTag);
+    }
+    else{
+        _uiScene.setTreasureIcon(false, playerTag);
     }
 }

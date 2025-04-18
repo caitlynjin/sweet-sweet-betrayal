@@ -165,6 +165,13 @@ public:
         _uiScene.setScoreboardVisible(value);
         _uiScene.disableUI(value);
     };
+
+    /**
+     * Updates progress bar
+     *
+     * @param player information of player position and treasure status
+     */
+    void updateProgressBar(std::shared_ptr<PlayerModel> player);
     
 
 #pragma mark -

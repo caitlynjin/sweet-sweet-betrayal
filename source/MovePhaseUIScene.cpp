@@ -82,7 +82,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, string host) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -180,28 +180,32 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
 
     _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
     _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _redIcon->setScale(0.05f);
+    if (host == "playerRed"){ _redIcon->setScale(0.05f); }
+    else { _redIcon->setScale(0.025f); }
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
     addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _blueIcon->setScale(0.05f);
+    if (host == "playerBlue"){ _blueIcon->setScale(0.05f); }
+    else { _blueIcon->setScale(0.025f); }
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
     addChild(_blueIcon);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _greenIcon->setScale(0.05f);
+    if (host == "playerGreen"){ _greenIcon->setScale(0.05f); }
+    else { _greenIcon->setScale(0.025f); }
     _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _greenIcon->setVisible(false);
     addChild(_greenIcon);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _yellowIcon->setScale(0.05f);
+    if (host == "playerYellow"){ _yellowIcon->setScale(0.05f); }
+    else { _yellowIcon->setScale(0.025f); }
     _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _yellowIcon->setVisible(false);
     addChild(_yellowIcon);
@@ -209,7 +213,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _treasureIcon->setScale(0.025f);
-    _treasureIcon->setPosition(_redIcon->getPosition());
+    _treasureIcon->setPosition(_redIcon->getPosition().x, _redIcon->getPosition().y + 10);
     _treasureIcon->setVisible(false);
     addChild(_treasureIcon);
     
@@ -435,16 +439,16 @@ void MovePhaseUIScene::setPlayerIcon(float pos, float width, string tag) {
 
 void MovePhaseUIScene::setTreasureIcon(bool has, string tag) {
     if (tag == "playerRed" && has) {
-        _treasureIcon->setPosition(_redIcon->getPosition());
+        _treasureIcon->setPosition(_redIcon->getPosition().x, _redIcon->getPosition().y + 10);
     }
     else if (tag == "playerBlue" && has){
-        _treasureIcon->setPosition(_blueIcon->getPosition());
+        _treasureIcon->setPosition(_blueIcon->getPosition().x, _blueIcon->getPosition().y + 10);
     }
     else if (tag == "playerGreen" && has){
-        _treasureIcon->setPosition(_greenIcon->getPosition());
+        _treasureIcon->setPosition(_greenIcon->getPosition().x, _greenIcon->getPosition().y + 10);
     }
     else if (tag == "playerYellow" && has){
-        _treasureIcon->setPosition(_yellowIcon->getPosition());
+        _treasureIcon->setPosition(_yellowIcon->getPosition().x, _yellowIcon->getPosition().y + 10);
     }
     _treasureIcon->setVisible(has);
 }
