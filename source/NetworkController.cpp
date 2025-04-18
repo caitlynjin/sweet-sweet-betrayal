@@ -600,55 +600,55 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     
     if (color == ColorType::RED){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_IDLE_TEXTURE), 1, 7, 7);
-        player->setIdleAnimation(idleSpriteNode);
-        
+        player->setIdleAnimation(idleSpriteNode, 7);
+
         auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_WALK_TEXTURE), 1, 3, 3);
-        player->setWalkAnimation(walkSpriteNode);
-        
+        player->setWalkAnimation(walkSpriteNode, 3);
+
         auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_GLIDE_TEXTURE), 1, 4, 4);
-        player->setGlideAnimation(glideSpriteNode);
-        
+        player->setGlideAnimation(glideSpriteNode, 4);
+
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
-        player->setJumpAnimation(jumpSpriteNode);
+        player->setJumpAnimation(jumpSpriteNode, 5);
     }
     else if (color == ColorType::BLUE){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_IDLE_TEXTURE), 1, 7, 7);
-        player->setIdleAnimation(idleSpriteNode);
-        
+        player->setIdleAnimation(idleSpriteNode, 7);
+
         auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_WALK_TEXTURE), 1, 3, 3);
-        player->setWalkAnimation(walkSpriteNode);
-        
+        player->setWalkAnimation(walkSpriteNode, 3);
+
         auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_GLIDE_TEXTURE), 1, 4, 4);
-        player->setGlideAnimation(glideSpriteNode);
-        
+        player->setGlideAnimation(glideSpriteNode, 4);
+
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_JUMP_TEXTURE), 1, 5, 5);
-        player->setJumpAnimation(jumpSpriteNode);
+        player->setJumpAnimation(jumpSpriteNode, 5);
     }
     else if (color == ColorType::GREEN){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_IDLE_TEXTURE), 1, 7, 7);
-        player->setIdleAnimation(idleSpriteNode);
-        
+        player->setIdleAnimation(idleSpriteNode, 7);
+
         auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_WALK_TEXTURE), 1, 3, 3);
-        player->setWalkAnimation(walkSpriteNode);
-        
+        player->setWalkAnimation(walkSpriteNode, 3);
+
         auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_GLIDE_TEXTURE), 1, 4, 4);
-        player->setGlideAnimation(glideSpriteNode);
-        
+        player->setGlideAnimation(glideSpriteNode, 4);
+
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_JUMP_TEXTURE), 1, 5, 5);
-        player->setJumpAnimation(jumpSpriteNode);
+        player->setJumpAnimation(jumpSpriteNode, 5);
     }
     else if (color == ColorType::YELLOW){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_IDLE_TEXTURE), 1, 7, 7);
-        player->setIdleAnimation(idleSpriteNode);
-        
+        player->setIdleAnimation(idleSpriteNode, 7);
+
         auto walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_WALK_TEXTURE), 1, 3, 3);
-        player->setWalkAnimation(walkSpriteNode);
-        
+        player->setWalkAnimation(walkSpriteNode, 3);
+
         auto glideSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_GLIDE_TEXTURE), 1, 4, 4);
-        player->setGlideAnimation(glideSpriteNode);
-        
+        player->setGlideAnimation(glideSpriteNode, 4);
+
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_JUMP_TEXTURE), 1, 5, 5);
-        player->setJumpAnimation(jumpSpriteNode);
+        player->setJumpAnimation(jumpSpriteNode, 5);
     }
     
     
