@@ -111,12 +111,13 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     
 }
 
+/** Creates a gust node and adds it to the scene node. */
 void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
-    _windNode = gustSprite;
-    _windNode->setAnchor(0.0f, 0.0f);
-    _windNode->setPosition(Vec2());
-    _sceneNode->addChild(_windNode);
-    _windNode->setVisible(true);
+    _gustNode = gustSprite;
+    _gustNode->setAnchor(0.0f, 0.0f);
+    _gustNode->setPosition(Vec2());
+    _gustNode->setVisible(true);
+    _sceneNode->addChild(_gustNode);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {

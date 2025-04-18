@@ -212,7 +212,7 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     
-    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+    for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
 
         /**If we created a wind object, create a bunch of raycasts.*/
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
