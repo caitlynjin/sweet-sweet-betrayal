@@ -136,95 +136,44 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
 
     _playerList = playerList;
 
-    for (auto& player : _playerList) {
-        std::string name = player->getName();
+    static const std::vector<std::string> colorOrder = {
+        "playerRed", "playerBlue", "playerGreen", "playerYellow"
+    };
 
-        if (name == "playerRed") {
-            CULog("Red player detected");
-            _scoreIcons["red-bar"] = createIcon("red-bar", scale, bar_position, anchor, false);
-            parent->addChild(_scoreIcons["red-bar"]);
-            _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, false);
-            parent->addChild(_scoreIcons["redglider"]);
-            float glider_width = _scoreIcons["redglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
-            _playerBaseDotPos[name] = base_dot_position;
-
-
-            for (int i = 0; i < 10; ++i) {
-                std::string dot_key = name + "-dot-" + std::to_string(i);
-                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
-                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
-                parent->addChild(_scoreIcons[dot_key]);
-            }
-        }
-        else if (name == "playerBlue") {
-            CULog("Blue player detected");
-            _scoreIcons["blue-bar"] = createIcon("blue-bar", scale, bar_position, anchor, false);
-            parent->addChild(_scoreIcons["blue-bar"]);
-            _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, false);
-            parent->addChild(_scoreIcons["blueglider"]);
-            float glider_width = _scoreIcons["blueglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
-            _playerBaseDotPos[name] = base_dot_position;
-
-            for (int i = 0; i < 10; ++i) {
-                std::string dot_key = name + "-dot-" + std::to_string(i);
-                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
-                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
-                parent->addChild(_scoreIcons[dot_key]);
-            }
-        }
-        else if (name == "playerGreen") {
-            CULog("Green player detected");
-            _scoreIcons["green-bar"] = createIcon("green-bar", scale, bar_position, anchor, false);
-            parent->addChild(_scoreIcons["green-bar"]);
-            _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, false);
-            parent->addChild(_scoreIcons["greenglider"]);
-            float glider_width = _scoreIcons["greenglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
-            _playerBaseDotPos[name] = base_dot_position;
-
-            for (int i = 0; i < 10; ++i) {
-                std::string dot_key = name + "-dot-" + std::to_string(i);
-                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
-                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
-                parent->addChild(_scoreIcons[dot_key]);
-            }
-        }
-        else if (name == "playerYellow") {
-            CULog("Yellow player detected");
-            _scoreIcons["yellow-bar"] = createIcon("yellow-bar", scale, bar_position, anchor, false);
-            parent->addChild(_scoreIcons["yellow-bar"]);
-            _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, false);
-            parent->addChild(_scoreIcons["yellowglider"]);
-            float glider_width = _scoreIcons["yellowglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
-            _playerBaseDotPos[name] = base_dot_position;
-
-            for (int i = 0; i < 10; ++i) {
-                std::string dot_key = name + "-dot-" + std::to_string(i);
-                Vec2 dot_pos = base_dot_position + offset_betw_points * static_cast<float>(i);
-                _scoreIcons[dot_key] = createIcon("dot", scale, dot_pos, anchor, false);
-                parent->addChild(_scoreIcons[dot_key]);
-            }
+    for (auto const &name : colorOrder) {
+        auto it = std::find_if(_playerList.begin(), _playerList.end(),
+            [&](auto const &p){ return p->getName() == name; });
+        if (it == _playerList.end()) {
+            continue;
         }
 
-        bar_position += offset_betw_players;
+        CULog("%s player detected", name.c_str());
+        std::string prefix = name.substr(6);
+        std::string barKey = prefix + "-bar";
+        std::string glideKey = prefix + "glider";
+
+        _scoreIcons[barKey]    = createIcon(barKey, scale, bar_position,    anchor, false);
+        _scoreIcons[glideKey]  = createIcon(glideKey, scale, glider_position, anchor, false);
+        parent->addChild(_scoreIcons[barKey]);
+        parent->addChild(_scoreIcons[glideKey]);
+
+        float glider_width = _scoreIcons[glideKey]->getContentSize().width;
+        Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+        _playerBaseDotPos[name] = base_dot_position;
+
+        // place up to 10 dots
+        for (int i = 0; i < 10; ++i) {
+            std::string dotKey = name + "-dot-" + std::to_string(i);
+            Vec2 dotPos = base_dot_position + offset_betw_points * static_cast<float>(i);
+            _scoreIcons[dotKey] = createIcon("dot", scale, dotPos, anchor, false);
+            parent->addChild(_scoreIcons[dotKey]);
+        }
+
+        // advance to next “row”
+        bar_position    += offset_betw_players;
         glider_position += offset_betw_players;
     }
 }
-
-//    _scoreIcons["score-finish"] = createIcon("score-finish", scale, basePos + Vec2(7 * spacing, 0), anchor, true);
-//    parent->addChild(_scoreIcons["score-finish"]);
-//
-//    _scoreIcons["score-trapkill"] = createIcon("score-trapkill", scale, basePos + Vec2(8 * spacing, 0), anchor, true);
-//    parent->addChild(_scoreIcons["score-trapkill"]);
-//
-//    _scoreIcons["score-treasure"] = createIcon("score-treasure", scale, basePos + Vec2(9 * spacing, 0), anchor, true);
-//    parent->addChild(_scoreIcons["score-treasure"]);
-//
-//    _scoreIcons["scoreboard-background"] = createIcon("scoreboard-background", 0.2f, basePos + Vec2(10 * spacing, 0), anchor, true);
-//    parent->addChild(_scoreIcons["scoreboard-background"]);
 
 
 
