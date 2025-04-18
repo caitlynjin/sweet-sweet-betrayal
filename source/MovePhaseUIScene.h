@@ -270,7 +270,7 @@ public:
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void setPlayerIcon(float pos, float width, ColorType color);
+    void setPlayerIcon(float pos, float width, string tag);
 
     /**
      * Removes player icon
@@ -278,7 +278,7 @@ public:
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void removePlayerIcon(ColorType color);
+    void removePlayerIcon(string tag);
 
     /**
      * Has treasure icon appear in player icon on progress bar if player collects it
@@ -286,7 +286,7 @@ public:
      * @param has       Whether or not the player has the treasure
      * @param color     Which color icon the treasure will appear on top of
      */
-    void setTreasureIcon(bool has, ColorType color);
+    void setTreasureIcon(bool has, string tag);
 
 
     /**

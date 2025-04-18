@@ -279,21 +279,20 @@ void MovePhaseUIScene::preUpdate(float dt) {
 void MovePhaseUIScene::disableUI(bool value) {
     _progressBar->setVisible(!value);
 
-    int player_index = 0;
     for (auto& player : _networkController->getPlayerList()){
-        if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::RED)){
+        string playerTag = player->getName();
+        if (playerTag == "playerRed"){
             _redIcon->setVisible(!value);
         }
-        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::BLUE)){
+        else if (playerTag == "playerBlue"){
             _blueIcon->setVisible(!value);
         }
-        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::GREEN)){
+        else if (playerTag == "playerGreen"){
             _greenIcon->setVisible(!value);
         }
-        else if (_networkController->getPlayerColor(player_index) == ColorType(ColorType::YELLOW)){
+        else if (playerTag == "playerYellow"){
             _yellowIcon->setVisible(!value);
         }
-        player_index += 1;
     }
 
     if (value){
@@ -418,49 +417,49 @@ void MovePhaseUIScene::updateRound(int cur, int total) {
 //    _roundsnode->setText("Round: " + std::to_string(cur) + "/" + std::to_string(total));
 }
 
-void MovePhaseUIScene::setPlayerIcon(float pos, float width, ColorType color) {
+void MovePhaseUIScene::setPlayerIcon(float pos, float width, string tag) {
     float cur = (pos * _progressBar->getWidth()) / width;
-    if (color == ColorType::RED){
+    if (tag == "playerRed"){
         _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
     }
-    else if (color == ColorType::BLUE){
+    else if (tag == "playerBlue"){
         _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
     }
-    else if (color == ColorType::GREEN){
+    else if (tag == "playerGreen"){
         _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
     }
-    else if (color == ColorType::YELLOW){
+    else if (tag == "playerYellow"){
         _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2) + cur, _size.height * 0.9f);
     }
 }
 
-void MovePhaseUIScene::setTreasureIcon(bool has, ColorType color) {
-    if (color == ColorType::RED && has) {
+void MovePhaseUIScene::setTreasureIcon(bool has, string tag) {
+    if (tag == "playerRed" && has) {
         _treasureIcon->setPosition(_redIcon->getPosition());
     }
-    else if (color == ColorType::BLUE && has){
+    else if (tag == "playerBlue" && has){
         _treasureIcon->setPosition(_blueIcon->getPosition());
     }
-    else if (color == ColorType::GREEN && has){
+    else if (tag == "playerGreen" && has){
         _treasureIcon->setPosition(_greenIcon->getPosition());
     }
-    else if (color == ColorType::YELLOW && has){
+    else if (tag == "playerYellow" && has){
         _treasureIcon->setPosition(_yellowIcon->getPosition());
     }
     _treasureIcon->setVisible(has);
 }
 
-void MovePhaseUIScene::removePlayerIcon(ColorType color) {
-    if (color == ColorType::RED){
+void MovePhaseUIScene::removePlayerIcon(string tag) {
+    if (tag == "playerRed"){
         _redIcon->setVisible(false);
     }
-    else if (color == ColorType::BLUE){
+    else if (tag == "playerBlue"){
         _blueIcon->setVisible(false);
     }
-    else if (color == ColorType::GREEN){
+    else if (tag == "playerGreen"){
         _greenIcon->setVisible(false);
     }
-    else if (color == ColorType::YELLOW){
+    else if (tag == "playerYellow"){
         _yellowIcon->setVisible(false);
     }
 }

@@ -233,36 +233,33 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     // TODO: Segment into progressBarUpdate method
-    int player_index = 0;
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
+        string playerTag = player->getName();
         if (!player->isVisible() && !player->isDead()) {
             player->setVisible(true);
         }
         if (player->isDead()){
-            _uiScene.removePlayerIcon(_networkController->getPlayerColor(player_index));
+            _uiScene.removePlayerIcon(playerTag);
         }
-        if (_networkController->getPlayerColor(player_index) != ColorType::RED){
-            CULog("Not Red");
-        }
+
         float player_pos = player->getPosition().x;
         if (player_pos < _playerStart){
-            _uiScene.setPlayerIcon(0, _levelWidth, _networkController->getPlayerColor(player_index));
+            _uiScene.setPlayerIcon(0, _levelWidth, playerTag);
         }
         else if (player_pos > _levelWidth){
-            _uiScene.setPlayerIcon(_levelWidth, _levelWidth, _networkController->getPlayerColor(player_index));
+            _uiScene.setPlayerIcon(_levelWidth, _levelWidth, playerTag);
         }
         else{
-            _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, _networkController->getPlayerColor(player_index));
+            _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, playerTag);
         }
 
         if (player->hasTreasure){
-            _uiScene.setTreasureIcon(true, _networkController->getPlayerColor(player_index));
+            _uiScene.setTreasureIcon(true, playerTag);
         }
         else{
-            _uiScene.setTreasureIcon(false, _networkController->getPlayerColor(player_index));
+            _uiScene.setTreasureIcon(false, playerTag);
         }
-        player_index += 1;
     }
     
 
