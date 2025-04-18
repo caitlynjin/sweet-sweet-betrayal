@@ -285,6 +285,9 @@
         "treasure-icon": {
             "file": "textures/treasure.png"
         },
+        "treasure-sheet": {
+            "file": "textures/strawberry-sheet.png"
+        },
         "back": {
             "file": "textures/buttons/back.png"
         },
