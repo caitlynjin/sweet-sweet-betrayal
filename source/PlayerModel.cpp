@@ -668,7 +668,6 @@ void PlayerModel::resetDebug()
     float w = PLAYER_SSHRINK * _dimension.width;
     float h = SENSOR_HEIGHT;
     Poly2 poly(Rect(-w / 2.0f, -h / 2.0f, w, h));
-
     _sensorNode = scene2::WireNode::allocWithTraversal(poly, poly2::Traversal::INTERIOR);
     _sensorNode->setColor(DEBUG_COLOR);
     _sensorNode->setPosition(Vec2(_debug->getContentSize().width / 2.0f, 0.0f));
