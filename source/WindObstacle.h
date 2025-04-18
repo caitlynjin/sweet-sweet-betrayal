@@ -80,7 +80,7 @@ public:
 
 	/*Sprite Node representing the wind object*/
 	std::shared_ptr<AnimateSprite> _windAnimate;
-	std::shared_ptr<cugl::scene2::SpriteNode> _windNode;
+	std::shared_ptr<cugl::scene2::SpriteNode> _gustNode;
 	cugl::ActionFunction _windAction;
 
 	/*How hard and what direction the wind is blowing the player in*/
