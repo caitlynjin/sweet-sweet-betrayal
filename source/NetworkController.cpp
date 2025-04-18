@@ -1034,13 +1034,12 @@ WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const
     std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
 
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
-    
-    
+
     wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
     wind->setSceneNode(fanSprite);
     wind->setGustSprite(gustSprite);
-    
+
     // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
 
     return std::make_pair(wind, fanSprite);
