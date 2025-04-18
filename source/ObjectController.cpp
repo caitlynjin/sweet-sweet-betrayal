@@ -240,7 +240,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
     // Allow movement of obstacle
     wind->setBodyType(b2_dynamicBody);
-    wind->setPosition(pos);
+    wind->setPositionInit(pos);
 
     addObstacle(wind, fanSprite, 1);
     wind->setSceneNode(fanSprite);
