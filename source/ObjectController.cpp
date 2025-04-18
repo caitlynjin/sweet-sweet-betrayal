@@ -163,7 +163,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
     CULog("creating moving platform");
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
-    std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
+    std::shared_ptr<Platform> plat = Platform::allocMoving(size, pos, end, speed);
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;

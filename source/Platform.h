@@ -55,9 +55,9 @@ public:
 
   
     // New alloc method for moving platform.
-    static std::shared_ptr<Platform> allocMoving(const Vec2 position, const Size size, const Vec2 start, const Vec2 end, float speed) {
+    static std::shared_ptr<Platform> allocMoving(const Size size, const Vec2 start, const Vec2 end, float speed) {
         std::shared_ptr<Platform> result = std::make_shared<Platform>();
-        return (result->initMoving(position, size, start, end, speed) ? result : nullptr);
+        return (result->initMoving(size, start, end, speed) ? result : nullptr);
     }
 
 
@@ -72,7 +72,7 @@ public:
 
 
     // New init for moving platform.
-    bool initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed);
+    bool initMoving(const Size size, const Vec2 start, const Vec2 end, float speed);
 
 
     // Map for JSON level management

@@ -98,14 +98,14 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
 }
 
 
-bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
-    if (!init(pos, size)) return false;
+bool Platform::initMoving(const Size size, const Vec2 start, const Vec2 end, float speed) {
+//    if (!init(pos, size)) return false;
     _moving = true;
     _startPos = start;
     _endPos   = end;
     _speed    = speed;
     _forward  = true;
-    _position = pos;
+    _position = start;
     _size = size;
     _itemType = Item::MOVING_PLATFORM;
     //enable moving
@@ -116,7 +116,7 @@ bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, con
     Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(_size.width, _size.height * 0.5));
         
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(start);
         setBodyType(b2_kinematicBody);
         Vec2 direction = _endPos - _startPos;
         direction.normalize();
