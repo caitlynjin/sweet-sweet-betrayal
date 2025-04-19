@@ -231,6 +231,9 @@
         "player-red-jump": {
             "file": "textures/red-jump.png"
         },
+        "player-red-death": {
+            "file": "textures/red-death.png"
+        },
         "player-blue-idle": {
             "file": "textures/blue-idle-character-spritesheet.png"
         },
@@ -242,6 +245,9 @@
         },
         "player-blue-jump": {
             "file": "textures/blue-jump-character-spritesheet.png"
+        },
+        "player-blue-death": {
+            "file": "textures/blue-death-character-spritesheet.png"
         },
         "player-green-idle": {
             "file": "textures/green-idle-character-spritesheet.png"
@@ -255,6 +261,9 @@
         "player-green-jump": {
             "file": "textures/green-jump-character-spritesheet.png"
         },
+        "player-green-death": {
+            "file": "textures/green-death-character-spritesheet.png"
+        },
         "player-yellow-idle": {
             "file": "textures/yellow-idle-character-spritesheet.png"
         },
@@ -266,6 +275,9 @@
         },
         "player-yellow-jump": {
             "file": "textures/yellow-jump-character-spritesheet.png"
+        },
+        "player-yellow-death": {
+            "file": "textures/yellow-death-character-spritesheet.png"
         },
         "progress-bar": {
             "file": "textures/progress-bar.png"

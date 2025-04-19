@@ -610,6 +610,9 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_JUMP_TEXTURE), 1, 5, 5);
         player->setJumpAnimation(jumpSpriteNode, 5);
+
+        auto deathSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_RED_DEATH_TEXTURE), 1, 4, 4);
+        player->setDeathAnimation(deathSpriteNode, 4);
     }
     else if (color == ColorType::BLUE){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_IDLE_TEXTURE), 1, 7, 7);
@@ -623,6 +626,9 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_JUMP_TEXTURE), 1, 5, 5);
         player->setJumpAnimation(jumpSpriteNode, 5);
+
+        auto deathSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_BLUE_DEATH_TEXTURE), 1, 4, 4);
+        player->setDeathAnimation(deathSpriteNode, 4);
     }
     else if (color == ColorType::GREEN){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_IDLE_TEXTURE), 1, 7, 7);
@@ -636,6 +642,9 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_JUMP_TEXTURE), 1, 5, 5);
         player->setJumpAnimation(jumpSpriteNode, 5);
+
+        auto deathSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_GREEN_DEATH_TEXTURE), 1, 4, 4);
+        player->setDeathAnimation(deathSpriteNode, 4);
     }
     else if (color == ColorType::YELLOW){
         auto idleSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_IDLE_TEXTURE), 1, 7, 7);
@@ -649,6 +658,9 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 
         auto jumpSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_JUMP_TEXTURE), 1, 5, 5);
         player->setJumpAnimation(jumpSpriteNode, 5);
+
+        auto deathSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_YELLOW_DEATH_TEXTURE), 1, 4, 4);
+        player->setDeathAnimation(deathSpriteNode, 4);
     }
     
     

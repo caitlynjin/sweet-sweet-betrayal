@@ -39,6 +39,8 @@
 #define PLAYER_RED_GLIDE_TEXTURE    "player-red-glide"
 /** The animation texture for when the player is jumping */
 #define PLAYER_RED_JUMP_TEXTURE    "player-red-jump"
+/** The animation texture for when the player is dying */
+#define PLAYER_RED_DEATH_TEXTURE    "player-red-death"
 // BLUE
 /** The animation texture for when the player is idle */
 #define PLAYER_BLUE_IDLE_TEXTURE    "player-blue-idle"
@@ -48,6 +50,8 @@
 #define PLAYER_BLUE_GLIDE_TEXTURE    "player-blue-glide"
 /** The animation texture for when the player is jumping */
 #define PLAYER_BLUE_JUMP_TEXTURE    "player-blue-jump"
+/** The animation texture for when the player is dying */
+#define PLAYER_BLUE_DEATH_TEXTURE    "player-blue-death"
 // GREEN
 /** The animation texture for when the player is idle */
 #define PLAYER_GREEN_IDLE_TEXTURE    "player-green-idle"
@@ -57,6 +61,8 @@
 #define PLAYER_GREEN_GLIDE_TEXTURE    "player-green-glide"
 /** The animation texture for when the player is jumping */
 #define PLAYER_GREEN_JUMP_TEXTURE    "player-green-jump"
+/** The animation texture for when the player is dying */
+#define PLAYER_GREEN_DEATH_TEXTURE    "player-green-death"
 // YELLOW
 /** The animation texture for when the player is idle */
 #define PLAYER_YELLOW_IDLE_TEXTURE    "player-yellow-idle"
@@ -66,6 +72,8 @@
 #define PLAYER_YELLOW_GLIDE_TEXTURE    "player-yellow-glide"
 /** The animation texture for when the player is jumping */
 #define PLAYER_YELLOW_JUMP_TEXTURE    "player-yellow-jump"
+/** The animation texture for when the player is dying */
+#define PLAYER_YELLOW_DEATH_TEXTURE    "player-yellow-death"
 
 
 /** The key for the tile texture in the asset manager*/

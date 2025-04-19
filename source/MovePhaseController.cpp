@@ -302,6 +302,9 @@ void MovePhaseController::postUpdate(float remain) {
     // Record failure if necessary.
     if (_movePhaseScene.getLocalPlayer()->getY() < 0)
     {
+        // Hide player
+        _networkController->getLocalPlayer()->setVisible(false);
+
         killPlayer();
     }
 
@@ -325,9 +328,6 @@ void MovePhaseController::killPlayer(){
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
-        // Hide player
-        player->setVisible(false);
-
         // If player had treasure, remove from their possession
         if (player->hasTreasure){
             player->removeTreasure();
