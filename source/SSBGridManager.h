@@ -72,7 +72,6 @@ public:
         manager->_grid->setScale(scale);
         manager->_grid->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
         manager->_grid->setPosition(offset);
-        // Vec2(0, 64.0f * 2)
         manager->_grid->setVisible(false);
 
         manager->initGrid(isLevelEditor);

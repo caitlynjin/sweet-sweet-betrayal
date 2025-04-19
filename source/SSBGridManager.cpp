@@ -37,8 +37,8 @@ void GridManager::initGrid(bool isLevelEditor) {
 
             Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
 
-            std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
-            cellNode->setColor(Color4::WHITE);
+            std::shared_ptr<scene2::PathNode> cellNode = scene2::PathNode::allocWithRect(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)), 0.05f);
+            cellNode->setColor(Color4(50, 50, 50, 50));
             cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
             cellNode->setPosition(cellPos);
 
