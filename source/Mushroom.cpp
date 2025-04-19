@@ -9,14 +9,12 @@ using namespace cugl::graphics;
 
 void Mushroom::setPositionInit(const cugl::Vec2 &position){
     _position = position;
-    PolygonObstacle::setPosition(position);
+    PolygonObstacle::setPosition(position + _size/2);
 }
 
 void Mushroom::dispose() {
     Object::dispose();
-
-    _box->markRemoved(true);
-    _box = nullptr;
+    markRemoved(true);
 }
 
 
@@ -31,13 +29,13 @@ bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
     Size nsize = size;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-1.0f, -1.0f), Size(nsize.width*0.8, nsize.height));
-    
+    Poly2 rect = factory.makeRect(Vec2(-1.0f, -0.5f), Size(nsize.width*0.8, nsize.height));
+
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(pos + size/2);
         setSensor(true);
         return true;
-        }
+    }
 
     return false;
 }
