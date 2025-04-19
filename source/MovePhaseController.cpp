@@ -562,15 +562,31 @@ void MovePhaseController::beginContact(b2Contact *contact)
     // Set grounded for all non-local players 
     if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2) ) {
-            player->setGrounded(true);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].emplace(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].emplace(fix1);
+            }
+            if (!_playerSensorFixtures[player].empty()) {
+                player->setGrounded(true);
+            }
         }
     }
 
     if (tagContainsPlayer(bd2->getName()) && bd2 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
-        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
-            player->setGrounded(true);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].emplace(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].emplace(fix1);
+            }
+            if (!_playerSensorFixtures[player].empty()) {
+                player->setGrounded(true);
+            }
         }
     }
     //Handles all Player Collisions in this section
@@ -623,8 +639,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 ) {
                 //Set player to grounded
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                CULog("LOCAL: GROUNDED TRUE");
                 // Could have more than one ground
-                _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
+                _localSensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 
                 //bounce if we hit a mushroom
                 if (bd2->getName() == "mushroom" || bd1->getName() == "mushroom") {
@@ -671,13 +688,45 @@ void MovePhaseController::endContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
+    // Set Grounded false for local player
     if ((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
         (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2))
     {
-        _sensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
-        if (_sensorFixtures.empty())
+        _localSensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
+        if (_localSensorFixtures.empty())
         {
             _movePhaseScene.getLocalPlayer()->setGrounded(false);
+        }
+    }
+    
+    // Set Grounded false for non-local players
+    if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].erase(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].erase(fix1);
+            }
+            if (_playerSensorFixtures[player].empty()) {
+                player->setGrounded(false);
+            }
+        }
+    }
+
+    if (tagContainsPlayer(bd2->getName()) && bd2 != _movePhaseScene.getLocalPlayer().get()) {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].erase(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].erase(fix1);
+            }
+            if (_playerSensorFixtures[player].empty()) {
+                player->setGrounded(false);
+            }
         }
     }
 
