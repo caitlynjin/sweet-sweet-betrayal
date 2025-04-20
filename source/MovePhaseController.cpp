@@ -195,7 +195,6 @@ void MovePhaseController::preUpdate(float dt) {
     }
     else if (!_input->isRightDown()) {
         if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
-            CULog("SetFalse");
             _movePhaseScene.getLocalPlayer()->setJumpHold(false);
         }
         _movePhaseScene.getLocalPlayer()->setGlide(false);
@@ -307,7 +306,6 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
             // Set grounded for all non-local players
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
-                CULog("plyr Callback!");
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
@@ -538,31 +536,35 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
     b2Body* body1 = fix1->GetBody();
     b2Body* body2 = fix2->GetBody();
 
-    std::string* fd1 = reinterpret_cast<std::string*>(fix1->GetUserData().pointer);
-    std::string* fd2 = reinterpret_cast<std::string*>(fix2->GetUserData().pointer);
-
     physics2::Obstacle* bd1 = reinterpret_cast<physics2::Obstacle*>(body1->GetUserData().pointer);
     physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
+
+    Platform* plat = nullptr;
    
     if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
         if (bd2->getName() == "platform") {
-            Platform* plat = dynamic_cast<Platform*>(bd2);
-            PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-            //if (player->getFeetHeight() < plat->getPlatformTop()) {
-            //    //contact->SetEnabled(false);
-            //}   
+            plat = dynamic_cast<Platform*>(bd2);
         }
     }
 
     else if (tagContainsPlayer(bd2->getName()) && bd2 == _movePhaseScene.getLocalPlayer().get()) {
         if (bd1->getName() == "platform") {
-            PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
-            Platform* plat = dynamic_cast<Platform*>(bd1);
-            
-            
-            //if (player->getFeetHeight() < plat->getPlatformTop()) {
-            //    //contact->SetEnabled(false);
-            //}
+            plat = dynamic_cast<Platform*>(bd1);
+        }
+    }
+    if (plat != nullptr) {
+        if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y > 0.05f) {
+            contact->SetEnabled(false);
+            if (_movePhaseScene.getLocalPlayer()->getFeetHeight() + 0.02f < plat->getPlatformTop()) {
+                _movePhaseScene.getLocalPlayer()->setGrounded(false);
+            }
+            /*CULog("plyrfeetSolve %f", _movePhaseScene.getLocalPlayer()->getFeetHeight());
+                CULog("platYSolve %f", plat->getPlatformTop());*/
+        }
+        else if ((_movePhaseScene.getLocalPlayer()->getFeetHeight()< plat->getPlatformTop()) && 
+            _movePhaseScene.getLocalPlayer()->getLinearVelocity().y > -0.1f) {
+            contact->SetEnabled(false);
+            _movePhaseScene.getLocalPlayer()->setGrounded(false);
         }
     }
 }

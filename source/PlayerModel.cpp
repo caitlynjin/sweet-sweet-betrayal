@@ -107,6 +107,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
     Size nsize = size;
     nsize.width *= PLAYER_HSHRINK;
     nsize.height *= PLAYER_VSHRINK;
+    _height = (nsize.height * PLAYER_VSHRINK) * 0.5;
     _drawScale = scale;
 
     MovingPlat = nullptr;
@@ -671,6 +672,7 @@ void PlayerModel::resetDebug()
     _sensorNode = scene2::WireNode::allocWithTraversal(poly, poly2::Traversal::INTERIOR);
     _sensorNode->setColor(DEBUG_COLOR);
     _sensorNode->setPosition(Vec2(_debug->getContentSize().width / 2.0f, 0.0f));
+   
     _debug->addChild(_sensorNode);
 }
 

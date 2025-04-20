@@ -114,6 +114,8 @@ protected:
     bool _isHeld;
     /*How long a jump should last. If we let go of jump before this is over, set the linear velocity to zero.**/
     float _jumpDuration;
+    /*how tall the player is*/
+    float _height;
 	/** How long until we can shoot again */
 	int  _shootCooldown;
 	/** Whether our feet are on the ground */
@@ -584,7 +586,9 @@ public:
      */
     std::string* getSensorName() { return &_sensorName; }
 
-    float getFeetHeight() {return _sensorNode->getPositionY();}
+    float getFeetHeight() { return getPosition().y - (_height * 0.5); }
+    //_sensorFixture->GetBody()->GetTransform().p.y;
+    
     
     /**
      * Returns true if this character is facing right
