@@ -49,7 +49,7 @@ public:
 	* If you call createLevelFromJson a second time, all the original level information will be overwritten.
 	* @param fileName The name of the JSON file containing the level information.
 	*/
-	vector<shared_ptr<Object>> createLevelFromJson(string fileName);
+	vector<shared_ptr<Object>> createLevelFromJson(string fileName, bool useAbsolutePath=false);
 
 	/** Returns the level size */
 	Size getLevelSize() {

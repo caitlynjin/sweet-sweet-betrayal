@@ -19,6 +19,7 @@
 #include "Treasure.h"
 #include "Object.h"
 #include "Spike.h"
+#include "Tile.h"
 #include <cugl/cugl.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
@@ -94,6 +95,7 @@ public:
 
     /*Creates a 1 by 1 tile*/
     std::shared_ptr<Object> createTile(Vec2 pos, Size size, string jsonType, float scale);
+    std::shared_ptr<Object> createTile(std::shared_ptr<Tile> tile);
 
     /**
      * Creates a moving platform.
@@ -132,9 +134,9 @@ public:
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
     * @param size The size of the treasure in Box2D coordinates.
     */
-    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType);
+    std::shared_ptr<Object> createTreasure(Vec2 pos, Size size, string jsonType, bool isLevelEditorMode = false);
 
-    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure);
+    std::shared_ptr<Object> createTreasure(std::shared_ptr<Treasure> treasure, bool isLevelEditorMode = false);
 
     /** Creates an art object */
     std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
