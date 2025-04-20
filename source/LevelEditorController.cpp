@@ -158,11 +158,9 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
 
-    // THIS WILL GENERATE A JSON LEVEL FILE. This is how to do it:
-    //
-   // level->createJsonFromLevel("json/test2.json", Size(32, 32), _objects);
+    // test9.json is the empty file used for the level editor
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, true);
         // This is necessary to remove the object with the eraser.
@@ -275,6 +273,9 @@ void LevelEditorController::preUpdate(float dt) {
         if (!_input->isTouchDown() && !_uiScene.isPaintMode() && !_uiScene.isEraserMode() && _input->getInventoryStatus() == PlatformInput::PLACING) {
             _input->setInventoryStatus(PlatformInput::WAITING);
         }
+        if (!_input->isTouchDown()) {
+            //_selectedObject = nullptr;
+        }
         // TODO: add code to prevent save/load buttons/text fields from clicking an object down while in paintbrush mode
         // Also, same for clicking the paintbrush button itself
         if (_input->isTouchDown() && !_uiScene.isEraserMode() && (_input->getInventoryStatus() == PlatformInput::PLACING || (_uiScene.isPaintMode() && _selectedItem != Item::NONE && !_uiScene.getLeftPressed() && !_uiScene.getRightPressed())))
@@ -299,7 +300,7 @@ void LevelEditorController::preUpdate(float dt) {
                     _gridManager->setObject(gridPosWithOffset, _selectedItem);
                 }
             }
-            if (_uiScene.isPaintMode() && (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem))) {
+            if (_uiScene.isPaintMode() && _selectedItem != NONE && (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem))) {
                 std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                 // might go back to addObject() for levelEditor??? just keep this in mind
                 _gridManager->addMoveableObject(gridPos, obj);
@@ -308,49 +309,15 @@ void LevelEditorController::preUpdate(float dt) {
             }
         }
         else if (_uiScene.isEraserMode() && _input->isTouchDown()) {
-            Vec2 screenPos = _input->getPosOnDrag();
-            Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos + dragOffset, getSystemScale()), NONE);
-            std::shared_ptr<Object> obj = _gridManager->moveObject(gridPos);
-            // This REQUIRES the object to have been moveable when it got loaded in.
-            // Otherwise, it FAILS.
-            if (obj) {
-                vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
-                CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                auto it = (*(_objectController->getObjects())).begin();
-                int index = 0;
-                
-                // This code erases an object from ObjectController, but not from the world.
-                while (it != (*(_objectController->getObjects())).end()) {
-                    if (**it == *obj) {
-                        //(*(_objectController->getObjects())).erase((*(_objectController->getObjects())).begin() + index);
-                        //_gridManager->deleteObject(obj);
-                        CULog("%d", (*(_objectController->getObjects())).size());
-                        break;
-                    }
-                    else {
-                        CULog("%f", (**it).getPositionInit().x);
-                        CULog("%f", (*obj).getPositionInit().x);
-                        CULog("%f", (*obj).getPositionInit().y);
-                        CULog("");
-                    }
-                    index++;
-                    ++it;
-                }
-
-                /*This code doesn't really work as is but I left it in for now. */
-                //auto it = objs.erase(find(objs.begin(), objs.end() - 1, obj));
-                //CULog("length before erase: %d", (*(_objectController->getObjects())).size());
-                obj->setPositionInit(Vec2(2, 2));
-                if (obj->getListener()) {
-                    obj->getListener()(obj.get());
-                }
-            }
+            // Checks if there are any objects at that position.
+            // If there are, this erases them.
+            eraseObjects(dragOffset);
         }
         else if (_input->getInventoryStatus() == PlatformInput::WAITING)
         {
             _gridManager->setSpriteInvisible();
 
-            if (_input->isTouchDown()) {
+            if (_input->isTouchDown() && !_uiScene.isPaintMode() && !_uiScene.isEraserMode()) {
                 // Attempt to move object that exists on the grid
                 Vec2 screenPos = _input->getPosOnDrag();
                 Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()), NONE);
@@ -364,8 +331,9 @@ void LevelEditorController::preUpdate(float dt) {
                     _selectedItem = obj->getItemType();
 
                     // Set the current position of the object
-                    _prevPos = _selectedObject->getPositionInit();
+                    _prevPos = _selectedObject->getPosition();
 
+                    //_gridManager->addMoveableObject(gridPos, obj);
                     _input->setInventoryStatus(PlatformInput::PLACING);
                 }
             }
@@ -377,7 +345,7 @@ void LevelEditorController::preUpdate(float dt) {
             if (_selectedObject) {
                 if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     // Move the object back to its original position
-                    _selectedObject->setPositionInit(_prevPos);
+                    _selectedObject->setPosition(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
                 }
@@ -402,7 +370,7 @@ void LevelEditorController::preUpdate(float dt) {
                 // Reset selected object
                 _selectedObject = nullptr;
             }
-            else {
+            else if (_selectedItem != Item::NONE) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
 
@@ -440,7 +408,9 @@ void LevelEditorController::preUpdate(float dt) {
     else if (_uiScene.getIsReady()) {
         // Save the level to a file
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
+        //level->createJsonFromLevel("json/" + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
+        level->createJsonFromLevel(Application::get()->getSaveDirectory() + _uiScene.getSaveFileName() + ".json", Size(100, 100), _objectController->getObjects());
+        CULog("Saved to %s", (Application::get()->getSaveDirectory() + _uiScene.getSaveFileName().c_str() + ".json").c_str());
         _uiScene.setIsReady(false);
     }
 
@@ -449,12 +419,32 @@ void LevelEditorController::preUpdate(float dt) {
 
         // TODO: (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
         for (auto& obj : _gridManager->objToPosMap) {
-            //_gridManager->deleteObject(obj.first);
+            _gridManager->deleteObject(obj.first);
         }
+        _gridManager->objToPosMap.clear();
+        _gridManager->posToObjMap.clear();
+        _gridManager->hasObjMap.clear();
+        _gridManager->posToArtObjMap.clear();
         _objectController->getObjects()->clear();
         _world->clear();
+
+        //shared_ptr<LevelModel> level = make_shared<LevelModel>();
+
+
+        //vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
+        /*for (auto& obj : levelObjs) {
+            _objectController->processLevelObject(obj, true);
+            // This is necessary to remove the object with the eraser.
+            // Also, in level editor, everything should be moveable.
+            _gridManager->addMoveableObject(obj->getPositionInit(), obj);
+            CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
+        }*/
+
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
-        vector<shared_ptr<Object>> objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
+        vector<shared_ptr<Object>> objects = level->createLevelFromJson(Application::get()->getSaveDirectory() + _uiScene.getLoadFileName() + ".json", true);
+        if (objects.size() == 0) { // it could not find any level with that name, or it found an empty level that isn't supposed to be there
+            objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
+        }
         for (auto& obj : objects) {
             _objectController->processLevelObject(obj, true);
             _gridManager->addMoveableObject(obj->getPositionInit(), obj);
@@ -462,6 +452,44 @@ void LevelEditorController::preUpdate(float dt) {
 
         // To avoid rerunning the loading logic next frame
         _uiScene.setLoadClicked(false);
+    }
+}
+
+void LevelEditorController::eraseObjects(Vec2 dragOffset) {
+    Vec2 screenPos = _input->getPosOnDrag();
+    Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos + dragOffset, getSystemScale()), NONE);
+
+    std::pair posPair = std::make_pair(gridPos.x, gridPos.y);
+    if (_gridManager->posToObjMap.contains(posPair)) {
+        std::shared_ptr<Object> obj = _gridManager->posToObjMap[posPair];
+        _gridManager->objToPosMap.erase(obj);
+        _gridManager->hasObjMap[posPair] = false;
+        vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
+        CULog("length before erase: %d", (*(_objectController->getObjects())).size());
+        auto it = (*(_objectController->getObjects())).begin();
+        int index = 0;
+
+        // This code erases an object from ObjectController, but not from the world.
+        while (it != (*(_objectController->getObjects())).end()) {
+            if ((*it)->getPosition() == obj->getPosition()) {
+                b2World& world = *_world->getWorld();
+                (*it)->deactivatePhysics(world);
+                (*(_objectController->getObjects())).erase(it);
+                _gridManager->deleteObject(obj);
+                _world->removeObstacle(obj);
+                //CULog("%d", (*(_objectController->getObjects())).size());
+                break;
+            }
+            else {
+                CULog("%f %f    %f %f", (*it)->getPosition().x, (*it)->getPosition().y,
+                    obj->getPosition().x, obj->getPosition().y);
+            }
+            ++it; // No need to put this in the else since we break anyway
+            index++;
+
+        }
+        _gridManager->posToObjMap.erase(posPair);
+        _gridManager->hasObjMap.erase(posPair);
     }
 }
 
@@ -519,7 +547,7 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         // For now, assuming that players won't be able to place treasure.
         // No need to make it networked here since this code should only run in the level editor.
         // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
-        return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default");
+        return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default", true);
     case (ART_OBJECT):
         return nullptr;
     case (TILE_ITEM):
@@ -529,7 +557,7 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         return obj;
     case (TILE_TOP):
         obj = _objectController->createTile(gridPos, itemToSize(item), "tileTop", scale);
-        obj->setItemType(TILE_ITEM);
+        obj->setItemType(TILE_TOP);
         return obj;
     case (TILE_BOTTOM):
         obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottom", scale);

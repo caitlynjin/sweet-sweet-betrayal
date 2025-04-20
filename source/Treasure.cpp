@@ -139,7 +139,9 @@ void Treasure::setPositionInit(const cugl::Vec2 &position){
     }
 }
 
-void Treasure::dispose() {}
+void Treasure::dispose() {
+    _node->dispose();
+}
 
 
 
@@ -166,6 +168,7 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _position = pos;
     _size = size;
     _jsonType = jsonType;
+    _itemType = Item::TREASURE;
     _drawScale = scale;
     
     PolyFactory factory;

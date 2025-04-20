@@ -126,6 +126,8 @@ public:
 
     void render();
 
+    void eraseObjects(Vec2 dragOffset);
+
 #pragma mark -
 #pragma mark Helpers
 
