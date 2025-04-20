@@ -372,7 +372,7 @@ void NetworkController::resetTreasureRandom(){
 std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Size size, string jsonType, float scale){
     
     //Use Platform Factory to create the platform boxObstacle and sprite
-    auto params = _platFact->serializeParams(pos + size/2, size, jsonType, scale);
+    auto params = _platFact->serializeParams(pos, size, jsonType, scale);
     // pair holds the boxObstacle and sprite to be used for the platform
     // Already added to _world after this call
     auto pair = _network->getPhysController()->addSharedObstacle(_platFactId, params);
@@ -388,7 +388,7 @@ std::shared_ptr<Object> NetworkController::createPlatformNetworked(Vec2 pos, Siz
  */
 std::shared_ptr<Object> NetworkController::createMovingPlatformNetworked(Vec2 pos, Size size, Vec2 end, float speed, float scale) {
     
-    auto params = _movingPlatFact->serializeParams(pos + size/2, size, end + size/2, speed, scale);
+    auto params = _movingPlatFact->serializeParams(pos, size, end, speed, scale);
 
     auto pair = _network->getPhysController()->addSharedObstacle(_movingPlatFactID, params);
     std::shared_ptr<Platform> plat = std::dynamic_pointer_cast<Platform>(pair.first);
@@ -406,7 +406,7 @@ std::shared_ptr<Object> NetworkController::createTreasureNetworked(Vec2 pos, Siz
 
 
 std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Size size, float scale) {
-    auto params = _mushroomFact->serializeParams(pos + size/2, size, scale);
+    auto params = _mushroomFact->serializeParams(pos, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
     std::shared_ptr<Mushroom> mushroom = std::dynamic_pointer_cast<Mushroom>(pair.first);
     _objects->push_back(mushroom);
@@ -414,7 +414,7 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
 }
 
 std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size size) {
-    auto params = _thornFact->serializeParams(pos + size/2, size);
+    auto params = _thornFact->serializeParams(pos, size);
     auto pair = _network->getPhysController()->addSharedObstacle(_thornFactID, params);
     std::shared_ptr<Thorn> thorn = std::dynamic_pointer_cast<Thorn>(pair.first);
     _objects->push_back(thorn);
@@ -423,7 +423,7 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
 
 
 std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str) {
-    auto params = _windFact->serializeParams(pos + size/2, size, dir, str);
+    auto params = _windFact->serializeParams(pos, size, dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
     _objects->push_back(wind);
@@ -711,31 +711,18 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
         image = _assets->get<Texture>(LOG_TEXTURE);
     }
 
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(pos.x, pos.y, size.width - blendingOffset, size.height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-    
     auto plat = Platform::alloc(pos, size, LOG_TEXTURE);
-    
+
     plat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     plat->setDensity(BASIC_DENSITY);
     plat->setFriction(BASIC_FRICTION);
     plat->setRestitution(BASIC_RESTITUTION);
     plat->setDebugColor(DEBUG_COLOR);
     plat->setName("platform");
-    
     plat->setShared(true);
 
-    poly *= scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    plat->setSceneNode(sprite);
 
     return std::make_pair(plat, sprite);
 }
@@ -755,7 +742,6 @@ std::shared_ptr<std::vector<std::byte>> PlatformFactory::serializeParams(Vec2 po
     else{
         type = static_cast<int>(JsonType::LOG);
     }
-    
     
     _serializer.reset();
     _serializer.writeFloat(pos.x);
@@ -804,6 +790,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     movPlat->setName("movingPlatform");
 
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    movPlat->setSceneNode(sprite);
 
     return std::make_pair(movPlat, sprite);
 }
@@ -868,9 +855,7 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
     treasure->setAnimation(animNode);
-    
-    
-    
+
     treasure->setName("treasure");
     treasure->setDebugColor(Color4::YELLOW);
     treasure->setPositionInit(pos);
@@ -953,6 +938,7 @@ MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
     mush->setShared(true);
 
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
+    mush->setSceneNode(sprite);
 
     return std::make_pair(mush, sprite);
 }
@@ -1006,6 +992,7 @@ ThornFactory::createObstacle(Vec2 pos, Size size) {
     thorn->setShared(true);
 
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(texture, 1, 1);
+    thorn->setSceneNode(sprite);
 
     return std::make_pair(thorn, sprite);
 }

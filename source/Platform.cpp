@@ -13,8 +13,7 @@ using namespace cugl::graphics;
  */
 void Platform::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position);
-    _box->setPosition(position + _size / 2 + Vec2(0, _size.height * 0.25));
+    PolygonObstacle::setPosition(position + _size/2);
 }
 
 void Platform::update(float timestep) {
@@ -54,7 +53,6 @@ void Platform::dispose() {
     Object::dispose();
 
     markRemoved(true);
-//    _box = nullptr;
 }
 
 
@@ -76,19 +74,16 @@ bool Platform::init(const Vec2 pos, const Size size) {
     return Platform::init(pos, size, "default");
 }
 bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
-    Size nsize = size;
-    
-    
     _size = size;
     _itemType = Item::PLATFORM;
     _jsonType = jsonType;
     _position = pos;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(nsize.width, nsize.height * 0.5));
-        
+    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0), Size(size.width, size.height * 0.5));
+
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(pos + size/2);
         return true;
     }
     
@@ -99,22 +94,19 @@ bool Platform::init(const Vec2 pos, const Size size, string jsonType) {
 bool Platform::initMoving(const Vec2 pos, const Size size, const Vec2 start, const Vec2 end, float speed) {
     if (!init(pos, size)) return false;
     _moving = true;
-    _startPos = start;
-    _endPos   = end;
+    _startPos = start + size/2;
+    _endPos   = end + size/2;
     _speed    = speed;
     _forward  = true;
     _position = pos;
     _size = size;
     _itemType = Item::MOVING_PLATFORM;
-    //enable moving
-    
-    
-    
+
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0.0f), Size(_size.width, _size.height * 0.5));
-        
+    Poly2 rect = factory.makeRect(Vec2(-1.5f, 0), Size(_size.width, _size.height * 0.5));
+
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(pos + size/2);
         setBodyType(b2_kinematicBody);
         Vec2 direction = _endPos - _startPos;
         direction.normalize();
@@ -141,14 +133,14 @@ bool Platform::updateMoving(Vec2 gridpos) {
     if (_moving) {
         Vec2 oldStartPos = _startPos;
         Vec2 oldEndPos = _endPos;
-        
-        _endPos = gridpos + (_endPos - _startPos);
-        _startPos = gridpos;
+
+        _endPos = gridpos + (_endPos - _startPos) + _size/2;
+        _startPos = gridpos + _size/2;
         _forward = true;
         
         Vec2 direction = _endPos - _startPos;
         direction.normalize();
-        _box->setLinearVelocity(direction * _speed);
+        setLinearVelocity(direction * _speed);
         CULog("Platform Moved | Start: (%.2f, %.2f) -> (%.2f, %.2f) | End: (%.2f, %.2f) -> (%.2f, %.2f) | Velocity: (%.2f, %.2f)",
               oldStartPos.x, oldStartPos.y, _startPos.x, _startPos.y,
               oldEndPos.x, oldEndPos.y, _endPos.x, _endPos.y,
