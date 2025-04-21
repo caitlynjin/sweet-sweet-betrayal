@@ -73,11 +73,21 @@
 #define AIR_DAMPING 2.5f
 #define SPRITE_ANCHOR Vec2(0.625f,0.27f)
 #define SPRITE_POSITION Vec2(-13.0f,0.0f)
+
+#pragma mark -
+#pragma mark Animation Constants
 /** Define the time settings for animation */
 #define DURATION 1.0f
-#define WALKPACE 50
-#define ACT_KEY  "current"
-#define ALT_KEY  "slide"
+/** Action key for idle */
+#define IDLE_ACTION_KEY     "idle"
+/** Action key for walk */
+#define WALK_ACTION_KEY     "walk"
+/** Action key for glide */
+#define GLIDE_ACTION_KEY    "glide"
+/** Action key for jump */
+#define JUMP_ACTION_KEY     "jump"
+/** Action key for death */
+#define DEATH_ACTION_KEY    "death"
 
 using namespace cugl;
 using namespace cugl::scene2;
@@ -159,7 +169,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
 #pragma mark Animation
 
 /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
-void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     _idleSpriteNode = sprite;
     
     if (!_node) {
@@ -173,9 +183,8 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     _timeline = ActionTimeline::alloc();
     
-    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
+    for (int ii = 0; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -187,7 +196,7 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
 }
 
 /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
-void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     _walkSpriteNode = sprite;
     
     if (!_node) {
@@ -200,9 +209,8 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     _timeline = ActionTimeline::alloc();
     
-    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
+    for (int ii = 0; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -214,7 +222,7 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
 }
 
 /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
-void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     _glideSpriteNode = sprite;
     
     if (!_node) {
@@ -228,9 +236,8 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) 
     
     _timeline = ActionTimeline::alloc();
     
-    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
+    for (int ii = 0; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -242,7 +249,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite) 
 }
 
 /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
-void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     _jumpSpriteNode = sprite;
     
     if (!_node) {
@@ -255,9 +262,8 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     
     _timeline = ActionTimeline::alloc();
     
-    const int span = 3;
     std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
+    for (int ii = 0; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -268,17 +274,43 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _jumpAction = _jumpAnimateSprite->attach<scene2::SpriteNode>(_jumpSpriteNode);
 }
 
+/** Sets the death animation and adds the death sprite node to the scene node (_node) */
+void PlayerModel::setDeathAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    _deathSpriteNode = sprite;
+
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+
+    _deathSpriteNode->setAnchor(SPRITE_ANCHOR.x, SPRITE_ANCHOR.y);
+    _deathSpriteNode->setPosition(SPRITE_POSITION);
+    _node->addChild(_deathSpriteNode);
+    _deathSpriteNode->setVisible(true);
+
+    _timeline = ActionTimeline::alloc();
+
+    std::vector<int> forward;
+    for (int ii = 0; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+
+    // Create animations
+    _deathAnimateSprite = AnimateSprite::alloc(forward);
+    _deathAction = _deathAnimateSprite->attach<scene2::SpriteNode>(_deathSpriteNode);
+}
+
 /**
  * Performs a film strip action
  *
+ * @param key   The action key
  * @param action The film strip action
  * @param slide  The associated movement slide
  */
-void PlayerModel::doStrip(cugl::ActionFunction action, float duration = DURATION) {
-    if (_timeline->isActive(ACT_KEY)) {
+void PlayerModel::doStrip(std::string key, cugl::ActionFunction action, float duration = DURATION) {
+    if (_timeline->isActive(key)) {
         // NO OP
     } else {
-        _timeline->add(ACT_KEY, action, duration);
+        _timeline->add(key, action, duration);
     }
 }
 
@@ -503,47 +535,66 @@ void PlayerModel::update(float dt)
     // ANIMATION
     // TODO: Move to method updateAnimation
     _timeline->update(dt);
-    
-    if (!isGrounded() && _isGliding && _glideAction){
+
+    if (_isDead && _deathAction) {
+        if (!_deathSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(false);
+            _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(true);
+        }
+        // Only play the animation once
+        if (_canDie && !_timeline->isActive(DEATH_ACTION_KEY)) {
+            _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);
+            _canDie = false;
+        }
+    } else if (!isGrounded() && _isGliding && _glideAction){
         if (!_glideSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(true);
             _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
         }
-        doStrip(_glideAction);
+        doStrip(GLIDE_ACTION_KEY, _glideAction);
     } else if (!isGrounded() && _jumpAction){
         if (!_jumpSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(true);
+            _deathSpriteNode->setVisible(false);
         }
-        doStrip(_jumpAction, 0.5f);
+        doStrip(JUMP_ACTION_KEY, _jumpAction);
     } else if (getVX() == 0  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
         }
-        doStrip(_idleAction);
+        doStrip(IDLE_ACTION_KEY, _idleAction);
     } else if (_walkAction) {
         if (!_walkSpriteNode->isVisible()) {
             _walkSpriteNode->setVisible(true);
             _idleSpriteNode->setVisible(false);
             _glideSpriteNode->setVisible(false);
             _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
         }
-        doStrip(_walkAction, 0.3f);
+        doStrip(WALK_ACTION_KEY, _walkAction, 0.3f);
     }
-    
+
 //     Should not move when immobile
     if (_immobile){
         setLinearVelocity(Vec2(0,0));
     }
     
     if (!_isDead && !_immobile){
+        _canDie = true;
+
         windUpdate(dt);
         //Set Justflipped and justglided to instantly deactivate
         if (_justFlipped == true) {

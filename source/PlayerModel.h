@@ -129,6 +129,9 @@ protected:
     
     /** Whether is dead  */
     bool _isDead = false;
+    /** Whether the player hasn't died (hasn't initiated the death animation) */
+    bool _canDie = true;
+
     /** Whether is immobile */
     bool _immobile = true;
 
@@ -185,7 +188,12 @@ protected:
     std::shared_ptr<AnimateSprite> _jumpAnimateSprite;
     std::shared_ptr<cugl::scene2::SpriteNode> _jumpSpriteNode;
     cugl::ActionFunction _jumpAction;
-    
+
+    /** Death animation variables */
+    std::shared_ptr<AnimateSprite> _deathAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _deathSpriteNode;
+    cugl::ActionFunction _deathAction;
+
 	/**
 	* Redraws the outline of the physics fixtures to the debug node
 	*
@@ -414,20 +422,29 @@ public:
     }
     
     /** Sets the idle animation and adds the idle sprite node to the scene node (_node) */
-    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
+    void setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+
     /** Sets the walk animation and adds the walk sprite node to the scene node (_node) */
-    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
+    void setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+
     /** Sets the glide animation and adds the glide sprite node to the scene node (_node) */
-    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
+    void setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+
     /** Sets the jump animation and adds the jump sprite node to the scene node (_node) */
-    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
-    /** Increments an animation film strip */
-    void doStrip(cugl::ActionFunction action, float duration);
-    
+    void setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+
+    /** Sets the death animation and adds the death sprite node to the scene node (_node) */
+    void setDeathAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+
+    /**
+     * Performs a film strip action
+     *
+     * @param key   The action key
+     * @param action The film strip action
+     * @param slide  The associated movement slide
+     */
+    void doStrip(std::string key, cugl::ActionFunction action, float duration);
+
     /** Sets which animation color strip to use for the player */
     void setAnimationColors(ColorType color);
     

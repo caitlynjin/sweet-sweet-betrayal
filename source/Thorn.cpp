@@ -20,7 +20,7 @@ using namespace cugl::graphics;
  */
 void Thorn::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position);
+    PolygonObstacle::setPosition(position + _size/2);
 }
 
 string Thorn::getJsonKey() {
@@ -61,7 +61,7 @@ bool Thorn::init(const Vec2 pos, const Size size, string jsonType) {
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
     
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(pos + size/2);
         return true;
     }
 

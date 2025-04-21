@@ -10,8 +10,6 @@ using namespace Constants;
 class Platform : public Object {
 
 private:
-	/** The BoxObstacle wrapped by this Platform object */
-	std::shared_ptr<cugl::physics2::BoxObstacle> _box;
     bool   _moving = false;
     Vec2   _startPos;
     Vec2   _endPos;

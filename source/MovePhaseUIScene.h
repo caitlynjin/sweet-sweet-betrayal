@@ -61,6 +61,10 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
     /** Reference to the blue icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
+    /** Reference to the green icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _greenIcon;
+    /** Reference to the yellow icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _yellowIcon;
     /** Reference to the treasure icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _treasureIcon;
     //grey overlay
@@ -78,8 +82,8 @@ protected:
     int const TOTAL_ROUNDS = 5;
     /** The total amount of gems */
     int const TOTAL_GEMS = 3;
-    /** The number of players */
-    int _numPlayers;
+    /** The list of players */
+    std::vector<std::shared_ptr<PlayerModel>> _playerList;
 
     /** Whether player is jumping */
     bool _didjump;
@@ -129,9 +133,9 @@ public:
      * @return true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<cugl::AssetManager>& assets,
-              int players,
               const std::shared_ptr<ScoreController>& scoreController,
-              std::shared_ptr<NetworkController> networkController);
+              std::shared_ptr<NetworkController> networkController,
+              string local);
 
 
 #pragma mark -
@@ -262,20 +266,20 @@ public:
     void setScoreImageFull(int index);
 
     /**
-     * Sets current position of red player icon
+     * Sets current position of player icon
      *
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void setRedIcon(float pos, float width);
+    void setPlayerIcon(float pos, float width, string tag);
 
     /**
-     * Sets current position of blue player icon
+     * Removes player icon
      *
      * @param pos       The position of the player relative to where the icon will be
      * @param width     The width of the level
      */
-    void setBlueIcon(float pos, float width);
+    void removePlayerIcon(string tag);
 
     /**
      * Has treasure icon appear in player icon on progress bar if player collects it
@@ -283,7 +287,7 @@ public:
      * @param has       Whether or not the player has the treasure
      * @param color     Which color icon the treasure will appear on top of
      */
-    void setTreasureIcon(bool has, int color);
+    void setTreasureIcon(bool has, string tag);
 
 
     /**

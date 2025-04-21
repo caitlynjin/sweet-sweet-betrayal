@@ -84,7 +84,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _numPlayers, _networkController->getScoreController(),_networkController);
+    _uiScene.init(assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -231,47 +231,14 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setDidJump(false);
     }
 
+    updateProgressBar(_movePhaseScene.getLocalPlayer());
+
     // TODO: Segment into progressBarUpdate method
-    int player_index = 0;
     std::vector<std::shared_ptr<PlayerModel>> playerList = _networkController->getPlayerList();
     for (auto& player : playerList){
-        if (!player->isVisible() && !player->isDead()) {
-            player->setVisible(true);
+        if (player->getName() != _movePhaseScene.getLocalPlayer()->getName()){
+            updateProgressBar(player);
         }
-
-        float player_pos = player->getPosition().x;
-        if (player_pos < _playerStart){
-            if (player_index == 0){
-                _uiScene.setRedIcon(0, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(0, _levelWidth);
-            }
-        }
-        else if (player_pos > _levelWidth){
-            if (player_index == 0){
-                _uiScene.setRedIcon(_levelWidth, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(_levelWidth, _levelWidth);
-            }
-        }
-        else{
-            if (player_index == 0){
-                _uiScene.setRedIcon(player_pos - _playerStart, _levelWidth);
-            }
-            else{
-                _uiScene.setBlueIcon(player_pos - _playerStart, _levelWidth);
-            }
-        }
-
-        if (player->hasTreasure){
-            _uiScene.setTreasureIcon(true, player_index);
-        }
-        else{
-            _uiScene.setTreasureIcon(false, player_index);
-        }
-        player_index += 1;
     }
     
 
@@ -333,6 +300,9 @@ void MovePhaseController::postUpdate(float remain) {
     // Record failure if necessary.
     if (_movePhaseScene.getLocalPlayer()->getY() < 0)
     {
+        // Hide player
+        _networkController->getLocalPlayer()->setVisible(false);
+
         killPlayer();
     }
 
@@ -356,9 +326,6 @@ void MovePhaseController::killPlayer(){
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
-        // Hide player
-        player->setVisible(false);
-
         // If player had treasure, remove from their possession
         if (player->hasTreasure){
             player->removeTreasure();
@@ -597,15 +564,31 @@ void MovePhaseController::beginContact(b2Contact *contact)
     // Set grounded for all non-local players 
     if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
-        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2) ) {
-            player->setGrounded(true);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].emplace(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].emplace(fix1);
+            }
+            if (!_playerSensorFixtures[player].empty()) {
+                player->setGrounded(true);
+            }
         }
     }
 
     if (tagContainsPlayer(bd2->getName()) && bd2 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
-        if (player && (player->getSensorName() == fd1 || player->getSensorName() == fd2)) {
-            player->setGrounded(true);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].emplace(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].emplace(fix1);
+            }
+            if (!_playerSensorFixtures[player].empty()) {
+                player->setGrounded(true);
+            }
         }
     }
     //Handles all Player Collisions in this section
@@ -658,8 +641,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 ) {
                 //Set player to grounded
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                CULog("LOCAL: GROUNDED TRUE");
                 // Could have more than one ground
-                _sensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
+                _localSensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
 
                 //bounce if we hit a mushroom
                 if (bd2->getName() == "mushroom" || bd1->getName() == "mushroom") {
@@ -706,13 +690,45 @@ void MovePhaseController::endContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
+    // Set Grounded false for local player
     if ((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && _movePhaseScene.getLocalPlayer().get() != bd1) ||
         (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && _movePhaseScene.getLocalPlayer().get() != bd2))
     {
-        _sensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
-        if (_sensorFixtures.empty())
+        _localSensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
+        if (_localSensorFixtures.empty())
         {
             _movePhaseScene.getLocalPlayer()->setGrounded(false);
+        }
+    }
+    
+    // Set Grounded false for non-local players
+    if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].erase(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].erase(fix1);
+            }
+            if (_playerSensorFixtures[player].empty()) {
+                player->setGrounded(false);
+            }
+        }
+    }
+
+    if (tagContainsPlayer(bd2->getName()) && bd2 != _movePhaseScene.getLocalPlayer().get()) {
+        PlayerModel* player = dynamic_cast<PlayerModel*>(bd2);
+        if (player && player->getSensorName()) {
+            if (fd1 && *(player->getSensorName()) == *fd1) {
+                _playerSensorFixtures[player].erase(fix2);
+            }
+            if (fd2 && *(player->getSensorName()) == *fd2) {
+                _playerSensorFixtures[player].erase(fix1);
+            }
+            if (_playerSensorFixtures[player].empty()) {
+                player->setGrounded(false);
+            }
         }
     }
 
@@ -721,5 +737,33 @@ void MovePhaseController::endContact(b2Contact *contact)
     {
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(false);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(nullptr);
+    }
+}
+
+void MovePhaseController::updateProgressBar(std::shared_ptr<PlayerModel> player) {
+    string playerTag = player->getName();
+    if (!player->isVisible() && !player->isDead()) {
+        player->setVisible(true);
+    }
+    if (player->isDead()){
+        _uiScene.removePlayerIcon(playerTag);
+    }
+
+    float player_pos = player->getPosition().x;
+    if (player_pos < _playerStart){
+        _uiScene.setPlayerIcon(0, _levelWidth, playerTag);
+    }
+    else if (player_pos > _levelWidth){
+        _uiScene.setPlayerIcon(_levelWidth, _levelWidth, playerTag);
+    }
+    else{
+        _uiScene.setPlayerIcon(player_pos - _playerStart, _levelWidth, playerTag);
+    }
+
+    if (player->hasTreasure){
+        _uiScene.setTreasureIcon(true, playerTag);
+    }
+    else{
+        _uiScene.setTreasureIcon(false, playerTag);
     }
 }
