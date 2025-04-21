@@ -160,7 +160,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
 
     // test9.json is the empty file used for the level editor
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/alpha.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
     for (auto& obj : levelObjs) {
         _objectController->processLevelObject(obj, true);
         // This is necessary to remove the object with the eraser.
@@ -417,38 +417,29 @@ void LevelEditorController::preUpdate(float dt) {
     if (_uiScene.getLoadClicked()) {
         // Load the level stored in this file
 
-        // TODO: (maybe): save the shared_ptr<LevelModel> somewhere more efficiently
-        for (auto& obj : _gridManager->objToPosMap) {
-            _gridManager->deleteObject(obj.first);
-        }
-        _gridManager->objToPosMap.clear();
-        _gridManager->posToObjMap.clear();
-        _gridManager->hasObjMap.clear();
-        _gridManager->posToArtObjMap.clear();
-        _objectController->getObjects()->clear();
-        _world->clear();
-
-        //shared_ptr<LevelModel> level = make_shared<LevelModel>();
-
-
-        //vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/test9.json");
-        /*for (auto& obj : levelObjs) {
-            _objectController->processLevelObject(obj, true);
-            // This is necessary to remove the object with the eraser.
-            // Also, in level editor, everything should be moveable.
-            _gridManager->addMoveableObject(obj->getPositionInit(), obj);
-            CULog("new object position: (%f, %f)", obj->getPositionInit().x, obj->getPositionInit().y);
-        }*/
-
         shared_ptr<LevelModel> level = make_shared<LevelModel>();
         vector<shared_ptr<Object>> objects = level->createLevelFromJson(Application::get()->getSaveDirectory() + _uiScene.getLoadFileName() + ".json", true);
         if (objects.size() == 0) { // it could not find any level with that name, or it found an empty level that isn't supposed to be there
             objects = level->createLevelFromJson("json/" + _uiScene.getLoadFileName() + ".json");
         }
+        // Do nothing if the level was empty or invalid
+        if (objects.size() != 0) {
+            for (auto& obj : _gridManager->objToPosMap) {
+                _gridManager->deleteObject(obj.first);
+            }
+            _gridManager->objToPosMap.clear();
+            _gridManager->posToObjMap.clear();
+            _gridManager->hasObjMap.clear();
+            _gridManager->posToArtObjMap.clear();
+            _objectController->getObjects()->clear();
+            _world->clear();
+        }
         for (auto& obj : objects) {
             _objectController->processLevelObject(obj, true);
             _gridManager->addMoveableObject(obj->getPositionInit(), obj);
         }
+
+        
 
         // To avoid rerunning the loading logic next frame
         _uiScene.setLoadClicked(false);
