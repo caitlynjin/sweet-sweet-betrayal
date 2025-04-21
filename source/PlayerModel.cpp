@@ -467,29 +467,36 @@ void PlayerModel::applyForce()
     {
         return;
     }
+    //Manipulate the x velocity in this section
 
-    // Don't want to be moving. Damp out player motion
-    if (getMovement() == 0.0f)
+    b2Vec2 vel = _body->GetLinearVelocity();
+
+    // Don't want to be moving. Damp out player motion when on the ground or not gliding
+    if (getMovement() == 0.0f || _justFlipped)
     {
+        
         if (isGrounded())
-        {
-            // Instant friction on the ground
-            b2Vec2 vel = _body->GetLinearVelocity();
-            vel.x = 0; // If you set y, you will stop a jump in place
-            _body->SetLinearVelocity(vel);
-        } else {
-            // Damping factor in the air. If we are gliding, ZERO FRICTION
-            b2Vec2 force(-(AIR_DAMPING)*getVX(),0);
-            if (!_isGliding) {
-                if (!_body){
-                    return;
-                }
-                _body->ApplyForce(force, _body->GetPosition(), true);
-            }   
+        {// Instant friction on the ground or when we flip on the ground
+            vel.x = vel.x * GROUND_DAMPING;
+        }
+        //Friction middair, but less
+        else if (!_isGliding) {
+            vel.x = vel.x* MIDDAIR_DAMPING;
+        }
+        
+    }
+    //Apply a small linear velocity burst when we turn around on the ground, for gamefeel
+    if (_justFlipped && isGrounded()) {
+        if (_faceRight) {
+            vel.x += STARTING_VELOCITY;
+        }
+        else if (!_faceRight) {
+            vel.x -= STARTING_VELOCITY;
         }
     }
+    _body->SetLinearVelocity(vel);
 
-    // Velocity too high, clamp it
+    // Velocity too high, clamp it. If we are gliding, remove clamps on maxspeed
     if (fabs(getVX()) >= getMaxSpeed() && !_isGliding)
     {
         setVX(SIGNUM(getVX()) * getMaxSpeed());
@@ -497,7 +504,7 @@ void PlayerModel::applyForce()
     }
     else if (_isGliding) {
         //significantly dampen aeriel movement while gliding
-        b2Vec2 force(getMovement()*0.6, 0);
+        b2Vec2 force(getMovement()*2, 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
     }
     else
@@ -505,6 +512,7 @@ void PlayerModel::applyForce()
         b2Vec2 force(getMovement(), 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
     }
+
     //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
     if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
         setVY(GLIDE_FALL_SPEED);
@@ -531,7 +539,7 @@ void PlayerModel::applyForce()
  */
 void PlayerModel::update(float dt)
 {
-
+    _prevPos = getPosition();
     // ANIMATION
     // TODO: Move to method updateAnimation
     _timeline->update(dt);
@@ -676,6 +684,9 @@ void PlayerModel::glideUpdate(float dt)
             int face = SIGNUM(_movement);
             b2Vec2 force(face * GLIDE_BOOST_FACTOR, 0);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+        }
+        else {
+            
         }
     }
     else

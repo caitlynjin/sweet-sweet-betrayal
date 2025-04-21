@@ -61,11 +61,11 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Physics Constants
 /** The factor to multiply by the input */
-#define PLAYER_FORCE      20.0f
+#define PLAYER_FORCE      18.5f
 /** The amount to slow the character down in the air */
 #define PLAYER_DAMPING    10.0f
 /** The maximum character speed */
-#define PLAYER_MAXSPEED   5.0f
+#define PLAYER_MAXSPEED   6.5f
 /**How much the player speed should be dampened during gliding*/
 #define GLIDE_DAMPING 2.0f
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -77,7 +77,10 @@ using namespace Constants;
 #define JUMP_STOP_DAMPING 0.2f;
 
 #define GLIDE_FALL_SPEED -2.5f
-
+//How much we should slow down the player when they turn middair
+#define MIDDAIR_DAMPING 0.6f;
+#define GROUND_DAMPING 0.3f;
+#define STARTING_VELOCITY 0.75f;
 /**Initial burst of speed when the player begins gliding or changes direction*/
 #define GLIDE_BOOST_FACTOR 2.5f
 /*Air friction*/
@@ -151,6 +154,8 @@ protected:
     bool _holdingJump;
     //False if we are on PC
     bool _isDampEnabled = true;
+    //Stores the player's previous position. Used for platform logic
+    Vec2 _prevPos;
 
 	/** Ground sensor to represent our feet */
 	b2Fixture*  _sensorFixture;
@@ -604,6 +609,7 @@ public:
     std::string* getSensorName() { return &_sensorName; }
 
     float getFeetHeight() { return getPosition().y - (_height * 0.5); }
+    float getPrevFeetHeight() { return _prevPos.y - (_height * 0.5); }
     //_sensorFixture->GetBody()->GetTransform().p.y;
     
     

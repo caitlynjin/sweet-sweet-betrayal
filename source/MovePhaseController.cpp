@@ -520,19 +520,32 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
         }
     }
     if (plat != nullptr) {
-        if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y > 0.05f) {
+        contact->SetEnabled(false);
+        _movePhaseScene.getLocalPlayer()->setGrounded(false);
+        if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y <= 0.4f) {
+            if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight()>= plat->getPlatformTop()) {
+                contact->SetEnabled(true);
+                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+            }
+            else {
+                CULog("FAIL22");
+            }
+        }
+        else {
+            CULog("fail1");
+        }
+       
+        /*if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y > 0.05f) {
             contact->SetEnabled(false);
             if (_movePhaseScene.getLocalPlayer()->getFeetHeight() + 0.02f < plat->getPlatformTop()) {
                 _movePhaseScene.getLocalPlayer()->setGrounded(false);
             }
-            /*CULog("plyrfeetSolve %f", _movePhaseScene.getLocalPlayer()->getFeetHeight());
-                CULog("platYSolve %f", plat->getPlatformTop());*/
         }
         else if ((_movePhaseScene.getLocalPlayer()->getFeetHeight()< plat->getPlatformTop()) && 
             _movePhaseScene.getLocalPlayer()->getLinearVelocity().y > -0.1f) {
             contact->SetEnabled(false);
             _movePhaseScene.getLocalPlayer()->setGrounded(false);
-        }
+        }*/
     }
 }
 
