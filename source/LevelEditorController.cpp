@@ -458,38 +458,55 @@ void LevelEditorController::preUpdate(float dt) {
 void LevelEditorController::eraseObjects(Vec2 dragOffset) {
     Vec2 screenPos = _input->getPosOnDrag();
     Vec2 gridPos = snapToGrid(_levelEditorScene.convertScreenToBox2d(screenPos + dragOffset, getSystemScale()), NONE);
+    vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
 
     std::pair posPair = std::make_pair(gridPos.x, gridPos.y);
     if (_gridManager->posToObjMap.contains(posPair)) {
         std::shared_ptr<Object> obj = _gridManager->posToObjMap[posPair];
         _gridManager->objToPosMap.erase(obj);
         _gridManager->hasObjMap[posPair] = false;
-        vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
-        CULog("length before erase: %d", (*(_objectController->getObjects())).size());
         auto it = (*(_objectController->getObjects())).begin();
-        int index = 0;
 
-        // This code erases an object from ObjectController, but not from the world.
         while (it != (*(_objectController->getObjects())).end()) {
             if ((*it)->getPosition() == obj->getPosition()) {
                 b2World& world = *_world->getWorld();
                 (*it)->deactivatePhysics(world);
-                (*(_objectController->getObjects())).erase(it);
                 _gridManager->deleteObject(obj);
                 _world->removeObstacle(obj);
                 //CULog("%d", (*(_objectController->getObjects())).size());
                 break;
             }
-            else {
-                CULog("%f %f    %f %f", (*it)->getPosition().x, (*it)->getPosition().y,
-                    obj->getPosition().x, obj->getPosition().y);
-            }
-            ++it; // No need to put this in the else since we break anyway
-            index++;
+            ++it; // No need to put this in an else since we break anyway
 
         }
         _gridManager->posToObjMap.erase(posPair);
         _gridManager->hasObjMap.erase(posPair);
+    }
+    if (_gridManager->posToArtObjMap.contains(posPair)) {
+        
+        auto it1 = objs.begin();
+        for (auto it = _gridManager->posToArtObjMap[posPair].begin(); it != _gridManager->posToArtObjMap[posPair].end(); it++) {
+            b2World& world = *_world->getWorld();
+            (*it)->deactivatePhysics(world);
+            _gridManager->deleteObject(*it);
+            _world->removeObstacle(*it);
+            (*(_objectController->getObjects())).erase(std::find((*(_objectController->getObjects())).begin(), (*(_objectController->getObjects())).end(), *it));
+        }
+
+        //while (it != (*(_objectController->getObjects())).end()) {
+            //if ((*it)->getPosition() == obj->getPosition()) {
+            //    b2World& world = *_world->getWorld();
+            //    (*it)->deactivatePhysics(world);
+            //    _gridManager->deleteObject(obj);
+            //    _world->removeObstacle(obj);
+                //CULog("%d", (*(_objectController->getObjects())).size());
+            //    break;
+            //}
+            //++it; // No need to put this in an else since we break anyway
+
+        //}
+
+        _gridManager->posToArtObjMap.erase(posPair);
     }
 }
 
