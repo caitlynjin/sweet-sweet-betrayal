@@ -853,7 +853,7 @@ TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
 //    treasure->setSceneNode(sprite);
     
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 1, 32, 32);
     treasure->setAnimation(animNode);
 
     treasure->setName("treasure");
