@@ -452,7 +452,7 @@ void LevelEditorController::eraseObjects(Vec2 dragOffset) {
     vector<shared_ptr<Object>> objs = *(_objectController->getObjects());
 
     std::pair posPair = std::make_pair(gridPos.x, gridPos.y);
-    if (_gridManager->posToObjMap.contains(posPair)) {
+    if (_gridManager->posToObjMap.find(posPair) != _gridManager->posToObjMap.end()) {
         std::shared_ptr<Object> obj = _gridManager->posToObjMap[posPair];
         _gridManager->objToPosMap.erase(obj);
         _gridManager->hasObjMap[posPair] = false;
@@ -473,8 +473,8 @@ void LevelEditorController::eraseObjects(Vec2 dragOffset) {
         _gridManager->posToObjMap.erase(posPair);
         _gridManager->hasObjMap.erase(posPair);
     }
-    if (_gridManager->posToArtObjMap.contains(posPair)) {
-        
+    if (_gridManager->posToArtObjMap.find(posPair) != _gridManager->posToArtObjMap.end()) {
+
         auto it1 = objs.begin();
         for (auto it = _gridManager->posToArtObjMap[posPair].begin(); it != _gridManager->posToArtObjMap[posPair].end(); it++) {
             b2World& world = *_world->getWorld();
