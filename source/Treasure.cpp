@@ -132,14 +132,16 @@ void Treasure::doStrip(cugl::ActionFunction action, float duration = DURATION) {
 
 void Treasure::setPositionInit(const cugl::Vec2 &position){
     _position = position;
-    PolygonObstacle::setPosition(position);
+    PolygonObstacle::setPosition(position + _size / 2);
     
     if (_node != nullptr) {
-        _node->setPosition(position*_drawScale);
+        _node->setPosition((position+_size/2)*_drawScale);
     }
 }
 
-void Treasure::dispose() {}
+void Treasure::dispose() {
+    _node->dispose();
+}
 
 
 
@@ -166,16 +168,17 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _position = pos;
     _size = size;
     _jsonType = jsonType;
+    _itemType = Item::TREASURE;
     _drawScale = scale;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(), nsize*0.5);
+    Poly2 rect = factory.makeRect(size/-2, nsize*0.5);
     
     if (PolygonObstacle::init(rect)){
         setSensor(true);
         setName("treasure");
         setDebugColor(Color4::YELLOW);
-        setPosition(pos);
+        setPosition(pos + size/2);
         _node = scene2::SpriteNode::alloc();
         
         return true;
