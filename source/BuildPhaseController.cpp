@@ -52,13 +52,14 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
     if (assets == nullptr)
     {
         return false;
     }
     
     _assets = assets;
+    _world = world;
     _input = input;
     _gridManager = gridManager;
     _objectController = objectController;
@@ -111,6 +112,11 @@ void BuildPhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseController::preUpdate(float dt) {
+    std::vector<std::shared_ptr<Object>>* objects = _objectController->getObjects();
+    for (auto object : *objects){
+        CULog("Object: %s", object->getName().c_str());
+    }
+    
     
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
@@ -197,6 +203,9 @@ void BuildPhaseController::preUpdate(float dt) {
 
             if (_selectedObject) {
                 _itemsPlaced -= 1;
+                
+                _network->getPhysController()->removeSharedObstacle(_selectedObject);
+                _objectController->removeObject(_selectedObject);
                 _gridManager->deleteObject(_selectedObject);
 
                 // Undarken inventory UI

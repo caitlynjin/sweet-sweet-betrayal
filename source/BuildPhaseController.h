@@ -32,6 +32,8 @@ class BuildPhaseController {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
     std::shared_ptr<GridManager> _gridManager;
     std::shared_ptr<ObjectController> _objectController;
@@ -78,7 +80,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera);
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
