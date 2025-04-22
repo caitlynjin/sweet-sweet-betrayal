@@ -108,15 +108,6 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(plat->getPositionInit().x, plat->getPositionInit().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
     // Set the physics attributes
     plat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     plat->setDensity(BASIC_DENSITY);
@@ -125,9 +116,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     plat->setDebugColor(DEBUG_COLOR);
     plat->setName("platform");
 
-    poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
-    sprite->setAnchor(sprite->getAnchor().x, sprite->getAnchor().y + plat->getSize().height*0.25f );
     
     plat->setSceneNode(sprite);
 

@@ -172,13 +172,13 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
     _drawScale = scale;
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(), nsize*0.5);
+    Poly2 rect = factory.makeRect(size/-2, nsize*0.5);
     
     if (PolygonObstacle::init(rect)){
         setSensor(true);
         setName("treasure");
         setDebugColor(Color4::YELLOW);
-        setPosition(pos);
+        setPosition(pos + size/2);
         _node = scene2::SpriteNode::alloc();
         
         return true;

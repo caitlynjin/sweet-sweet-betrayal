@@ -121,7 +121,6 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
         // Runs when the button is released, not when it is first pressed
         if (!down && !_isReady) {
             setIsReady(true);
-            _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
         });
     std::shared_ptr<scene2::PolygonNode> loadNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));

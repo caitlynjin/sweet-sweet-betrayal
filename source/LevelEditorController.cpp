@@ -464,6 +464,7 @@ void LevelEditorController::eraseObjects(Vec2 dragOffset) {
                 (*it)->deactivatePhysics(world);
                 _gridManager->deleteObject(obj);
                 _world->removeObstacle(obj);
+                (*(_objectController->getObjects())).erase(std::find((*(_objectController->getObjects())).begin(), (*(_objectController->getObjects())).end(), *it));
                 //CULog("%d", (*(_objectController->getObjects())).size());
                 break;
             }
@@ -555,7 +556,7 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         // For now, assuming that players won't be able to place treasure.
         // No need to make it networked here since this code should only run in the level editor.
         // Also, this offset of (0.5, 0.5) seems to be necessary - probably not worth debugging further since this is level editor mode only.
-        return _objectController->createTreasure(gridPos + Vec2(0.5f, 0.5f), itemToSize(item), "default", true);
+        return _objectController->createTreasure(gridPos, itemToSize(item), "default", true);
     case (ART_OBJECT):
         return nullptr;
     case (TILE_ITEM):
