@@ -509,13 +509,13 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
     Platform* plat = nullptr;
    
     if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
-        if (bd2->getName() == "platform") {
+        if (bd2->getName() == "platform" || bd2->getName() == "movingPlatform") {
             plat = dynamic_cast<Platform*>(bd2);
         }
     }
 
     else if (tagContainsPlayer(bd2->getName()) && bd2 == _movePhaseScene.getLocalPlayer().get()) {
-        if (bd1->getName() == "platform") {
+        if (bd1->getName() == "platform" || bd1->getName() == "movingPlatform") {
             plat = dynamic_cast<Platform*>(bd1);
         }
     }
@@ -650,7 +650,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
             }
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
             else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && !tagContainsPlayer(bd1->getName())) ||
-                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName())))
+                (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName()))) && 
+                (bd2->getName() != "fan" && bd1->getName() != "fan")
                 ) {
                 //Set player to grounded
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);

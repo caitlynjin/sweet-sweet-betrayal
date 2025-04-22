@@ -101,7 +101,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _windDirection = windDirection;
     _windForce = windStrength;
     setTrajectory(Vec2(0, 3.0f));
-    
+    //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
 
@@ -110,7 +110,11 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
-        setName("gust");
+        setName("fan");
+        setBodyType(b2_staticBody);
+        setSensor(true);
+        setEnabled(false);
+        
         return true;
     }
     
@@ -120,7 +124,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     
 }
 
-/** Creates a gust node and adds it to the scene node. */
+/** Creates a gust node and adds it to the scene node. Thus gust node is the graphics of the wind object */
 void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
     _gustNode = gustSprite;
     _gustNode->setAnchor(0.0f, 0.0f);

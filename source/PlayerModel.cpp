@@ -575,7 +575,7 @@ void PlayerModel::update(float dt)
             _deathSpriteNode->setVisible(false);
         }
         doStrip(JUMP_ACTION_KEY, _jumpAction);
-    } else if (getVX() == 0  && _idleAction) {
+    } else if (abs(getVX()) < 0.1f  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
             _walkSpriteNode->setVisible(false);

@@ -239,13 +239,12 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
 
     // Allow movement of obstacle
-    wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
-
-    addObstacle(wind, fanSprite, 1);
     wind->setSceneNode(fanSprite);
-    //Set the texture of the gust
     wind->setGustSprite(gustSprite);
+    addObstacle(wind, fanSprite, 1);
+    //Set the texture of the gust
+    
 
     _gameObjects->push_back(wind);
 

@@ -1042,6 +1042,7 @@ WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const
     wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
     wind->setSceneNode(fanSprite);
+    wind->setEnabled(false);
     wind->setGustSprite(gustSprite);
 
     // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
