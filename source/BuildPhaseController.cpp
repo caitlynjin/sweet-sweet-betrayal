@@ -112,12 +112,6 @@ void BuildPhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseController::preUpdate(float dt) {
-    std::vector<std::shared_ptr<Object>>* objects = _objectController->getObjects();
-    for (auto object : *objects){
-        CULog("Object: %s", object->getName().c_str());
-    }
-    
-    
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
