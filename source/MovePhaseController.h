@@ -55,8 +55,10 @@ protected:
 
     /** A list of all objects to be updated during each animation frame. */
     std::vector<std::shared_ptr<Object>> _objects;
-    /** Mark set to handle more sophisticated collision callbacks */
-    std::unordered_set<b2Fixture*> _sensorFixtures;
+    /** The sensor fixtures for the local player */
+    std::unordered_set<b2Fixture*> _localSensorFixtures;
+    /** The sensor fixtures for each player (excluding the local player) */
+    std::unordered_map<PlayerModel*, std::unordered_set<b2Fixture*>> _playerSensorFixtures;
 
     /** The total amount of rounds */
     int const TOTAL_ROUNDS = 5;
