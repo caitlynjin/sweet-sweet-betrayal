@@ -132,10 +132,10 @@ void Treasure::doStrip(cugl::ActionFunction action, float duration = DURATION) {
 
 void Treasure::setPositionInit(const cugl::Vec2 &position){
     _position = position;
-    PolygonObstacle::setPosition(position);
+    PolygonObstacle::setPosition(position + _size / 2);
     
     if (_node != nullptr) {
-        _node->setPosition(position*_drawScale);
+        _node->setPosition((position+_size/2)*_drawScale);
     }
 }
 
