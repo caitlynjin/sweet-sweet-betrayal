@@ -2,6 +2,7 @@
 #define __PF_APP_H__
 #include <cugl/cugl.h>
 #include "SSBGameController.h"
+#include "SSBLoadingScene.h"
 #include "StartScene.h"
 #include "MenuScene.h"
 #include "SSBInput.h"
@@ -42,8 +43,9 @@ protected:
     
     /***/
     PlatformInput _input;
+    
     /** The controller for the loading screen */
-    cugl::scene2::LoadingScene _loading;
+    SSBLoadingScene _loading;
 
     /** The controller for handling gameplay */
     SSBGameController _gameController;
