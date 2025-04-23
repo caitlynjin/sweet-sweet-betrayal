@@ -69,7 +69,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets, _gridManager);
+    _uiScene.init(assets, _gridManager, _networkController);
     randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
     addInvButtonListeners();

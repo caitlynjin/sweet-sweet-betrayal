@@ -313,7 +313,7 @@
             "file": "textures/icon-log.png"
         },
         "icon-moving-log": {
-            "file": "textures/icon-moving-log.png"
+            "file": "textures/icon-gliding-log.png"
         },
         "icon-mushroom": {
             "file": "textures/icon-mushroom.png"
@@ -452,6 +452,21 @@
         },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
+        },
+        "checkmark": {
+            "file": "textures/check.png"
+        },
+        "bottom-frame": {
+            "file": "textures/bottom-frame.png"
+        },
+        "left-frame": {
+            "file": "textures/left-frame.png"
+        },
+        "top-frame": {
+            "file": "textures/top-frame.png"
+        },
+        "timer": {
+            "file": "textures/timer.png"
         }
     },
     "jsons": {
