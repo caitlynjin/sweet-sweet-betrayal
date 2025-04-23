@@ -29,6 +29,9 @@ private:
 	float _rayDist[RAYS+1];
 	float _playerDist[RAYS + 1];
 
+	
+
+
 public:
 	WindObstacle() : Object() {}
 
@@ -104,6 +107,19 @@ public:
 	const int getPlayerHits() { return _playerHits; }
 	
 	std::map<std::string, std::any> getMap() override;
+
+	/*Animation methods*/
+	void setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+	void updateAnimation(float timestep);
+	void doStrip(cugl::ActionFunction action, float duration);
+
+	//Animation variables
+	std::shared_ptr<cugl::ActionTimeline> _fanTimeline;
+	std::shared_ptr<scene2::SceneNode> _node;
+	std::shared_ptr<cugl::scene2::SpriteNode> _fanSpriteNode;
+	std::shared_ptr<AnimateSprite> _fanAnimateSprite;
+	cugl::ActionFunction _fanAction;
+
 };
 
 

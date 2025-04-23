@@ -240,8 +240,13 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
     // Allow movement of obstacle
     wind->setPositionInit(pos);
-    wind->setSceneNode(fanSprite);
+    //wind->setSceneNode(fanSprite);
     wind->setGustSprite(gustSprite);
+
+    //Set animation
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
+
     addObstacle(wind, fanSprite, 1);
     //Set the texture of the gust
     

@@ -426,6 +426,10 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
     auto params = _windFact->serializeParams(pos, size, dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
+
     _objects->push_back(wind);
     return wind;
 }

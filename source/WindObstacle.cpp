@@ -41,6 +41,23 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
+
+    updateAnimation(timestep);
+}
+
+void WindObstacle::updateAnimation(float timestep) {
+    
+    if (_fanTimeline->isActive("current")) {
+        // NO OP
+    }
+    else {
+        _fanTimeline->add("current", _fanAction, 1.0f);
+    }
+    _fanTimeline->update(timestep);
+}
+
+void WindObstacle::doStrip(cugl::ActionFunction action, float duration) {
+
 }
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
@@ -115,6 +132,8 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
         setSensor(true);
         setEnabled(false);
         
+        _node = scene2::SpriteNode::alloc();
+
         return true;
     }
     
@@ -144,5 +163,30 @@ std::map<std::string, std::any> WindObstacle::getMap() {
          {"type", std::string(_jsonType)}
     };
     return m;
+}
+/** Sets the fan animation and adds the fan sprite node to the scene node (_node) */
+void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    _fanSpriteNode = sprite;
+
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _fanSpriteNode->setAnchor(0.0f, 0.0f);
+    _fanSpriteNode->setPosition(Vec2());
+    _node->addChild(_fanSpriteNode);
+    _fanSpriteNode->setVisible(true);
+
+    _fanTimeline = ActionTimeline::alloc();
+
+    std::vector<int> forward;
+    for (int ii = 0; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _fanAnimateSprite = AnimateSprite::alloc(forward);
+    _fanAction = _fanAnimateSprite->attach<scene2::SpriteNode>(_fanSpriteNode);
 }
 
