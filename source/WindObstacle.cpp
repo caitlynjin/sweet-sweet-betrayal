@@ -49,6 +49,7 @@ void WindObstacle::updateAnimation(float timestep) {
     
     if (_fanTimeline->isActive("current")) {
         // NO OP
+        CULog("AnimationPrepping");
     }
     else {
         _fanTimeline->add("current", _fanAction, 1.0f);
@@ -114,10 +115,11 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
 
         _rayOrigins.push_back(origin);
     }
+
     /*Here we intialize the direction and trajectory*/
     _windDirection = windDirection;
     _windForce = windStrength;
-    setTrajectory(Vec2(0, 3.0f));
+
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
@@ -136,11 +138,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
 
         return true;
     }
-    
-    
     return false;
-    /*Finally intialize the wind gust effect**/
-    
 }
 
 /** Creates a gust node and adds it to the scene node. Thus gust node is the graphics of the wind object */
@@ -166,16 +164,15 @@ std::map<std::string, std::any> WindObstacle::getMap() {
 }
 /** Sets the fan animation and adds the fan sprite node to the scene node (_node) */
 void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    //Create sprite object
     _fanSpriteNode = sprite;
-
-    if (!_node) {
-        _node = scene2::SceneNode::alloc();
-    }
     _fanSpriteNode->setAnchor(0.0f, 0.0f);
     _fanSpriteNode->setPosition(Vec2());
-    _node->addChild(_fanSpriteNode);
     _fanSpriteNode->setVisible(true);
 
+    _node->addChild(_fanSpriteNode);
+    
+    //Create the spritesheet
     _fanTimeline = ActionTimeline::alloc();
 
     std::vector<int> forward;

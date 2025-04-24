@@ -120,6 +120,17 @@ public:
 	std::shared_ptr<AnimateSprite> _fanAnimateSprite;
 	cugl::ActionFunction _fanAction;
 
+	/**
+	* Returns the scene graph node representing this WindObstacle.
+	*
+	* By storing a reference to the scene graph node, the model can update
+	* the node to be in sync with the physics info. It does this via the
+	* {@link Obstacle#update(float)} method.
+	*
+	* @return the scene graph node representing this WinDNNDNDNDND.
+	*/
+	const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _node; }
+
 };
 
 
