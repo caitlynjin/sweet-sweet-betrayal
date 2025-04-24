@@ -301,6 +301,9 @@ void SSBGameController::preUpdate(float dt)
                     _scoreCountdown = SCOREBOARD_COUNT;
                     _movePhaseController->scoreboardActive(true);
                 }
+                if (_scoreCountdown==200){
+                    _movePhaseController->inRoundNodesActive(true);
+                }
                 if (_scoreCountdown == 0){
                     _movePhaseController->scoreboardActive(false);
                     _movePhaseController->resetRound();

@@ -57,6 +57,10 @@ private:
     
     cugl::scene2::Scene2* _scoreboardParent;
     
+    //store newly added icons this round
+    std::unordered_map<std::string, std::shared_ptr<scene2::PolygonNode>> _inRoundIcons;
+     
+    
 
 public:
 
@@ -162,6 +166,12 @@ public:
                                                     const Vec2& position,
                                                     const Vec2 &anchor,
                                                     bool visible = false);
+    
+    /**
+     * Make visible all icons added in this round
+     * and then migrate them into the permanent _scoreIcons list.
+     */
+    void commitRoundIcons();
     
     /**
      * The method called to indicate the start of a deterministic loop.
