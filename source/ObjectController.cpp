@@ -229,22 +229,13 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size
 
 std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
 {
-    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
-    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
 
-    // Allow movement of obstacle
-    wind->setBodyType(b2_dynamicBody);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
 
-    // This line used to be important, but it seems to work without wind now that this got refactored
-    //wind->setPositionInit(wind->getPosition());
-
-    addObstacle(wind, fanSprite, 1);
-    wind->setSceneNode(fanSprite);
-    //Set the texture of the gust
-    wind->setGustSprite(gustSprite);
-
+    addObstacle(wind, animNode, 1);
     _gameObjects->push_back(wind);
 
     return wind;
@@ -259,10 +250,8 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
 std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure, bool isLevelEditorMode) {
     std::shared_ptr<scene2::PolygonNode> sprite;
 
-
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
     _treasure->setAnimation(animNode);
-
 
     //    _treasure->setSceneNode(sprite);
     addObstacle(_treasure, _treasure->getSceneNode());

@@ -143,8 +143,23 @@
         "static_fan": {
             "file":      "textures/static-fan.png"
         },
+        "leaf_fan_spritesheet": {
+            "file":      "textures/leaf-fan-spritesheet.png"
+        },
         "static_gust": {
             "file":      "textures/static-gust.png"
+        },
+        "wind_blocked_at_2_spritesheet": {
+            "file":      "textures/wind-blocked-at-2-spritesheet.png"
+        },
+        "wind_blocked_at_3_spritesheet": {
+            "file":      "textures/wind-blocked-at-3-spritesheet.png"
+        },
+        "wind_blocked_at_4_spritesheet": {
+            "file":      "textures/wind-blocked-at-4-spritesheet.png"
+        },
+        "wind_unobstructed_spritesheet": {
+            "file":      "textures/wind-unobstructed-spritesheet.png"
         },
         "dpad": {
             "file": "textures/dpad.png",

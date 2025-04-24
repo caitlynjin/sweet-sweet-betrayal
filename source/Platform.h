@@ -82,8 +82,7 @@ public:
     bool updateMoving(Vec2 gridpos);
     /*Return the Y value of the top of the platform*/
     float getPlatformTop() {
-        //return 1.0;
-        return (_position.y + (_size.height / 2));
+        return (_position.y + _size.height*0.5);
          }
 
 };
