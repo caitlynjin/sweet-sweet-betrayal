@@ -426,6 +426,10 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
     auto params = _windFact->serializeParams(pos, size, dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
+
     _objects->push_back(wind);
     return wind;
 }
@@ -844,14 +848,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
-
     std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
-//    
-//    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-    
-
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
-//    treasure->setSceneNode(sprite);
     
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
     treasure->setAnimation(animNode);
@@ -1031,22 +1029,22 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength) {
-    
-    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
-    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
-
+    //Allocate Fan Animations
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
 
     wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
-    wind->setSceneNode(fanSprite);
+    wind->setEnabled(false);
     wind->setGustSprite(gustSprite);
 
     // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
 
-    return std::make_pair(wind, fanSprite);
+    return std::make_pair(wind, wind->getSceneNode());
 }
 
 
