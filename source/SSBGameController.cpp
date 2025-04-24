@@ -114,6 +114,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _assets = assets;
     _networkController = networkController;
     _network = networkController->getNetwork();
+    _numPlayers = static_cast<int>(_networkController->getPlayerList().size());
     _sound = sound;
 
     // Networked physics world
@@ -301,10 +302,18 @@ void SSBGameController::preUpdate(float dt)
                     _scoreCountdown = SCOREBOARD_COUNT;
                     _movePhaseController->scoreboardActive(true);
                 }
-                if (_scoreCountdown==200){
-                    _movePhaseController->inRoundNodesActive(true);
+
+                if (_numPlayers > 0) {
+                    int interval = 40;
+                    for (int i = 0; i < _numPlayers; ++i) {
+                        int trigger = SCOREBOARD_COUNT - interval * (i+1);
+                        if (_scoreCountdown == trigger) {
+                            _movePhaseController->inRoundNodesActive(_networkController->getPlayerList()[i]->getName());
+                        }
+                    }
                 }
                 if (_scoreCountdown == 0){
+
                     _movePhaseController->scoreboardActive(false);
                     _movePhaseController->resetRound();
                     setBuildingMode(!_buildingMode);

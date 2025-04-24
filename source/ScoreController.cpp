@@ -255,12 +255,24 @@ std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::stri
 }
 
 //set in round nodes visible
-void ScoreController::commitRoundIcons() {
-    for (auto& entry : _inRoundIcons) {
-        entry.second->setVisible(true);
-        _scoreIcons[entry.first] = entry.second;
+void ScoreController::commitRoundIcons(const std::string& playerName) {
+    std::vector<std::string> keysToRemove;
+
+    for (const auto& entry : _inRoundIcons) {
+        const std::string& key = entry.first;
+
+        // Only update icons that match the player's name
+        if (key.find(playerName + "-") == 0) {
+            entry.second->setVisible(true);
+            _scoreIcons[key] = entry.second;
+            keysToRemove.push_back(key);
+        }
     }
-    _inRoundIcons.clear();
+
+    // Remove only that player's icons from _inRoundIcons
+    for (const std::string& key : keysToRemove) {
+        _inRoundIcons.erase(key);
+    }
 }
 
 

@@ -220,8 +220,8 @@ public:
         disableUI(value); 
     };
     
-    void inRoundNodesActive(bool value) {
-        _scoreController->commitRoundIcons();
+    void inRoundNodesActive(const std::string& playerName) {
+        _scoreController->commitRoundIcons(const std::string& playerName);
     }
 
     /**

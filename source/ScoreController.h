@@ -168,10 +168,10 @@ public:
                                                     bool visible = false);
     
     /**
-     * Make visible all icons added in this round
+     * Make visible all icons added associated with pal in this round
      * and then migrate them into the permanent _scoreIcons list.
      */
-    void commitRoundIcons();
+    void commitRoundIcons(const std::string& playerName);
     
     /**
      * The method called to indicate the start of a deterministic loop.

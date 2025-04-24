@@ -85,7 +85,9 @@ protected:
     
     // Countdown between build ready and dispaying scoreboard
     int _beforeScoreBoard = 15;
-
+    
+    //number of players
+    int _numPlayers;
 public:
 #pragma mark -
 #pragma mark Constructors

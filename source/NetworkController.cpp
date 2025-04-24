@@ -80,6 +80,26 @@ void NetworkController::resetNetwork(){
     _localID = _network->getShortUID();
 }
 
+std::vector<std::shared_ptr<PlayerModel>> NetworkController::getPlayerList() {
+    auto list = _playerList;
+
+    static const std::unordered_map<std::string,int> colorPriority = {
+        {"playerRed",    0},
+        {"playerBlue",   1},
+        {"playerGreen",  2},
+        {"playerYellow", 3}
+    };
+
+    // Sort by priority
+    std::sort(list.begin(), list.end(),
+        [&](auto const &a, auto const &b){
+            return colorPriority.at(a->getName())
+                 < colorPriority.at(b->getName());
+        }
+    );
+    return list;
+}
+
 /**
      * The method called to update the game mode.
      *

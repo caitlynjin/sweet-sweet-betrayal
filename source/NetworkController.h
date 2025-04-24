@@ -598,11 +598,9 @@ public:
     }
     
     /**
-     * Returns the set of player objects in game
+     * Returns the set of player objects in game sorted
      */
-    std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){
-        return _playerList;
-    }
+    std::vector<std::shared_ptr<PlayerModel>> getPlayerList();
     
     /**
      * Returns the color of the player by their shortUID
