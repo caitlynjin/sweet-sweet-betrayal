@@ -1032,15 +1032,15 @@ WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
     //Allocate Fan Animations
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
-
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
 
     wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
     wind->setEnabled(false);
     wind->setGustSprite(gustSprite);
-    wind->setFanAnimation(animNode, 4);
 
     // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
 

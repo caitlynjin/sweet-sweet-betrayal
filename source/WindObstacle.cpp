@@ -147,7 +147,10 @@ void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite)
     _gustNode->setAnchor(0.0f, 0.0f);
     _gustNode->setPosition(Vec2());
     _gustNode->setVisible(true);
-    _sceneNode->addChild(_gustNode);
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _node->addChild(_gustNode);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {
@@ -169,7 +172,9 @@ void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _fanSpriteNode->setAnchor(0.0f, 0.0f);
     _fanSpriteNode->setPosition(Vec2());
     _fanSpriteNode->setVisible(true);
-
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
     _node->addChild(_fanSpriteNode);
     
     //Create the spritesheet
