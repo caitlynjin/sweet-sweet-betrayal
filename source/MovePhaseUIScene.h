@@ -221,7 +221,7 @@ public:
     };
     
     void inRoundNodesActive(const std::string& playerName) {
-        _scoreController->commitRoundIcons(const std::string& playerName);
+        _scoreController->commitRoundIcons(playerName);
     }
 
     /**
