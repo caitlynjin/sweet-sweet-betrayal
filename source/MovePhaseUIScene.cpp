@@ -180,32 +180,28 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
 
     _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
     _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    if (local == "playerRed"){ _redIcon->setScale(0.06f); }
-    else { _redIcon->setScale(0.05f); }
+    _redIcon->setScale(0.05f);
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
     addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    if (local == "playerBlue"){ _blueIcon->setScale(0.06f); }
-    else { _blueIcon->setScale(0.05f); }
+    _blueIcon->setScale(0.05f);
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
     addChild(_blueIcon);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    if (local == "playerGreen"){ _greenIcon->setScale(0.06f); }
-    else { _greenIcon->setScale(0.05f); }
+    _greenIcon->setScale(0.05f);
     _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _greenIcon->setVisible(false);
     addChild(_greenIcon);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    if (local == "playerYellow"){ _yellowIcon->setScale(0.06f); }
-    else { _yellowIcon->setScale(0.05f); }
+    _yellowIcon->setScale(0.05f);
     _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _yellowIcon->setVisible(false);
     addChild(_yellowIcon);
