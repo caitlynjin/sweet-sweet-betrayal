@@ -29,7 +29,8 @@ private:
 	float _rayDist[RAYS+1];
 	float _playerDist[RAYS + 1];
 
-	
+	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
+	float _drawScale;
 
 
 public:
@@ -60,21 +61,21 @@ public:
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
 		const Vec2 windStrength) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, windDirection, windStrength) ? result : nullptr);
+		return (result->init(position, size,scale, windDirection, windStrength) ? result : nullptr);
 	}
 
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
 		const Vec2 windStrength, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, windDirection, windStrength, jsonType) ? result : nullptr);
+		return (result->init(position, size, scale, windDirection, windStrength, jsonType) ? result : nullptr);
 	}
 	/*Intialize according to position and size. Need to change later*/
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength);
 
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 

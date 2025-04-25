@@ -422,13 +422,10 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
 }
 
 
-std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str) {
-    auto params = _windFact->serializeParams(pos, size, dir, str);
+std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str) {
+    auto params = _windFact->serializeParams(pos, size, scale,  dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
-
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
-    wind->setFanAnimation(animNode, 4);
 
     _objects->push_back(wind);
     return wind;
@@ -1028,16 +1025,15 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
 #pragma mark Wind Factory
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
-WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength) {
+WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDirection, const Vec2 windStrength) {
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
     //Allocate Fan Animations
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength);
 
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
     wind->setFanAnimation(animNode, 4);
 
-    wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
     wind->setEnabled(false);
     wind->setGustSprite(gustSprite);
@@ -1049,16 +1045,18 @@ WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const
 
 
 std::shared_ptr<std::vector<std::byte>>
-WindFactory::serializeParams(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength) {
+WindFactory::serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength) {
     _serializer.reset();
     _serializer.writeFloat(pos.x);
     _serializer.writeFloat(pos.y);
     _serializer.writeFloat(size.width);
     _serializer.writeFloat(size.height);
+    _serializer.writeFloat(scale);
     _serializer.writeFloat(windDirection.x);
     _serializer.writeFloat(windDirection.y);
     _serializer.writeFloat(windStrength.x);
     _serializer.writeFloat(windStrength.y);
+    
 
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 }
@@ -1075,6 +1073,8 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     float width  = _deserializer.readFloat();
     float height = _deserializer.readFloat();
     Size size(width, height);
+
+    float scale = _deserializer.readFloat();
     
     float dirX = _deserializer.readFloat();
     float dirY = _deserializer.readFloat();
@@ -1084,5 +1084,5 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     float strY = _deserializer.readFloat();
     Vec2 str(strX, strY);
 
-    return createObstacle(pos, size, dir, str);
+    return createObstacle(pos, size, scale, dir, str);
 }
