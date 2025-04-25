@@ -77,6 +77,9 @@ void BuildPhaseUIScene::dispose() {
         _bottomFrame = nullptr;
         _leftFrame = nullptr;
         _timerFrame = nullptr;
+        for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
+            checkmark = nullptr;
+        }
         Scene2::dispose();
     }
 };
@@ -236,8 +239,8 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
  */
 void BuildPhaseUIScene::reset() {
     setVisible(true);
-    for (const auto& checkmark : _checkmarkMap){
-        checkmark.second->setVisible(false);
+    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
+        checkmark->setVisible(false);
     }
     activateInventory(true);
     
@@ -292,6 +295,7 @@ void BuildPhaseUIScene::preUpdate(float dt) {
             checkmark->setScale(0.04f);
             checkmark->setPosition(icon->getPositionX() + 25, icon->getPositionY() - 15);
             _checkmarkMap[icon] = checkmark;
+            _checkmarkList.push_back(checkmark);
             checkmark->setVisible(false);
             addChild(checkmark);
         }
@@ -356,8 +360,8 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _bottomFrame->setVisible(value);
     _leftFrame->setVisible(value);
     _timerFrame->setVisible(value);
-    for (const auto& checkmark : _checkmarkMap){
-        checkmark.second->setVisible(value);
+    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
+        checkmark->setVisible(value);
     }
 
     if (value){
