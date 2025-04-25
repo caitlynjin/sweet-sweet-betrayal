@@ -115,6 +115,8 @@ void BuildPhaseController::preUpdate(float dt) {
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
+    
+    CULog("Number players: %d", _network->getNumPlayers());
 
     _uiScene.preUpdate(dt);
 

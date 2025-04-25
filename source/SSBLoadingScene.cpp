@@ -224,11 +224,11 @@ void SSBLoadingScene::update(float progress) {
 //            _button->activate();
         }
 //        _bar->setProgress(_progress);
-        //TODO: Update loading animation
-        if (_started){
-            doStrip("load", _loadAction, DURATION);
-            _timeline->update(progress);
-        }
+        doStrip("load", _loadAction, DURATION);
+        _timeline->update(progress);
+        
     }
+//    doStrip("load", _loadAction, DURATION);
+//    _timeline->update(progress);
 }
 
