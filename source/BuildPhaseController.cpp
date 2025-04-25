@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player) {
     if (assets == nullptr)
     {
         return false;
@@ -64,6 +64,8 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _objectController = objectController;
     _networkController = networkController;
     _network = networkController->getNetwork();
+
+    _player = player;
 
     // Initialize build phase scene
     _buildPhaseScene.init(assets, camera);
@@ -299,6 +301,7 @@ void BuildPhaseController::preUpdate(float dt) {
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
+        _player->setReady(true);
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;

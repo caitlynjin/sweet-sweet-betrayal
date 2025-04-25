@@ -78,11 +78,19 @@ protected:
     bool _leftpressed = false;
     /** Whether players in build phase were counted yet */
     bool _playersCounted = false;
+    /** Whether red is ready */
+    bool _redReady = false;
+    /** Whether blue is ready */
+    bool _blueReady = false;
+    /** Whether green is ready */
+    bool _greenReady = false;
+    /** Whether yellow is ready */
+    bool _yellowReady = false;
 
     /** List of icons */
     std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _iconList;
     /** List of checkmarks */
-    std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkList;
+    std::map<std::shared_ptr<cugl::scene2::PolygonNode>, std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkMap;
     /** Network Controller */
     std::shared_ptr<NetworkController> _networkController;
 

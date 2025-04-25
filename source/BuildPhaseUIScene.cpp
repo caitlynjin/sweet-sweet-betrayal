@@ -77,9 +77,6 @@ void BuildPhaseUIScene::dispose() {
         _bottomFrame = nullptr;
         _leftFrame = nullptr;
         _timerFrame = nullptr;
-        for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
-            checkmark = nullptr;
-        }
         Scene2::dispose();
     }
 };
@@ -149,36 +146,28 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(TIMER_FONT));
     _timer->setAnchor(Vec2::ANCHOR_CENTER);
-    _timer->setPosition(_size.width * 0.455f, _size.height * 0.9f);
+    _timer->setPosition(_size.width * 0.505f, _size.height * 0.9f);
     _timer->setForeground(Color4 (255,62,62));
 
     _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
     _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _redIcon->setScale(0.05f);
-    _redIcon->setPosition(_size.width * 0.59f, _size.height * 0.9f);
-    _iconList.push_back(_redIcon);
-    addChild(_redIcon);
+    _redIcon->setScale(0.04f);
+    _redIcon->setPosition(_size.width * 0.64f, _size.height * 0.9f);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _blueIcon->setScale(0.05f);
-    _blueIcon->setPosition(_size.width * 0.665f, _size.height * 0.9f);
-    _iconList.push_back(_blueIcon);
-    addChild(_blueIcon);
+    _blueIcon->setScale(0.04f);
+    _blueIcon->setPosition(_size.width * 0.7f, _size.height * 0.9f);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _greenIcon->setScale(0.05f);
-    _greenIcon->setPosition(_size.width * 0.74f, _size.height * 0.9f);
-    _iconList.push_back(_greenIcon);
-    addChild(_greenIcon);
+    _greenIcon->setScale(0.04f);
+    _greenIcon->setPosition(_size.width * 0.76f, _size.height * 0.9f);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _yellowIcon->setScale(0.05f);
-    _yellowIcon->setPosition(_size.width * 0.815f, _size.height * 0.9f);
-    _iconList.push_back(_yellowIcon);
-    addChild(_yellowIcon);
+    _yellowIcon->setScale(0.04f);
+    _yellowIcon->setPosition(_size.width * 0.82f, _size.height * 0.9f);
 
     _topFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TOP_FRAME));
     _topFrame->setScale(0.45f, 0.4f);
@@ -198,7 +187,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _timerFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TIMER));
     _timerFrame->setScale(0.5f ,0.45f);
     _timerFrame->setAnchor(Vec2::ANCHOR_CENTER);
-    _timerFrame->setPosition(_size.width * 0.45f, _size.height * 0.86f);
+    _timerFrame->setPosition(_size.width * 0.5f, _size.height * 0.86f);
 
     addChild(_rightButton);
     addChild(_readyButton);
@@ -209,16 +198,6 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     addChild(_topFrame);
     addChild(_leftFrame);
     addChild(_bottomFrame);
-
-
-    for (std::shared_ptr<cugl::scene2::PolygonNode> icon : _iconList){
-        std::shared_ptr<cugl::scene2::PolygonNode> checkmark = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(CHECKMARK));
-        checkmark->setAnchor(Vec2::ANCHOR_CENTER);
-        checkmark->setScale(0.05f);
-        checkmark->setPosition(icon->getPositionX() + 30, icon->getPositionY() - 15);
-        _checkmarkList.push_back(checkmark);
-        addChild(checkmark);
-    }
 
     return true;
 }
@@ -278,40 +257,56 @@ void BuildPhaseUIScene::preUpdate(float dt) {
         _isReady = true;
     }
     else if (BUILD_TIME - elapsedTime / 1000000 < 10){
-        _timer->setPosition(_size.width * 0.47f, _size.height * 0.9f);
+        _timer->setPosition(_size.width * 0.52f, _size.height * 0.9f);
     }
     else if (BUILD_TIME - elapsedTime / 1000000 < 20){
-        _timer->setPosition(_size.width * 0.46f, _size.height * 0.9f);
+        _timer->setPosition(_size.width * 0.51f, _size.height * 0.9f);
     }
     if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
         // TODO: Finish player ready logic
-//        for (auto& player : _networkController->getPlayerList()){
-//            if (player->getName() == "playerRed"){
-//                _iconList.push_back(_redIcon);
-//                addChild(_redIcon);
-//            }
-//            if (player->getName() == "playerBlue"){
-//                _iconList.push_back(_blueIcon);
-//                addChild(_blueIcon);
-//            }
-//            if (player->getName() == "playerGreen"){
-//                _iconList.push_back(_greenIcon);
-//                addChild(_greenIcon);
-//            }
-//            if (player->getName() == "playerYellow"){
-//                _iconList.push_back(_yellowIcon);
-//                addChild(_yellowIcon);
-//            }
-//        }
+        for (auto& player : _networkController->getPlayerList()){
+            if (player->getName() == "playerRed"){
+                _iconList.push_back(_redIcon);
+                addChild(_redIcon);
+            }
+            if (player->getName() == "playerBlue"){
+                _iconList.push_back(_blueIcon);
+                addChild(_blueIcon);
+            }
+            if (player->getName() == "playerGreen"){
+                _iconList.push_back(_greenIcon);
+                addChild(_greenIcon);
+            }
+            if (player->getName() == "playerYellow"){
+                _iconList.push_back(_yellowIcon);
+                addChild(_yellowIcon);
+            }
+        }
 
-//        for (std::shared_ptr<cugl::scene2::PolygonNode> icon : _iconList){
-//            std::shared_ptr<cugl::scene2::PolygonNode> checkmark = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(CHECKMARK));
-//            checkmark->setAnchor(Vec2::ANCHOR_CENTER);
-//            checkmark->setScale(0.05f);
-//            checkmark->setPosition(icon->getPositionX() + 30, icon->getPositionY() - 15);
-//            addChild(checkmark);
-//        }
+        for (std::shared_ptr<cugl::scene2::PolygonNode> icon : _iconList){
+            std::shared_ptr<cugl::scene2::PolygonNode> checkmark = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(CHECKMARK));
+            checkmark->setAnchor(Vec2::ANCHOR_CENTER);
+            checkmark->setScale(0.04f);
+            checkmark->setPosition(icon->getPositionX() + 25, icon->getPositionY() - 15);
+            _checkmarkMap[icon] = checkmark;
+            checkmark->setVisible(false);
+            addChild(checkmark);
+        }
         _playersCounted = true;
+    }
+    for (auto& player : _networkController->getPlayerList()){
+        if (player->getName() == "playerRed" && player->getReady()){
+            _checkmarkMap[_redIcon]->setVisible(true);
+        }
+        if (player->getName() == "playerBlue" && player->getReady()){
+            _checkmarkMap[_blueIcon]->setVisible(true);
+        }
+        if (player->getName() == "playerGreen" && player->getReady()){
+            _checkmarkMap[_greenIcon]->setVisible(true);
+        }
+        if (player->getName() == "playerYellow" && player->getReady()){
+            _checkmarkMap[_yellowIcon]->setVisible(true);
+        }
     }
 }
 
@@ -358,8 +353,8 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _bottomFrame->setVisible(value);
     _leftFrame->setVisible(value);
     _timerFrame->setVisible(value);
-    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
-        checkmark->setVisible(value);
+    for (const auto& checkmark : _checkmarkMap){
+        checkmark.second->setVisible(value);
     }
 
     if (value){

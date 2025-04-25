@@ -205,6 +205,11 @@ public:
      */
     void setCountdown(int value) { _countdown = value; };
 
+    /**
+     * Gets local player
+     */
+    shared_ptr<PlayerModel> getLocalPlayer() { return _movePhaseScene.getLocalPlayer(); };
+
 #pragma mark -
 #pragma mark State Access
     /**
