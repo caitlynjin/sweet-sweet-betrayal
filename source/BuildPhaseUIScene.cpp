@@ -236,6 +236,9 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
  */
 void BuildPhaseUIScene::reset() {
     setVisible(true);
+    for (const auto& checkmark : _checkmarkMap){
+        checkmark.second->setVisible(false);
+    }
     activateInventory(true);
     
     // Reset UI variables
