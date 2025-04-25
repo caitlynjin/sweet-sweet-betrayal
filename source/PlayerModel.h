@@ -138,6 +138,9 @@ protected:
     /** Whether is immobile */
     bool _immobile = true;
 
+    /** Whether is ready */
+    bool _ready = false;
+
     /** Whether we are gliding, and how long we need to fall for to intiate 'glide mode'*/
     float _glideDelay;
     float _glideTimer;
@@ -499,6 +502,20 @@ public:
      */
     bool getImmobile(){
         return _immobile;
+    }
+
+    /**
+     * Returns whether the player is ready
+     */
+    void setReady(bool ready){
+        _ready = ready;
+    }
+
+    /**
+     * Returns whether the player is ready
+     */
+    bool getReady(){
+        return _ready;
     }
     
 
