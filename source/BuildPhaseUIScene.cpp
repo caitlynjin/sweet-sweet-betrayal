@@ -239,9 +239,6 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
  */
 void BuildPhaseUIScene::reset() {
     setVisible(true);
-    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
-        checkmark->setVisible(false);
-    }
     activateInventory(true);
     
     // Reset UI variables
@@ -361,7 +358,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _leftFrame->setVisible(value);
     _timerFrame->setVisible(value);
     for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
-        checkmark->setVisible(value);
+        checkmark->setVisible(false);
     }
 
     if (value){

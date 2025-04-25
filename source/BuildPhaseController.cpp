@@ -305,6 +305,7 @@ void BuildPhaseController::preUpdate(float dt) {
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
+        _player->setReady(false);
     }
 }
 
