@@ -56,6 +56,10 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _choice = Choice::NONE;
     _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.start"));
     _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.settings"));
+    _leftglider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("start.leftgliders"));
+    _rightglider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("start.rightgliders"));
+    _leftBasePos = _leftglider->getPosition();
+    _rightBasePos = _rightglider->getPosition();
 //    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.button_container.help"));
     
     // Program the buttons
@@ -75,6 +79,23 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     return true;
 
 }
+
+void StartScene::update(float timestep) {
+    _gliderFloatTimer += timestep;
+
+    float floatAmplitude = 5.5f;
+    float floatSpeed = 6.0f;
+
+    float offsetY = floatAmplitude * std::sin(floatSpeed * _gliderFloatTimer);
+
+    if (_leftglider != nullptr) {
+        _leftglider->setPosition(_leftBasePos.x, _leftBasePos.y + offsetY);
+    }
+    if (_rightglider != nullptr) {
+        _rightglider->setPosition(_rightBasePos.x, _rightBasePos.y + offsetY);
+    }
+}
+
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */

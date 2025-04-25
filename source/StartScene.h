@@ -48,6 +48,14 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _startbutton;
     std::shared_ptr<cugl::scene2::Button> _settingsbutton;
     std::shared_ptr<cugl::scene2::Button> _leveleditorbutton;
+    std::shared_ptr<cugl::scene2::PolygonNode> _leftglider;
+    std::shared_ptr<cugl::scene2::PolygonNode> _rightglider;
+    
+    /** Glider image variables */
+    float _gliderFloatTimer = 0.0f;
+    cugl::Vec2 _leftBasePos;
+    cugl::Vec2 _rightBasePos;
+    
     /** The player start screen choice */
     Choice _choice;
 
@@ -69,6 +77,8 @@ public:
     void dispose() override;
     
     bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound);
+    
+    void update(float timestep);
     
     virtual void setActive(bool value) override;
     
