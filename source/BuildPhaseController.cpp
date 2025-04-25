@@ -156,6 +156,34 @@ void BuildPhaseController::preUpdate(float dt) {
                 _gridManager->setObject(gridPosWithOffset, _selectedItem);
             }
         }
+        if (screenPos.x <= 200 && _buildPhaseScene.getCamera()->getPosition().x >= 600){
+            Uint64 currentTime = Application::get()->getEllapsedMicros();
+            Uint64 elapsedTime = currentTime - _accelerationStart;
+            if (elapsedTime < 500000){
+                _buildPhaseScene.getCamera()->translate(-10, 0);
+            }
+            else if (elapsedTime < 2000000){
+                _buildPhaseScene.getCamera()->translate(-20, 0);
+            }
+            else{
+                _buildPhaseScene.getCamera()->translate(-30, 0);
+            }
+            _buildPhaseScene.getCamera()->update();
+        }
+        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+            Uint64 currentTime = Application::get()->getEllapsedMicros();
+            Uint64 elapsedTime = currentTime - _accelerationStart;
+            if (elapsedTime < 500000){
+                _buildPhaseScene.getCamera()->translate(10, 0);
+            }
+            else if (elapsedTime < 2000000){
+                _buildPhaseScene.getCamera()->translate(20, 0);
+            }
+            else{
+                _buildPhaseScene.getCamera()->translate(30, 0);
+            }
+            _buildPhaseScene.getCamera()->update();
+        }
     }
     else if (_input->getInventoryStatus() == PlatformInput::WAITING)
     {
@@ -265,11 +293,11 @@ void BuildPhaseController::preUpdate(float dt) {
 
 //    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
-    if ((_uiScene.getRightPressed() || _uiScene.getLeftPressed()) && !_accelerationStarted){
+    if ((_uiScene.getRightPressed() || _uiScene.getLeftPressed() || _input->getPosOnDrag().x <= 200 || _input->getPosOnDrag().x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200) && !_accelerationStarted){
         _accelerationStarted = true;
         _accelerationStart = Application::get()->getEllapsedMicros();
     }
-    else if (!(_uiScene.getRightPressed() || _uiScene.getLeftPressed())){
+    else if (!(_uiScene.getRightPressed() || _uiScene.getLeftPressed() || _input->getPosOnDrag().x <= 200 || _input->getPosOnDrag().x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200)){
         _accelerationStarted = false;
     }
 
@@ -280,19 +308,25 @@ void BuildPhaseController::preUpdate(float dt) {
         if (elapsedTime < 500000){
             _buildPhaseScene.getCamera()->translate(10, 0);
         }
-        else{
+        else if (elapsedTime < 2000000){
             _buildPhaseScene.getCamera()->translate(20, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(30, 0);
         }
         _buildPhaseScene.getCamera()->update();
     }
-    if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 0){
+    if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 600){
         Uint64 currentTime = Application::get()->getEllapsedMicros();
         Uint64 elapsedTime = currentTime - _accelerationStart;
         if (elapsedTime < 500000){
             _buildPhaseScene.getCamera()->translate(-10, 0);
         }
-        else{
+        else if (elapsedTime < 2000000){
             _buildPhaseScene.getCamera()->translate(-20, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(-30, 0);
         }
         _buildPhaseScene.getCamera()->update();
     }
