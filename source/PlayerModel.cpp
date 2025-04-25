@@ -543,6 +543,14 @@ void PlayerModel::update(float dt)
     // ANIMATION
     // TODO: Move to method updateAnimation
     _timeline->update(dt);
+    
+    // Change player facing
+    if (getVX() > 0){
+        _faceRight = true;
+    } else if(getVX() < 0){
+        _faceRight = false;
+    }
+    updateFacing();
 
     if (_isDead && _deathAction) {
         if (!_deathSpriteNode->isVisible()) {
