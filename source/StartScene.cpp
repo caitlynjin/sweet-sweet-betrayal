@@ -64,13 +64,13 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     
     // Program the buttons
     _startbutton->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _choice = Choice::START;
         }
     });
     
     _leveleditorbutton->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _choice = Choice::LEVEL_EDITOR;
         }
     });

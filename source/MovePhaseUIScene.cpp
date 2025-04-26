@@ -146,7 +146,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
     _jumpbutton->setVisible(false);
     _jumpbutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (!down) {
             _didjump = true;
         }
         else{
@@ -162,7 +162,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
     _glidebutton->setVisible(false);
     _glidebutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (!down) {
             _didglide = true;
         }
         else{
