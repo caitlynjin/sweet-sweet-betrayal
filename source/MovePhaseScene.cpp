@@ -296,6 +296,13 @@ void MovePhaseScene::resetPlayerProperties() {
     std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
     for (auto player : players){
         player->setDead(false);
+        _network->pushOutEvent(
+            AnimationEvent::allocAnimationEvent(
+                _network->getShortUID(),            
+                AnimationType::DEATH,               
+                false                               
+            )
+        );
     }
 
 }
