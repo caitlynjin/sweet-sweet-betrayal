@@ -190,16 +190,37 @@ void MovePhaseController::preUpdate(float dt) {
         _input->setRightTapped(false);
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
-            _movePhaseScene.getLocalPlayer()->setGlide(true);
+            // _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _network->pushOutEvent(
+                AnimationEvent::allocAnimationEvent(
+                    _network->getShortUID(),           
+                    AnimationType::GLIDE,              
+                    true                               
+                )
+            );
         }
     }
     else if (!_input->isRightDown()) {
         if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
             _movePhaseScene.getLocalPlayer()->setJumpHold(false);
         }
-        _movePhaseScene.getLocalPlayer()->setGlide(false);
+        // _movePhaseScene.getLocalPlayer()->setGlide(false);
+        _network->pushOutEvent(
+            AnimationEvent::allocAnimationEvent(
+                _network->getShortUID(),           
+                AnimationType::GLIDE,              
+                false                             
+            )
+        );
     }
-    _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    // _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    _network->pushOutEvent(
+        AnimationEvent::allocAnimationEvent(
+            _network->getShortUID(),           
+            AnimationType::GLIDE,              
+            _uiScene.getDidGlide()                           
+        )
+    );
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
@@ -340,7 +361,14 @@ void MovePhaseController::killPlayer(){
             _currRound
         );
         
-        player->setDead(true);
+        // player->setDead(true);
+        _network->pushOutEvent(
+            AnimationEvent::allocAnimationEvent(
+                _network->getShortUID(),           
+                AnimationType::DEATH,              
+                true                               
+            )
+        );
     }
     
 }

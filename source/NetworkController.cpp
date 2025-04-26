@@ -50,6 +50,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<ColorEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
+    _network->attachEventType<AnimationEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -89,28 +90,7 @@ void NetworkController::resetNetwork(){
      * @param timestep  The amount of time (in seconds) since the last frame
      */
 void NetworkController::update(float timestep){
-    // Process messaging events
-//    
-//    if(_network->isInAvailable()){
-//        auto e = _network->popInEvent();
-//        // Check for MessageEvent
-//        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-//            processMessageEvent(mEvent);
-//        }
-//        // Check for ColorEvent
-//        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
-//            processColorEvent(cEvent);
-//        }
-//        // Check for ScoreEvent
-//        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
-//            _scoreController->processScoreEvent(sEvent);
-//        }
-//        // Check for TreasureEvent
-//        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
-//            processTreasureEvent(tEvent);
-//        }
-//        
-//    }
+
 }
 
 
@@ -191,6 +171,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for TreasureEvent
         if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
             processTreasureEvent(tEvent);
+        }
+        // Check for AnimationEvent
+        if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
+            processAnimationEvent(aEvent);
         }
     }
     _scoreController->setPlayerColors(_playerColorsById);
@@ -336,6 +320,40 @@ void NetworkController::processTreasureEvent(const std::shared_ptr<TreasureEvent
     
     if (_color == color){
         _localPlayer->gainTreasure(_treasure);
+    }
+}
+
+/**
+ * This method takes a AnimationEvent and processes it.
+ */
+void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEvent>& event){
+    int playerID = event->getPlayerID();
+    AnimationType animation = event->getAnimation();
+    bool activate   = event->isActivate();
+
+    // find the index of this network‐UID in our _playerIDs array
+    auto it = std::find(_playerIDs.begin(), _playerIDs.end(), playerID);
+    if (it == _playerIDs.end()) return;             
+    size_t idx = std::distance(_playerIDs.begin(), it);
+
+    // corresponding PlayerModel
+    if (idx >= _playerList.size()) return;
+    auto player = _playerList[idx];     
+
+    if (animation == AnimationType::DEATH) {
+        if (activate) {
+            player->setDead(true);
+        } else {
+            player->setDead(false);
+        }
+    }
+    else if (animation == AnimationType::GLIDE) {
+        if (activate) {
+            player->setGlide(true); 
+        } else {
+            player->setGlide(false);
+        }
+       
     }
 }
 
