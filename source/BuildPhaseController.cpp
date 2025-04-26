@@ -377,7 +377,7 @@ void BuildPhaseController::addInvButtonListeners() {
     std::vector<std::shared_ptr<scene2::Button>> inventoryButtons = _uiScene.getInventoryButtons();
     for (size_t i = 0; i < inventoryButtons.size(); i++) {
         inventoryButtons[i]->addListener([this, item = inventoryItems[i]](const std::string &name, bool down) {
-            if (!down) {
+            if (down) {
                 _selectedItem = item;
                 _input->setInventoryStatus(PlatformInput::PLACING);
             }
