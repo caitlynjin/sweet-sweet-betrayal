@@ -118,15 +118,15 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _leftButton = scene2::Button::alloc(leftNode);
     _leftButton->setScale(0.2f);
     _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _leftButton->setPosition(_size.width * 0.35f, _size.height * 0.15f);
+    _leftButton->setPosition(_size.width * 0.36f, _size.height * 0.15f);
     _leftButton->activate();
     _leftButton->addListener([this](const std::string &name, bool down) {
         _leftpressed = down;
     });
 
     std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    readyNode->setScale(0.8f);
     _readyButton = scene2::Button::alloc(readyNode);
+    _readyButton->setScale(0.8f);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
     _readyButton->setPosition(_size.width * 0.5f, _size.height * 0.15f);
     
