@@ -409,6 +409,10 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
     auto params = _mushroomFact->serializeParams(pos, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
     std::shared_ptr<Mushroom> mushroom = std::dynamic_pointer_cast<Mushroom>(pair.first);
+    
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9,9);
+    mush->setMushroomAnimation(animNode, 9);
+    
     _objects->push_back(mushroom);
     return mushroom;
 }
@@ -926,6 +930,8 @@ MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
     std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
     
     std::shared_ptr<Mushroom> mush = Mushroom::alloc(pos, size, scale);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9,9);
+    mush->setMushroomAnimation(animNode, 9);
     
     mush->setBodyType(b2_dynamicBody);
     mush->setDensity(BASIC_DENSITY);
