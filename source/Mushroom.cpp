@@ -39,3 +39,40 @@ bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
 
     return false;
 }
+
+#pragma mark -
+#pragma mark Animations
+
+void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    _mushroomSpriteNode = sprite;
+    _mushroomSpriteNode->setAnchor(0.0f,0.0f);
+    _mushroomSpriteNode->setPosition(Vec2());
+    _mushroomSpriteNode->setVisible(true);
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _node->addChild(_mushroomSpriteNode);
+    std::vector<int> frames;
+    frames.reserve(nFrames+1);
+    for (int i = 0; i < nFrames; ++i) frames.push_back(i);
+    frames.push_back(0);
+    _mushroomTimeline = ActionTimeline::alloc();
+    _mushroomAnimateSprite = AnimateSprite::alloc(frames);
+    _mushroomAction = _mushroomAnimateSprite->attach<scene2::SpriteNode>(_mushroomSpriteNode);
+}
+
+void Mushroom::updateAnimation(float timestep) {
+    if (!_mushroomTimeline->isActive("current")) {
+        _mushroomTimeline->add("current", _mushroomAction, 1.0f);
+    }
+    _mushroomTimeline->update(timestep);
+}
+
+void Mushroom::update(float timestep) {
+    PolygonObstacle::update(timestep);
+    updateAnimation(timestep);
+}
+//const std::shared_ptr<scene2::SceneNode>& Mushroom::getSceneNode() const {
+//    return _node;
+//}
+

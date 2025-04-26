@@ -12,20 +12,30 @@ class Mushroom : public Object {
 
 private:
     std::shared_ptr<cugl::physics2::BoxObstacle> _box;
+    std::shared_ptr<scene2::SceneNode> _node;
+    
+    //animations
+    std::shared_ptr<cugl::ActionTimeline>    _mushroomTimeline;
+    std::shared_ptr<cugl::scene2::SpriteNode> _mushroomSpriteNode;
+    std::shared_ptr<cugl::AnimateSprite>      _mushroomAnimateSprite;
+    cugl::ActionFunction                      _mushroomAction;
 
 public:
     
     Mushroom() : Object() {}
-
     Mushroom(Vec2 pos) : Object(pos, Item::MUSHROOM) {}
-
-    // void update(float timestep) override;
-
+    
+    //update wth aniimations
+    void update(float timestep) override;
     ~Mushroom(void) override { dispose(); }
-
     void dispose() override;
-
+    
+    bool init(const Vec2 pos, const Size size, float scale);
     void setPositionInit(const cugl::Vec2& position) override;
+    
+    //Animations
+    void setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+    void updateAnimation(float timestep);
 
     static std::shared_ptr<Mushroom> alloc(const Vec2 position, const Size size, float scale) {
         std::shared_ptr<Mushroom> result = std::make_shared<Mushroom>();
@@ -33,7 +43,7 @@ public:
     }
 
 
-    bool init(const Vec2 pos, const Size size, float scale);
+    
    
 };
 
