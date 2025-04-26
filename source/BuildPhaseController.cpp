@@ -33,9 +33,9 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Constants
 /** List of all inventory items that are placeable */
-std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM };
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM, BOMB };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON };
+std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON, BOMB_ICON };
 
 
 #pragma mark -
@@ -442,6 +442,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
             return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+        case (BOMB):
+            return _networkController->createBombNetworked(gridPos, itemToSize(item));
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

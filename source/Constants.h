@@ -111,6 +111,10 @@
 #define THORN_TEXTURE "thorns_obstacle"
 /** The key for the inventory icon for the thorns */
 #define THORN_TILE_ICON "icon-thorn"
+/** The key for the bomb texture in the asset manager */
+#define BOMB_TEXTURE "bomb_obstacle"
+/** The key for the inventory icon for the mango bomb*/
+#define BOMB_ICON "icon-mango"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -332,6 +336,8 @@ namespace Constants {
         TILE_ITEM,
         /** A mushroom */
         MUSHROOM,
+        /** A bomb */
+        BOMB,
         /** An art object */
         ART_OBJECT,
 

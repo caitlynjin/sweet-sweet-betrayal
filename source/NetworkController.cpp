@@ -421,7 +421,6 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
     return thorn;
 }
 
-
 std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str) {
     auto params = _windFact->serializeParams(pos, size, scale,  dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
@@ -429,6 +428,14 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
 
     _objects->push_back(wind);
     return wind;
+}
+
+std::shared_ptr<Object> NetworkController::createBombNetworked(Vec2 pos, Size size) {
+    auto params = _bombFact->serializeParams(pos, size);
+    auto pair = _network->getPhysController()->addSharedObstacle(_bombFactID, params);
+    std::shared_ptr<Bomb> bomb = std::dynamic_pointer_cast<Bomb>(pair.first);
+    _objects->push_back(bomb);
+    return bomb;
 }
 
 
@@ -518,6 +525,9 @@ void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWor
     
     _windFact = WindFactory::alloc(_assets);
     _windFactID = _network->getPhysController()->attachFactory(_windFact);
+
+    _bombFact = BombFactory::alloc(_assets);
+    _bombFactID = _network->getPhysController()->attachFactory(_bombFact);
 }
 
 /**
@@ -1085,4 +1095,55 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     Vec2 str(strX, strY);
 
     return createObstacle(pos, size, scale, dir, str);
+}
+
+#pragma mark -
+#pragma mark Bomb Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+BombFactory::createObstacle(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+
+    std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size);
+
+    bomb->setBodyType(b2_dynamicBody);
+    bomb->setDensity(BASIC_DENSITY);
+    bomb->setFriction(BASIC_FRICTION);
+    bomb->setRestitution(BASIC_RESTITUTION);
+    bomb->setName("bomb");
+    bomb->setDebugColor(DEBUG_COLOR);
+    bomb->setShared(true);
+
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
+    bomb->setSceneNode(sprite);
+
+    return std::make_pair(bomb, sprite);
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+BombFactory::serializeParams(Vec2 pos, Size size) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+BombFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+
+    return createObstacle(pos, size);
 }

@@ -116,6 +116,9 @@
         "thorns_obstacle": {
             "file": "textures/thorns-obstacle.png"
         },
+        "bomb_obstacle": {
+            "file": "textures/bomb-obstacle.png"
+        },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
         },
@@ -338,6 +341,9 @@
         },
         "icon-wind": {
             "file": "textures/icon-wind.png"
+        },
+        "icon-mango": {
+            "file": "textures/icon-mango.png"
         },
         "settingsbutton": {
             "file": "textures/settingsbutton.png"
