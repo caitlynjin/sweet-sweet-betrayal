@@ -182,7 +182,7 @@ void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _fanTimeline = ActionTimeline::alloc();
 
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
