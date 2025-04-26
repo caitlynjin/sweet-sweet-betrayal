@@ -161,6 +161,9 @@
         "wind_unobstructed_spritesheet": {
             "file":      "textures/wind-unobstructed-spritesheet.png"
         },
+        "mushroom_bounce_spritesheet": {
+            "file":  "textures/bounce-spritesheet.png"
+        },
         "dpad": {
             "file": "textures/dpad.png",
             "wrapS": "clamp",
