@@ -155,10 +155,20 @@
 #define YELLOW_ICON "yellow-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
+/** The image for checkmark */
+#define CHECKMARK "checkmark"
 /** The image for the trash can closed icon */
 #define TRASH_CLOSED "trash-closed"
 /** The image for the trash can open icon */
 #define TRASH_OPEN "trash-open"
+/** The image for the top frame */
+#define TOP_FRAME "top-frame"
+/** The image for the left frame */
+#define LEFT_FRAME "left-frame"
+/** The image for the bottom frame */
+#define BOTTOM_FRAME "bottom-frame"
+/** The image for the timer */
+#define TIMER "timer"
 
 
 #pragma mark -

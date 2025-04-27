@@ -184,7 +184,7 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _timeline = ActionTimeline::alloc();
     
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -210,7 +210,7 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _timeline = ActionTimeline::alloc();
     
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -237,7 +237,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _timeline = ActionTimeline::alloc();
     
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -263,7 +263,7 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _timeline = ActionTimeline::alloc();
     
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
@@ -290,7 +290,7 @@ void PlayerModel::setDeathAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _timeline = ActionTimeline::alloc();
 
     std::vector<int> forward;
-    for (int ii = 0; ii < nFrames; ii++) {
+    for (int ii = 1; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
 
@@ -543,6 +543,14 @@ void PlayerModel::update(float dt)
     // ANIMATION
     // TODO: Move to method updateAnimation
     _timeline->update(dt);
+    
+    // Change player facing
+    if (getVX() > 0){
+        _faceRight = true;
+    } else if(getVX() < 0){
+        _faceRight = false;
+    }
+    updateFacing();
 
     if (_isDead && _deathAction) {
         if (!_deathSpriteNode->isVisible()) {

@@ -221,9 +221,9 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
 {
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength, jsonType);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
     return createWindObstacle(wind);
 }
 
@@ -235,7 +235,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
     wind->setFanAnimation(animNode, 4);
 
-    addObstacle(wind, animNode, 1);
+    addObstacle(wind, wind->getSceneNode(), 1);
     _gameObjects->push_back(wind);
 
     return wind;

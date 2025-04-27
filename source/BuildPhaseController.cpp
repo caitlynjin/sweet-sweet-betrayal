@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player) {
     if (assets == nullptr)
     {
         return false;
@@ -65,11 +65,13 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _networkController = networkController;
     _network = networkController->getNetwork();
 
+    _player = player;
+
     // Initialize build phase scene
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets, _gridManager);
+    _uiScene.init(assets, _gridManager, _networkController);
     randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
     addInvButtonListeners();
@@ -153,6 +155,34 @@ void BuildPhaseController::preUpdate(float dt) {
             } else {
                 _gridManager->setObject(gridPosWithOffset, _selectedItem);
             }
+        }
+        if (screenPos.x <= 200 && _buildPhaseScene.getCamera()->getPosition().x >= 600){
+            Uint64 currentTime = Application::get()->getEllapsedMicros();
+            Uint64 elapsedTime = currentTime - _accelerationStart;
+            if (elapsedTime < 500000){
+                _buildPhaseScene.getCamera()->translate(-10, 0);
+            }
+            else if (elapsedTime < 2000000){
+                _buildPhaseScene.getCamera()->translate(-20, 0);
+            }
+            else{
+                _buildPhaseScene.getCamera()->translate(-30, 0);
+            }
+            _buildPhaseScene.getCamera()->update();
+        }
+        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+            Uint64 currentTime = Application::get()->getEllapsedMicros();
+            Uint64 elapsedTime = currentTime - _accelerationStart;
+            if (elapsedTime < 500000){
+                _buildPhaseScene.getCamera()->translate(10, 0);
+            }
+            else if (elapsedTime < 2000000){
+                _buildPhaseScene.getCamera()->translate(20, 0);
+            }
+            else{
+                _buildPhaseScene.getCamera()->translate(30, 0);
+            }
+            _buildPhaseScene.getCamera()->update();
         }
     }
     else if (_input->getInventoryStatus() == PlatformInput::WAITING)
@@ -263,11 +293,11 @@ void BuildPhaseController::preUpdate(float dt) {
 
 //    CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
-    if ((_uiScene.getRightPressed() || _uiScene.getLeftPressed()) && !_accelerationStarted){
+    if ((_uiScene.getRightPressed() || _uiScene.getLeftPressed() || _input->getPosOnDrag().x <= 200 || _input->getPosOnDrag().x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200) && !_accelerationStarted){
         _accelerationStarted = true;
         _accelerationStart = Application::get()->getEllapsedMicros();
     }
-    else if (!(_uiScene.getRightPressed() || _uiScene.getLeftPressed())){
+    else if (!(_uiScene.getRightPressed() || _uiScene.getLeftPressed() || _input->getPosOnDrag().x <= 200 || _input->getPosOnDrag().x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200)){
         _accelerationStarted = false;
     }
 
@@ -278,19 +308,25 @@ void BuildPhaseController::preUpdate(float dt) {
         if (elapsedTime < 500000){
             _buildPhaseScene.getCamera()->translate(10, 0);
         }
-        else{
+        else if (elapsedTime < 2000000){
             _buildPhaseScene.getCamera()->translate(20, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(30, 0);
         }
         _buildPhaseScene.getCamera()->update();
     }
-    if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 0){
+    if (_uiScene.getLeftPressed() && _buildPhaseScene.getCamera()->getPosition().x >= 600){
         Uint64 currentTime = Application::get()->getEllapsedMicros();
         Uint64 elapsedTime = currentTime - _accelerationStart;
         if (elapsedTime < 500000){
             _buildPhaseScene.getCamera()->translate(-10, 0);
         }
-        else{
+        else if (elapsedTime < 2000000){
             _buildPhaseScene.getCamera()->translate(-20, 0);
+        }
+        else{
+            _buildPhaseScene.getCamera()->translate(-30, 0);
         }
         _buildPhaseScene.getCamera()->update();
     }
@@ -299,6 +335,7 @@ void BuildPhaseController::preUpdate(float dt) {
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
+        _player->setReady(true);
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
@@ -398,7 +435,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (MOVING_PLATFORM):
             return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
         case (WIND):
-            return _networkController->createWindNetworked(gridPos, itemToSize(item), Vec2(0, 4.0), Vec2(0, 3.0));
+            return _networkController->createWindNetworked(gridPos, itemToSize(item), 1.0f, Vec2(0, 4.0), Vec2(0, 3.0));
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
         case (THORN):
