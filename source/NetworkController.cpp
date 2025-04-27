@@ -48,6 +48,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _localID = _network->getShortUID();
@@ -76,6 +77,7 @@ void NetworkController::resetNetwork(){
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _localID = _network->getShortUID();
 }
@@ -184,6 +186,10 @@ void NetworkController::fixedUpdate(float step){
         if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
             processColorEvent(cEvent);
         }
+        // Check for ReadyEvent
+        if(auto rEvent = std::dynamic_pointer_cast<ReadyEvent>(e)){
+            processReadyEvent(rEvent);
+        }
         // Check for ScoreEvent
         if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
             _scoreController->processScoreEvent(sEvent);
@@ -233,6 +239,7 @@ void NetworkController::reset(){
     
     // Reset network in-game variables
     _numReady = 0;
+    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
     _numReset = 0;
     resetTreasureRandom();
     _readyMessageSent = false;
@@ -261,6 +268,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
+            _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, true));
             break;
         
         case Message::MOVEMENT_END:
@@ -323,6 +331,21 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     // Store each color into map by player id
     _playerColorsById[playerID] = color;
     _playerIDs.push_back(playerID);
+}
+
+/**
+ * This method takes a ReadyEvent and processes it.
+ */
+void NetworkController::processReadyEvent(const std::shared_ptr<ReadyEvent>& event){
+    int playerID = event->getPlayerID();
+    ColorType color = event->getColor();
+    bool ready = event->getReady();
+
+    for (auto player : _playerList){
+        if (player->getColor() == color){
+            player->setReady(ready);
+        }
+    }
 }
 
 

@@ -301,7 +301,6 @@ void BuildPhaseController::preUpdate(float dt) {
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
         _readyMessageSent = true;
-        _player->setReady(true);
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
