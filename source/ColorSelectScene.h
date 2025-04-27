@@ -31,6 +31,7 @@ protected:
     /** The menu button for returning to the previous scene  */
     std::shared_ptr<cugl::scene2::Button> _backbutton;
     Choice _choice;
+    int _initialPlayerCount = 0;
     
 public:
 #pragma mark -
@@ -61,6 +62,10 @@ public:
     virtual void setActive(bool value) override;
     
     Choice getChoice() const { return _choice; }
+    
+    void setInitialPlayerCount(int count){ _initialPlayerCount = count;}
+    
+    int getInitialPlayerCount() const { return _initialPlayerCount; }
 };
 
 #endif // __COLOR_SELECT_SCENE_H__

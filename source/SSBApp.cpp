@@ -430,6 +430,7 @@ void SSBApp::updateHostScene(float timestep)
 //        _gameController.setActive(true);
 //        _status = GAME;
         _colorselect.setActive(true);
+        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
     }
@@ -475,6 +476,7 @@ void SSBApp::updateClientScene(float timestep)
 //        _gameController.setActive(true);
 //        _status = GAME;
         _colorselect.setActive(true);
+        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
@@ -490,12 +492,40 @@ void SSBApp::updateClientScene(float timestep)
 
 void SSBApp::updateColorSelectScene(float timestep){
     _colorselect.update(timestep);
+    _networkController->update(timestep);
+    
+    if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
+        _colorselect.setActive(false);
+        _network->disconnect();
+        _gameController.dispose();
+
+        if (_networkController->getIsHost()) {
+            _hostgame.reset();
+            _hostgame.setActive(true);
+            _status = HOST;
+        } else {
+            _joingame.reset();
+            _joingame.setActive(true);
+            _status = CLIENT;
+        }
+        return;
+    }
+    
     switch (_colorselect.getChoice())
     {
         case ColorSelectScene::Choice::BACK:
             _colorselect.setActive(false);
-            _startscreen.setActive(true);
-            _status = START;
+            _network->disconnect();
+            _gameController.dispose();
+            if (_networkController->getIsHost()){
+                _hostgame.reset();
+                _hostgame.setActive(true);
+                _status = HOST;
+            } else{
+                _joingame.reset();
+                _joingame.setActive(true);
+                _status = CLIENT;
+            }
             break;
         case ColorSelectScene::Choice::NONE:
             // DO NOTHING
