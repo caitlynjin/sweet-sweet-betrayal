@@ -170,6 +170,13 @@ public:
      */
     void deleteObject(std::shared_ptr<Object> obj);
 
+    /**
+     * Bomb from this origin cell position.
+     *
+     * @param pos   the position the mango bomb is in
+     */
+    void bombArea(Vec2 cellPos);
+
 };
 
 #endif /* __SSB_GRID_MANAGER_H__ */

@@ -284,3 +284,18 @@ void GridManager::deleteObject(std::shared_ptr<Object> obj) {
         obj = nullptr;
     }
 }
+
+/**
+ * Bomb from this origin cell position.
+ *
+ * @param pos   the position the mango bomb is in
+ */
+void GridManager::bombArea(Vec2 cellPos) {
+    for (int i = -1; i < 1; i++) {
+        for (int j = -1; j < 1; j++) {
+            auto pos = Vec2(cellPos.x + i, cellPos.y + j);
+            auto obj = moveObject(pos);
+            deleteObject(obj);
+        }
+    }
+}

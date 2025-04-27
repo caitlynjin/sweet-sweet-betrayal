@@ -261,11 +261,15 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
                 if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
                     std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
                     _gridManager->addMoveableObject(gridPos, obj);
+
+                    if (_selectedItem == BOMB) {
+                        _gridManager->bombArea(gridPos);
+                    }
 
                     _itemsPlaced += 1;
 
