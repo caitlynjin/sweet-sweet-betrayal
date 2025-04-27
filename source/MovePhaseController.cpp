@@ -199,7 +199,7 @@ void MovePhaseController::preUpdate(float dt) {
         }
         _movePhaseScene.getLocalPlayer()->setGlide(false);
     }
-    _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    //_movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
