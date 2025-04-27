@@ -413,6 +413,10 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9,9);
     mushroom->setMushroomAnimation(animNode, 9);
     
+    
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9,9);
+    mushroom->setMushroomAnimation(animNode, 9);
+    
     _objects->push_back(mushroom);
     return mushroom;
 }
