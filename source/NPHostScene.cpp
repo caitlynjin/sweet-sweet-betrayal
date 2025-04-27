@@ -120,13 +120,13 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     
     // Program the buttons
     _backout->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _backClicked = true;
         }
     });
 
     _startgame->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             startGame();
         }
     });
