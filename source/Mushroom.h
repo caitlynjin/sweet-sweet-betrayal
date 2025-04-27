@@ -16,8 +16,11 @@ private:
     // Animations
     std::shared_ptr<cugl::ActionTimeline>    _mushroomTimeline;
     std::shared_ptr<cugl::scene2::SpriteNode> _mushroomSpriteNode;
-    std::shared_ptr<cugl::AnimateSprite>      _mushroomAnimateSprite;
-    cugl::ActionFunction                      _mushroomAction;
+    std::shared_ptr<cugl::AnimateSprite>  _mushroomAnimateSprite;
+    cugl::ActionFunction   _mushroomAction;
+    
+    //when mushroom is animating
+    bool _animating = false;
 
 public:
     Mushroom() : Object() {}
@@ -38,6 +41,9 @@ public:
         std::shared_ptr<Mushroom> result = std::make_shared<Mushroom>();
         return (result->init(position, size, scale) ? result : nullptr);
     }
+    
+    //triggers one cycle of animation
+    void triggerAnimation();
 };
 
 #endif /* __MUSHROOM_H__ */

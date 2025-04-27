@@ -66,10 +66,14 @@ void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
 }
 
 void Mushroom::updateAnimation(float timestep) {
-    if (!_mushroomTimeline->isActive("current")) {
-        _mushroomTimeline->add("current", _mushroomAction, 1.0f);
+    if (_animating) {
+        _mushroomTimeline->update(timestep);
+        //end of 1 cycle
+        if (!_mushroomTimeline->isActive("current")) {
+            _animating = false;
+            _mushroomSpriteNode->setFrame(0);
+        }
     }
-    _mushroomTimeline->update(timestep);
 }
 
 void Mushroom::update(float timestep) {
@@ -79,8 +83,15 @@ void Mushroom::update(float timestep) {
         _node->setPosition(getPosition() * _drawScale);
         _node->setAngle(getAngle());
     }
-
+    if (!_animating) {
+        _mushroomSpriteNode->setFrame(0);
+    }
     updateAnimation(timestep);
+}
+
+void Mushroom::triggerAnimation() {
+    _animating = true;
+     _mushroomTimeline->add("current", _mushroomAction, 1.0f);
 }
 
 
