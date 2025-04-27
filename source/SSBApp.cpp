@@ -195,6 +195,8 @@ void SSBApp::preUpdate(float dt)
         _joingame.setSpriteBatch(_batch);
         _victory.init(_assets, _sound, _networkController);
         _victory.setSpriteBatch(_batch);
+        _colorselect.init(_assets, _sound);
+        _colorselect.setSpriteBatch(_batch);
         _status = START;
     }
     else
@@ -212,6 +214,9 @@ void SSBApp::preUpdate(float dt)
             break;
         case CLIENT:
             updateClientScene(dt);
+            break;
+        case COLOR_SELECT:
+            updateColorSelectScene(dt);
             break;
         case GAME:
             _gameController.preUpdate(dt);
@@ -422,8 +427,10 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("INGAME");
         _hostgame.setActive(false);
-        _gameController.setActive(true);
-        _status = GAME;
+//        _gameController.setActive(true);
+//        _status = GAME;
+        _colorselect.setActive(true);
+        _status = COLOR_SELECT;
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
@@ -465,8 +472,10 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
         _joingame.setActive(false);
-        _gameController.setActive(true);
-        _status = GAME;
+//        _gameController.setActive(true);
+//        _status = GAME;
+        _colorselect.setActive(true);
+        _status = COLOR_SELECT;
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
@@ -477,6 +486,21 @@ void SSBApp::updateClientScene(float timestep)
         _status = MENU;
     }
 #pragma mark END SOLUTION
+}
+
+void SSBApp::updateColorSelectScene(float timestep){
+    _colorselect.update(timestep);
+    switch (_colorselect.getChoice())
+    {
+        case ColorSelectScene::Choice::BACK:
+            _colorselect.setActive(false);
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case ColorSelectScene::Choice::NONE:
+            // DO NOTHING
+            break;
+    }
 }
 
 void SSBApp::resetScenes(){
@@ -519,6 +543,9 @@ void SSBApp::draw()
         break;
     case CLIENT:
         _joingame.render();
+        break;
+    case COLOR_SELECT:
+        _colorselect.render();
         break;
     case GAME:
         _gameController.render();
