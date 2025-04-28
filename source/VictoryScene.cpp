@@ -65,14 +65,14 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     
     // Program the buttons
     _restartButton->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _choice = Choice::RESTART;
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
         }
     });
     
     _quitButton->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _choice = Choice::QUIT;
         }
     });
