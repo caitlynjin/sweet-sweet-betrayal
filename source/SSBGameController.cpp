@@ -299,6 +299,8 @@ void SSBGameController::preUpdate(float dt)
                 if (_scoreCountdown ==  60 && players.size() >= 4) {
                     _movePhaseController->inRoundNodesActive(players[3]->getName());
                 }
+
+
                 if (_scoreCountdown == 0){
                     _movePhaseController->scoreboardActive(false);
                     _movePhaseController->resetRound();
