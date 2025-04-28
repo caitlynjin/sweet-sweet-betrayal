@@ -315,6 +315,28 @@ void PlayerModel::doStrip(std::string key, cugl::ActionFunction action, float du
 //    _walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
 //}
 
+void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate) {
+    if (!activate) return;
+
+    if (animation == AnimationType::DEATH) {
+        CULog("playing dead animation");
+        _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);   
+        setDead(true);         
+    }
+    else if (animation == AnimationType::GLIDE) {
+        if (!_glideSpriteNode->isVisible()) {
+            _idleSpriteNode ->setVisible(false);
+            _walkSpriteNode ->setVisible(false);
+            _glideSpriteNode->setVisible(true);
+            _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
+        }
+        doStrip(GLIDE_ACTION_KEY, _glideAction);
+        _isGliding = true;
+    }
+}
+
+
 
 #pragma mark -
 #pragma mark Attribute Properties
