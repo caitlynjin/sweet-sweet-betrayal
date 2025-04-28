@@ -168,8 +168,8 @@ public:
         _uiScene.disableUI(value);
     };
     
-    void inRoundNodesActive(bool value) {
-        _uiScene.inRoundNodesActive(value);
+    void inRoundNodesActive(const std::string& username) {
+        _uiScene.inRoundNodesActive(username);
     }
 
     /**

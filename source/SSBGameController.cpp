@@ -173,7 +173,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
-
+    
     return true;
 }
 
@@ -270,6 +270,7 @@ void SSBGameController::preUpdate(float dt)
         if (_networkController->canSwitchToMove()){
             // Exit build mode and switch to movement phase
             setBuildingMode(!_buildingMode);
+            _scoreCountdown==200;
         }
         
     }
@@ -279,30 +280,24 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
-//            //TODO: Segment into switchToBuild()
-//            if (_scoreCountdown == -1){
-//                _scoreCountdown = SCOREBOARD_COUNT;
-//                _movePhaseController->scoreboardActive(true);
-//            }
-//            if (_scoreCountdown == 0){
-//                _movePhaseController->scoreboardActive(false);
-//                _movePhaseController->resetRound();
-//                setBuildingMode(!_buildingMode);
-//                _networkController->resetRound();
-////                _movePhaseController->resetRound();
-//                _scoreCountdown = -1;
-//                // Check for win condition
-//                if (_networkController->checkWinCondition()){
-//                    _hasVictory = true;
-//                }
             if (_beforeScoreBoard == 0) {
                 //TODO: Segment into switchToBuild()
                 if (_scoreCountdown == -1){
                     _scoreCountdown = SCOREBOARD_COUNT;
                     _movePhaseController->scoreboardActive(true);
                 }
-                if (_scoreCountdown==200){
-                    _movePhaseController->inRoundNodesActive(true);
+                auto players = _networkController->getPlayerList();
+                if (_scoreCountdown == 150 && players.size() >= 1) {
+                    _movePhaseController->inRoundNodesActive(players[0]->getName());
+                }
+                if (_scoreCountdown == 120 && players.size() >= 2) {
+                    _movePhaseController->inRoundNodesActive(players[1]->getName());
+                }
+                if (_scoreCountdown ==  90 && players.size() >= 3) {
+                    _movePhaseController->inRoundNodesActive(players[2]->getName());
+                }
+                if (_scoreCountdown ==  60 && players.size() >= 4) {
+                    _movePhaseController->inRoundNodesActive(players[3]->getName());
                 }
                 if (_scoreCountdown == 0){
                     _movePhaseController->scoreboardActive(false);
