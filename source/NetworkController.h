@@ -18,6 +18,7 @@
 #include "ReadyEvent.h"
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
+#include "AnimationEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
@@ -722,6 +723,11 @@ public:
      * This method takes a TreasureEvent and processes it.
      */
     void processTreasureEvent(const std::shared_ptr<TreasureEvent>& event);
+
+    /**
+     * This method takes a AnimationEvent and processes it.
+     */
+    void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
