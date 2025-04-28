@@ -63,12 +63,21 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     auto newTexture = _assets->get<Texture>(iconTextureKey);
     
     for (int i = prevTotal; i < newTotal; i++) {
+
+        std::string dotKey = playerName + "-dot-" + std::to_string(i);
+        auto dotIt = _scoreIcons.find(dotKey);
+        if (dotIt != _scoreIcons.end()) {
+            _dotsToRemove.push_back(dotKey);
+        }
         
+        //add new nodes to in round node
         Vec2 basePos = _playerBaseDotPos[playerName];
         Vec2 overlayPos = basePos + offset_betw_points * static_cast<float>(i);
         auto newIconNode = createIcon(iconTextureKey, 1.0f, overlayPos, _anchor, false);
         _scoreboardParent->addChild(newIconNode);
-        _scoreIcons[playerName + "-" + iconTextureKey + "-" + std::to_string(i)] = newIconNode;
+        std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
+        _inRoundIcons[key] = newIconNode;
+        
         CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
                       iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
     }
@@ -244,6 +253,27 @@ std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::stri
     node->setVisible(visible);
     return node;
 }
+
+//set in round nodes visible
+void ScoreController::commitRoundIcons() {
+    for (auto& entry : _inRoundIcons) {
+        entry.second->setVisible(true);
+        _scoreIcons[entry.first] = entry.second;
+    }
+    _inRoundIcons.clear();
+    for (const auto& dotKey : _dotsToRemove) {
+        auto dotIt = _scoreIcons.find(dotKey);
+        
+        if (dotIt != _scoreIcons.end()) {
+            CULog("Removing dotKey: %s\n", dotKey.c_str());
+            dotIt->second->setVisible(false);
+            dotIt->second->removeFromParent();
+            _scoreIcons.erase(dotIt);
+        }
+    }
+    _dotsToRemove.clear();
+}
+
 
 
 
