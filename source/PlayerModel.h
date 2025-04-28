@@ -47,6 +47,7 @@
 #include "Treasure.h"
 #include "Constants.h"
 #include "Message.h"
+#include "AnimationEvent.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -455,6 +456,8 @@ public:
 
     /** Sets which animation color strip to use for the player */
     void setAnimationColors(ColorType color);
+    
+    void processNetworkAnimation(AnimationType animation, bool activate);
     
     /**
      * Called when the player obtains a treasure.
