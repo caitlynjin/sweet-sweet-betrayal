@@ -838,3 +838,20 @@ void PlayerModel::resetMovement(){
     _faceRight = true;
     updateFacing();
 }
+
+ColorType PlayerModel::getColor() {
+    if (getName() == "playerRed"){
+        return ColorType::RED;
+    }
+    if (getName() == "playerBlue"){
+        return ColorType::BLUE;
+    }
+    if (getName() == "playerGreen"){
+        return ColorType::GREEN;
+    }
+    if (getName() == "playerYellow"){
+        return ColorType::YELLOW;
+    }
+    // DEFAULT
+    return ColorType::RED;
+}

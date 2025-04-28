@@ -239,6 +239,7 @@ void NetworkController::reset(){
 void NetworkController::resetRound(){
     _numReady = 0;
     _numReset = 0;
+    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
 }
 
 
