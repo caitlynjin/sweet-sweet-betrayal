@@ -16,6 +16,7 @@ private:
     float  _speed = 0;
     bool   _forward = true;
     bool _wall = false;
+    int _turnCount = 0;
 
 public:
 	Platform() : Object() {}
