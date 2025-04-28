@@ -326,7 +326,7 @@ void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate
         _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);   
         setDead(true);         
     }
-    else if (animation == AnimationType::GLIDE && _glideAction) {
+    else if (animation == AnimationType::GLIDE) {
         if (!_glideSpriteNode->isVisible()) {
             _idleSpriteNode ->setVisible(false);
             _walkSpriteNode ->setVisible(false);
@@ -335,6 +335,7 @@ void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate
             _deathSpriteNode->setVisible(false);
         }
         doStrip(GLIDE_ACTION_KEY, _glideAction);
+        _isGliding = true;
     }
 }
 

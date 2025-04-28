@@ -191,6 +191,13 @@ void MovePhaseController::preUpdate(float dt) {
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _network->pushOutEvent(
+                AnimationEvent::allocAnimationEvent(
+                    _network->getShortUID(),           
+                    AnimationType::GLIDE,              
+                    true                               
+                )
+            );
         }
     }
     else if (!_input->isRightDown()) {
