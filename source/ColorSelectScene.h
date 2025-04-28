@@ -25,7 +25,9 @@ public:
         RED,
         BLUE,
         YELLOW,
-        GREEN
+        GREEN,
+        /** User is ready to start the game */
+        READY
     };
 protected:
     /** The asset manager for this scene. */
@@ -42,6 +44,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _background;
     /** The menu button for returning to the previous scene  */
     std::shared_ptr<cugl::scene2::Button> _backbutton;
+    /** The button for starting a game */
+    std::shared_ptr<cugl::scene2::Button> _readybutton;
     /** The button for choosing red  */
     std::shared_ptr<cugl::scene2::Button> _redbutton;
     /** The button for choosing blue  */
@@ -104,6 +108,8 @@ public:
     void _updateSelectedColor(ColorType c);
     /** Update the screen to clear the previously taken color */
     void _clearTaken(int oldColorInt);
+    /** Reset the buttons */
+    void _resetButtons();
 };
 
 #endif // __COLOR_SELECT_SCENE_H__

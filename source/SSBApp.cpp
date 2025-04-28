@@ -419,16 +419,12 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("HANDSHAKE");
         _networkController->setIsHost(true);
-        _gameController.init(_assets, _networkController, _sound);
-        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
         CULog("INGAME");
         _hostgame.setActive(false);
-//        _gameController.setActive(true);
-//        _status = GAME;
         _colorselect.setActive(true);
         _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
@@ -466,15 +462,11 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
-        _gameController.init(_assets, _networkController, _sound);
-        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
         _joingame.setActive(false);
-//        _gameController.setActive(true);
-//        _status = GAME;
         _colorselect.setActive(true);
         _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
@@ -494,11 +486,20 @@ void SSBApp::updateColorSelectScene(float timestep){
     _colorselect.update(timestep);
     _networkController->fixedUpdate(timestep);
     
-    if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
+    if (_networkController->getNumColorReady() == _colorselect.getInitialPlayerCount()) {
         _colorselect.setActive(false);
-        _network->disconnect();
-        _gameController.dispose();
-
+        _gameController.init(_assets, _networkController, _sound);
+        _gameController.setSpriteBatch(_batch);
+        _gameController.setActive(true);
+        _status = GAME;
+        return;
+    }
+    
+    if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
+        _colorselect.reset();
+        _colorselect.setActive(false);
+        _networkController->flushConnection();
+        _networkController->resetColorReady();
         if (_networkController->getIsHost()) {
             _hostgame.reset();
             _hostgame.setActive(true);
@@ -514,9 +515,10 @@ void SSBApp::updateColorSelectScene(float timestep){
     switch (_colorselect.getChoice())
     {
         case ColorSelectScene::Choice::BACK:
+            _colorselect.reset();
             _colorselect.setActive(false);
-            _network->disconnect();
-            _gameController.dispose();
+            _networkController->flushConnection();
+            _networkController->resetColorReady();
             if (_networkController->getIsHost()){
                 _hostgame.reset();
                 _hostgame.setActive(true);

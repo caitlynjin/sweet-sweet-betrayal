@@ -77,7 +77,16 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
     _network->attachEventType<ScoreEvent>();
+    _network->attachEventType<TreasureEvent>();
     _localID = _network->getShortUID();
+}
+
+/** Flushes the connection and clears all events */
+void NetworkController::flushConnection(){
+    _network->disconnect();
+    while (_network->isInAvailable()) {
+       _network->popInEvent();
+    }
 }
 
 /**
@@ -261,6 +270,9 @@ void NetworkController::resetRound(){
 void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
     Message message = event->getMesage();
     switch (message) {
+        case Message::COLOR_READY:
+            _numColorReady++;
+            break;
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
@@ -322,15 +334,11 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     ColorType color = event->getColor();
     int prevColorInt = event->getPrevColor();
     
-    if (playerID == _localID) {
-        return;
-    }
-    
     // Store each color into map by player id
     _playerColorsById[playerID] = color;
     _playerIDs.push_back(playerID);
     
-    if (_onColorTaken) {
+    if (_onColorTaken && playerID != _localID) {
         _onColorTaken(color, prevColorInt);
     }
 }
@@ -451,6 +459,7 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
  * @param The player being created (that has not yet been added to the physics world).
  */
 std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale, ColorType color){
+    CULog("CREATE PLAYER NETWORKED, COLOR: %d");
     auto params = _dudeFact->serializeParams(pos, scale, color);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
@@ -573,20 +582,6 @@ void NetworkController::trySetFilters(){
         
         _filtersSet = true;
     }
-}
-
-
-void NetworkController::addPlayerColor(){
-    if (_isHost){
-        _color = ColorType::RED;
-    }
-    else{
-        // Determine color by order joined
-        _color = static_cast<ColorType>(_network->getNumPlayers() - 1);
-    }
-    _playerColorAdded = true;
-    
-    
 }
 
 

@@ -55,7 +55,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _sound = sound;
     _networkController = networkController;
     _network = networkController->getNetwork();
-    _networkController->setOnColorSelected([this](ColorType newColor, int oldColor){
+    _networkController->setOnColorTaken([this](ColorType newColor, int oldColor){
         _updateColorTaken(newColor, oldColor);
     });
     
@@ -65,6 +65,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.back"));
+    _readybutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.ready"));
     
     _redbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.red"));
     _redNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_redbutton->getChildByName("red-button"));
@@ -101,6 +102,13 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
+        }
+    });
+    _readybutton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _choice = Choice::READY;
+            _networkController->setLocalColor(_myColor);
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
         }
     });
     _redbutton->addListener([this](const std::string& name, bool down) {
@@ -155,6 +163,8 @@ void ColorSelectScene::reset(){
     _choice = Choice::NONE;
     _taken = {false,false,false,false};
     _myColor = ColorType::RED;
+    _resetButtons();
+    
 }
 
 /**
@@ -168,18 +178,21 @@ void ColorSelectScene::setActive(bool value) {
         if (value) {
             _choice = NONE;
             _backbutton->activate();
+            _readybutton->activate();
             _redbutton->activate();
             _bluebutton->activate();
             _yellowbutton->activate();
             _greenbutton->activate();
         } else {
             _backbutton->deactivate();
+            _readybutton->deactivate();
             _redbutton->deactivate();
             _bluebutton->deactivate();
             _yellowbutton->deactivate();
             _greenbutton->deactivate();
             // If any were pressed, reset them
             _backbutton->setDown(false);
+            _readybutton->setDown(false);
             _redbutton->setDown(false);
             _bluebutton->setDown(false);
             _yellowbutton->setDown(false);
@@ -277,4 +290,11 @@ void ColorSelectScene::_clearTaken(int oldColorInt){
                 break;
         }
     }
+}
+
+void ColorSelectScene::_resetButtons(){
+    _redNormal->setVisible(true); _redSelected->setVisible(false); _redTaken->setVisible(false);
+    _blueNormal->  setVisible(true); _blueSelected->  setVisible(false); _blueTaken->setVisible(false);
+    _yellowNormal->setVisible(true); _yellowSelected->setVisible(false); _yellowTaken->setVisible(false);
+    _greenNormal-> setVisible(true); _greenSelected-> setVisible(false); _greenTaken->setVisible(false);
 }

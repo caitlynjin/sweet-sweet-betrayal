@@ -392,6 +392,8 @@ protected:
     bool _playerColorAdded = false;
     
     
+    /** The number of players ready to proceed from Color Select Scene*/
+    float _numColorReady = 0;
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -473,6 +475,9 @@ public:
         std::shared_ptr<NetworkController> result = std::make_shared<NetworkController>();
         return (result->init(assets) ? result : nullptr);
     }
+    
+    /** Flushes the connection and clears all events */
+    void flushConnection();
 
     /**
      * Initializes the controller contents, and starts the game
@@ -629,6 +634,16 @@ public:
     }
     
     /**
+     * Returns the no. of players ready to proceed from ColorSelect Phase
+     */
+    int getNumColorReady(){
+        return _numColorReady;
+    }
+    
+    /** Resets numColorReady to 0 */
+    void resetColorReady() { _numColorReady = 0; }
+    
+    /**
      * Returns the number of players ready to proceed to Movement Phase
      */
     int getNumReady(){
@@ -671,9 +686,13 @@ public:
     }
     
     /**
-     * Creates player information
+     * Sets the local player's color
      */
-    void addPlayerColor();
+    void setLocalColor(ColorType c) {
+        _color = c;
+        _playerColorAdded = true;
+        CULog("Set local color: %d", _color);
+    }
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
 
 #pragma mark -
@@ -885,7 +904,7 @@ public:
     }
     
     /** Sets the onColorTaken callback function */
-    void setOnColorSelected (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
+    void setOnColorTaken (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
 
 };
 
