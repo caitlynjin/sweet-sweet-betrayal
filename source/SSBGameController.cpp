@@ -368,9 +368,6 @@ void SSBGameController::fixedUpdate(float step)
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(step);
 //    }
-    
-
-
 }
 
 /**
