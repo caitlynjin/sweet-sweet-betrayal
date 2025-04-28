@@ -541,7 +541,7 @@ void SSBApp::updateColorSelectScene(float timestep){
 
 void SSBApp::resetScenes(){
     // Reset network
-//    _networkController->resetNetwork();
+    _networkController->resetNetwork();
     _networkController->resetColorReady();
     _gameController.reset();
     _network->disconnect();
