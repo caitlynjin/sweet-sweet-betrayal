@@ -78,6 +78,9 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
         std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
         _inRoundIcons[key] = newIconNode;
         
+        std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
+        _inRoundIcons[key] = newIconNode;
+        
         CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
                       iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
     }

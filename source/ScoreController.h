@@ -175,6 +175,12 @@ public:
     void commitRoundIcons();
     
     /**
+     * Make visible all icons added in this round
+     * and then migrate them into the permanent _scoreIcons list.
+     */
+    void commitRoundIcons();
+    
+    /**
      * The method called to indicate the start of a deterministic loop.
      *
      * This method is used instead of {@link #update} if {@link #setDeterministic}
