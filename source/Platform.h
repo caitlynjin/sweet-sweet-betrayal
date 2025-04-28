@@ -25,6 +25,8 @@ public:
 	/** The update method for the platform */
 	void update(float timestep) override;
 
+    void updateMovingPlatform(float timestep); 
+
     string getJsonKey() override;
 
 	~Platform(void) override { dispose(); }

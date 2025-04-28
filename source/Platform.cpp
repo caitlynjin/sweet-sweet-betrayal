@@ -18,6 +18,9 @@ void Platform::setPositionInit(const cugl::Vec2& position) {
 
 void Platform::update(float timestep) {
     PolygonObstacle::update(timestep);
+}
+
+void Platform::updateMovingPlatform(float timestep){
     
     if (!_moving) return;
     Vec2 pos = getPosition();
@@ -38,12 +41,12 @@ void Platform::update(float timestep) {
         _forward = !_forward;
         Vec2 newTarget = _forward ? _endPos : _startPos;
         Vec2 direction = newTarget - pos;
-        direction.normalize();         
+        direction.normalize();
         Vec2 velocity = direction * _speed;
         setLinearVelocity(velocity);
     }
-
 }
+
 
 string Platform::getJsonKey() {
     return JSON_KEY;
@@ -130,6 +133,7 @@ std::map<std::string, std::any> Platform::getMap() {
     return m;
 }
 bool Platform::updateMoving(Vec2 gridpos) {
+    CULog("update moving");
     if (_moving) {
         Vec2 oldStartPos = _startPos;
         Vec2 oldEndPos = _endPos;

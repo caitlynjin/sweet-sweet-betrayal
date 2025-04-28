@@ -364,17 +364,20 @@ void SSBGameController::fixedUpdate(float step)
     _networkController->fixedUpdate(step);
     
     
-    // Update all game objects
-//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
-//        (*it)->update(step);
-//    }
-    
-    if (_networkController->getIsHost()){
-        CULog("Is host");
+    if (_networkController->getIsHost()) {   
+        auto objects = _networkController->getObjects();
+
+        for (auto it = objects->begin(); it != objects->end(); ++it) {
+            std::shared_ptr<Object> obj = *it;
+            if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
+                std::shared_ptr<Platform> platform = std::dynamic_pointer_cast<Platform>(obj);
+                if (platform) {
+                    platform->updateMovingPlatform(step);
+                }
+            }
+        }
     }
-    else{
-        CULog("Is client");
-    }
+
 
 
 }

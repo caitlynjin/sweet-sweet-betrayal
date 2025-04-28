@@ -244,6 +244,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     CULog("Reposition object");
                     _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType()== Item::PLATFORM) {
+                        CULog("is platform");
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
                             platform->updateMoving(gridPos);
