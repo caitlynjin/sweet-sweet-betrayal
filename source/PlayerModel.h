@@ -663,7 +663,24 @@ public:
 
     /**Enable/disable jump damping*/
     void setJumpDamping(bool value) { _isDampEnabled = value; }
-    
+
+    ColorType getColor() {
+        if (getName() == "playerRed"){
+            return ColorType::RED;
+        }
+        if (getName() == "playerBlue"){
+            return ColorType::BLUE;
+        }
+        if (getName() == "playerGreen"){
+            return ColorType::GREEN;
+        }
+        if (getName() == "playerYellow"){
+            return ColorType::YELLOW;
+        }
+        // DEFAULT
+        return ColorType::RED;
+    }
+
 #pragma mark -
 #pragma mark Physics Methods
     /**

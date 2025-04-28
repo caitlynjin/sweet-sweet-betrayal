@@ -15,6 +15,7 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "ReadyEvent.h"
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
 #include "AnimationEvent.h"
@@ -712,6 +713,11 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+
+    /**
+     * This method takes a ReadyEvent and processes it.
+     */
+    void processReadyEvent(const std::shared_ptr<ReadyEvent>& event);
     
     /**
      * This method takes a TreasureEvent and processes it.
