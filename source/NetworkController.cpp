@@ -333,8 +333,8 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
     bool activate = event->isActivate();
     int colorInt  = static_cast<int>(_playerColorsById[uid]);
 
-    CULog("AnimationEvent → UID=%d, color=%d, anim=%d, activate=%d",
-          uid, colorInt, static_cast<int>(anim), activate);
+//    CULog("AnimationEvent → UID=%d, color=%d, anim=%d, activate=%d",
+//          uid, colorInt, static_cast<int>(anim), activate);
 
     static const char* ColorNames[] = {"Red","Blue","Green","Yellow"};
     std::string targetName = "player" + std::string(ColorNames[colorInt]);
