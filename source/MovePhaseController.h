@@ -167,6 +167,10 @@ public:
         _uiScene.setScoreboardVisible(value);
         _uiScene.disableUI(value);
     };
+    
+    void inRoundNodesActive(bool value) {
+        _uiScene.inRoundNodesActive(value);
+    }
 
     /**
      * Updates progress bar

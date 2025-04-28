@@ -219,6 +219,10 @@ public:
 //        }
         disableUI(value); 
     };
+    
+    void inRoundNodesActive(bool value) {
+        _scoreController->commitRoundIcons();
+    }
 
     /**
      * Sets the left joystick to be visible.
