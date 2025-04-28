@@ -301,9 +301,17 @@ void SSBGameController::preUpdate(float dt)
                     _scoreCountdown = SCOREBOARD_COUNT;
                     _movePhaseController->scoreboardActive(true);
                 }
-                if (_scoreCountdown==200){
-                    _movePhaseController->inRoundNodesActive(true);
+                _nextInRoundDelay -= 1;
+                auto players = _networkController->getPlayerList();
+                if (_nextInRoundDelay <= 0 && _nextInRoundIndex<players.size()) {
+                    const std::string& name = players[_nextInRoundIndex]->getName();
+                    _movePhaseController->inRoundNodesActive(name);
+                    _nextInRoundIndex++;
+
+                    _nextInRoundDelay = 30.0f;
                 }
+
+
                 if (_scoreCountdown == 0){
                     _movePhaseController->scoreboardActive(false);
                     _movePhaseController->resetRound();

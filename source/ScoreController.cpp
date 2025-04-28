@@ -78,8 +78,6 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
         std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
         _inRoundIcons[key] = newIconNode;
         
-        std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
-        _inRoundIcons[key] = newIconNode;
         
         CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
                       iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
@@ -258,24 +256,33 @@ std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::stri
 }
 
 //set in round nodes visible
-void ScoreController::commitRoundIcons() {
-    for (auto& entry : _inRoundIcons) {
-        entry.second->setVisible(true);
-        _scoreIcons[entry.first] = entry.second;
-    }
-    _inRoundIcons.clear();
-    for (const auto& dotKey : _dotsToRemove) {
-        auto dotIt = _scoreIcons.find(dotKey);
-        
-        if (dotIt != _scoreIcons.end()) {
-            CULog("Removing dotKey: %s\n", dotKey.c_str());
-            dotIt->second->setVisible(false);
-            dotIt->second->removeFromParent();
-            _scoreIcons.erase(dotIt);
+void ScoreController::commitRoundIcons(const std::string& username) {
+    for (auto it = _inRoundIcons.begin(); it != _inRoundIcons.end(); ) {
+        if (it->first.find(username) != std::string::npos) {
+            it->second->setVisible(true);
+            _scoreIcons[it->first] = it->second;
+            it = _inRoundIcons.erase(it); 
+        } else {
+            ++it;
         }
     }
-    _dotsToRemove.clear();
+
+    for (auto it = _dotsToRemove.begin(); it != _dotsToRemove.end(); ) {
+        if (it->find(username) != std::string::npos) {
+            auto dotIt = _scoreIcons.find(*it);
+            if (dotIt != _scoreIcons.end()) {
+                CULog("Removing dotKey: %s\n", it->c_str());
+                dotIt->second->setVisible(false);
+                dotIt->second->removeFromParent();
+                _scoreIcons.erase(dotIt);
+            }
+            it = _dotsToRemove.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
+
 
 
 

@@ -172,13 +172,8 @@ public:
      * Make visible all icons added in this round
      * and then migrate them into the permanent _scoreIcons list.
      */
-    void commitRoundIcons();
-    
-    /**
-     * Make visible all icons added in this round
-     * and then migrate them into the permanent _scoreIcons list.
-     */
-    void commitRoundIcons();
+    void commitRoundIcons(const std::string& username);
+
     
     /**
      * The method called to indicate the start of a deterministic loop.
