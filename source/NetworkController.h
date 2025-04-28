@@ -379,8 +379,11 @@ protected:
     /** Map for accessing player color based off network id */
     std::unordered_map<int, ColorType> _playerColorsById;
     
-    /** The player colorr */
+    /** The player color */
     ColorType _color;
+    
+    /** The callback function when any player picks a color */
+    std::function<void(ColorType, int)> _onColorTaken = nullptr;
     
     /**stores score controller instance**/
     std::shared_ptr<ScoreController> _scoreController;
@@ -880,6 +883,9 @@ public:
 //        }
         return _scoreController->checkWinCondition();
     }
+    
+    /** Sets the onColorTaken callback function */
+    void setOnColorSelected (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
 
 };
 

@@ -195,7 +195,7 @@ void SSBApp::preUpdate(float dt)
         _joingame.setSpriteBatch(_batch);
         _victory.init(_assets, _sound, _networkController);
         _victory.setSpriteBatch(_batch);
-        _colorselect.init(_assets, _sound);
+        _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
         _status = START;
     }
@@ -492,7 +492,7 @@ void SSBApp::updateClientScene(float timestep)
 
 void SSBApp::updateColorSelectScene(float timestep){
     _colorselect.update(timestep);
-    _networkController->update(timestep);
+    _networkController->fixedUpdate(timestep);
     
     if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
         _colorselect.setActive(false);

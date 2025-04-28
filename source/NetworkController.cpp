@@ -172,6 +172,9 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    if (!_localID){
+        _localID = _network->getShortUID();
+    }
     _scoreController->fixedUpdate(step);
     // Process messaging events
     if(_network->isInAvailable()){
@@ -295,8 +298,6 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             _treasure->setStealable(false);
             break;
         case Message::HOST_START:
-            // Send message for everyone to send player id and color
-            _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
             break;
             // Still need this?
         case Message::SCORE_UPDATE:
@@ -319,10 +320,19 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
 void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& event){
     int playerID = event->getPlayerID();
     ColorType color = event->getColor();
+    int prevColorInt = event->getPrevColor();
+    
+    if (playerID == _localID) {
+        return;
+    }
     
     // Store each color into map by player id
     _playerColorsById[playerID] = color;
     _playerIDs.push_back(playerID);
+    
+    if (_onColorTaken) {
+        _onColorTaken(color, prevColorInt);
+    }
 }
 
 
