@@ -677,6 +677,8 @@ public:
         if (getName() == "playerYellow"){
             return ColorType::YELLOW;
         }
+        // DEFAULT
+        return ColorType::RED;
     }
 
 #pragma mark -
