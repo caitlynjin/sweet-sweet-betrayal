@@ -370,15 +370,6 @@ void SSBGameController::fixedUpdate(float step)
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(step);
 //    }
-    
-    if (_networkController->getIsHost()){
-        CULog("Is host");
-    }
-    else{
-        CULog("Is client");
-    }
-
-
 }
 
 /**
