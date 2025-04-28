@@ -66,6 +66,7 @@ protected:
 
     ColorType _myColor = ColorType::RED;
     int  _prevTakenIndex = -1;
+    bool _isReady;
     
 public:
 #pragma mark -
@@ -110,6 +111,10 @@ public:
     void _clearTaken(int oldColorInt);
     /** Reset the buttons */
     void _resetButtons();
+    /** Visually change the ready button depending on the input */
+    void _setReadyEnabled(bool enable);
+    /** Returns isReady */
+    bool _getReady(){ return _isReady; }
 };
 
 #endif // __COLOR_SELECT_SCENE_H__

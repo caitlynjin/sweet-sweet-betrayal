@@ -512,6 +512,10 @@ void SSBApp::updateColorSelectScene(float timestep){
         return;
     }
     
+    if (_colorselect._getReady()){
+        _colorselect._setReadyEnabled(false);
+    }
+    
     switch (_colorselect.getChoice())
     {
         case ColorSelectScene::Choice::BACK:
@@ -538,6 +542,7 @@ void SSBApp::updateColorSelectScene(float timestep){
 void SSBApp::resetScenes(){
     // Reset network
 //    _networkController->resetNetwork();
+    _networkController->resetColorReady();
     _gameController.reset();
     _network->disconnect();
     _gameController.dispose();
@@ -546,6 +551,7 @@ void SSBApp::resetScenes(){
     _mainmenu.reset();
     _hostgame.reset();
     _joingame.reset();
+    _colorselect.reset();
 }
 
 /**

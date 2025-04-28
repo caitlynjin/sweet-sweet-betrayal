@@ -66,6 +66,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _choice = Choice::NONE;
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.back"));
     _readybutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.ready"));
+    _isReady = false;
     
     _redbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.red"));
     _redNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_redbutton->getChildByName("red-button"));
@@ -109,6 +110,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _choice = Choice::READY;
             _networkController->setLocalColor(_myColor);
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
+            _isReady = true;
         }
     });
     _redbutton->addListener([this](const std::string& name, bool down) {
@@ -164,7 +166,8 @@ void ColorSelectScene::reset(){
     _taken = {false,false,false,false};
     _myColor = ColorType::RED;
     _resetButtons();
-    
+    _isReady = false;
+    _setReadyEnabled(false);
 }
 
 /**
@@ -178,7 +181,9 @@ void ColorSelectScene::setActive(bool value) {
         if (value) {
             _choice = NONE;
             _backbutton->activate();
-            _readybutton->activate();
+            // Deactivate ready button at first because no colors have been selected yet
+            _isReady = false;
+            _setReadyEnabled(false);
             _redbutton->activate();
             _bluebutton->activate();
             _yellowbutton->activate();
@@ -262,6 +267,9 @@ void ColorSelectScene::_updateSelectedColor(ColorType c) {
             break;
     }
     _prevTakenIndex = int(c);
+    if (!_readybutton->isActive()){
+        _setReadyEnabled(true);
+    }
 }
 
 void ColorSelectScene::_clearTaken(int oldColorInt){
@@ -297,4 +305,15 @@ void ColorSelectScene::_resetButtons(){
     _blueNormal->  setVisible(true); _blueSelected->  setVisible(false); _blueTaken->setVisible(false);
     _yellowNormal->setVisible(true); _yellowSelected->setVisible(false); _yellowTaken->setVisible(false);
     _greenNormal-> setVisible(true); _greenSelected-> setVisible(false); _greenTaken->setVisible(false);
+}
+
+/** Visually change the ready button depending on the input */
+void ColorSelectScene::_setReadyEnabled(bool enable) {
+    if (enable){
+        _readybutton->activate();
+    } else{
+        _readybutton->deactivate();
+    }
+    Color4 tint = enable ? Color4::WHITE : Color4(161,161,161,255);
+    _readybutton->setColor(tint);
 }
