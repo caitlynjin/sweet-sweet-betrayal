@@ -241,10 +241,6 @@ void HostScene::update(float timestep) {
 #pragma mark BEGIN SOLUTION
     if(_network->getStatus() == NetEventController::Status::CONNECTED){
         
-        if (!_networkController->getPlayerColorAdded()){
-            _networkController->addPlayerColor();
-        }
-        
         
         if (!_startGameClicked) {
             updateText(_startgame, "Start Game");

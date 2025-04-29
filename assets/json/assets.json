@@ -193,7 +193,7 @@
             }
         },
         "ready_button": {
-            "file": "textures/ready.png"
+            "file": "textures/buttons/ready.png"
         },
         "left_button": {
             "file": "textures/left-scroll-arrow.png"
@@ -482,6 +482,48 @@
         },
         "timer": {
             "file": "textures/timer.png"
+        },
+        "select-green": {
+            "file": "textures/buttons/select-green.png"
+        },
+        "select-yellow": {
+            "file": "textures/buttons/select-yellow.png"
+        },
+        "select-blue": {
+            "file": "textures/buttons/select-blue.png"
+        },
+        "select-red": {
+            "file": "textures/buttons/select-red.png"
+        },
+        "color-green": {
+            "file": "textures/buttons/color-green.png"
+        },
+        "color-yellow": {
+            "file": "textures/buttons/color-yellow.png"
+        },
+        "color-blue": {
+            "file": "textures/buttons/color-blue.png"
+        },
+        "color-red": {
+            "file": "textures/buttons/color-red.png"
+        },
+        "taken-green": {
+            "file": "textures/buttons/taken-green.png"
+        },
+        "taken-yellow": {
+            "file": "textures/buttons/taken-yellow.png"
+        },
+        "taken-blue": {
+            "file": "textures/buttons/taken-blue.png"
+        },
+        "taken-red": {
+            "file": "textures/buttons/taken-red.png"
+        },
+        "colorselect-title": {
+            "file": "textures/text/colorselect-title.png"
+        },
+        "vine-background": {
+            "file": "textures/backgrounds/vine-background.png"
         }
     },
     "jsons": {
@@ -563,18 +605,9 @@
         "startbutton" : "widgets/textbutton.json",
         "end" : "widgets/end.json",
         "join" : "widgets/join.json",
-        "numlabel" : "widgets/numlabel.json",
-        "colorbutton": "widgets/colorbutton.json",
-        "textbutton": "widgets/textbutton.json",
-        "textfield": "widgets/textfield.json",
-        "labelbox": "widgets/labelbox.json",
-        "menu": "widgets/menu.json",
-        "textbutton2": "widgets/textbutton2.json",
-        "start": "widgets/start.json",
-        "startbutton": "widgets/textbutton.json",
-        "join": "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
-        "host" : "widgets/host.json"
+        "host" : "widgets/host.json",
+        "colorselect" : "widgets/colorselect.json"
     },
     "scene2s": {
         "start": {
@@ -621,6 +654,15 @@
             },
             "data": {
                 "key": "join"
+            }
+        },
+        "colorselect": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "colorselect"
             }
         },
         "game": {
