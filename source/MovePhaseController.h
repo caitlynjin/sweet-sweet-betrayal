@@ -167,6 +167,10 @@ public:
         _uiScene.setScoreboardVisible(value);
         _uiScene.disableUI(value);
     };
+    
+    void inRoundNodesActive(const std::string& username) {
+        _uiScene.inRoundNodesActive(username);
+    }
 
     /**
      * Updates progress bar

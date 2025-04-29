@@ -505,6 +505,7 @@ void SSBApp::updateColorSelectScene(float timestep){
     if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
         _colorselect.reset();
         _colorselect.setActive(false);
+        _network->disconnect();
         _networkController->flushConnection();
         _networkController->resetColorReady();
         if (_networkController->getIsHost()) {
@@ -528,6 +529,7 @@ void SSBApp::updateColorSelectScene(float timestep){
         case ColorSelectScene::Choice::BACK:
             _colorselect.reset();
             _colorselect.setActive(false);
+            _network->disconnect();
             _networkController->flushConnection();
             _networkController->resetColorReady();
             if (_networkController->getIsHost()){
