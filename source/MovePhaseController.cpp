@@ -191,6 +191,7 @@ void MovePhaseController::preUpdate(float dt) {
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _movePhaseScene.getLocalPlayer()->bufferJump();
         }
     }
     else if (!_input->isRightDown()) {
