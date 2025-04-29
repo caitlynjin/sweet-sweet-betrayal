@@ -417,7 +417,7 @@ void SSBApp::updateHostScene(float timestep)
     if (_hostgame.getBackClicked())
     {
         _network->disconnect();
-        _networkController->resetNetwork();
+        _networkController->flushConnection();
         _status = MENU;
         _hostgame.setActive(false);
         _mainmenu.setActive(true);
@@ -432,6 +432,7 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("INGAME");
         _hostgame.setActive(false);
+        _colorselect.reset();
         _colorselect.setActive(true);
         _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
@@ -463,7 +464,7 @@ void SSBApp::updateClientScene(float timestep)
     if (_joingame.getBackClicked())
     {
         _network->disconnect();
-        _networkController->resetNetwork();
+        _networkController->flushConnection();
         _status = MENU;
         _joingame.setActive(false);
         _mainmenu.setActive(true);
@@ -553,6 +554,7 @@ void SSBApp::updateWaitingHostScene(float timestep){
     _networkController->update(timestep);
     if (_network->getStatus() == NetEventController::Status::INGAME){
         _waitinghost.setActive(false);
+        _colorselect.reset();
         _colorselect.setActive(true);
         _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
@@ -565,7 +567,7 @@ void SSBApp::updateWaitingHostScene(float timestep){
     } else if (_network->getStatus() == NetEventController::Status::NETERROR
      || _network->getNumPlayers() <= 1) {
         _network->disconnect();
-        _networkController->resetNetwork();
+        _networkController->flushConnection();
         _waitinghost.setActive(false);
         _joingame.reset();
         _joingame.setActive(true);
