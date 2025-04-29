@@ -524,6 +524,18 @@
         },
         "vine-background": {
             "file": "textures/backgrounds/vine-background.png"
+        },
+        "black-background": {
+            "file": "textures/backgrounds/black-background.png"
+        },
+        "cancel": {
+            "file": "textures/buttons/cancel.png"
+        },
+        "fourgems": {
+            "file": "textures/fourgems.png"
+        },
+        "waiting-host-title": {
+            "file": "textures/text/waiting-host-title.png"
         }
     },
     "jsons": {
@@ -607,7 +619,8 @@
         "join" : "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
         "host" : "widgets/host.json",
-        "colorselect" : "widgets/colorselect.json"
+        "colorselect" : "widgets/colorselect.json",
+        "waiting-host": "widgets/waiting-host.json"
     },
     "scene2s": {
         "start": {
@@ -654,6 +667,15 @@
             },
             "data": {
                 "key": "join"
+            }
+        },
+        "waiting-host": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "waiting-host"
             }
         },
         "colorselect": {
