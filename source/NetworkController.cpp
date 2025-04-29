@@ -86,7 +86,6 @@ void NetworkController::resetNetwork(){
 
 /** Flushes the connection and clears all events */
 void NetworkController::flushConnection(){
-    _network->disconnect();
     while (_network->isInAvailable()) {
        _network->popInEvent();
     }
