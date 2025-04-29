@@ -192,6 +192,13 @@ void MovePhaseController::preUpdate(float dt) {
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
             _movePhaseScene.getLocalPlayer()->bufferJump();
+            _network->pushOutEvent(
+                AnimationEvent::allocAnimationEvent(
+                    _network->getShortUID(),           
+                    AnimationType::GLIDE,              
+                    true                               
+                )
+            );
         }
     }
     else if (!_input->isRightDown()) {
@@ -334,6 +341,13 @@ void MovePhaseController::killPlayer(){
         }
         // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        _network->pushOutEvent(
+            AnimationEvent::allocAnimationEvent(
+                _network->getShortUID(),           
+                AnimationType::DEATH,              
+                true                               
+            )
+        );
         _networkController->getScoreController()->sendScoreEvent(
             _networkController->getNetwork(),
             _networkController->getNetwork()->getShortUID(),

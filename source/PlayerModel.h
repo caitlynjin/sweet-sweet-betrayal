@@ -47,6 +47,7 @@
 #include "Treasure.h"
 #include "Constants.h"
 #include "Message.h"
+#include "AnimationEvent.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -464,6 +465,8 @@ public:
     /** Sets which animation color strip to use for the player */
     void setAnimationColors(ColorType color);
     
+    void processNetworkAnimation(AnimationType animation, bool activate);
+    
     /**
      * Called when the player obtains a treasure.
      *
@@ -667,7 +670,24 @@ public:
 
     /**Enable/disable jump damping*/
     void setJumpDamping(bool value) { _isDampEnabled = value; }
-    
+
+    ColorType getColor() {
+        if (getName() == "playerRed"){
+            return ColorType::RED;
+        }
+        if (getName() == "playerBlue"){
+            return ColorType::BLUE;
+        }
+        if (getName() == "playerGreen"){
+            return ColorType::GREEN;
+        }
+        if (getName() == "playerYellow"){
+            return ColorType::YELLOW;
+        }
+        // DEFAULT
+        return ColorType::RED;
+    }
+
 #pragma mark -
 #pragma mark Physics Methods
     /**
