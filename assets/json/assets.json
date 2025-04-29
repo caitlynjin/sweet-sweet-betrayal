@@ -536,6 +536,12 @@
         },
         "waiting-host-title": {
             "file": "textures/text/waiting-host-title.png"
+        },
+        "loading-spritesheet": {
+            "file": "textures/loading-spritesheet.png"
+        },
+        "tip1": {
+            "file": "textures/text/tip1.png"
         }
     },
     "jsons": {

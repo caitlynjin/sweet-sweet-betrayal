@@ -416,6 +416,8 @@ void SSBApp::updateHostScene(float timestep)
     _networkController->update(timestep);
     if (_hostgame.getBackClicked())
     {
+        _network->disconnect();
+        _networkController->resetNetwork();
         _status = MENU;
         _hostgame.setActive(false);
         _mainmenu.setActive(true);
@@ -460,6 +462,8 @@ void SSBApp::updateClientScene(float timestep)
     _networkController->update(timestep);
     if (_joingame.getBackClicked())
     {
+        _network->disconnect();
+        _networkController->resetNetwork();
         _status = MENU;
         _joingame.setActive(false);
         _mainmenu.setActive(true);
@@ -556,6 +560,15 @@ void SSBApp::updateWaitingHostScene(float timestep){
     {
         _networkController->setIsHost(false);
         _network->markReady();
+    } else if (_network->getStatus() == NetEventController::Status::NETERROR
+     || _network->getNumPlayers() <= 1) {
+        _network->disconnect();
+        _networkController->resetNetwork();
+        _waitinghost.setActive(false);
+        _joingame.reset();
+        _joingame.setActive(true);
+        _status = CLIENT;
+        return;
     }
     switch (_waitinghost.getChoice())
     {

@@ -9,13 +9,19 @@
 #include "WaitingHostScene.h"
 #include "Constants.h"
 #include "SoundController.h"
+#include <cugl/graphics/loaders/CUTextureLoader.h>
+#include <cugl/scene2/CUScene2Loader.h>
+#include <cugl/core/assets/CUWidgetLoader.h>
 
 using namespace cugl;
 using namespace cugl::scene2;
+using namespace cugl::graphics;
 using namespace std;
 
 #define SCENE_WIDTH 1024
 #define SCENE_HEIGHT 576
+#define DURATION 1.0f
+#define ACT_KEY  "current"
 
 #pragma mark -
 #pragma mark Constructors
@@ -45,14 +51,26 @@ bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
     
-    _cancelbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("waiting-host.cancel"));
-    _cancelbutton->addListener([this](const std::string& name, bool down) {
+    _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("waiting-host.back"));
+    _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::CANCEL;
         }
     });
+    _waitSpriteNode = std::dynamic_pointer_cast<scene2::SpriteNode>(_assets->get<scene2::SceneNode>("waiting-host.fourgems"));
+    _timeline = ActionTimeline::alloc();
     
-    _gemanimation = 
+    std::vector<int> forward;
+    for (int ii = 0; ii < 20; ii++) {
+       forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _waitAnimateSprite = AnimateSprite::alloc(forward);
+    _waitAction = _waitAnimateSprite->attach<scene2::SpriteNode>(_waitSpriteNode);
+    
     addChild(scene);
     setActive(false);
     return true;
@@ -91,10 +109,31 @@ void WaitingHostScene::setActive(bool value){
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
-            _cancelbutton->activate();
+            _backbutton->activate();
         } else {
-            _cancelbutton->deactivate();
-            _cancelbutton->setDown(false);
+            _backbutton->deactivate();
+            _backbutton->setDown(false);
         }
     }
+}
+
+/**
+ * Performs a film strip action
+ *
+ * @param key   The action key
+ * @param action The film strip action
+ * @param slide  The associated movement slide
+ */
+void WaitingHostScene::doStrip(std::string key, cugl::ActionFunction action, float duration = DURATION) {
+    if (_timeline->isActive(key)) {
+        // NO OP
+    } else {
+        _timeline->add(key, action, duration);
+    }
+}
+
+/** Updates the scene */
+void WaitingHostScene::update(float dt){
+    doStrip(ACT_KEY, _waitAction, DURATION);
+    _timeline->update(dt);
 }

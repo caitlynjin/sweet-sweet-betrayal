@@ -12,8 +12,13 @@
 #include "Constants.h"
 #include "SSBInput.h"
 #include "SoundController.h"
+#include <cugl/graphics/loaders/CUTextureLoader.h>
+#include <cugl/scene2/CUScene2Loader.h>
+#include <cugl/core/assets/CUWidgetLoader.h>
 
 using namespace cugl;
+using namespace cugl::scene2;
+using namespace cugl::graphics;
 using namespace Constants;
 
 /**
@@ -42,13 +47,12 @@ protected:
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
     /** The menu button for cancelling */
-    std::shared_ptr<cugl::scene2::Button> _cancelbutton;
+    std::shared_ptr<cugl::scene2::Button> _backbutton;
     /** The animation variables for the waiting animation */
     std::shared_ptr<cugl::ActionTimeline> _timeline;
-    std::shared_ptr<AnimateSprite> _gemAnimateSprite;
-    std::shared_ptr<cugl::scene2::SpriteNode> _gemSpriteNode;
-    cugl::ActionFunction _gemAction;
-    float _gemDuration = 1.0f;
+    std::shared_ptr<cugl::AnimateSprite> _waitAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _waitSpriteNode;
+    cugl::ActionFunction _waitAction;
     
     /** The player menu choice */
     Choice _choice;
@@ -108,6 +112,18 @@ public:
      * @return the user's menu choice.
      */
     Choice getChoice() const { return _choice; }
+    
+    /**
+     * Performs a film strip action
+     *
+     * @param key   The action key
+     * @param action The film strip action
+     * @param slide  The associated movement slide
+     */
+    void doStrip(std::string key, cugl::ActionFunction action, float duration);
+    
+    /** Updates the scene */
+    void update(float dt) override;
 };
 
 #endif /* __WAITING_HOST_SCENE_H__ */
