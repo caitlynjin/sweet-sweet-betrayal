@@ -168,7 +168,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
-    _buildPhaseController->init(assets, _world, _input, _gridManager, _objectController, _networkController, _camera);
+    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
 
 
     _active = true;
@@ -371,15 +371,6 @@ void SSBGameController::fixedUpdate(float step)
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(step);
 //    }
-    
-    if (_networkController->getIsHost()){
-        CULog("Is host");
-    }
-    else{
-        CULog("Is client");
-    }
-
-
 }
 
 /**

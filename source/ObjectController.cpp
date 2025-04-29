@@ -56,11 +56,13 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
 Creates a 1 by 1 tile
 */
 std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string jsonType, float scale) {
-    CULog("MADE PLATFORM");
     std::shared_ptr<Tile> tile = Tile::alloc(pos, size, jsonType, scale);
+    return createTile(tile);
+}
 
+std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile) {
     std::shared_ptr<Texture> image;
-    image = _assets->get<Texture>(jsonTypeToAsset[jsonType]);
+    image = _assets->get<Texture>(jsonTypeToAsset[tile->getJsonType()]);
 
     float blendingOffset = 0.01f;
 
@@ -92,6 +94,7 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
 
     return tile;
 }
+
 std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platform> plat) {
     std::shared_ptr<Texture> image;
     if (plat->getJsonType() == "tile") {
@@ -105,15 +108,6 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
 
-    Poly2 poly(Rect(plat->getPositionInit().x, plat->getPositionInit().y, plat->getSize().width - blendingOffset, plat->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
     // Set the physics attributes
     plat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     plat->setDensity(BASIC_DENSITY);
@@ -122,9 +116,7 @@ std::shared_ptr<Object> ObjectController::createPlatform(std::shared_ptr<Platfor
     plat->setDebugColor(DEBUG_COLOR);
     plat->setName("platform");
 
-    poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
-    sprite->setAnchor(sprite->getAnchor().x, sprite->getAnchor().y + plat->getSize().height*0.25f );
     
     plat->setSceneNode(sprite);
 
@@ -229,59 +221,47 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
 {
-    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
+    return createWindObstacle(wind);
+}
+
+std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
+{
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
-    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
 
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
 
-    // Allow movement of obstacle
-    wind->setBodyType(b2_dynamicBody);
-    wind->setPositionInit(pos);
-
-    addObstacle(wind, fanSprite, 1);
-    wind->setSceneNode(fanSprite);
-    //Set the texture of the gust
-    wind->setGustSprite(gustSprite);
-
+    addObstacle(wind, wind->getSceneNode(), 1);
     _gameObjects->push_back(wind);
 
     return wind;
 }
 
-std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
-{
-    return createWindObstacle(wind->getPositionInit(), wind->getSize(),wind->getWindDirection(), wind->getWindForce(), wind->getJsonType());
+std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType, bool isLevelEditorMode){
+    std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
+    std::shared_ptr<Treasure> treas = Treasure::alloc(pos, image->getSize() / _scale, _scale);
+    return createTreasure(treas, isLevelEditorMode);
 }
 
-std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType){
-    std::shared_ptr<Texture> image;
+std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure, bool isLevelEditorMode) {
     std::shared_ptr<scene2::PolygonNode> sprite;
-    Vec2 treasurePos = pos;
-    image = _assets->get<Texture>("treasure");
-    _treasure = Treasure::alloc(treasurePos,image->getSize()/_scale,_scale);
-    
-    
+
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
     _treasure->setAnimation(animNode);
-    
-    
-//    _treasure->setSceneNode(sprite);
-    addObstacle(_treasure,_treasure->getSceneNode());
+
+    //    _treasure->setSceneNode(sprite);
+    addObstacle(_treasure, _treasure->getSceneNode());
     _treasure->setName("treasure");
     _treasure->setDebugColor(Color4::YELLOW);
-
-    _treasure->setPosition(pos);
     _gameObjects->push_back(_treasure);
-    _networkController->setTreasure(_treasure);
+    if (!isLevelEditorMode) {
+        _networkController->setTreasure(_treasure);
+    }
     return _treasure;
-}
-
-std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure) {
-    return createTreasure(_treasure->getPositionInit(), _treasure->getSize(), _treasure->getJsonType());
 }
 
 std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
@@ -418,7 +398,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
             _networkController->addTreasureSpawn(obj->getPositionInit());
         }
         else {
-            createTreasure(std::dynamic_pointer_cast<Treasure>(obj));
+            createTreasure(std::dynamic_pointer_cast<Treasure>(obj), true);
         }
         
     }
@@ -429,7 +409,7 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
         createArtObject(std::dynamic_pointer_cast<ArtObject>(obj));
     }
     else if (key == "tiles") {
-        createTile(obj->getPositionInit(), obj->getSize(), obj->getJsonType(), _scale);
+        createTile(std::dynamic_pointer_cast<Tile>(obj));
     }
 }
 

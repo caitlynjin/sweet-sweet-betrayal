@@ -48,8 +48,10 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
+    _network->attachEventType<AnimationEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -76,6 +78,7 @@ void NetworkController::resetNetwork(){
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _localID = _network->getShortUID();
 }
@@ -89,28 +92,8 @@ void NetworkController::resetNetwork(){
      * @param timestep  The amount of time (in seconds) since the last frame
      */
 void NetworkController::update(float timestep){
-    // Process messaging events
-//    
-//    if(_network->isInAvailable()){
-//        auto e = _network->popInEvent();
-//        // Check for MessageEvent
-//        if(auto mEvent = std::dynamic_pointer_cast<MessageEvent>(e)){
-//            processMessageEvent(mEvent);
-//        }
-//        // Check for ColorEvent
-//        if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
-//            processColorEvent(cEvent);
-//        }
-//        // Check for ScoreEvent
-//        if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
-//            _scoreController->processScoreEvent(sEvent);
-//        }
-//        // Check for TreasureEvent
-//        if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
-//            processTreasureEvent(tEvent);
-//        }
-//        
-//    }
+
+
 }
 
 
@@ -184,6 +167,10 @@ void NetworkController::fixedUpdate(float step){
         if(auto cEvent = std::dynamic_pointer_cast<ColorEvent>(e)){
             processColorEvent(cEvent);
         }
+        // Check for ReadyEvent
+        if(auto rEvent = std::dynamic_pointer_cast<ReadyEvent>(e)){
+            processReadyEvent(rEvent);
+        }
         // Check for ScoreEvent
         if(auto sEvent = std::dynamic_pointer_cast<ScoreEvent>(e)){
             _scoreController->processScoreEvent(sEvent);
@@ -191,6 +178,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for TreasureEvent
         if(auto tEvent = std::dynamic_pointer_cast<TreasureEvent>(e)){
             processTreasureEvent(tEvent);
+        }
+        // Check for AnimationEvent
+        if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
+            processAnimationEvent(aEvent);
         }
     }
     _scoreController->setPlayerColors(_playerColorsById);
@@ -233,6 +224,7 @@ void NetworkController::reset(){
     
     // Reset network in-game variables
     _numReady = 0;
+    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
     _numReset = 0;
     resetTreasureRandom();
     _readyMessageSent = false;
@@ -261,6 +253,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
+            _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, true));
             break;
         
         case Message::MOVEMENT_END:
@@ -325,6 +318,21 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     _playerIDs.push_back(playerID);
 }
 
+/**
+ * This method takes a ReadyEvent and processes it.
+ */
+void NetworkController::processReadyEvent(const std::shared_ptr<ReadyEvent>& event){
+    int playerID = event->getPlayerID();
+    ColorType color = event->getColor();
+    bool ready = event->getReady();
+
+    for (auto player : _playerList){
+        if (player->getColor() == color){
+            player->setReady(ready);
+        }
+    }
+}
+
 
 /**
  * This method takes a TreasureEvent and processes it.
@@ -338,6 +346,31 @@ void NetworkController::processTreasureEvent(const std::shared_ptr<TreasureEvent
         _localPlayer->gainTreasure(_treasure);
     }
 }
+
+/**
+ * This method takes a AnimationEvent and processes it.
+ */
+void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEvent>& event) {
+    int uid        = event->getPlayerID();
+    AnimationType anim   = event->getAnimation();
+    bool activate = event->isActivate();
+    int colorInt  = static_cast<int>(_playerColorsById[uid]);
+
+//    CULog("AnimationEvent → UID=%d, color=%d, anim=%d, activate=%d",
+//          uid, colorInt, static_cast<int>(anim), activate);
+
+    static const char* ColorNames[] = {"Red","Blue","Green","Yellow"};
+    std::string targetName = "player" + std::string(ColorNames[colorInt]);
+
+    for (auto player : _playerList) {
+        if (player->getName() == targetName) {
+            player->processNetworkAnimation(anim, activate);
+        }
+    }
+}
+
+
+
 
 /** Resets the treasure to remove possession and return to spawn location */
 void NetworkController::resetTreasure(){
@@ -422,10 +455,11 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
 }
 
 
-std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str) {
-    auto params = _windFact->serializeParams(pos, size, dir, str);
+std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str) {
+    auto params = _windFact->serializeParams(pos, size, scale,  dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
+
     _objects->push_back(wind);
     return wind;
 }
@@ -844,14 +878,8 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
  */
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 TreasureFactory::createObstacle(Vec2 pos, Size size, float scale, bool taken) {
-
     std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
-//    
-//    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(image);
-    
-
     auto treasure = Treasure::alloc(pos, image->getSize() / scale, scale);
-//    treasure->setSceneNode(sprite);
     
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 1, 32, 32);
     treasure->setAnimation(animNode);
@@ -1030,37 +1058,38 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
 #pragma mark Wind Factory
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
-WindFactory::createObstacle(Vec2 pos, Size size, const Vec2 windDirection, const Vec2 windStrength) {
-    
-    std::shared_ptr<Texture> fan = _assets->get<Texture>(FAN_TEXTURE);
+WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDirection, const Vec2 windStrength) {
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
-    std::shared_ptr<scene2::PolygonNode> fanSprite = scene2::PolygonNode::allocWithTexture(fan);
+    //Allocate Fan Animations
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength);
 
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, windDirection, windStrength);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    wind->setFanAnimation(animNode, 4);
 
-    wind->setBodyType(b2_dynamicBody);
     wind->setPositionInit(pos);
-    wind->setSceneNode(fanSprite);
+    wind->setEnabled(false);
     wind->setGustSprite(gustSprite);
 
     // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
 
-    return std::make_pair(wind, fanSprite);
+    return std::make_pair(wind, wind->getSceneNode());
 }
 
 
 std::shared_ptr<std::vector<std::byte>>
-WindFactory::serializeParams(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength) {
+WindFactory::serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength) {
     _serializer.reset();
     _serializer.writeFloat(pos.x);
     _serializer.writeFloat(pos.y);
     _serializer.writeFloat(size.width);
     _serializer.writeFloat(size.height);
+    _serializer.writeFloat(scale);
     _serializer.writeFloat(windDirection.x);
     _serializer.writeFloat(windDirection.y);
     _serializer.writeFloat(windStrength.x);
     _serializer.writeFloat(windStrength.y);
+    
 
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 }
@@ -1077,6 +1106,8 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     float width  = _deserializer.readFloat();
     float height = _deserializer.readFloat();
     Size size(width, height);
+
+    float scale = _deserializer.readFloat();
     
     float dirX = _deserializer.readFloat();
     float dirY = _deserializer.readFloat();
@@ -1086,5 +1117,5 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     float strY = _deserializer.readFloat();
     Vec2 str(strX, strY);
 
-    return createObstacle(pos, size, dir, str);
+    return createObstacle(pos, size, scale, dir, str);
 }

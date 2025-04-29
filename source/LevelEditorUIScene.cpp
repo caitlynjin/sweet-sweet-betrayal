@@ -121,7 +121,6 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
         // Runs when the button is released, not when it is first pressed
         if (!down && !_isReady) {
             setIsReady(true);
-            _gridManager->posToObjMap.clear();  // Disables movement of placed objects
         }
         });
     std::shared_ptr<scene2::PolygonNode> loadNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
@@ -145,15 +144,20 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     _paintButton->setPosition(_size.width * 0.06f, _size.height * 0.6f);
     _paintButton->activate();
     _paintButton->addListener([this](const std::string& name, bool down) {
-        // If the paint button was just pressed
+        // If the paint mode was just entered
         if (down && !_paintButtonDown) {
             _inPaintMode = true;
+            _inEraserMode = false;
             _paintButtonDown = !_paintButtonDown;
+            _eraserButtonDown = false;
+            _paintButton->setColor(Color4(255, 0, 0, 255));
+            _eraserButton->setColor(Color4(255, 255, 255, 255));
         }
-        // If the paint button was just released
+        // If the paint mode was just exited
         else if (down && _paintButtonDown) {
             _inPaintMode = false;
             _paintButtonDown = !_paintButtonDown;
+            _paintButton->setColor(Color4(255, 255, 255, 255));
         }
         });
 
@@ -164,16 +168,22 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     _eraserButton->setPosition(_size.width * 0.06f, _size.height * 0.4f);
 
     // TODO: make this actually work
-    //_eraserButton->activate();
+    _eraserButton->activate();
     _eraserButton->addListener([this](const std::string& name, bool down) {
         // If the paint button was just pressed
         if (down && !_eraserButtonDown) {
             _inEraserMode = true;
+            _inPaintMode = false;
             _eraserButtonDown = !_eraserButtonDown;
+            _paintButtonDown = false;
+            _eraserButton->setColor(Color4(255, 0, 0, 255));
+            _paintButton->setColor(Color4(255, 255, 255, 255));
         }
         // If the paint button was just released
         else if (down && _eraserButtonDown) {
             _inEraserMode = false;
+            _eraserButtonDown = !_eraserButtonDown;
+            _eraserButton->setColor(Color4(255, 255, 255, 255));
         }
         });
     _fileSaveText = scene2::TextField::allocWithTextBox(Size(200, 100), "save", _assets->get<Font>("marker"));
@@ -190,7 +200,7 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     addChild(_fileLoadText);
     addChild(_loadButton);
     addChild(_paintButton);
-        //addChild(_eraserButton);
+    addChild(_eraserButton);
 
     return true;
 }

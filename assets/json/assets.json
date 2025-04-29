@@ -143,8 +143,23 @@
         "static_fan": {
             "file":      "textures/static-fan.png"
         },
+        "leaf_fan_spritesheet": {
+            "file":      "textures/leaf-fan-spritesheet.png"
+        },
         "static_gust": {
             "file":      "textures/static-gust.png"
+        },
+        "wind_blocked_at_2_spritesheet": {
+            "file":      "textures/wind-blocked-at-2-spritesheet.png"
+        },
+        "wind_blocked_at_3_spritesheet": {
+            "file":      "textures/wind-blocked-at-3-spritesheet.png"
+        },
+        "wind_blocked_at_4_spritesheet": {
+            "file":      "textures/wind-blocked-at-4-spritesheet.png"
+        },
+        "wind_unobstructed_spritesheet": {
+            "file":      "textures/wind-unobstructed-spritesheet.png"
         },
         "dpad": {
             "file": "textures/dpad.png",
@@ -313,7 +328,7 @@
             "file": "textures/icon-log.png"
         },
         "icon-moving-log": {
-            "file": "textures/icon-moving-log.png"
+            "file": "textures/icon-gliding-log.png"
         },
         "icon-mushroom": {
             "file": "textures/icon-mushroom.png"
@@ -452,6 +467,21 @@
         },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
+        },
+        "checkmark": {
+            "file": "textures/check.png"
+        },
+        "bottom-frame": {
+            "file": "textures/bottom-frame.png"
+        },
+        "left-frame": {
+            "file": "textures/left-frame.png"
+        },
+        "top-frame": {
+            "file": "textures/top-frame.png"
+        },
+        "timer": {
+            "file": "textures/timer.png"
         }
     },
     "jsons": {

@@ -88,8 +88,15 @@
 #define GLIDING_LOG_TEXTURE   "gliding_log_obstacle"
 /** Name of the fan texture for windobstacle*/
 #define FAN_TEXTURE "static_fan"
+/** Name of the gust texture for windobstacle animated*/
+#define FAN_TEXTURE_ANIMATED "leaf_fan_spritesheet"
 /** Name of the gust texture for windobstacle*/
 #define GUST_TEXTURE "static_gust"
+/**Name of the animated gust texture at various levels*/
+#define WIND_LVL_1 "wind_blocked_at_2_spritesheet"
+#define WIND_LVL_2 "wind_blocked_at_3_spritesheet"
+#define WIND_LVL_3 "wind_blocked_at_4_spritesheet"
+#define WIND_LVL_4 "wind_unobstructed_spritesheet"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind icon*/
@@ -146,10 +153,20 @@
 #define YELLOW_ICON "yellow-icon"
 /** The image for the treasure icon */
 #define TREASURE_ICON "treasure-icon"
+/** The image for checkmark */
+#define CHECKMARK "checkmark"
 /** The image for the trash can closed icon */
 #define TRASH_CLOSED "trash-closed"
 /** The image for the trash can open icon */
 #define TRASH_OPEN "trash-open"
+/** The image for the top frame */
+#define TOP_FRAME "top-frame"
+/** The image for the left frame */
+#define LEFT_FRAME "left-frame"
+/** The image for the bottom frame */
+#define BOTTOM_FRAME "bottom-frame"
+/** The image for the timer */
+#define TIMER "timer"
 
 
 #pragma mark -

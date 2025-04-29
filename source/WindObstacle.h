@@ -29,6 +29,10 @@ private:
 	float _rayDist[RAYS+1];
 	float _playerDist[RAYS + 1];
 
+	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
+	float _drawScale;
+
+
 public:
 	WindObstacle() : Object() {}
 
@@ -57,21 +61,21 @@ public:
 	/** This method allocates a BoxObstacle.
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
 		const Vec2 windStrength) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, windDirection, windStrength) ? result : nullptr);
+		return (result->init(position, size,scale, windDirection, windStrength) ? result : nullptr);
 	}
 
-	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, const Vec2 windDirection, 
+	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
 		const Vec2 windStrength, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, windDirection, windStrength, jsonType) ? result : nullptr);
+		return (result->init(position, size, scale, windDirection, windStrength, jsonType) ? result : nullptr);
 	}
 	/*Intialize according to position and size. Need to change later*/
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength);
 
-	bool init(const Vec2 pos, const Size size, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 
@@ -104,6 +108,30 @@ public:
 	const int getPlayerHits() { return _playerHits; }
 	
 	std::map<std::string, std::any> getMap() override;
+
+	/*Animation methods*/
+	void setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
+	void updateAnimation(float timestep);
+	void doStrip(cugl::ActionFunction action, float duration);
+
+	//Animation variables
+	std::shared_ptr<cugl::ActionTimeline> _fanTimeline;
+	std::shared_ptr<scene2::SceneNode> _node;
+	std::shared_ptr<cugl::scene2::SpriteNode> _fanSpriteNode;
+	std::shared_ptr<AnimateSprite> _fanAnimateSprite;
+	cugl::ActionFunction _fanAction;
+
+	/**
+	* Returns the scene graph node representing this WindObstacle.
+	*
+	* By storing a reference to the scene graph node, the model can update
+	* the node to be in sync with the physics info. It does this via the
+	* {@link Obstacle#update(float)} method.
+	*
+	* @return the scene graph node representing this WinDNNDNDNDND.
+	*/
+	const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _node; }
+
 };
 
 

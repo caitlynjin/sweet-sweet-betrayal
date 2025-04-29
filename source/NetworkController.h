@@ -15,8 +15,10 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "ReadyEvent.h"
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
+#include "AnimationEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
@@ -328,9 +330,9 @@ class WindFactory : public ObstacleFactory {
             _assets = assets;
         }
 
-        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength);
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
 
-        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, Vec2 windDirection, Vec2 windStrength);
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
 
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
@@ -711,11 +713,21 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+
+    /**
+     * This method takes a ReadyEvent and processes it.
+     */
+    void processReadyEvent(const std::shared_ptr<ReadyEvent>& event);
     
     /**
      * This method takes a TreasureEvent and processes it.
      */
     void processTreasureEvent(const std::shared_ptr<TreasureEvent>& event);
+
+    /**
+     * This method takes a AnimationEvent and processes it.
+     */
+    void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -771,7 +783,7 @@ public:
      *
      * @return the thorn being created
      */
-    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, Vec2 dir, Vec2 str);
+    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str);
 
     /**
      * The method called to update the game mode.

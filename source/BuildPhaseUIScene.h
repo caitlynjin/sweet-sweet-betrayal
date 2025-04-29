@@ -53,6 +53,22 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _trashButton;
     /** Reference to the timer */
     std::shared_ptr<cugl::scene2::Label> _timer;
+    /** Reference to the red icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
+    /** Reference to the blue icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _blueIcon;
+    /** Reference to the green icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _greenIcon;
+    /** Reference to the yellow icon */
+    std::shared_ptr<cugl::scene2::PolygonNode> _yellowIcon;
+    /** Reference to the top frame */
+    std::shared_ptr<cugl::scene2::PolygonNode> _topFrame;
+    /** Reference to the left frame */
+    std::shared_ptr<cugl::scene2::PolygonNode> _leftFrame;
+    /** Reference to the bottom frame */
+    std::shared_ptr<cugl::scene2::PolygonNode> _bottomFrame;
+    /** Reference to the timer frame */
+    std::shared_ptr<cugl::scene2::PolygonNode> _timerFrame;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
@@ -60,6 +76,25 @@ protected:
     bool _rightpressed = false;
     /** Whether left camera button is being pressed */
     bool _leftpressed = false;
+    /** Whether players in build phase were counted yet */
+    bool _playersCounted = false;
+    /** Whether red is ready */
+    bool _redReady = false;
+    /** Whether blue is ready */
+    bool _blueReady = false;
+    /** Whether green is ready */
+    bool _greenReady = false;
+    /** Whether yellow is ready */
+    bool _yellowReady = false;
+
+    /** List of icons */
+    std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _iconList;
+    /** List of icons */
+    std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkList;
+    /** Map of checkmarks */
+    std::map<std::shared_ptr<cugl::scene2::PolygonNode>, std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkMap;
+    /** Network Controller */
+    std::shared_ptr<NetworkController> _networkController;
 
     /** Starting time for the build mode timer */
     Uint64 _startTime;
@@ -95,7 +130,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController);
 
     /**
      * Initializes the grid layout on the screen for build mode.

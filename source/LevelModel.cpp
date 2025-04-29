@@ -125,10 +125,19 @@ void LevelModel::createJsonFromLevel(string fileName, Size levelSize, vector<sha
 * These objects have NOT been added to the physics world, and need to be added there after this method is called for them to show up.
 * @param fileName The name of the JSON file containing the level information
 */
-vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
-	shared_ptr<JsonReader> jsonReader = JsonReader::allocWithAsset(fileName);
-	shared_ptr<JsonValue> json = jsonReader->readJson();
+vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName, bool useAbsolutePath) {
 	vector<shared_ptr<Object>> allLevelObjects;
+	shared_ptr<JsonReader> jsonReader;
+	if (useAbsolutePath) { // for the load button in the level editor
+		jsonReader = JsonReader::alloc(fileName);
+	}
+	else { // this happens everywhere else
+		jsonReader = JsonReader::allocWithAsset(fileName);
+	}
+	if (jsonReader == nullptr) {
+		return allLevelObjects;
+	}
+	shared_ptr<JsonValue> json = jsonReader->readJson();
 	vector<shared_ptr<JsonValue>> objectTypes = json->get("objectTypes")->children();
 	string name;
 
@@ -177,7 +186,7 @@ vector<shared_ptr<Object>> LevelModel::createLevelFromJson(string fileName) {
 
 				allLevelObjects.push_back(WindObstacle::alloc(
 					Vec2((*it2)->get("x")->asFloat(), (*it2)->get("y")->asFloat()),
-					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()),
+					Size((*it2)->get("width")->asFloat(), (*it2)->get("height")->asFloat()), (*it2)->get("scale")->asFloat(),
 					Vec2((*it2)->get("gustDirX")->asFloat(), (*it2)->get("gustDirY")->asFloat()), Vec2(0, 3.0f),
 					(*it2)->get("type")->asString()
 				));

@@ -16,7 +16,7 @@ using namespace cugl::graphics;
  */
 void WindObstacle::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size/2);
+    PolygonObstacle::setPosition((position)*_drawScale);
 
     // Update ray positions
     _rayOrigins.clear();
@@ -41,6 +41,24 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
+
+    updateAnimation(timestep);
+}
+
+void WindObstacle::updateAnimation(float timestep) {
+    
+    if (_fanTimeline->isActive("current")) {
+        // NO OP
+        CULog("AnimationPrepping");
+    }
+    else {
+        _fanTimeline->add("current", _fanAction, 1.0f);
+    }
+    _fanTimeline->update(timestep);
+}
+
+void WindObstacle::doStrip(cugl::ActionFunction action, float duration) {
+
 }
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
@@ -66,8 +84,8 @@ using namespace cugl;
 #pragma mark -
 #pragma mark Constructors
 
-bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirection, const Vec2 windStrength) {
-    return WindObstacle::init(pos, size, windDirection, windStrength, "default");
+bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength) {
+    return WindObstacle::init(pos, size, scale, windDirection, windStrength, "default");
 }
 /**
  * Initializes a new WindObstacle at the given position.
@@ -78,7 +96,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
  * @param windStrength How strongly the wind blows the player.
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
+bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
     float _rayDist[RAYS + 1];
     float _playerDist[RAYS + 1];
 
@@ -88,6 +106,8 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
     _position = pos;
     _size = size;
     _jsonType = jsonType;
+
+    _drawScale = 1.0f;
     
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/
@@ -97,36 +117,42 @@ bool WindObstacle::init(const Vec2 pos, const Size size, const Vec2 windDirectio
 
         _rayOrigins.push_back(origin);
     }
+
     /*Here we intialize the direction and trajectory*/
     _windDirection = windDirection;
     _windForce = windStrength;
-    setTrajectory(Vec2(0, 3.0f));
-    
+
+    //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
 
     if (PolygonObstacle::init(rect)){
-        setPosition(pos + size/2);
+        setPosition(pos);
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
-        setName("gust");
+        setName("fan");
+        setBodyType(b2_staticBody);
+        setSensor(true);
+        setEnabled(false);
+        
+        _node = scene2::SpriteNode::alloc();
+
         return true;
     }
-    
-    
     return false;
-    /*Finally intialize the wind gust effect**/
-    
 }
 
-/** Creates a gust node and adds it to the scene node. */
+/** Creates a gust node and adds it to the scene node. Thus gust node is the graphics of the wind object */
 void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
     _gustNode = gustSprite;
     _gustNode->setAnchor(0.0f, 0.0f);
     _gustNode->setPosition(Vec2());
     _gustNode->setVisible(true);
-    _sceneNode->addChild(_gustNode);
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _node->addChild(_gustNode);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {
@@ -135,10 +161,35 @@ std::map<std::string, std::any> WindObstacle::getMap() {
         {"y", double(_position.y)},
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
+        {"scale", double(_drawScale)},
         {"gustDirX", double(_windForce.x)},
         {"gustDirY", double(_windForce.y)},
          {"type", std::string(_jsonType)}
     };
     return m;
+}
+/** Sets the fan animation and adds the fan sprite node to the scene node (_node) */
+void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    //Create sprite object
+    _fanSpriteNode = sprite;
+    _fanSpriteNode->setVisible(true);
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _node->addChild(_fanSpriteNode);
+    
+    //Create the spritesheet
+    _fanTimeline = ActionTimeline::alloc();
+
+    std::vector<int> forward;
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _fanAnimateSprite = AnimateSprite::alloc(forward);
+    _fanAction = _fanAnimateSprite->attach<scene2::SpriteNode>(_fanSpriteNode);
 }
 
