@@ -171,6 +171,9 @@ void SSBApp::preUpdate(float dt)
     if (_status == LOAD && _loading.isActive())
     {
         _loading.update(0.01f);
+        if (_loading.isComplete()){
+            _loading.setActive(false);
+        }
     }
     else if (_status == LOAD)
     {

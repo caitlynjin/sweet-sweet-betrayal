@@ -100,8 +100,10 @@ void Treasure::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite){
     
     _timeline = ActionTimeline::alloc();
 
-    // Create the frame sequence For an 8x8 spritesheet
-    const int span = 64;
+    // Create the frame sequence
+    // For an 8x8 spritesheet
+    const int span = 32;
+
     std::vector<int> forward;
     for (int ii = 1; ii < span; ii++) {
         forward.push_back(ii);

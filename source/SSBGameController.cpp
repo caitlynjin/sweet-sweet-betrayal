@@ -168,7 +168,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
-    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer());
+    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
 
 
     _active = true;
@@ -183,7 +183,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 void SSBGameController::dispose()
 {
     _world = nullptr;
-    if(_gridManager){
+
+    if (_gridManager) {
         _gridManager->getGridNode() = nullptr;
     }
 

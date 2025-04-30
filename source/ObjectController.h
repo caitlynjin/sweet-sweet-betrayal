@@ -173,7 +173,7 @@ public:
 
     Vec2 getGoalPos() {return _goalPos;}
     
-
+    void removeObject(std::shared_ptr<Object> object);
     
 //    /**
 //    * Create the growing wall if not created. Otherwise, increase its width
