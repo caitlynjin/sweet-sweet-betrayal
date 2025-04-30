@@ -191,6 +191,7 @@ void MovePhaseController::preUpdate(float dt) {
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _movePhaseScene.getLocalPlayer()->bufferJump();
             _network->pushOutEvent(
                 AnimationEvent::allocAnimationEvent(
                     _network->getShortUID(),           
