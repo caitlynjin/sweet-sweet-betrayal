@@ -27,6 +27,8 @@ protected:
 	std::string _jsonType;
     /** Size of the object */
     Size _size = Size(1, 1);
+		//playerid owned
+		int _ownerId = -1;
 
 public:
 #pragma mark -
@@ -116,6 +118,9 @@ public:
 	const bool isPlayerPlaced() const {
 		return _playerPlaced;
 	}
+
+	void setOwnerId(int ownerId) { _ownerId = ownerId; }
+  int getOwnerId() const { return _ownerId; }
 
 
 	/** Update method for this object. This will probably be different for each subclass. */
