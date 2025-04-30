@@ -202,6 +202,7 @@ void SSBApp::preUpdate(float dt)
         _disconnectedscreen.init(_assets, _sound);
         _disconnectedscreen.setSpriteBatch(_batch);
         _status = START;
+        _sound->playMusic("move_phase", true);
     }
     else
     {

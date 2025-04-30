@@ -589,6 +589,23 @@
             "type": "sample",
             "file": "sounds/plop.wav",
             "volume": 0.5
+        },
+        "glide": {
+            "type": "sample",
+            "file": "sounds/sfx_glide.wav",
+            "volume": 0.5
+        },
+        "button_click": {
+            "type": "sample",
+            "file": "sounds/sfx_button_click.wav",
+            "volume": 0.5
+        },
+        "move_phase": {
+            "type": "sample",
+            "file": "sounds/music_move_phase.ogg",
+            "stream": true,
+            "volume":  0.5
+
         }
     },
     "fonts": {
