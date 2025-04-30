@@ -15,8 +15,10 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "ReadyEvent.h"
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
+#include "AnimationEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
@@ -406,8 +408,11 @@ protected:
     /** Map for accessing player color based off network id */
     std::unordered_map<int, ColorType> _playerColorsById;
     
-    /** The player colorr */
+    /** The player color */
     ColorType _color;
+    
+    /** The callback function when any player picks a color */
+    std::function<void(ColorType, int)> _onColorTaken = nullptr;
     
     /**stores score controller instance**/
     std::shared_ptr<ScoreController> _scoreController;
@@ -416,6 +421,8 @@ protected:
     bool _playerColorAdded = false;
     
     
+    /** The number of players ready to proceed from Color Select Scene*/
+    float _numColorReady = 0;
     /** The number of players ready to proceed from BuildPhase */
     float _numReady = 0;
     /** The number of players ready to proceed from MovementPhase into BuildPhase */
@@ -501,6 +508,9 @@ public:
         std::shared_ptr<NetworkController> result = std::make_shared<NetworkController>();
         return (result->init(assets) ? result : nullptr);
     }
+    
+    /** Flushes the connection and clears all events */
+    void flushConnection();
 
     /**
      * Initializes the controller contents, and starts the game
@@ -657,6 +667,16 @@ public:
     }
     
     /**
+     * Returns the no. of players ready to proceed from ColorSelect Phase
+     */
+    int getNumColorReady(){
+        return _numColorReady;
+    }
+    
+    /** Resets numColorReady to 0 */
+    void resetColorReady() { _numColorReady = 0; }
+    
+    /**
      * Returns the number of players ready to proceed to Movement Phase
      */
     int getNumReady(){
@@ -699,9 +719,13 @@ public:
     }
     
     /**
-     * Creates player information
+     * Sets the local player's color
      */
-    void addPlayerColor();
+    void setLocalColor(ColorType c) {
+        _color = c;
+        _playerColorAdded = true;
+        CULog("Set local color: %d", _color);
+    }
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
 
 #pragma mark -
@@ -742,11 +766,21 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+
+    /**
+     * This method takes a ReadyEvent and processes it.
+     */
+    void processReadyEvent(const std::shared_ptr<ReadyEvent>& event);
     
     /**
      * This method takes a TreasureEvent and processes it.
      */
     void processTreasureEvent(const std::shared_ptr<TreasureEvent>& event);
+
+    /**
+     * This method takes a AnimationEvent and processes it.
+     */
+    void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -918,6 +952,9 @@ public:
 //        }
         return _scoreController->checkWinCondition();
     }
+    
+    /** Sets the onColorTaken callback function */
+    void setOnColorTaken (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
 
 };
 

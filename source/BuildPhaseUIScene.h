@@ -89,7 +89,9 @@ protected:
 
     /** List of icons */
     std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _iconList;
-    /** List of checkmarks */
+    /** List of icons */
+    std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkList;
+    /** Map of checkmarks */
     std::map<std::shared_ptr<cugl::scene2::PolygonNode>, std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkMap;
     /** Network Controller */
     std::shared_ptr<NetworkController> _networkController;
