@@ -20,10 +20,11 @@ std::shared_ptr<NetEvent> ColorEvent::newEvent(){
     return std::make_shared<ColorEvent>();
 }
 
-std::shared_ptr<NetEvent> ColorEvent::allocColorEvent(int playerID, ColorType color){
+std::shared_ptr<NetEvent> ColorEvent::allocColorEvent(int playerID, ColorType color, int prevColorInt){
     auto event = std::make_shared<ColorEvent>();
     event->_playerID = playerID;
     event->_color = color;
+    event->_prevColorInt = prevColorInt;
     return event;
 }
 
@@ -35,6 +36,7 @@ std::vector<std::byte> ColorEvent::serialize(){
     // Serialize the enum as an integer
     _serializer.writeSint32(static_cast<Sint32>(_playerID));
     _serializer.writeSint32(static_cast<Sint32>(_color));
+    _serializer.writeSint32(static_cast<Sint32>(_prevColorInt));
     return _serializer.serialize();
 }
 
@@ -53,7 +55,9 @@ void ColorEvent::deserialize(const std::vector<std::byte>& data){
     // Read the integer and cast it back to the enum type
     int playerID = _deserializer.readSint32();
     int colorInt = _deserializer.readSint32();
+    int prevColorInt = _deserializer.readSint32();
     _playerID = playerID;
     _color = static_cast<ColorType>(colorInt);
+    _prevColorInt = prevColorInt;
 }
 

@@ -12,6 +12,7 @@
 #include "VictoryScene.h"
 #include "SoundController.h"
 #include "LevelEditorController.h"
+#include "ColorSelectScene.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 
 
@@ -22,7 +23,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY
+        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -40,6 +41,8 @@ protected:
     HostScene _hostgame;
     
     VictoryScene _victory;
+    
+    ColorSelectScene _colorselect;
     
     /***/
     PlatformInput _input;
@@ -256,6 +259,8 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void updateClientScene(float timestep);
+    
+    void updateColorSelectScene(float timestep);
     
     /**
      * The method called to draw the application to the screen.
