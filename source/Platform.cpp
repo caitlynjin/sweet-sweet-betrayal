@@ -19,7 +19,7 @@ void Platform::setPositionInit(const cugl::Vec2& position) {
 void Platform::updateAnimation(float timestep) {
     if (_platTimeline->isActive("current")) {
         // NO OP
-        CULog("AnimationPrepping");
+        CULog("PlatformAnimationPrepping");
     }
     else {
         _platTimeline->add("current", _platAction, 1.0f);
@@ -56,11 +56,11 @@ void Platform::updateMovingPlatform(float timestep) {
         Vec2 velocity = direction * _speed;
         setLinearVelocity(velocity);
 
-    updateAnimation(timestep);
         // Optionally log the turn count for debugging
         CULog("Platform has turned %d times", _turnCount);
         _turnCount=0;
     }
+    updateAnimation(timestep);
 }
 
 

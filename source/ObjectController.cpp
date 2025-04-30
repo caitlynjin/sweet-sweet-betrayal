@@ -162,8 +162,8 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(shared_ptr<Platfo
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> glidingPlatSprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
 
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 4, 4);
-    plat->setPlatformAnimation(animNode, 4);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    plat->setPlatformAnimation(animNode, 15);
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
