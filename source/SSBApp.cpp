@@ -199,6 +199,8 @@ void SSBApp::preUpdate(float dt)
         _colorselect.setSpriteBatch(_batch);
         _waitinghost.init(_assets, _sound);
         _waitinghost.setSpriteBatch(_batch);
+        _disconnectedscreen.init(_assets, _sound);
+        _disconnectedscreen.setSpriteBatch(_batch);
         _status = START;
     }
     else
@@ -225,6 +227,14 @@ void SSBApp::preUpdate(float dt)
             break;
         case GAME:
             _gameController.preUpdate(dt);
+            if (_network->getNumPlayers() < _expectedPlayers || _network->getStatus() == NetEventController::Status::NETERROR) {
+                CULog("DISCONNECTED: numplayers: %d expected: %d", _network->getNumPlayers(), _expectedPlayers);
+                _gameController.setActive(false);
+                _disconnectedscreen.setActive(true);
+                _status = DISCONNECTED;
+                break;
+            }
+                
             //TODO: Check for a victory
                 if (_gameController.getHasVictory()){
                     _gameController.setActive(false);
@@ -257,7 +267,9 @@ void SSBApp::preUpdate(float dt)
                     _status = START;
                 }
             break;
-
+        case DISCONNECTED:
+            updateDisconnectedScene(dt);
+            break;
         default:
             break;
         }
@@ -357,11 +369,17 @@ void SSBApp::updateMenuScene(float timestep)
     switch (_mainmenu.getChoice())
     {
         case MenuScene::Choice::HOST:
+            _disconnectedscreen.reset();
+            _disconnectedscreen.setActive(false);
+            _expectedPlayers = 0;
             _mainmenu.setActive(false);
             _hostgame.setActive(true);
             _status = HOST;
             break;
         case MenuScene::Choice::JOIN:
+            _disconnectedscreen.reset();
+            _disconnectedscreen.setActive(false);
+            _expectedPlayers = 0;
             _mainmenu.setActive(false);
             _joingame.setActive(true);
             _status = CLIENT;
@@ -383,6 +401,8 @@ void SSBApp::updateStartScene(float timestep)
     switch (_startscreen.getChoice())
     {
     case StartScene::Choice::START:
+        _disconnectedscreen.setActive(false);
+        _expectedPlayers = 0;
         _startscreen.setActive(false);
         _mainmenu.setActive(true);
         _status = MENU;
@@ -499,6 +519,8 @@ void SSBApp::updateColorSelectScene(float timestep){
         _gameController.init(_assets, _networkController, _sound);
         _gameController.setSpriteBatch(_batch);
         _gameController.setActive(true);
+        _expectedPlayers = _network->getNumPlayers();
+        CULog("Expected players: %d", _expectedPlayers);
         _status = GAME;
         return;
     }
@@ -587,6 +609,24 @@ void SSBApp::updateWaitingHostScene(float timestep){
     }
 }
 
+void SSBApp::updateDisconnectedScene(float timestep){
+    _disconnectedscreen.update(timestep);
+    switch (_disconnectedscreen.getChoice())
+    {
+        case DisconnectedScene::Choice::QUIT:
+            _expectedPlayers = 0;
+            _disconnectedscreen.reset();
+            _disconnectedscreen.setActive(false);
+
+            _startscreen.reset();
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case DisconnectedScene::Choice::NONE:
+            break;
+    }
+}
+
 void SSBApp::resetScenes(){
     // Reset network
     _networkController->resetNetwork();
@@ -601,6 +641,8 @@ void SSBApp::resetScenes(){
     _joingame.reset();
     _colorselect.reset();
     _waitinghost.reset();
+    _disconnectedscreen.reset();
+    _expectedPlayers = 0;
 }
 
 /**
@@ -644,6 +686,9 @@ void SSBApp::draw()
         break;
     case VICTORY:
         _victory.render();
+        break;
+    case DISCONNECTED:
+        _disconnectedscreen.render();
         break;
     default:
         break;
