@@ -10,6 +10,7 @@ constexpr int RAYS = 3;
 #define OFFSET 0.1f
 #define FAN_ANIM_CYCLE 0.8f
 #define GUST_ANIM_CYCLE 3.0f
+#define PRIORITY -900
 
 class WindObstacle : public Object {
 
@@ -80,9 +81,6 @@ public:
 	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
-
-	/*Creates the wind gust sprite**/
-	void setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite);
 
 	/*Sprite Node representing the wind object*/
 	std::shared_ptr<AnimateSprite> _windAnimate;
