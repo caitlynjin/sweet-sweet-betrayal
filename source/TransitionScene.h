@@ -19,21 +19,44 @@ using namespace cugl;
 using namespace Constants;
 using namespace cugl::physics2::distrib;
 
+
 /**
  * This class is the build phase UI scene.
  */
 class TransitionScene : public scene2::Scene2 {
+public:
+    /**
+     * Enum representing different types of transitions
+     */
+    enum TransitionType {
+        FADE_IN,
+        FADE_OUT,
+        NONE
+    };
+    
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
 
     /** Reference to the progress bar */
-    std::shared_ptr<cugl::scene2::PolygonNode> _fade;
+    std::shared_ptr<cugl::scene2::PolygonNode> _blackScreen;
+    
+    /** The current type of transition **/
+    TransitionType _transitionType = TransitionType::NONE;
 
-    /** Whether the transition has finished fading out */
-    bool _fadeOutDone = false;
     /** Whether the transition has finished fading in */
-    bool _fadeInDone = false;
+    bool _fadingInDone = false;
+    
+    /** Whether the transition has finished fading out */
+    bool _fadingOutDone = false;
+    
+    /** The rate of fading */
+    float const FADE_RATE = 16.0f;
+    /** The duration of a fade transition */
+    float const FADE_TIME = 100.0f;
+    
+    /** The current progression of the fade transition */
+    float _fadeTime = 0.0f;
 
     
     
@@ -60,7 +83,7 @@ public:
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */
-    void dispose();
+    virtual void dispose() override;
 
     /**
      * Initializes the scene contents
@@ -80,7 +103,7 @@ public:
      *
      * This method disposes of the world and creates a new one.
      */
-    void reset();
+    virtual void reset() override;
 
     /**
      * The method called to indicate the start of a deterministic loop.
@@ -88,6 +111,20 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     void preUpdate(float dt);
+    
+    virtual void setActive(bool value) override;
+    
+    void startFadeOut();
+    
+    void startFadeIn();
+    
+    bool getFadingInDone(){
+        return _fadingInDone;
+    }
+    
+    bool getFadingOutDone(){
+        return _fadingOutDone;
+    }
 
 
 #pragma mark -

@@ -4,6 +4,7 @@
 #include "SSBGameController.h"
 #include "StartScene.h"
 #include "MenuScene.h"
+#include "TransitionScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
 #include "NPHostScene.h"
@@ -39,6 +40,10 @@ protected:
     HostScene _hostgame;
     
     VictoryScene _victory;
+    
+    TransitionScene _transition;
+    
+    bool _doTransition = false;
     
     /***/
     PlatformInput _input;
@@ -224,6 +229,11 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     virtual void postUpdate(float dt) override;
+    
+    
+    void setTransition(bool value);
+    
+    
     /**
      * Inidividualized update method for the menu scene.
      *
