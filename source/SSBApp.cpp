@@ -229,6 +229,9 @@ void SSBApp::preUpdate(float dt)
             _gameController.preUpdate(dt);
             if (_network->getNumPlayers() < _expectedPlayers || _network->getStatus() == NetEventController::Status::NETERROR) {
                 CULog("DISCONNECTED: numplayers: %d expected: %d", _network->getNumPlayers(), _expectedPlayers);
+                _network->disconnect();
+                _networkController->flushConnection();
+                
                 _gameController.setActive(false);
                 _disconnectedscreen.setActive(true);
                 _status = DISCONNECTED;
