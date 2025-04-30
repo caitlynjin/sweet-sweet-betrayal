@@ -192,6 +192,7 @@ void MovePhaseController::preUpdate(float dt) {
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
             _sound->playSound("glide");
+            _movePhaseScene.getLocalPlayer()->bufferJump();
             _network->pushOutEvent(
                 AnimationEvent::allocAnimationEvent(
                     _network->getShortUID(),           

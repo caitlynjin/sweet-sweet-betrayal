@@ -330,6 +330,18 @@ void SSBGameController::preUpdate(float dt)
         _scoreCountdown -= 1;
     }
     
+    auto objects = _networkController->getObjects();
+    for (auto it = objects->begin(); it != objects->end(); ++it) {
+        std::shared_ptr<Object> obj = *it;
+        if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
+            auto platform = std::dynamic_pointer_cast<Platform>(obj);
+            if (platform && platform->getOwnerId() == _networkController->getNetwork()->getShortUID()) {
+                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
+                platform->updateMovingPlatform(dt);
+            }
+        }
+    }
+    
 }
 
 /**
@@ -365,8 +377,7 @@ void SSBGameController::fixedUpdate(float step)
 
     // Update all controllers
     _networkController->fixedUpdate(step);
-    
-    
+
     // Update all game objects
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(step);

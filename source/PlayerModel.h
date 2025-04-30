@@ -80,7 +80,7 @@ using namespace Constants;
 //Determines for how long we can 'halt' a jump middair, allowing the player to control how high they jump
 #define JUMP_DURATION 0.6f
 #define JUMP_STOP_DAMPING 0.2f
-
+#define JUMP_BUFFER_DURATION 0.2f
 #define GLIDE_FALL_SPEED -2.5f
 #define GLIDE_UPWARD_THRUST 35.0f
 //How much we should slow down the player when they turn middair
@@ -117,6 +117,9 @@ protected:
 	int  _jumpCooldown;
 	/** Whether we are actively jumping */
 	bool _isJumping;
+    /*Manages the jump buffer. If we press the jump input in the air and release, put in a jump buffer*/
+    bool _bufferEnabled;
+    float _bufferTimer = JUMP_BUFFER_DURATION;
     /*Whether or not we are holding down the jump button while jumping-True while we are holding jump from a jump.*/
     bool _isHeld;
     /*How long a jump should last. If we let go of jump before this is over, set the linear velocity to zero.**/
@@ -570,7 +573,11 @@ public:
      * @param value whether the dude is actively jumping.
      */
     void setJumping(bool value) { _isJumping = value; }
-    
+
+    /*Buffers a jump input. If we become grounded before the buffer duration is over, intiatie a jump**/
+
+    void bufferJump() { _bufferTimer = 0.0f; }
+
     /**
      * Returns true if the dude is on the ground.
      *
