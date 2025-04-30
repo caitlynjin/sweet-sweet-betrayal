@@ -29,33 +29,40 @@ void Platform::updateAnimation(float timestep) {
 
 void Platform::update(float timestep) {
     PolygonObstacle::update(timestep);
-    
+}
+
+void Platform::updateMovingPlatform(float timestep) {
+    _turnCount++;
     if (!_moving) return;
+
     Vec2 pos = getPosition();
     Vec2 target = _forward ? _endPos : _startPos;
     Vec2 toTarget = target - pos;
     float distance = toTarget.length();
-//    CULog("Pos:(%.2f, %.2f) Target:(%.2f, %.2f) Dist:%.2f Speed:%.2f Forward:%d",
-//          pos.x, pos.y, target.x, target.y, distance, _speed, _forward);
     Vec2 direction = toTarget;
     direction.normalize();
     Vec2 step = direction * (_speed * timestep);
 
-    //if next step will move over the end_pos
-    if (distance < _speed * timestep || toTarget.dot(getLinearVelocity() * timestep) < 0) {
+    // If next step will move over the end_pos
+    if (_turnCount==150) {
         CULog("turning");
         pos = target;
         setPosition(pos);
         _forward = !_forward;
+        
         Vec2 newTarget = _forward ? _endPos : _startPos;
         Vec2 direction = newTarget - pos;
-        direction.normalize();         
+        direction.normalize();
         Vec2 velocity = direction * _speed;
         setLinearVelocity(velocity);
-    }
 
     updateAnimation(timestep);
+        // Optionally log the turn count for debugging
+        CULog("Platform has turned %d times", _turnCount);
+        _turnCount=0;
+    }
 }
+
 
 string Platform::getJsonKey() {
     return JSON_KEY;
@@ -142,6 +149,7 @@ std::map<std::string, std::any> Platform::getMap() {
     return m;
 }
 bool Platform::updateMoving(Vec2 gridpos) {
+    CULog("update moving");
     if (_moving) {
         Vec2 oldStartPos = _startPos;
         Vec2 oldEndPos = _endPos;

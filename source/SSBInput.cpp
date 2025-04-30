@@ -35,9 +35,9 @@ using namespace cugl;
 #define LISTENER_KEY      1
 
 /** This defines the joystick "deadzone" (how far we must move) */
-#define JSTICK_DEADZONE  43
+#define JSTICK_DEADZONE  35
 /** This defines the joystick radial size (for reseting the anchor) */
-#define JSTICK_RADIUS    50
+#define JSTICK_RADIUS    60
 /** How far to display the virtual joystick above the finger */
 #define JSTICK_OFFSET    80
 /** How far we must swipe up for a jump gesture */
@@ -433,6 +433,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
             }
             break;
         case Zone::RIGHT:
+            CULog("TOUCHEDRIGHT");
             // Only process if no touch in zone
             if (_rtouch.touchids.empty()) {
                 // Right is jump AND fire controls

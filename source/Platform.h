@@ -16,6 +16,7 @@ private:
     float  _speed = 0;
     bool   _forward = true;
     bool _wall = false;
+    int _turnCount = 0;
 
 public:
 	Platform() : Object() {}
@@ -24,6 +25,8 @@ public:
 
 	/** The update method for the platform */
 	void update(float timestep) override;
+
+    void updateMovingPlatform(float timestep); 
 
     string getJsonKey() override;
 
