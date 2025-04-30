@@ -55,11 +55,11 @@
 /** Cooldown (in animation frames) for shooting */
 #define SHOOT_COOLDOWN 20
 /** The amount to shrink the body fixture (vertically) relative to the image */
-#define PLAYER_VSHRINK 0.8f
+#define PLAYER_VSHRINK 0.7f
 /** The amount to shrink the body fixture (horizontally) relative to the image */
-#define PLAYER_HSHRINK 0.73f
+#define PLAYER_HSHRINK 0.60f
 /** The amount to shrink the sensor fixture (horizontally) relative to the image */
-#define PLAYER_SSHRINK 0.6f
+#define PLAYER_SSHRINK 0.8f
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
@@ -71,7 +71,7 @@
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define AIR_DAMPING 1.75f
-#define SPRITE_ANCHOR Vec2(0.625f,0.27f)
+#define SPRITE_ANCHOR Vec2(0.55f,0.20f)
 #define SPRITE_POSITION Vec2(-13.0f,0.0f)
 
 #pragma mark -
@@ -145,7 +145,11 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         setDebugColor(Color4::YELLOW);
         
         _node = scene2::SpriteNode::alloc();
+
+        _node->setColor(Color4::CLEAR);
+
         _node->setPriority(3);
+
 
         // Gameplay attributes
         _isGrounded = false;
@@ -178,6 +182,7 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _idleSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
+    _idleSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -204,6 +209,7 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _walkSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
+    _walkSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -231,6 +237,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _glideSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_glideSpriteNode);
     _glideSpriteNode->setVisible(false);
+    _glideSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -257,6 +264,7 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _jumpSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_jumpSpriteNode);
     _jumpSpriteNode->setVisible(false);
+    _jumpSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -284,6 +292,7 @@ void PlayerModel::setDeathAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _deathSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_deathSpriteNode);
     _deathSpriteNode->setVisible(true);
+    _deathSpriteNode->setRelativeColor(false);
 
     _timeline = ActionTimeline::alloc();
 
