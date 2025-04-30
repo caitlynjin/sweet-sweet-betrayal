@@ -340,7 +340,7 @@
             "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
-            "file": "textures/settingsbutton.png"
+            "file": "textures/buttons/settingsbutton.png"
         },
         "startbutton": {
             "file": "textures/buttons/startbutton.png"
