@@ -66,7 +66,7 @@
 #define PLAYER_DENSITY 3.25f
 /** The impulse for the character jump */
 
-#define PLAYER_JUMP 27.5f
+#define PLAYER_JUMP 23.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -774,6 +774,7 @@ void PlayerModel::glideUpdate(float dt)
         //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
         if (_justFlipped || _justGlided) {
             int face = SIGNUM(_movement);
+            CULog("Boost player");
             b2Vec2 force(face * GLIDE_BOOST_FACTOR, 0);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
