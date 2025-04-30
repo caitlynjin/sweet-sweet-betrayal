@@ -116,6 +116,7 @@ void TransitionScene::preUpdate(float dt) {
             }
             else{
                 _fadingInDone = true;
+                _transitionType = TransitionType::NONE;
             }
             break;
         case TransitionType::FADE_OUT:
@@ -132,10 +133,14 @@ void TransitionScene::preUpdate(float dt) {
             }
             else{
                 _fadingOutDone = true;
+                _transitionType = TransitionType::NONE;
             }
             break;
         case TransitionType::NONE:
             currColor = _blackScreen->getColor();
+            currColor.a = 0;
+            _blackScreen->setColor(currColor);
+            _blackScreen->setVisible(false);
             break;
             
         default:

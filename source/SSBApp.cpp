@@ -443,6 +443,7 @@ void SSBApp::updateMenuScene(float timestep)
 }
 
 void SSBApp::setTransition(bool value){
+    CULog("Call set transition");
     if (value){
         if (_doTransition){
             return;
@@ -812,4 +813,7 @@ void SSBApp::draw()
     if (_doTransition){
         _transition.render();
     }
+
+    
+
 }
