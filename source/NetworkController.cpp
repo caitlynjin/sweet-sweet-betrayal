@@ -80,7 +80,15 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ColorEvent>();
     _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
+    _network->attachEventType<TreasureEvent>();
     _localID = _network->getShortUID();
+}
+
+/** Flushes the connection and clears all events */
+void NetworkController::flushConnection(){
+    while (_network->isInAvailable()) {
+       _network->popInEvent();
+    }
 }
 
 /**
@@ -155,6 +163,9 @@ void NetworkController::preUpdate(float dt){
  * @param step  The number of fixed seconds for this step
  */
 void NetworkController::fixedUpdate(float step){
+    if (!_localID){
+        _localID = _network->getShortUID();
+    }
     _scoreController->fixedUpdate(step);
     // Process messaging events
     if(_network->isInAvailable()){
@@ -250,6 +261,9 @@ void NetworkController::resetRound(){
 void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>& event){
     Message message = event->getMesage();
     switch (message) {
+        case Message::COLOR_READY:
+            _numColorReady++;
+            break;
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
@@ -288,8 +302,6 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             _treasure->setStealable(false);
             break;
         case Message::HOST_START:
-            // Send message for everyone to send player id and color
-            _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _color));
             break;
             // Still need this?
         case Message::SCORE_UPDATE:
@@ -312,10 +324,15 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
 void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& event){
     int playerID = event->getPlayerID();
     ColorType color = event->getColor();
+    int prevColorInt = event->getPrevColor();
     
     // Store each color into map by player id
     _playerColorsById[playerID] = color;
     _playerIDs.push_back(playerID);
+    
+    if (_onColorTaken && playerID != _localID) {
+        _onColorTaken(color, prevColorInt);
+    }
 }
 
 /**
@@ -474,6 +491,7 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
  * @param The player being created (that has not yet been added to the physics world).
  */
 std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, float scale, ColorType color){
+    CULog("CREATE PLAYER NETWORKED, COLOR: %d");
     auto params = _dudeFact->serializeParams(pos, scale, color);
     auto localPair = _network->getPhysController()->addSharedObstacle(_dudeFactID, params);
     return std::dynamic_pointer_cast<PlayerModel>(localPair.first);
@@ -596,20 +614,6 @@ void NetworkController::trySetFilters(){
         
         _filtersSet = true;
     }
-}
-
-
-void NetworkController::addPlayerColor(){
-    if (_isHost){
-        _color = ColorType::RED;
-    }
-    else{
-        // Determine color by order joined
-        _color = static_cast<ColorType>(_network->getNumPlayers() - 1);
-    }
-    _playerColorAdded = true;
-    
-    
 }
 
 
