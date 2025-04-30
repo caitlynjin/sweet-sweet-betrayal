@@ -122,12 +122,14 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     _backout->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _backClicked = true;
+            _sound->playSound("button_click");
         }
     });
 
     _startgame->addListener([this](const std::string& name, bool down) {
         if (!down) {
             startGame();
+            _sound->playSound("button_click");
         }
     });
     

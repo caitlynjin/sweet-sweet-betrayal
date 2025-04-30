@@ -191,6 +191,8 @@ void MovePhaseController::preUpdate(float dt) {
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _sound->playSound("glide");
+            _movePhaseScene.getLocalPlayer()->bufferJump();
             _network->pushOutEvent(
                 AnimationEvent::allocAnimationEvent(
                     _network->getShortUID(),           
@@ -214,7 +216,7 @@ void MovePhaseController::preUpdate(float dt) {
 
     if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
     {
-        _sound->playSound("jump");
+        //_sound->playSound("jump");
     }
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {

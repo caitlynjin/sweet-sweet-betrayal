@@ -103,6 +103,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
+
         }
     });
     _readybutton->addListener([this](const std::string& name, bool down) {
@@ -112,6 +113,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _networkController->setLocalColor(_myColor);
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
             _isReady = true;
+            _sound->playSound("button_click");
         }
     });
     _redbutton->addListener([this](const std::string& name, bool down) {
@@ -119,6 +121,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::RED;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
+            _sound->playSound("button_click");
         }
     });
     _bluebutton->addListener([this](const std::string& name, bool down) {
@@ -126,6 +129,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::BLUE;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
+            _sound->playSound("button_click");
         }
     });
     _yellowbutton->addListener([this](const std::string& name, bool down) {
@@ -133,6 +137,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::YELLOW;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
+            _sound->playSound("button_click");
         }
     });
     _greenbutton->addListener([this](const std::string& name, bool down) {
@@ -140,6 +145,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::GREEN;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
+            _sound->playSound("button_click");
         }
     });
     addChild(scene);
