@@ -216,9 +216,6 @@
         "background": {
             "file": "textures/backgrounds/background2.png"
         },
-        "host-join-background": {
-            "file": "textures/backgrounds/host-join-background.png"
-        },
         "button": {
             "file": "textures/button.png"
         },
@@ -378,9 +375,6 @@
         "button_ready": {
             "file": "textures/buttons/button_ready.png"
         },
-        "lobby-background": {
-            "file": "textures/backgrounds/lobby-background.png"
-        },
         "button_create": {
             "file": "textures/buttons/button_create.png"
         },
@@ -458,9 +452,6 @@
         },
         "button_del": {
             "file": "textures/buttons/button_del.png"
-        },
-        "host-background": {
-            "file": "textures/backgrounds/host-background.png"
         },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
@@ -557,6 +548,9 @@
         },
         "bush-background": {
             "file": "textures/backgrounds/bush-background.png"
+        },
+        "menu-title": {
+            "file": "textures/text/menu-title.png"
         }
     },
     "jsons": {
