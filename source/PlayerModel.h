@@ -64,17 +64,17 @@ using namespace Constants;
 /** The factor to multiply by the input */
 #define PLAYER_FORCE      20.0f
 /** The amount to slow the character down in the air */
-#define PLAYER_DAMPING    10.0f
+#define PLAYER_DAMPING    20.0f
 /** The maximum character speed */
-#define PLAYER_MAXSPEED   6.5f
+#define PLAYER_MAXSPEED   5.5f
 #define PLAYER_MAX_Y_SPEED 12.5f
 /*Amount of forgiveness for missing a jump input.*/
 #define COYOTE_TIME_DURATION 0.1f;
 /**How much the player speed should be dampened during gliding*/
 #define GLIDE_DAMPING 1.5f
-#define GLIDE_FORCE_FACTOR 1.5f
+#define GLIDE_FORCE_FACTOR 1.0f
 /**Initial burst of speed when the player begins gliding or changes direction*/
-#define GLIDE_BOOST_FACTOR 2.0f
+#define GLIDE_BOOST_FACTOR 1.2f
 /** Multipliers for wind speed when player is gliding and not gliding*/
 #define WIND_FACTOR 0.05f
 #define WIND_FACTOR_GLIDING 0.4f
@@ -84,7 +84,7 @@ using namespace Constants;
 #define JUMP_STOP_DAMPING 0.2f
 #define JUMP_BUFFER_DURATION 0.2f
 #define GLIDE_FALL_SPEED -2.5f
-#define GLIDE_UPWARD_THRUST 35.0f
+#define GLIDE_UPWARD_THRUST 15.0f
 //How much we should slow down the player when they turn middair
 #define MIDDAIR_DAMPING 0.6f
 #define GROUND_DAMPING 0.3f
