@@ -193,7 +193,7 @@
             }
         },
         "ready_button": {
-            "file": "textures/ready.png"
+            "file": "textures/buttons/ready.png"
         },
         "left_button": {
             "file": "textures/left-scroll-arrow.png"
@@ -215,9 +215,6 @@
         },
         "background": {
             "file": "textures/backgrounds/background2.png"
-        },
-        "host-join-background": {
-            "file": "textures/backgrounds/host-join-background.png"
         },
         "button": {
             "file": "textures/button.png"
@@ -340,7 +337,7 @@
             "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
-            "file": "textures/settingsbutton.png"
+            "file": "textures/buttons/settingsbutton.png"
         },
         "startbutton": {
             "file": "textures/buttons/startbutton.png"
@@ -363,9 +360,6 @@
        "button_restart": {
            "file": "textures/button_restart.png"
        },
-        "roomcode-background": {
-            "file": "textures/backgrounds/roomcode-background.png"
-        },
         "numpad": {
             "file": "textures/buttons/numpad.png"
         },
@@ -380,9 +374,6 @@
         },
         "button_ready": {
             "file": "textures/buttons/button_ready.png"
-        },
-        "lobby-background": {
-            "file": "textures/backgrounds/lobby-background.png"
         },
         "button_create": {
             "file": "textures/buttons/button_create.png"
@@ -462,9 +453,6 @@
         "button_del": {
             "file": "textures/buttons/button_del.png"
         },
-        "host-background": {
-            "file": "textures/backgrounds/host-background.png"
-        },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
         },
@@ -482,6 +470,90 @@
         },
         "timer": {
             "file": "textures/timer.png"
+        },
+        "select-green": {
+            "file": "textures/buttons/select-green.png"
+        },
+        "select-yellow": {
+            "file": "textures/buttons/select-yellow.png"
+        },
+        "select-blue": {
+            "file": "textures/buttons/select-blue.png"
+        },
+        "select-red": {
+            "file": "textures/buttons/select-red.png"
+        },
+        "color-green": {
+            "file": "textures/buttons/color-green.png"
+        },
+        "color-yellow": {
+            "file": "textures/buttons/color-yellow.png"
+        },
+        "color-blue": {
+            "file": "textures/buttons/color-blue.png"
+        },
+        "color-red": {
+            "file": "textures/buttons/color-red.png"
+        },
+        "taken-green": {
+            "file": "textures/buttons/taken-green.png"
+        },
+        "taken-yellow": {
+            "file": "textures/buttons/taken-yellow.png"
+        },
+        "taken-blue": {
+            "file": "textures/buttons/taken-blue.png"
+        },
+        "taken-red": {
+            "file": "textures/buttons/taken-red.png"
+        },
+        "colorselect-title": {
+            "file": "textures/text/colorselect-title.png"
+        },
+        "vine-background": {
+            "file": "textures/backgrounds/vine-background.png"
+        },
+        "black-background": {
+            "file": "textures/backgrounds/black-background.png"
+        },
+        "cancel": {
+            "file": "textures/buttons/cancel.png"
+        },
+        "fourgems": {
+            "file": "textures/fourgems.png"
+        },
+        "waiting-host-title": {
+            "file": "textures/text/waiting-host-title.png"
+        },
+        "loading-spritesheet": {
+            "file": "textures/loading-spritesheet.png"
+        },
+        "tip1": {
+            "file": "textures/text/tip1.png"
+        },
+        "quit": {
+            "file": "textures/buttons/quit.png"
+        },
+        "disconnected-title": {
+            "file": "textures/text/disconnected-title.png"
+        },
+        "disconnected-img": {
+            "file": "textures/disconnected-img.png"
+        },
+        "players-title": {
+            "file": "textures/text/players-title.png"
+        },
+        "room-code-title": {
+            "file": "textures/text/room-code-title.png"
+        },
+        "bush-background": {
+            "file": "textures/backgrounds/bush-background.png"
+        },
+        "menu-title": {
+            "file": "textures/text/menu-title.png"
+        },
+        "join-title": {
+            "file": "textures/text/join-title.png"
         }
     },
     "jsons": {
@@ -520,6 +592,23 @@
             "type": "sample",
             "file": "sounds/plop.wav",
             "volume": 0.5
+        },
+        "glide": {
+            "type": "sample",
+            "file": "sounds/sfx_glide.wav",
+            "volume": 0.5
+        },
+        "button_click": {
+            "type": "sample",
+            "file": "sounds/sfx_button_click.wav",
+            "volume": 0.5
+        },
+        "move_phase": {
+            "type": "sample",
+            "file": "sounds/music_move_phase.ogg",
+            "stream": true,
+            "volume":  0.5
+
         }
     },
     "fonts": {
@@ -550,6 +639,14 @@
         "yeasty flavorsRegular66.53518676757812": {
             "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
             "size": 66.53518676757812
+        },
+        "super carnivalRegular64": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 64
+        },
+        "super carnivalRegular68": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 68
         }
     },
     "widgets": {
@@ -563,18 +660,11 @@
         "startbutton" : "widgets/textbutton.json",
         "end" : "widgets/end.json",
         "join" : "widgets/join.json",
-        "numlabel" : "widgets/numlabel.json",
-        "colorbutton": "widgets/colorbutton.json",
-        "textbutton": "widgets/textbutton.json",
-        "textfield": "widgets/textfield.json",
-        "labelbox": "widgets/labelbox.json",
-        "menu": "widgets/menu.json",
-        "textbutton2": "widgets/textbutton2.json",
-        "start": "widgets/start.json",
-        "startbutton": "widgets/textbutton.json",
-        "join": "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
-        "host" : "widgets/host.json"
+        "host" : "widgets/host.json",
+        "colorselect" : "widgets/colorselect.json",
+        "waiting-host": "widgets/waiting-host.json",
+        "disconnected": "widgets/disconnected.json"
     },
     "scene2s": {
         "start": {
@@ -621,6 +711,33 @@
             },
             "data": {
                 "key": "join"
+            }
+        },
+        "waiting-host": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "waiting-host"
+            }
+        },
+        "colorselect": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "colorselect"
+            }
+        },
+        "disconnected": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "disconnected"
             }
         },
         "game": {

@@ -145,7 +145,11 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         setDebugColor(Color4::YELLOW);
         
         _node = scene2::SpriteNode::alloc();
+
         _node->setColor(Color4::CLEAR);
+
+        _node->setPriority(3);
+
 
         // Gameplay attributes
         _isGrounded = false;
@@ -546,10 +550,10 @@ void PlayerModel::applyForce()
         if (abs(vel.x)< STARTING_VELOCITY) {
             b2Vec2 vel = _body->GetLinearVelocity();
             if (getMovement()>0) {
-                vel.x += STARTING_VELOCITY;
+                vel.x = STARTING_VELOCITY;
             }
             else if (getMovement() < 0) {
-                vel.x += STARTING_VELOCITY * -1;
+                vel.x = STARTING_VELOCITY * -1;
             }
             _body->SetLinearVelocity(vel);
         }
@@ -569,12 +573,23 @@ void PlayerModel::applyForce()
     }
     
     // Jump!
-    if (isJumping() && isGrounded())
+    if ((isJumping() or _bufferTimer < JUMP_BUFFER_DURATION) && isGrounded())
     {
         b2Vec2 force(0, PLAYER_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-        _holdingJump = true;
         _jumpTimer = JUMP_DURATION;
+        _holdingJump = true;
+        if (isJumping()) {
+            _holdingJump = true;
+        }
+        if (_bufferTimer < JUMP_BUFFER_DURATION) {
+            CULog("BUFFERED");
+        }
+        
+    }
+
+    if (isGrounded()){
+        _bufferTimer = JUMP_BUFFER_DURATION;
     }
     
 }
@@ -594,7 +609,8 @@ void PlayerModel::update(float dt)
     _timeline->update(dt);
     
     // Change player facing
-    if (getVX() > 0){
+    //TODO-FIX THIS SHIT TO RESPECT CONTROLS
+    if (getVX() > 0) {
         _faceRight = true;
     } else if(getVX() < 0){
         _faceRight = false;
@@ -660,6 +676,7 @@ void PlayerModel::update(float dt)
     if (!_isDead && !_immobile){
         _canDie = true;
 
+
         windUpdate(dt);
         //Set Justflipped and justglided to instantly deactivate
         if (_justFlipped == true) {
@@ -683,6 +700,12 @@ void PlayerModel::update(float dt)
         else if (_isGrounded){
             _glideBoostTimer = 0.0f;
         }
+        //Increment jump buffer
+        if (!_isGrounded) {
+            _bufferTimer += dt;
+        }
+        
+
         _jumpTimer -= dt;
         //Tracks how long we have been holding jump
         if (_holdingJump and !_isGrounded and !_isGliding and _isDampEnabled) {
@@ -719,6 +742,19 @@ void PlayerModel::update(float dt)
     }
 }
 
+void PlayerModel::handlePlayerState() {
+    switch (_state) {
+    case State::GROUNDED:
+        break;
+    case State::GLIDING:
+        break;
+    case State::MIDDAIR:
+        break;
+    default:
+        std::cout << "Unknown player state.\n";
+        break;
+    }
+}
 
 // Based on the player motion, check if we are falling.
 // If the player is falling for more than the glidetimer, set player into glide mode

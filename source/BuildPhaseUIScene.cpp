@@ -91,7 +91,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -104,6 +104,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _assets = assets;
     _gridManager = gridManager;
+    _sound = soundController;
 
     _startTime = Application::get()->getEllapsedMicros();
 
@@ -138,6 +139,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         if (down && !_isReady) {
             setIsReady(true);
             _gridManager->posToObjMap.clear();  // Disables movement of placed objects
+            _sound->playSound("button_click");
         }
     });
 

@@ -13,6 +13,7 @@
  */
 enum class Message {
     HOST_START,       // Signal that host has started the game
+    COLOR_READY,
     BUILD_READY,      // Signal to build something
     MOVEMENT_END,     // Signal that a player has ended movement phase by either dying or winning
     TREASURE_TAKEN,   // Signal that a player has picked up a treasure
