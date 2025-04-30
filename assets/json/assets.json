@@ -554,6 +554,9 @@
         },
         "room-code-title": {
             "file": "textures/text/room-code-title.png"
+        },
+        "bush-background": {
+            "file": "textures/backgrounds/bush-background.png"
         }
     },
     "jsons": {
