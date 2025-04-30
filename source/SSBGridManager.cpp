@@ -148,6 +148,7 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     CULog("%s", y.c_str());
     // Add the origin position of the object
     objToPosMap[obj] = originPosPair;
+    worldObjToPosMap[obj] = originPosPair;
 
     // Add the object to every position it exists in
     for (int i = 0; i < size.getIWidth(); i++) {
@@ -159,6 +160,7 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
             }
             else {
                 posToObjMap[posPair] = obj;
+                posToWorldObjMap[posPair] = obj;
                 hasObjMap[posPair] = true;
             }
             
@@ -213,6 +215,7 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
             }
             else {
                 posToObjMap.erase(posPair);
+                posToWorldObjMap.erase(posPair);
                 hasObjMap.erase(posPair);
             }
             
@@ -221,9 +224,47 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
 
     // Clear the origin position of the object
     objToPosMap.erase(obj);
+    worldObjToPosMap.erase(obj);
 
     return obj;
 };
+
+/**
+ * Removes the object from the world object map, if it exists.
+ *
+ *@return   the world object removed
+ *
+ *@param cellPos    the cell position
+ */
+std::shared_ptr<Object> GridManager::removeWorldObject(Vec2 cellPos) {
+    // Find object in object map
+    auto posPair = std::make_pair(cellPos.x, cellPos.y);
+    std::shared_ptr<Object> obj;
+
+    auto it = posToWorldObjMap.find(posPair);
+    if (it == posToWorldObjMap.end()) {
+        // If unable to find object
+        return nullptr;
+    }
+    obj = it->second;
+
+    // Clear all positions the object occupies
+    auto originPosX = worldObjToPosMap[obj].first;
+    auto originPosY = worldObjToPosMap[obj].second;
+    Size size = itemToGridSize(obj->getItemType());
+
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(originPosX + i, originPosY + j);
+
+            posToWorldObjMap.erase(posPair);
+//            hasObjMap.erase(posPair);
+        }
+    }
+
+    return obj;
+}
 
 /**
  * Checks whether we can place the object in the cell position.
@@ -269,7 +310,9 @@ bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
 void GridManager::clear() {
     posToArtObjMap.clear();
     posToObjMap.clear();
+    posToWorldObjMap.clear();
     objToPosMap.clear();
+    worldObjToPosMap.clear();
 }
 
 /**
@@ -286,16 +329,31 @@ void GridManager::deleteObject(std::shared_ptr<Object> obj) {
 }
 
 /**
- * Bomb from this origin cell position.
+ * Get the objects to be bombed from this origin cell position.
  *
  * @param pos   the position the mango bomb is in
+ * @return list of objects to be removed from the world
  */
-void GridManager::bombArea(Vec2 cellPos) {
-    for (int i = -1; i < 1; i++) {
-        for (int j = -1; j < 1; j++) {
+std::vector<std::shared_ptr<Object>> GridManager::objectsToBomb(Vec2 cellPos) {
+    std::vector<std::shared_ptr<Object>> objects;
+    // To ensure that there are no duplicate objects
+    std::unordered_set<Object*> seen;
+
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) {
+                continue;
+            }
+
             auto pos = Vec2(cellPos.x + i, cellPos.y + j);
-            auto obj = moveObject(pos);
-            deleteObject(obj);
+            auto obj = removeWorldObject(pos);
+
+            if (obj && seen.find(obj.get()) == seen.end()) {
+                objects.push_back(obj);
+                seen.insert(obj.get());
+            }
         }
     }
+
+    return objects;
 }

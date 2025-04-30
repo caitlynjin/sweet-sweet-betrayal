@@ -85,7 +85,6 @@ public:
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
 };
 
-
 /**
  * The factory class for trap objects.
  *
@@ -957,6 +956,8 @@ public:
     
     /** Sets the onColorTaken callback function */
     void setOnColorTaken (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
+
+    void removeObject(std::shared_ptr<Object> object);
 
 };
 

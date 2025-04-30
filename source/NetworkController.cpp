@@ -387,6 +387,19 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
 }
 
 
+void NetworkController::removeObject(std::shared_ptr<Object> object){
+    auto it = std::find(_objects->begin(), _objects->end(), object);
+    // Check if the element was found
+    if (it != _objects->end()) {
+        // Calculate the index by subtracting the beginning iterator
+        int index = static_cast<int>(std::distance(_objects->begin(), it));
+        _objects->erase(_objects->begin() + index);
+    }
+
+    object->dispose();
+}
+
+
 
 
 /** Resets the treasure to remove possession and return to spawn location */
@@ -487,7 +500,6 @@ std::shared_ptr<Object> NetworkController::createBombNetworked(Vec2 pos, Size si
     _objects->push_back(bomb);
     return bomb;
 }
-
 
 
 /**

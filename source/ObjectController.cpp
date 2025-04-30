@@ -429,12 +429,14 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
 void ObjectController::removeObject(std::shared_ptr<Object> object){
     auto it = std::find(_gameObjects->begin(), _gameObjects->end(), object);
 
-        // Check if the element was found
+    // Check if the element was found
     if (it != _gameObjects->end()) {
-            // Calculate the index by subtracting the beginning iterator
+        // Calculate the index by subtracting the beginning iterator
         int index = static_cast<int>(std::distance(_gameObjects->begin(), it));
         _gameObjects->erase(_gameObjects->begin() + index);
-        }
+    }
+
+//    object->dispose();
 }
 
 /**
