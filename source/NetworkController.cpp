@@ -254,7 +254,6 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
-            _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, true));
             break;
         
         case Message::MOVEMENT_END:
@@ -330,6 +329,7 @@ void NetworkController::processReadyEvent(const std::shared_ptr<ReadyEvent>& eve
     for (auto player : _playerList){
         if (player->getColor() == color){
             player->setReady(ready);
+            CULog("%d", player->getReady());
         }
     }
 }
