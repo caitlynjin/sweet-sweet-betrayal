@@ -25,7 +25,7 @@
             "background": {
                 "type": "Image",
                 "data": {
-                    "texture": "vine-background",
+                    "texture": "bush-background",
                     "anchor": [
                         0.5,
                         0.5

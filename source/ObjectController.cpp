@@ -244,7 +244,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
     wind->setFanAnimation(animNode, 4);
 
-    auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
+    /*auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
     auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 4);
     auto animNode3 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_3), 1, 14, 4);
     auto animNode4 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_4), 1, 14, 4);
@@ -255,9 +255,9 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     gusts.push_back(animNode3);
     gusts.push_back(animNode4);
 
-    wind->setGustAnimation(gusts, 14);
+    wind->setGustAnimation(gusts, 14);*/
 
-    addObstacle(wind, wind->getSceneNode(), 1);
+    addObstacle(wind, wind->getSceneNode());
     _gameObjects->push_back(wind);
 
     return wind;
@@ -433,6 +433,17 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
     else if (key == "tiles") {
         createTile(std::dynamic_pointer_cast<Tile>(obj));
     }
+}
+
+void ObjectController::removeObject(std::shared_ptr<Object> object){
+    auto it = std::find(_gameObjects->begin(), _gameObjects->end(), object);
+
+        // Check if the element was found
+    if (it != _gameObjects->end()) {
+            // Calculate the index by subtracting the beginning iterator
+        int index = static_cast<int>(std::distance(_gameObjects->begin(), it));
+        _gameObjects->erase(_gameObjects->begin() + index);
+        }
 }
 
 /**

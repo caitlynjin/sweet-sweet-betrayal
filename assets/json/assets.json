@@ -219,9 +219,6 @@
         "background": {
             "file": "textures/backgrounds/background2.png"
         },
-        "host-join-background": {
-            "file": "textures/backgrounds/host-join-background.png"
-        },
         "button": {
             "file": "textures/button.png"
         },
@@ -316,7 +313,7 @@
             "file": "textures/treasure.png"
         },
         "treasure-sheet": {
-            "file": "textures/strawberry-sheet.png"
+            "file": "textures/strawberry-sheet32.png"
         },
         "back": {
             "file": "textures/buttons/back.png"
@@ -343,7 +340,7 @@
             "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
-            "file": "textures/settingsbutton.png"
+            "file": "textures/buttons/settingsbutton.png"
         },
         "startbutton": {
             "file": "textures/buttons/startbutton.png"
@@ -366,9 +363,6 @@
        "button_restart": {
            "file": "textures/button_restart.png"
        },
-        "roomcode-background": {
-            "file": "textures/backgrounds/roomcode-background.png"
-        },
         "numpad": {
             "file": "textures/buttons/numpad.png"
         },
@@ -383,9 +377,6 @@
         },
         "button_ready": {
             "file": "textures/buttons/button_ready.png"
-        },
-        "lobby-background": {
-            "file": "textures/backgrounds/lobby-background.png"
         },
         "button_create": {
             "file": "textures/buttons/button_create.png"
@@ -465,9 +456,6 @@
         "button_del": {
             "file": "textures/buttons/button_del.png"
         },
-        "host-background": {
-            "file": "textures/backgrounds/host-background.png"
-        },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
         },
@@ -545,6 +533,30 @@
         },
         "tip1": {
             "file": "textures/text/tip1.png"
+        },
+        "quit": {
+            "file": "textures/buttons/quit.png"
+        },
+        "disconnected-title": {
+            "file": "textures/text/disconnected-title.png"
+        },
+        "disconnected-img": {
+            "file": "textures/disconnected-img.png"
+        },
+        "players-title": {
+            "file": "textures/text/players-title.png"
+        },
+        "room-code-title": {
+            "file": "textures/text/room-code-title.png"
+        },
+        "bush-background": {
+            "file": "textures/backgrounds/bush-background.png"
+        },
+        "menu-title": {
+            "file": "textures/text/menu-title.png"
+        },
+        "join-title": {
+            "file": "textures/text/join-title.png"
         }
     },
     "jsons": {
@@ -583,6 +595,23 @@
             "type": "sample",
             "file": "sounds/plop.wav",
             "volume": 0.5
+        },
+        "glide": {
+            "type": "sample",
+            "file": "sounds/sfx_glide.wav",
+            "volume": 0.5
+        },
+        "button_click": {
+            "type": "sample",
+            "file": "sounds/sfx_button_click.wav",
+            "volume": 0.5
+        },
+        "move_phase": {
+            "type": "sample",
+            "file": "sounds/music_move_phase.ogg",
+            "stream": true,
+            "volume":  0.5
+
         }
     },
     "fonts": {
@@ -613,6 +642,14 @@
         "yeasty flavorsRegular66.53518676757812": {
             "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
             "size": 66.53518676757812
+        },
+        "super carnivalRegular64": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 64
+        },
+        "super carnivalRegular68": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 68
         }
     },
     "widgets": {
@@ -629,7 +666,8 @@
         "numlabel": "widgets/numlabel.json",
         "host" : "widgets/host.json",
         "colorselect" : "widgets/colorselect.json",
-        "waiting-host": "widgets/waiting-host.json"
+        "waiting-host": "widgets/waiting-host.json",
+        "disconnected": "widgets/disconnected.json"
     },
     "scene2s": {
         "start": {
@@ -694,6 +732,15 @@
             },
             "data": {
                 "key": "colorselect"
+            }
+        },
+        "disconnected": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "disconnected"
             }
         },
         "game": {

@@ -115,6 +115,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _networkController = networkController;
     _network = networkController->getNetwork();
     _sound = sound;
+    _sound->playMusic("move_phase", true);
 
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
@@ -168,9 +169,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
-    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer());
+    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
 
-
+    //_sound->playMusic("move_phase");
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
     
@@ -183,7 +184,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 void SSBGameController::dispose()
 {
     _world = nullptr;
-    if(_gridManager){
+
+    if (_gridManager) {
         _gridManager->getGridNode() = nullptr;
     }
 
