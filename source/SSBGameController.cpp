@@ -184,7 +184,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 void SSBGameController::dispose()
 {
     _world = nullptr;
-    if(_gridManager){
+
+    if (_gridManager) {
         _gridManager->getGridNode() = nullptr;
     }
 

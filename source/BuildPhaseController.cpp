@@ -66,7 +66,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _network = networkController->getNetwork();
     _sound = sound;
 
-    _player = player;
+    _player = _networkController->getLocalPlayer();
 
     // Initialize build phase scene
     _buildPhaseScene.init(assets, camera);
@@ -114,10 +114,11 @@ void BuildPhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseController::preUpdate(float dt) {
-    
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
+    
+    CULog("Number players: %d", _network->getNumPlayers());
 
     _uiScene.preUpdate(dt);
 
@@ -228,6 +229,9 @@ void BuildPhaseController::preUpdate(float dt) {
 
             if (_selectedObject) {
                 _itemsPlaced -= 1;
+                
+                _network->getPhysController()->removeSharedObstacle(_selectedObject);
+                _objectController->removeObject(_selectedObject);
                 _gridManager->deleteObject(_selectedObject);
 
                 // Undarken inventory UI

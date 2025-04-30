@@ -310,7 +310,7 @@
             "file": "textures/treasure.png"
         },
         "treasure-sheet": {
-            "file": "textures/strawberry-sheet.png"
+            "file": "textures/strawberry-sheet32.png"
         },
         "back": {
             "file": "textures/buttons/back.png"
