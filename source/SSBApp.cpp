@@ -197,6 +197,8 @@ void SSBApp::preUpdate(float dt)
         _victory.setSpriteBatch(_batch);
         _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
+        _waitinghost.init(_assets, _sound);
+        _waitinghost.setSpriteBatch(_batch);
         _status = START;
     }
     else
@@ -214,6 +216,9 @@ void SSBApp::preUpdate(float dt)
             break;
         case CLIENT:
             updateClientScene(dt);
+            break;
+        case WAITING_HOST:
+            updateWaitingHostScene(dt);
             break;
         case COLOR_SELECT:
             updateColorSelectScene(dt);
@@ -411,6 +416,8 @@ void SSBApp::updateHostScene(float timestep)
     _networkController->update(timestep);
     if (_hostgame.getBackClicked())
     {
+        _network->disconnect();
+        _networkController->flushConnection();
         _status = MENU;
         _hostgame.setActive(false);
         _mainmenu.setActive(true);
@@ -425,6 +432,7 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("INGAME");
         _hostgame.setActive(false);
+        _colorselect.reset();
         _colorselect.setActive(true);
         _colorselect.setInitialPlayerCount(_network->getNumPlayers());
         _status = COLOR_SELECT;
@@ -455,21 +463,21 @@ void SSBApp::updateClientScene(float timestep)
     _networkController->update(timestep);
     if (_joingame.getBackClicked())
     {
+        _network->disconnect();
+        _networkController->flushConnection();
         _status = MENU;
         _joingame.setActive(false);
         _mainmenu.setActive(true);
+    }
+    else if (_network->getStatus() == NetEventController::Status::CONNECTED){
+        _status = WAITING_HOST;
+        _joingame.setActive(false);
+        _waitinghost.setActive(true);
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
         _network->markReady();
-    }
-    else if (_network->getStatus() == NetEventController::Status::INGAME)
-    {
-        _joingame.setActive(false);
-        _colorselect.setActive(true);
-        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
-        _status = COLOR_SELECT;
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
@@ -541,6 +549,44 @@ void SSBApp::updateColorSelectScene(float timestep){
     }
 }
 
+void SSBApp::updateWaitingHostScene(float timestep){
+    _waitinghost.update(timestep);
+    _networkController->update(timestep);
+    if (_network->getStatus() == NetEventController::Status::INGAME){
+        _waitinghost.setActive(false);
+        _colorselect.reset();
+        _colorselect.setActive(true);
+        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
+        _status = COLOR_SELECT;
+        return;
+    }
+    else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
+    {
+        _networkController->setIsHost(false);
+        _network->markReady();
+    } else if (_network->getStatus() == NetEventController::Status::NETERROR
+     || _network->getNumPlayers() <= 1) {
+        _network->disconnect();
+        _networkController->flushConnection();
+        _waitinghost.setActive(false);
+        _joingame.reset();
+        _joingame.setActive(true);
+        _status = CLIENT;
+        return;
+    }
+    switch (_waitinghost.getChoice())
+    {
+        case WaitingHostScene::Choice::CANCEL:
+            _waitinghost.setActive(false);
+            _joingame.setActive(true);
+            _network->disconnect();
+            _status = CLIENT;
+            break;
+        case WaitingHostScene::Choice::NONE:
+            break;
+    }
+}
+
 void SSBApp::resetScenes(){
     // Reset network
     _networkController->resetNetwork();
@@ -554,6 +600,7 @@ void SSBApp::resetScenes(){
     _hostgame.reset();
     _joingame.reset();
     _colorselect.reset();
+    _waitinghost.reset();
 }
 
 /**
@@ -583,6 +630,9 @@ void SSBApp::draw()
         break;
     case CLIENT:
         _joingame.render();
+        break;
+    case WAITING_HOST:
+        _waitinghost.render();
         break;
     case COLOR_SELECT:
         _colorselect.render();
