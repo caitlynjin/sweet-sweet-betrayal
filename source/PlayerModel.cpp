@@ -145,6 +145,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         setDebugColor(Color4::YELLOW);
         
         _node = scene2::SpriteNode::alloc();
+        _node->setPriority(3);
 
         // Gameplay attributes
         _isGrounded = false;
