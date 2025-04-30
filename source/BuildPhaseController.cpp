@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound) {
     if (assets == nullptr)
     {
         return false;
@@ -64,6 +64,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _objectController = objectController;
     _networkController = networkController;
     _network = networkController->getNetwork();
+    _sound = sound;
 
     _player = player;
 
@@ -71,7 +72,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets, _gridManager, _networkController);
+    _uiScene.init(assets, _gridManager, _networkController, _sound);
     randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
     addInvButtonListeners();

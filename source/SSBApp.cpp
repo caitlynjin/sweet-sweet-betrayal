@@ -198,6 +198,7 @@ void SSBApp::preUpdate(float dt)
         _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
         _status = START;
+        _sound->playMusic("move_phase", true);
     }
     else
     {

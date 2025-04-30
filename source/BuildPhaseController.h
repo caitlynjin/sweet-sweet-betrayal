@@ -19,6 +19,7 @@
 #include "ObjectController.h"
 #include "BuildPhaseScene.h"
 #include "BuildPhaseUIScene.h"
+#include "SoundController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -38,6 +39,8 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     /** The network  */
     std::shared_ptr<NetEventController> _network;
+
+    std::shared_ptr<SoundController> _sound;
     /** Controller for abstracting out input across multiple platforms */
     std::shared_ptr<PlatformInput> _input;
     BuildPhaseScene _buildPhaseScene;
@@ -79,7 +82,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound);
 
     /**
      * Disposes of all (non-static) resources allocated to this mode.
