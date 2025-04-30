@@ -821,6 +821,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     std::shared_ptr<Platform> movPlat = Platform::allocMoving(pos, size, pos, end, speed);
 
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    animNode->setAnchor(Vec2::ANCHOR_CENTER);
     movPlat->setPlatformAnimation(animNode, 15);
     
     movPlat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
