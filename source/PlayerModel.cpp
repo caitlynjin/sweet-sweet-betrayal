@@ -599,7 +599,8 @@ void PlayerModel::update(float dt)
     _timeline->update(dt);
     
     // Change player facing
-    if (getVX() > 0){
+    //TODO-FIX THIS SHIT TO RESPECT CONTROLS
+    if (getVX() > 0) {
         _faceRight = true;
     } else if(getVX() < 0){
         _faceRight = false;
@@ -664,6 +665,7 @@ void PlayerModel::update(float dt)
     
     if (!_isDead && !_immobile){
         _canDie = true;
+
 
         windUpdate(dt);
         //Set Justflipped and justglided to instantly deactivate
@@ -730,6 +732,19 @@ void PlayerModel::update(float dt)
     }
 }
 
+void PlayerModel::handlePlayerState() {
+    switch (_state) {
+    case State::GROUNDED:
+        break;
+    case State::GLIDING:
+        break;
+    case State::MIDDAIR:
+        break;
+    default:
+        std::cout << "Unknown player state.\n";
+        break;
+    }
+}
 
 // Based on the player motion, check if we are falling.
 // If the player is falling for more than the glidetimer, set player into glide mode

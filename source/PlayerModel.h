@@ -68,6 +68,8 @@ using namespace Constants;
 /** The maximum character speed */
 #define PLAYER_MAXSPEED   6.5f
 #define PLAYER_MAX_Y_SPEED 12.5f
+/*Amount of forgiveness for missing a jump input.*/
+#define COYOTE_TIME_DURATION 0.1f;
 /**How much the player speed should be dampened during gliding*/
 #define GLIDE_DAMPING 1.5f
 #define GLIDE_FORCE_FACTOR 1.5f
@@ -109,6 +111,13 @@ private:
     std::shared_ptr<Treasure> _treasure;
 
 protected:
+    /*Stores our current state*/
+    enum class State {
+        GLIDING, GROUNDED, MIDDAIR
+    };
+    State _state;
+    //Temp variable
+    bool _getGrounded;
 	/** The current horizontal movement of the character */
 	float _movement;
 	/** Which direction is the character facing */
@@ -117,6 +126,8 @@ protected:
 	int  _jumpCooldown;
 	/** Whether we are actively jumping */
 	bool _isJumping;
+    /*Keeps track of coyote time. */
+    float _coyoteTimer = 0.0f;
     /*Manages the jump buffer. If we press the jump input in the air and release, put in a jump buffer*/
     bool _bufferEnabled;
     float _bufferTimer = JUMP_BUFFER_DURATION;
@@ -533,6 +544,11 @@ public:
     
 #pragma mark -
 #pragma mark Attribute Properties
+    /*Gets player state. All player state actions should be resolve in update*/
+    State getState() const { return _state; }
+    /*THE ONLY FUNCTION THAT SHOULD BE ABLE TO CHANGE PLAYER STATES*/
+    void handlePlayerState();
+
     /**
      * Returns left/right movement of this character.
      *
