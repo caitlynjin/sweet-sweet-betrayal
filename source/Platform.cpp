@@ -16,6 +16,17 @@ void Platform::setPositionInit(const cugl::Vec2& position) {
     PolygonObstacle::setPosition(position + _size/2);
 }
 
+void Platform::updateAnimation(float timestep) {
+    if (_platTimeline->isActive("current")) {
+        // NO OP
+        CULog("AnimationPrepping");
+    }
+    else {
+        _platTimeline->add("current", _platAction, 1.0f);
+    }
+    _platTimeline->update(timestep);
+}
+
 void Platform::update(float timestep) {
     PolygonObstacle::update(timestep);
     
@@ -43,6 +54,7 @@ void Platform::update(float timestep) {
         setLinearVelocity(velocity);
     }
 
+    updateAnimation(timestep);
 }
 
 string Platform::getJsonKey() {
@@ -150,5 +162,29 @@ bool Platform::updateMoving(Vec2 gridpos) {
     }
         
     return false;
+}
+
+void Platform::setPlatformAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
+    //Create sprite object
+    _platSpriteNode = sprite;
+    _platSpriteNode->setVisible(true);
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    _node->addChild(_platSpriteNode);
+
+    //Create the spritesheet
+    _platTimeline = ActionTimeline::alloc();
+
+    std::vector<int> forward;
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animations
+    _platAnimateSprite = AnimateSprite::alloc(forward);
+    _platAction = _platAnimateSprite->attach<scene2::SpriteNode>(_platSpriteNode);
 }
 

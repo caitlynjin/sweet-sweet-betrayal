@@ -108,6 +108,7 @@ public:
      * @param speed The speed at which the platform moves.
      */
     std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+    std::shared_ptr<Object> createMovingPlatform(shared_ptr<Platform> plat);
     /** Creates a spike.
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
