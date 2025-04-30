@@ -599,9 +599,10 @@ void PlayerModel::update(float dt)
     _timeline->update(dt);
     
     // Change player facing
-    if (getMovement() > 0){
+    //TODO-FIX THIS SHIT TO RESPECT CONTROLS
+    if (getVX() > 0) {
         _faceRight = true;
-    } else if(getMovement() < 0){
+    } else if(getVX() < 0){
         _faceRight = false;
     }
     updateFacing();
