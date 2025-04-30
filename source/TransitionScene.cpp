@@ -111,7 +111,13 @@ void TransitionScene::preUpdate(float dt) {
         case TransitionType::FADE_IN:
             currColor = _blackScreen->getColor();
             if (currColor.a > 0.0f){
-                currColor.a -= FADE_RATE;
+                if (currColor.a - FADE_RATE > 0.0f) {
+                    currColor.a -= FADE_RATE;
+                }
+                else {
+                    currColor.a = 0.0f;
+                }
+                
                 _blackScreen->setColor(currColor);
             }
             else{
