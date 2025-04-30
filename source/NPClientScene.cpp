@@ -258,10 +258,6 @@ void ClientScene::update(float timestep) {
     setGameIDLabels(_gameID);
     if(_network->getStatus() == NetEventController::Status::CONNECTED || _network->getStatus() == NetEventController::Status::HANDSHAKE){
         
-        if (!_networkController->getPlayerColorAdded()){
-            _networkController->addPlayerColor();
-        }
-        
         _player->setText(std::to_string(_network->getNumPlayers()));
     }
 }

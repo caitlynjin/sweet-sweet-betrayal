@@ -1,12 +1,13 @@
 //
-//  ColorEvent.hpp
+//  AnimationEvent.h
 //  SweetSweetBetrayal
 //
-//  Created by Angelica Borowy on 4/8/25.
+//  Created by jessie jia on 4/26/25.
 //
 
-#ifndef ColorEvent_hpp
-#define ColorEvent_hpp
+
+#ifndef AnimationEvent_h
+#define AnimationEvent_h
 
 #include <stdio.h>
 #include <cugl/cugl.h>
@@ -14,18 +15,27 @@
 using namespace cugl;
 using namespace cugl::physics2::distrib;
 
+/**
+ * Animation types supported by AnimationEvent
+ */
+enum class AnimationType : int {
+    DEATH = 0,
+    GLIDE = 1,
+};
 
-class ColorEvent : public NetEvent {
+
+class AnimationEvent : public NetEvent {
     
 protected:
     LWSerializer _serializer;
     LWDeserializer _deserializer;
     
-    ColorType _color;
-    int _prevColorInt;
     int _playerID;
+    AnimationType _animation;
+    bool          _activate;
     
 public:
+
     /**
      * This method is used by the NetEventController to create a new event of using a
      * reference of the same type.
@@ -35,7 +45,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocColorEvent(int playerID, ColorType color, int prevColorInt);
+    static std::shared_ptr<AnimationEvent> allocAnimationEvent(int playerID, AnimationType animation, bool activate);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -52,14 +62,15 @@ public:
      */
     void deserialize(const std::vector<std::byte>& data) override;
     
-    /** Gets the color enum of the event. */
-    ColorType getColor() { return _color; }
-    
-    /** Gets the previous color int of the event. */
-    int getPrevColor() { return _prevColorInt; }
-    
     /** Gets the player id of the event. */
     int getPlayerID() { return _playerID; }
-};
-#endif /* MessageEvent_hpp */
+    
+    /** Gets the animation type of the event. */
+    AnimationType getAnimation() const { return _animation; }
+    
+    bool isActivate() const { return _activate; }
 
+};
+
+
+#endif /* AnimationEvent_h */

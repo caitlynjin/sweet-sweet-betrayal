@@ -173,7 +173,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
-
+    
     return true;
 }
 
@@ -183,7 +183,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 void SSBGameController::dispose()
 {
     _world = nullptr;
-    _gridManager->getGridNode() = nullptr;
+    if(_gridManager){
+        _gridManager->getGridNode() = nullptr;
+    }
 
     _input->dispose();
     _backgroundScene.dispose();
@@ -270,6 +272,7 @@ void SSBGameController::preUpdate(float dt)
         if (_networkController->canSwitchToMove()){
             // Exit build mode and switch to movement phase
             setBuildingMode(!_buildingMode);
+            _scoreCountdown==200;
         }
         
     }
@@ -279,28 +282,27 @@ void SSBGameController::preUpdate(float dt)
         _movePhaseController->preUpdate(dt);
         // Check if can switch to build phase, therefore starting a new round
         if (_networkController->canSwitchToBuild()){
-//            //TODO: Segment into switchToBuild()
-//            if (_scoreCountdown == -1){
-//                _scoreCountdown = SCOREBOARD_COUNT;
-//                _movePhaseController->scoreboardActive(true);
-//            }
-//            if (_scoreCountdown == 0){
-//                _movePhaseController->scoreboardActive(false);
-//                _movePhaseController->resetRound();
-//                setBuildingMode(!_buildingMode);
-//                _networkController->resetRound();
-////                _movePhaseController->resetRound();
-//                _scoreCountdown = -1;
-//                // Check for win condition
-//                if (_networkController->checkWinCondition()){
-//                    _hasVictory = true;
-//                }
             if (_beforeScoreBoard == 0) {
                 //TODO: Segment into switchToBuild()
                 if (_scoreCountdown == -1){
                     _scoreCountdown = SCOREBOARD_COUNT;
                     _movePhaseController->scoreboardActive(true);
                 }
+                auto players = _networkController->getPlayerList();
+                if (_scoreCountdown == 150 && players.size() >= 1) {
+                    _movePhaseController->inRoundNodesActive(players[0]->getName());
+                }
+                if (_scoreCountdown == 120 && players.size() >= 2) {
+                    _movePhaseController->inRoundNodesActive(players[1]->getName());
+                }
+                if (_scoreCountdown ==  90 && players.size() >= 3) {
+                    _movePhaseController->inRoundNodesActive(players[2]->getName());
+                }
+                if (_scoreCountdown ==  60 && players.size() >= 4) {
+                    _movePhaseController->inRoundNodesActive(players[3]->getName());
+                }
+
+
                 if (_scoreCountdown == 0){
                     _movePhaseController->scoreboardActive(false);
                     _movePhaseController->resetRound();
@@ -374,26 +376,11 @@ void SSBGameController::fixedUpdate(float step)
 
     // Update all controllers
     _networkController->fixedUpdate(step);
-    
-    
-    // if (_networkController->getIsHost()) {   
-    // auto objects = _networkController->getObjects();
 
-    // for (auto it = objects->begin(); it != objects->end(); ++it) {
-    //     std::shared_ptr<Object> obj = *it;
-    //     if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
-    //         std::shared_ptr<Platform> platform = std::dynamic_pointer_cast<Platform>(obj);
-    //         if (platform) {
-    //                                 platform->updateMovingPlatform(step);
-    //             }
-    //         }
-    //     }
-    // }
-    
-
-
-
-
+    // Update all game objects
+//    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
+//        (*it)->update(step);
+//    }
 }
 
 /**

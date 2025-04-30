@@ -1,12 +1,9 @@
 //
-//  ColorEvent.hpp
-//  SweetSweetBetrayal
-//
-//  Created by Angelica Borowy on 4/8/25.
+// Created by chvel on 4/26/2025.
 //
 
-#ifndef ColorEvent_hpp
-#define ColorEvent_hpp
+#ifndef SWEETSWEETBETRAYAL_READYEVENT_H
+#define SWEETSWEETBETRAYAL_READYEVENT_H
 
 #include <stdio.h>
 #include <cugl/cugl.h>
@@ -14,17 +11,15 @@
 using namespace cugl;
 using namespace cugl::physics2::distrib;
 
-
-class ColorEvent : public NetEvent {
-    
+class ReadyEvent : public NetEvent {
 protected:
     LWSerializer _serializer;
     LWDeserializer _deserializer;
-    
+
     ColorType _color;
-    int _prevColorInt;
     int _playerID;
-    
+    bool _ready;
+
 public:
     /**
      * This method is used by the NetEventController to create a new event of using a
@@ -34,13 +29,14 @@ public:
      * and all methods must implement this method.
      */
     std::shared_ptr<NetEvent> newEvent() override;
-    
-    static std::shared_ptr<NetEvent> allocColorEvent(int playerID, ColorType color, int prevColorInt);
-    
+
+    static std::shared_ptr<NetEvent> allocReadyEvent(int playerID, ColorType color, bool ready);
+
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
      */
     std::vector<std::byte> serialize() override;
+
     /**
      * Deserialize a vector of bytes and set the corresponding parameters.
      *
@@ -51,15 +47,14 @@ public:
      * useful parameters of this class.
      */
     void deserialize(const std::vector<std::byte>& data) override;
-    
+
     /** Gets the color enum of the event. */
     ColorType getColor() { return _color; }
-    
-    /** Gets the previous color int of the event. */
-    int getPrevColor() { return _prevColorInt; }
-    
+
     /** Gets the player id of the event. */
     int getPlayerID() { return _playerID; }
-};
-#endif /* MessageEvent_hpp */
 
+    /** Gets the ready state of the event */
+    bool getReady() { return _ready; }
+};
+#endif //SWEETSWEETBETRAYAL_READYEVENT_H
