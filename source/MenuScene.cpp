@@ -83,16 +83,19 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     _hostbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::HOST;
+            _sound->playSound("button_click");
         }
     });
     _joinbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::JOIN;
+            _sound->playSound("button_click");
         }
     });
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
+            _sound->playSound("button_click");
         }
     });
     

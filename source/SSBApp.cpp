@@ -200,6 +200,7 @@ void SSBApp::preUpdate(float dt)
         _waitinghost.init(_assets, _sound);
         _waitinghost.setSpriteBatch(_batch);
         _status = START;
+        _sound->playMusic("move_phase", true);
     }
     else
     {
