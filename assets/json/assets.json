@@ -530,6 +530,33 @@
         },
         "vine-background": {
             "file": "textures/backgrounds/vine-background.png"
+        },
+        "black-background": {
+            "file": "textures/backgrounds/black-background.png"
+        },
+        "cancel": {
+            "file": "textures/buttons/cancel.png"
+        },
+        "fourgems": {
+            "file": "textures/fourgems.png"
+        },
+        "waiting-host-title": {
+            "file": "textures/text/waiting-host-title.png"
+        },
+        "loading-spritesheet": {
+            "file": "textures/loading-spritesheet.png"
+        },
+        "tip1": {
+            "file": "textures/text/tip1.png"
+        },
+        "quit": {
+            "file": "textures/buttons/quit.png"
+        },
+        "disconnected-title": {
+            "file": "textures/text/disconnected-title.png"
+        },
+        "disconnected-img": {
+            "file": "textures/disconnected-img.png"
         }
     },
     "jsons": {
@@ -568,6 +595,23 @@
             "type": "sample",
             "file": "sounds/plop.wav",
             "volume": 0.5
+        },
+        "glide": {
+            "type": "sample",
+            "file": "sounds/sfx_glide.wav",
+            "volume": 0.5
+        },
+        "button_click": {
+            "type": "sample",
+            "file": "sounds/sfx_button_click.wav",
+            "volume": 0.5
+        },
+        "move_phase": {
+            "type": "sample",
+            "file": "sounds/music_move_phase.ogg",
+            "stream": true,
+            "volume":  0.5
+
         }
     },
     "fonts": {
@@ -613,7 +657,9 @@
         "join" : "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
         "host" : "widgets/host.json",
-        "colorselect" : "widgets/colorselect.json"
+        "colorselect" : "widgets/colorselect.json",
+        "waiting-host": "widgets/waiting-host.json",
+        "disconnected": "widgets/disconnected.json"
     },
     "scene2s": {
         "start": {
@@ -662,6 +708,15 @@
                 "key": "join"
             }
         },
+        "waiting-host": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "waiting-host"
+            }
+        },
         "colorselect": {
             "type": "Widget",
             "format": {
@@ -669,6 +724,15 @@
             },
             "data": {
                 "key": "colorselect"
+            }
+        },
+        "disconnected": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "disconnected"
             }
         },
         "game": {

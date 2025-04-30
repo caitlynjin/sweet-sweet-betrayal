@@ -115,6 +115,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _networkController = networkController;
     _network = networkController->getNetwork();
     _sound = sound;
+    _sound->playMusic("move_phase", true);
 
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect,gravity);
@@ -168,9 +169,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
-    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera);
+    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
 
-
+    //_sound->playMusic("move_phase");
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
     
@@ -330,6 +331,18 @@ void SSBGameController::preUpdate(float dt)
         _scoreCountdown -= 1;
     }
     
+    auto objects = _networkController->getObjects();
+    for (auto it = objects->begin(); it != objects->end(); ++it) {
+        std::shared_ptr<Object> obj = *it;
+        if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
+            auto platform = std::dynamic_pointer_cast<Platform>(obj);
+            if (platform && platform->getOwnerId() == _networkController->getNetwork()->getShortUID()) {
+                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
+                platform->updateMovingPlatform(dt);
+            }
+        }
+    }
+    
 }
 
 /**
@@ -365,8 +378,7 @@ void SSBGameController::fixedUpdate(float step)
 
     // Update all controllers
     _networkController->fixedUpdate(step);
-    
-    
+
     // Update all game objects
 //    for (auto it = _objects.begin(); it != _objects.end(); ++it) {
 //        (*it)->update(step);
