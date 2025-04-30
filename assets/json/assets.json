@@ -542,6 +542,15 @@
         },
         "tip1": {
             "file": "textures/text/tip1.png"
+        },
+        "quit": {
+            "file": "textures/buttons/quit.png"
+        },
+        "disconnected-title": {
+            "file": "textures/text/disconnected-title.png"
+        },
+        "disconnected-img": {
+            "file": "textures/disconnected-img.png"
         }
     },
     "jsons": {
@@ -643,7 +652,8 @@
         "numlabel": "widgets/numlabel.json",
         "host" : "widgets/host.json",
         "colorselect" : "widgets/colorselect.json",
-        "waiting-host": "widgets/waiting-host.json"
+        "waiting-host": "widgets/waiting-host.json",
+        "disconnected": "widgets/disconnected.json"
     },
     "scene2s": {
         "start": {
@@ -708,6 +718,15 @@
             },
             "data": {
                 "key": "colorselect"
+            }
+        },
+        "disconnected": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "disconnected"
             }
         },
         "game": {
