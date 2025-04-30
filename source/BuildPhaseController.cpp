@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound) {
     if (assets == nullptr)
     {
         return false;
@@ -64,6 +64,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _objectController = objectController;
     _networkController = networkController;
     _network = networkController->getNetwork();
+    _sound = sound;
 
     _player = player;
 
@@ -71,7 +72,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
     _buildPhaseScene.init(assets, camera);
 
     // Initalize UI Scene
-    _uiScene.init(assets, _gridManager, _networkController);
+    _uiScene.init(assets, _gridManager, _networkController, _sound);
     randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
     addInvButtonListeners();
@@ -243,9 +244,11 @@ void BuildPhaseController::preUpdate(float dt) {
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPositionInit(gridPos);
-                    if (_selectedObject->getItemType()== Item::PLATFORM) {
+                    if (_selectedObject->getItemType()== Item::MOVING_PLATFORM) {
+                        CULog("is platform");
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
+                            CULog("casting success");
                             platform->updateMoving(gridPos);
                         }
                     }
@@ -433,8 +436,11 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
     switch (item) {
         case (PLATFORM):
             return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
-        case (MOVING_PLATFORM):
-            return _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
+        case (MOVING_PLATFORM):{
+            std::shared_ptr<Object> platform = _networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _buildPhaseScene.getScale() / getSystemScale());
+            platform->setOwnerId(_networkController->getNetwork()->getShortUID());
+            return platform;
+        }
         case (WIND):
             return _networkController->createWindNetworked(gridPos, itemToSize(item), 1.0f, Vec2(0, 4.0), Vec2(0, 3.0));
         case (SPIKE):

@@ -112,6 +112,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
             _backClicked = true;
             _gameID = {' ', ' ', ' ', ' ', ' '};
             _gameIDLength = 0;
+            _sound->playSound("button_click");
             
         }
     });
@@ -119,6 +120,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _startgame->addListener([=,this](const std::string& name, bool down) {
         if (!down) {
             _network->connectAsClient(dec2hex(std::string(_gameID.begin(), _gameID.end())));
+            _sound->playSound("button_click");
         }
     });
     _button0->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('0');}});
@@ -257,10 +259,6 @@ void ClientScene::update(float timestep) {
     configureStartButton();
     setGameIDLabels(_gameID);
     if(_network->getStatus() == NetEventController::Status::CONNECTED || _network->getStatus() == NetEventController::Status::HANDSHAKE){
-        
-        if (!_networkController->getPlayerColorAdded()){
-            _networkController->addPlayerColor();
-        }
         
         _player->setText(std::to_string(_network->getNumPlayers()));
     }

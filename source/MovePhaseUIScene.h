@@ -219,6 +219,10 @@ public:
 //        }
         disableUI(value); 
     };
+    
+    void inRoundNodesActive(const std::string& username) {
+        _scoreController->commitRoundIcons(username);
+    }
 
     /**
      * Sets the left joystick to be visible.
