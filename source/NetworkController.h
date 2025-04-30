@@ -715,6 +715,8 @@ public:
     std::shared_ptr<Treasure> getTreasure(){
         return _treasure;
     }
+
+    std::vector<std::shared_ptr<Object>>* getObjects(){return _objects;}
     
     /**
      Picks the next spawn point for the treasure at random.
