@@ -551,6 +551,9 @@
         },
         "menu-title": {
             "file": "textures/text/menu-title.png"
+        },
+        "join-title": {
+            "file": "textures/text/join-title.png"
         }
     },
     "jsons": {
