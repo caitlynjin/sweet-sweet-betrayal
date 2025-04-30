@@ -25,7 +25,7 @@
             "roomcode-background": {
                 "type": "Image",
                 "data": {
-                    "texture": "roomcode-background",
+                    "texture": "vine-background",
                     "anchor": [
                         0,
                         1
