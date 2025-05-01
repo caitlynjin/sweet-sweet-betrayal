@@ -62,6 +62,30 @@ bool Bomb::init(const Vec2 pos, const Size size, string jsonType) {
 
     if (PolygonObstacle::init(rect)){
         setPosition(pos + size/2);
+
+        // Create bomb radius sensor
+        b2PolygonShape sensorBox;
+        sensorBox.SetAsBox(1.5f, 1.5f);
+
+        b2FixtureDef sensorDef;
+        sensorDef.shape = &sensorBox;
+        sensorDef.isSensor = true;
+//        sensorDef.userData.pointer = reinterpret_cast<uintptr_t>(this); // Optional: useful for contact handling
+
+        // Attach the sensor to the body
+        if (_body != nullptr) {
+            _body->CreateFixture(&sensorDef);
+        }
+
+//        auto debugBox = scene2::WireNode::alloc();
+//        debugBox->setAnchor(Vec2::ANCHOR_CENTER);
+//        debugBox->setColor(Color4::RED); // You can change color as needed
+//        debugBox->setContentSize(Size(3.0f, 3.0f)); // 3x3 box
+//        debugBox->setPosition(pos + size / 2); // Same center as bomb
+//
+//        // Attach it to the scene graph (e.g., the same node as the bomb)
+//        setSceneNode(debugBox);
+
         return true;
     }
 

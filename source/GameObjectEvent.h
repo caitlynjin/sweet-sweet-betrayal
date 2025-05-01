@@ -59,7 +59,7 @@ public:
     GameObjEventType getType() const { return _type; }
 
     /** Gets the player id of the event. */
-    int getPlayerID() { return _playerID; }
+    int getObjId() { return _objId; }
 
 };
 

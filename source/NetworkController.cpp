@@ -1175,7 +1175,14 @@ BombFactory::createObstacle(Vec2 pos, Size size) {
     std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
     bomb->setSceneNode(sprite);
 
-    return std::make_pair(bomb, sprite);
+//    auto debugBox = scene2::WireNode::allocWithPath(Rect(pos + size/2, Size(3.0f, 3.0f)));
+//    debugBox->setAnchor(Vec2::ANCHOR_CENTER);
+//    debugBox->setColor(Color4::RED); // You can change color as needed
+
+    // Attach it to the scene graph (e.g., the same node as the bomb)
+//    bomb->setSceneNode(debugBox);
+
+    return std::make_pair(bomb, debugBox);
 }
 
 
