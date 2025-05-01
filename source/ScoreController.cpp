@@ -36,6 +36,7 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     
     //update total score
     int prevTotal = _playerTotalScores[playerID];
+    score = std::min(score, std::max(0, 10 - prevTotal));
     _playerTotalScores[playerID] += score;
     int newTotal = _playerTotalScores[playerID];
         
@@ -139,8 +140,8 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     _scoreboardParent = parent;
 
     float scale = 1.0f;
-    bar_position = Vec2(size_width * 0.5f, size_height * 0.8f);
-    glider_position = Vec2(size_width * 0.25f, size_height * 0.8f);
+    bar_position = Vec2(size_width * 0.55f, size_height * 0.8f);
+    glider_position = Vec2(size_width * 0.2f, size_height * 0.8f);
     offset_betw_points = Vec2(size_width * 0.05f, 0);
     offset_betw_players = Vec2(0, -size_height * 0.2f);
 
@@ -171,7 +172,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["redglider"]);
             float glider_width = _scoreIcons["redglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width+35, 0);
             _playerBaseDotPos[name] = base_dot_position;
 
 
@@ -189,7 +190,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["blueglider"]);
             float glider_width = _scoreIcons["blueglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width+35, 0);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
@@ -206,7 +207,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["greenglider"]);
             float glider_width = _scoreIcons["greenglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width+35, 0);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
@@ -223,7 +224,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["yellowglider"]);
             float glider_width = _scoreIcons["yellowglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width+35, 0);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
