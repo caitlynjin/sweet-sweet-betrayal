@@ -90,8 +90,10 @@ void Mushroom::update(float timestep) {
 }
 
 void Mushroom::triggerAnimation() {
+    CULog("triggerAnimation");
+    _mushroomTimeline->remove("current");
     _animating = true;
-     _mushroomTimeline->add("current", _mushroomAction, 1.0f);
+    _mushroomTimeline->add("current", _mushroomAction, 1.0f);
 }
 
 
