@@ -175,6 +175,8 @@ bool Platform::updateMoving(Vec2 gridpos) {
 void Platform::setPlatformAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     //Create sprite object
     _platSpriteNode = sprite;
+    _platSpriteNode->setAnchor(0.0f, 0.0f);
+    _platSpriteNode->setPosition(getPosition().x - 120, getPosition().y - 32);
     _platSpriteNode->setVisible(true);
     if (!_node) {
         _node = scene2::SceneNode::alloc();
