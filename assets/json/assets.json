@@ -173,6 +173,9 @@
         "wind_unobstructed_spritesheet": {
             "file": "textures/wind-unobstructed-spritesheet.png"
         },
+        "torch-right": {
+            "file": "textures/right-torch-spritesheet.png"
+        },
         "dpad": {
             "file": "textures/dpad.png",
             "wrapS": "clamp",
@@ -344,6 +347,9 @@
         },
         "icon-thorn": {
             "file": "textures/icon-thorn.png"
+        },
+        "icon-torch": {
+            "file": "textures/icon-torch.png"
         },
         "icon-wind": {
             "file": "textures/icon-wind.png"

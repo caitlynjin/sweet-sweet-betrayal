@@ -360,6 +360,7 @@ namespace Constants {
         SPIKE_DOWN,
         SPIKE_LEFT,
         SPIKE_RIGHT,
+        TORCH,
 
         /** No type */
         NONE

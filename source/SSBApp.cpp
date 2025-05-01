@@ -864,7 +864,8 @@ void SSBApp::populateMaps() {
         {std::string("artObject"), std::string(EARTH_TEXTURE), Item::ART_OBJECT},
         {std::string("tileItem"), std::string(TILE_TEXTURE), Item::TILE_ITEM},
         {std::string("mushroom"), std::string(MUSHROOM_TEXTURE), Item::MUSHROOM},
-        {std::string("none"), std::string(EARTH_TEXTURE), Item::NONE}
+        {std::string("none"), std::string(EARTH_TEXTURE), Item::NONE},
+    { std::string("torchRight"), std::string("torch-right"), Item::TORCH }
     };
     std::vector<std::any> tempVec;
     for (auto it = vec.begin(); it != vec.end(); ++it) {
