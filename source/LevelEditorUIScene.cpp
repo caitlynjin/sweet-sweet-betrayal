@@ -116,13 +116,13 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
         });
 
     std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    readyNode->setScale(0.8f);
+    readyNode->setScale(1.0f);
     _readyButton = scene2::Button::alloc(readyNode);
     _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
     // Sorry, I used this as the save button. Probably shouldn't have done that, but too late now.
     // Might refactor later. Might not.
     _readyButton->setPosition(_size.width * 0.08f, _size.height * 0.20f);
-
+    _readyButton->setScale(0.5f);
     _readyButton->activate();
     _readyButton->addListener([this](const std::string& name, bool down) {
         // Runs when the button is released, not when it is first pressed
@@ -131,10 +131,11 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
         }
         });
     std::shared_ptr<scene2::PolygonNode> loadNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    loadNode->setScale(0.8f);
+    loadNode->setScale(1.0f);
     _loadButton = scene2::Button::alloc(loadNode);
     _loadButton->setAnchor(Vec2::ANCHOR_CENTER);
     _loadButton->setPosition(_size.width * 0.1f, _size.height * 0.9f);
+    _loadButton->setScale(0.5f);
     _loadButton->activate();
     _loadButton->addListener([this](const std::string& name, bool down) {
         // This runs when the button is RELEASED.
