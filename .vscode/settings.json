@@ -70,6 +70,22 @@
     "utility": "cpp",
     "format": "cpp",
     "cinttypes": "cpp",
-    "functional": "cpp"
+    "functional": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "condition_variable": "cpp",
+    "coroutine": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "iomanip": "cpp",
+    "numbers": "cpp",
+    "semaphore": "cpp",
+    "shared_mutex": "cpp",
+    "span": "cpp",
+    "stop_token": "cpp",
+    "text_encoding": "cpp",
+    "thread": "cpp",
+    "cfenv": "cpp"
   }
 }
