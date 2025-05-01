@@ -237,7 +237,7 @@
 /** The number of frame to wait before reinitializing the game */
 #define EXIT_COUNT 240
 /** The number of frame to wait before reinitializing the game */
-#define SCOREBOARD_COUNT 300
+#define SCOREBOARD_COUNT 200
 
 #pragma mark -
 #pragma mark Build Phase Constants

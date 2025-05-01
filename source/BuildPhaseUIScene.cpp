@@ -77,6 +77,9 @@ void BuildPhaseUIScene::dispose() {
         _bottomFrame = nullptr;
         _leftFrame = nullptr;
         _timerFrame = nullptr;
+        for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
+            checkmark = nullptr;
+        }
         Scene2::dispose();
     }
 };
@@ -88,7 +91,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController) {
+bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -101,6 +104,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 
     _assets = assets;
     _gridManager = gridManager;
+    _sound = soundController;
 
     _startTime = Application::get()->getEllapsedMicros();
 
@@ -135,6 +139,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         if (down && !_isReady) {
             setIsReady(true);
             _gridManager->posToObjMap.clear();  // Disables movement of placed objects
+            _sound->playSound("button_click");
         }
     });
 
@@ -236,9 +241,6 @@ void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vec
  */
 void BuildPhaseUIScene::reset() {
     setVisible(true);
-    for (const auto& checkmark : _checkmarkMap){
-        checkmark.second->setVisible(false);
-    }
     activateInventory(true);
     
     // Reset UI variables
@@ -292,6 +294,7 @@ void BuildPhaseUIScene::preUpdate(float dt) {
             checkmark->setScale(0.04f);
             checkmark->setPosition(icon->getPositionX() + 25, icon->getPositionY() - 15);
             _checkmarkMap[icon] = checkmark;
+            _checkmarkList.push_back(checkmark);
             checkmark->setVisible(false);
             addChild(checkmark);
         }
@@ -356,8 +359,8 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _bottomFrame->setVisible(value);
     _leftFrame->setVisible(value);
     _timerFrame->setVisible(value);
-    for (const auto& checkmark : _checkmarkMap){
-        checkmark.second->setVisible(value);
+    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
+        checkmark->setVisible(false);
     }
 
     if (value){

@@ -55,23 +55,23 @@
 /** Cooldown (in animation frames) for shooting */
 #define SHOOT_COOLDOWN 20
 /** The amount to shrink the body fixture (vertically) relative to the image */
-#define PLAYER_VSHRINK 0.8f
+#define PLAYER_VSHRINK 0.7f
 /** The amount to shrink the body fixture (horizontally) relative to the image */
-#define PLAYER_HSHRINK 0.73f
+#define PLAYER_HSHRINK 0.60f
 /** The amount to shrink the sensor fixture (horizontally) relative to the image */
-#define PLAYER_SSHRINK 0.6f
+#define PLAYER_SSHRINK 0.8f
 /** Height of the sensor attached to the player's feet */
 #define SENSOR_HEIGHT 0.1f
 /** The density of the character */
 #define PLAYER_DENSITY 3.25f
 /** The impulse for the character jump */
 
-#define PLAYER_JUMP 27.5f
+#define PLAYER_JUMP 23.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define AIR_DAMPING 2.5f
-#define SPRITE_ANCHOR Vec2(0.625f,0.27f)
+#define AIR_DAMPING 1.75f
+#define SPRITE_ANCHOR Vec2(0.55f,0.20f)
 #define SPRITE_POSITION Vec2(-13.0f,0.0f)
 
 #pragma mark -
@@ -146,14 +146,16 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         
         _node = scene2::SpriteNode::alloc();
 
+        _node->setColor(Color4::CLEAR);
+
+        _node->setPriority(3);
+
+
         // Gameplay attributes
         _isGrounded = false;
-        _isShooting = false;
         _isJumping = false;
         _faceRight = true;
         _isGliding = false;
-
-        _shootCooldown = 0;
         _jumpCooldown = 0;
         _glideDelay = 0.2;
         _glideTimer = 0;
@@ -180,6 +182,7 @@ void PlayerModel::setIdleAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _idleSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_idleSpriteNode);
     _idleSpriteNode->setVisible(true);
+    _idleSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -206,6 +209,7 @@ void PlayerModel::setWalkAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _walkSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_walkSpriteNode);
     _walkSpriteNode->setVisible(false);
+    _walkSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -233,6 +237,7 @@ void PlayerModel::setGlideAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _glideSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_glideSpriteNode);
     _glideSpriteNode->setVisible(false);
+    _glideSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -259,6 +264,7 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _jumpSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_jumpSpriteNode);
     _jumpSpriteNode->setVisible(false);
+    _jumpSpriteNode->setRelativeColor(false);
     
     _timeline = ActionTimeline::alloc();
     
@@ -286,6 +292,7 @@ void PlayerModel::setDeathAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _deathSpriteNode->setPosition(SPRITE_POSITION);
     _node->addChild(_deathSpriteNode);
     _deathSpriteNode->setVisible(true);
+    _deathSpriteNode->setRelativeColor(false);
 
     _timeline = ActionTimeline::alloc();
 
@@ -317,6 +324,28 @@ void PlayerModel::doStrip(std::string key, cugl::ActionFunction action, float du
 //void PlayerModel::setAnimationColors(ColorType color){
 //    _walkSpriteNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(PLAYER_WALK_TEXTURE), 1, 3, 3);
 //}
+
+void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate) {
+    if (!activate) return;
+
+    if (animation == AnimationType::DEATH) {
+        CULog("playing dead animation");
+        _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);   
+        setDead(true);         
+    }
+    else if (animation == AnimationType::GLIDE) {
+        if (!_glideSpriteNode->isVisible()) {
+            _idleSpriteNode ->setVisible(false);
+            _walkSpriteNode ->setVisible(false);
+            _glideSpriteNode->setVisible(true);
+            _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
+        }
+        doStrip(GLIDE_ACTION_KEY, _glideAction);
+        _isGliding = true;
+    }
+}
+
 
 
 #pragma mark -
@@ -463,9 +492,13 @@ void PlayerModel::updateFacing(){
  */
 void PlayerModel::applyForce()
 {
+
     if (!isEnabled())
     {
         return;
+    }
+    if (_isGrounded) {
+        _isGliding = false;
     }
     //Manipulate the x velocity in this section
 
@@ -488,9 +521,11 @@ void PlayerModel::applyForce()
     //Apply a small linear velocity burst when we turn around on the ground, for gamefeel
     if (_justFlipped && isGrounded()) {
         if (_faceRight) {
+            CULog("FLIPBOOST");
             vel.x += STARTING_VELOCITY;
         }
         else if (!_faceRight) {
+            CULog("FLIPBOOST");
             vel.x -= STARTING_VELOCITY;
         }
     }
@@ -500,32 +535,61 @@ void PlayerModel::applyForce()
     if (fabs(getVX()) >= getMaxSpeed() && !_isGliding)
     {
         setVX(SIGNUM(getVX()) * getMaxSpeed());
-        // CULog("Hit limit!");
     }
     else if (_isGliding) {
-        //significantly dampen aeriel movement while gliding
-        b2Vec2 force(getMovement()*2, 0);
+        //More powerful horizontal movement while gliding to counteract damping
+        b2Vec2 force(getMovement()*GLIDE_BOOST_FACTOR, 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
     }
     else
     {
         b2Vec2 force(getMovement(), 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
-    }
+        b2Vec2 vel = _body->GetLinearVelocity();
 
+        if (abs(vel.x)< STARTING_VELOCITY) {
+            b2Vec2 vel = _body->GetLinearVelocity();
+            if (getMovement()>0) {
+                vel.x = STARTING_VELOCITY;
+            }
+            else if (getMovement() < 0) {
+                vel.x = STARTING_VELOCITY * -1;
+            }
+            _body->SetLinearVelocity(vel);
+        }
+    }
+    //Vertical velocity speed limit
+    if (fabs(getVY()) >= PLAYER_MAX_Y_SPEED)
+    {
+        setVY(SIGNUM(getVY()) * PLAYER_MAX_Y_SPEED);
+    }
     //Reduce our y velocity if we are gliding. Try to apply this before wind physics happns?
     if (getVY() <= GLIDE_FALL_SPEED && _isGliding) {
         setVY(GLIDE_FALL_SPEED);
-        CULog("HIT GLIDE LIMIT");
+    }
+    else if (_justExitedGlide) {
+        setVY(0);
+
     }
     
     // Jump!
-    if (isJumping() && isGrounded())
+    if ((isJumping() or _bufferTimer < JUMP_BUFFER_DURATION) && isGrounded())
     {
         b2Vec2 force(0, PLAYER_JUMP);
         _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-        _holdingJump = true;
         _jumpTimer = JUMP_DURATION;
+        _holdingJump = true;
+        if (isJumping()) {
+            _holdingJump = true;
+        }
+        if (_bufferTimer < JUMP_BUFFER_DURATION) {
+            CULog("BUFFERED");
+        }
+        
+    }
+
+    if (isGrounded()){
+        _bufferTimer = JUMP_BUFFER_DURATION;
     }
     
 }
@@ -545,7 +609,8 @@ void PlayerModel::update(float dt)
     _timeline->update(dt);
     
     // Change player facing
-    if (getVX() > 0){
+    //TODO-FIX THIS SHIT TO RESPECT CONTROLS
+    if (getVX() > 0) {
         _faceRight = true;
     } else if(getVX() < 0){
         _faceRight = false;
@@ -611,13 +676,11 @@ void PlayerModel::update(float dt)
     if (!_isDead && !_immobile){
         _canDie = true;
 
+
         windUpdate(dt);
         //Set Justflipped and justglided to instantly deactivate
         if (_justFlipped == true) {
             _justFlipped = false;
-        }
-        if (_justGlided == true) {
-            _justGlided = false;
         }
         
         // Apply cooldowns
@@ -630,21 +693,29 @@ void PlayerModel::update(float dt)
             // Only cooldown while grounded
             _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
         }
-        
-        /**Allows the player to adjust their jump height while jumping-
-        If they stop holding jump partway during a jump, dampen their velocity*/
-        _jumpTimer -= dt;
-
-        if (!_holdingJump and _jumpTimer > 0 and _isDampEnabled) {
-            b2Vec2 vel = _body->GetLinearVelocity();
-            if (vel.y > 0) {
-                vel.y = vel.y * JUMP_STOP_DAMPING;
-            }
-            _body->SetLinearVelocity(vel);
-            _jumpTimer = 0;
+        //Tracks how long we are in the air but not gliding
+        if (!_isGrounded && !_isGliding) {
+            _glideBoostTimer += dt;
+        }
+        else if (_isGrounded){
+            _glideBoostTimer = 0.0f;
+        }
+        //Increment jump buffer
+        if (!_isGrounded) {
+            _bufferTimer += dt;
         }
         
-        
+
+        _jumpTimer -= dt;
+        //Tracks how long we have been holding jump
+        if (_holdingJump and !_isGrounded and !_isGliding and _isDampEnabled) {
+            b2Vec2 vel = _body->GetLinearVelocity();
+            if (vel.y <= 0) {
+                _isGliding = true;
+                _justGlided = true;
+                CULog("autogliding");
+            }
+        }
         glideUpdate(dt);
         
         CapsuleObstacle::update(dt);
@@ -671,6 +742,19 @@ void PlayerModel::update(float dt)
     }
 }
 
+void PlayerModel::handlePlayerState() {
+    switch (_state) {
+    case State::GROUNDED:
+        break;
+    case State::GLIDING:
+        break;
+    case State::MIDDAIR:
+        break;
+    default:
+        std::cout << "Unknown player state.\n";
+        break;
+    }
+}
 
 // Based on the player motion, check if we are falling.
 // If the player is falling for more than the glidetimer, set player into glide mode
@@ -690,11 +774,23 @@ void PlayerModel::glideUpdate(float dt)
         //If we just flipped while gliding, or just entered gliding, apply a small linear impulse.
         if (_justFlipped || _justGlided) {
             int face = SIGNUM(_movement);
+            CULog("Boost player");
             b2Vec2 force(face * GLIDE_BOOST_FACTOR, 0);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
         }
-        else {
-            
+        //Apply a small upwards boost middair to simulate air resistance experienced by gliding while falling-
+        //Scales with how long the player has been middair, and how long since the player has last glided.
+        if (_justGlided) {
+            float thrust_mult = min(_glideBoostTimer, _glideBoostDelay);
+            CULog("something seomthing %f", thrust_mult);
+            b2Vec2 force(0, GLIDE_UPWARD_THRUST * (thrust_mult/ _glideBoostDelay));
+            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+            //Also slightly slow down the player-
+            b2Vec2 vel = _body->GetLinearVelocity();
+            vel.x = vel.x * 0.75;
+            _body->SetLinearVelocity(vel);
+
+            _glideBoostTimer = 0.0f;
         }
     }
     else
@@ -702,6 +798,12 @@ void PlayerModel::glideUpdate(float dt)
         _body->SetLinearDamping(0);
     }
 
+    if (_justGlided == true) {
+        _justGlided = false;
+    }
+    if (_justExitedGlide == true) {
+        _justExitedGlide = false;
+    }
 
 }
 /**

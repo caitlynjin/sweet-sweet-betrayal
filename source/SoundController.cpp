@@ -23,10 +23,14 @@ SoundController::SoundController() {}
  * @return true if the controller is initialized properly, false otherwise.
  */
 bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
+
+	std::vector<std::string> soundsToLoop = {
+		"move_phase"
+	};
 	std::vector<std::string> soundNames = {
-		"jump",
-		"lose",
-		"win"
+		"glide", 
+		"button_click",
+		"move_phase"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;
@@ -35,6 +39,9 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		sound = assets->get<Sound>(name);
 		_sounds.push_back(sound);
 		_soundMap.emplace(name, sound);
+	}
+	for (auto it = soundsToLoop.begin(); it != soundsToLoop.end(); ++it) {
+		// Come back to this
 	}
 	_musicQueue = AudioEngine::get()->getMusicQueue();
 	return true;
@@ -54,8 +61,8 @@ void SoundController::playSound(std::string key) {
 * @param key The key identifying the music track */
 
 // Make sure this actually works the way it's supposed to
-void SoundController::playMusic(std::string key) {
-	_musicQueue->play(_soundMap[key]);
+void SoundController::playMusic(std::string key, bool loop) {
+	_musicQueue->enqueue(_soundMap[key], loop);
 }
 
 void SoundController::addMusicToQueue(std::string key) {

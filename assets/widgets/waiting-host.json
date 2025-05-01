@@ -1,0 +1,223 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                1318,
+                576
+            ],
+            "angle": 0,
+            "position": [
+                0,
+                0
+            ],
+            "visible": true
+        },
+        "children": {
+            "background": {
+                "type": "Image",
+                "data": {
+                    "texture": "vine-background",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        1307.65,
+                        576
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0.18,
+                        0
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "fill",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "black-background": {
+                "type": "Image",
+                "data": {
+                    "texture": "black-background",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        1308,
+                        576
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        0
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "fill",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "back": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        277,
+                        131
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        433
+                    ],
+                    "visible": true
+                },
+                "children": {
+                    "back": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "back",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                277,
+                                131
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": -0.02
+                }
+            },
+            "fourgems": {
+                "type": "Sprite",
+                "data": {
+                    "texture": "loading-spritesheet",
+                    "span": 1,
+                    "cols": 20,
+                    "frame": 0,
+                    "anchor": [
+                        0.5,
+                        0
+                    ],
+                    "size": [
+                        443.9,
+                        178.4
+                    ],
+                    "angle": 0,
+                    "position": [
+                        437,
+                        218.6
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "bottom",
+                    "absolute": false,
+                    "x_offset": 0.01,
+                    "y_offset": 0.54
+                }
+            },
+            "tips": {
+                "type": "Image",
+                "data": {
+                    "texture": "tip1",
+                    "anchor": [
+                        0.5,
+                        0
+                    ],
+                    "size": [
+                        614,
+                        97
+                    ],
+                    "angle": 0,
+                    "position": [
+                        362,
+                        20
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "bottom",
+                    "absolute": false,
+                    "x_offset": 0.01,
+                    "y_offset": 0.03
+                }
+            },
+            "waiting-host-title": {
+                "type": "Image",
+                "data": {
+                    "texture": "waiting-host-title",
+                    "anchor": [
+                        0.5,
+                        0
+                    ],
+                    "size": [
+                        751,
+                        56
+                    ],
+                    "angle": 0,
+                    "position": [
+                        293,
+                        232
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "bottom",
+                    "absolute": false,
+                    "x_offset": 0.01,
+                    "y_offset": 0.4
+                }
+            }
+        }
+    }
+}

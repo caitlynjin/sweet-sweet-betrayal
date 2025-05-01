@@ -107,32 +107,34 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button-del"));
     
     _backout->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _network->disconnect();
             _backClicked = true;
             _gameID = {' ', ' ', ' ', ' ', ' '};
             _gameIDLength = 0;
+            _sound->playSound("button_click");
             
         }
     });
 
     _startgame->addListener([=,this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _network->connectAsClient(dec2hex(std::string(_gameID.begin(), _gameID.end())));
+            _sound->playSound("button_click");
         }
     });
-    _button0->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('0');}});
-    _button1->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('1');}});
-    _button2->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('2');}});
-    _button3->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('3');}});
-    _button4->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('4');}});
-    _button5->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('5');}});
-    _button6->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('6');}});
-    _button7->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('7');}});
-    _button8->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('8');}});
-    _button9->addListener([this](const std::string& name, bool down) {if (down) { appendGameID('9');}});
+    _button0->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('0');}});
+    _button1->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('1');}});
+    _button2->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('2');}});
+    _button3->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('3');}});
+    _button4->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('4');}});
+    _button5->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('5');}});
+    _button6->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('6');}});
+    _button7->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('7');}});
+    _button8->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('8');}});
+    _button9->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('9');}});
     
-    _deleteButton->addListener([this](const std::string& name, bool down) {if (down) { deleteGameID();}});
+    _deleteButton->addListener([this](const std::string& name, bool down) {if (!down) { deleteGameID();}});
     
     // Create the server configuration
     auto json = _assets->get<JsonValue>("server");
@@ -258,10 +260,6 @@ void ClientScene::update(float timestep) {
     setGameIDLabels(_gameID);
     if(_network->getStatus() == NetEventController::Status::CONNECTED || _network->getStatus() == NetEventController::Status::HANDSHAKE){
         
-        if (!_networkController->getPlayerColorAdded()){
-            _networkController->addPlayerColor();
-        }
-        
         _player->setText(std::to_string(_network->getNumPlayers()));
     }
 }
@@ -274,12 +272,12 @@ void ClientScene::update(float timestep) {
  */
 void ClientScene::configureStartButton() {
     if (_network->getStatus() == NetEventController::Status::IDLE) {
-        _startgame->setDown(false);
+//        _startgame->setDown(false);
         _startgame->activate();
         updateText(_startgame, "Start Game");
     }
     else if (_network->getStatus() == NetEventController::Status::CONNECTING) {
-        _startgame->setDown(false);
+//        _startgame->setDown(false);
         _startgame->deactivate();
         updateText(_startgame, "Connecting");
     }

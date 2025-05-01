@@ -2,8 +2,10 @@
 #define __PF_APP_H__
 #include <cugl/cugl.h>
 #include "SSBGameController.h"
+#include "SSBLoadingScene.h"
 #include "StartScene.h"
 #include "MenuScene.h"
+#include "TransitionScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
 #include "NPHostScene.h"
@@ -11,6 +13,9 @@
 #include "VictoryScene.h"
 #include "SoundController.h"
 #include "LevelEditorController.h"
+#include "ColorSelectScene.h"
+#include "WaitingHostScene.h"
+#include "DisconnectedScene.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 
 
@@ -21,7 +26,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY
+        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -40,10 +45,23 @@ protected:
     
     VictoryScene _victory;
     
+
+    TransitionScene _transition;
+    
+    bool _doTransition = false;
+
+    ColorSelectScene _colorselect;
+    
+    WaitingHostScene _waitinghost;
+    
+    DisconnectedScene _disconnectedscreen;
+
+    
     /***/
     PlatformInput _input;
+    
     /** The controller for the loading screen */
-    cugl::scene2::LoadingScene _loading;
+    SSBLoadingScene _loading;
 
     /** The controller for handling gameplay */
     SSBGameController _gameController;
@@ -64,6 +82,8 @@ protected:
     bool _loaded;
     
     Status _status;
+    
+    int _expectedPlayers;
     
 public:
 #pragma mark Constructors
@@ -224,6 +244,11 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     virtual void postUpdate(float dt) override;
+    
+    
+    void setTransition(bool value);
+    
+    
     /**
      * Inidividualized update method for the menu scene.
      *
@@ -254,6 +279,12 @@ public:
      * @param timestep  The amount of time (in seconds) since the last frame
      */
     void updateClientScene(float timestep);
+    
+    void updateColorSelectScene(float timestep);
+    
+    void updateWaitingHostScene(float timestep);
+    
+    void updateDisconnectedScene(float timestep);
     
     /**
      * The method called to draw the application to the screen.

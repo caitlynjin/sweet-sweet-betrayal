@@ -36,6 +36,7 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     
     //update total score
     int prevTotal = _playerTotalScores[playerID];
+    score = std::min(score, std::max(0, 10 - prevTotal));
     _playerTotalScores[playerID] += score;
     int newTotal = _playerTotalScores[playerID];
         
@@ -63,12 +64,22 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     auto newTexture = _assets->get<Texture>(iconTextureKey);
     
     for (int i = prevTotal; i < newTotal; i++) {
+
+        std::string dotKey = playerName + "-dot-" + std::to_string(i);
+        auto dotIt = _scoreIcons.find(dotKey);
+        if (dotIt != _scoreIcons.end()) {
+            _dotsToRemove.push_back(dotKey);
+        }
         
+        //add new nodes to in round node
         Vec2 basePos = _playerBaseDotPos[playerName];
         Vec2 overlayPos = basePos + offset_betw_points * static_cast<float>(i);
         auto newIconNode = createIcon(iconTextureKey, 1.0f, overlayPos, _anchor, false);
         _scoreboardParent->addChild(newIconNode);
-        _scoreIcons[playerName + "-" + iconTextureKey + "-" + std::to_string(i)] = newIconNode;
+        std::string key = playerName + "-" + iconTextureKey + "-" + std::to_string(i);
+        _inRoundIcons[key] = newIconNode;
+        
+        
         CULog(" -> Added icon '%s' for %s at position (%.1f, %.1f)\n",
                       iconTextureKey.c_str(), playerName.c_str(), overlayPos.x, overlayPos.y);
     }
@@ -129,8 +140,8 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     _scoreboardParent = parent;
 
     float scale = 1.0f;
-    bar_position = Vec2(size_width * 0.5f, size_height * 0.8f);
-    glider_position = Vec2(size_width * 0.25f, size_height * 0.8f);
+    bar_position = Vec2(size_width * 0.55f, size_height * 0.8f);
+    glider_position = Vec2(size_width * 0.22f, size_height * 0.8f);
     offset_betw_points = Vec2(size_width * 0.05f, 0);
     offset_betw_players = Vec2(0, -size_height * 0.2f);
 
@@ -161,7 +172,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["redglider"] = createIcon("redglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["redglider"]);
             float glider_width = _scoreIcons["redglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, -5);
             _playerBaseDotPos[name] = base_dot_position;
 
 
@@ -179,7 +190,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["blueglider"] = createIcon("blueglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["blueglider"]);
             float glider_width = _scoreIcons["blueglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, -5);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
@@ -196,7 +207,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["greenglider"] = createIcon("greenglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["greenglider"]);
             float glider_width = _scoreIcons["greenglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, -5);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
@@ -213,7 +224,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
             _scoreIcons["yellowglider"] = createIcon("yellowglider", scale, glider_position, anchor, false);
             parent->addChild(_scoreIcons["yellowglider"]);
             float glider_width = _scoreIcons["yellowglider"]->getContentSize().width;
-            Vec2 base_dot_position = glider_position + Vec2(glider_width, 0);
+            Vec2 base_dot_position = glider_position + Vec2(glider_width, -5);
             _playerBaseDotPos[name] = base_dot_position;
 
             for (int i = 0; i < 10; ++i) {
@@ -244,6 +255,36 @@ std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::stri
     node->setVisible(visible);
     return node;
 }
+
+//set in round nodes visible
+void ScoreController::commitRoundIcons(const std::string& username) {
+    for (auto it = _inRoundIcons.begin(); it != _inRoundIcons.end(); ) {
+        if (it->first.find(username) != std::string::npos) {
+            it->second->setVisible(true);
+            _scoreIcons[it->first] = it->second;
+            it = _inRoundIcons.erase(it); 
+        } else {
+            ++it;
+        }
+    }
+
+    for (auto it = _dotsToRemove.begin(); it != _dotsToRemove.end(); ) {
+        if (it->find(username) != std::string::npos) {
+            auto dotIt = _scoreIcons.find(*it);
+            if (dotIt != _scoreIcons.end()) {
+                CULog("Removing dotKey: %s\n", it->c_str());
+                dotIt->second->setVisible(false);
+                dotIt->second->removeFromParent();
+                _scoreIcons.erase(dotIt);
+            }
+            it = _dotsToRemove.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+
 
 
 

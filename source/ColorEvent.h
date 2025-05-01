@@ -22,6 +22,7 @@ protected:
     LWDeserializer _deserializer;
     
     ColorType _color;
+    int _prevColorInt;
     int _playerID;
     
 public:
@@ -34,7 +35,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocColorEvent(int playerID, ColorType color);
+    static std::shared_ptr<NetEvent> allocColorEvent(int playerID, ColorType color, int prevColorInt);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -53,6 +54,9 @@ public:
     
     /** Gets the color enum of the event. */
     ColorType getColor() { return _color; }
+    
+    /** Gets the previous color int of the event. */
+    int getPrevColor() { return _prevColorInt; }
     
     /** Gets the player id of the event. */
     int getPlayerID() { return _playerID; }

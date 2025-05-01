@@ -85,6 +85,10 @@ protected:
     
     // Countdown between build ready and dispaying scoreboard
     int _beforeScoreBoard = 15;
+    // frames between each player
+    int _nextInRoundDelay = 30;
+    // next index to show up in scoreboard
+    size_t _nextInRoundIndex = 0;
 
 public:
 #pragma mark -

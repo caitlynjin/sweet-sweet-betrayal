@@ -47,18 +47,24 @@ void WindObstacle::update(float timestep) {
 
 void WindObstacle::updateAnimation(float timestep) {
     
-    if (_fanTimeline->isActive("current")) {
-        // NO OP
-        CULog("AnimationPrepping");
-    }
-    else {
-        _fanTimeline->add("current", _fanAction, 1.0f);
+    if (!_fanTimeline->isActive("current")) {
+        _fanTimeline->add("current", _fanAction, FAN_ANIM_CYCLE);
     }
     _fanTimeline->update(timestep);
-}
 
-void WindObstacle::doStrip(cugl::ActionFunction action, float duration) {
+    if (_gustTimeline4 != nullptr) {
+        if (!_gustTimeline4->isActive("current")) {
+            _gustTimeline4->add("current", _gustAction4, GUST_ANIM_CYCLE);
+            _gustTimeline3->add("current", _gustAction3, GUST_ANIM_CYCLE);
+            _gustTimeline2->add("current", _gustAction2, GUST_ANIM_CYCLE);
+            _gustTimeline1->add("current", _gustAction1, GUST_ANIM_CYCLE);
+            _gustSpriteNode2->setVisible(false);
+            _gustSpriteNode3->setVisible(false);
+            _gustSpriteNode1->setVisible(false);
+        }
 
+        _gustTimeline4->update(timestep);
+    }
 }
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
@@ -138,21 +144,12 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         
         _node = scene2::SpriteNode::alloc();
 
+        _node->setPriority(PRIORITY);
+        
+
         return true;
     }
     return false;
-}
-
-/** Creates a gust node and adds it to the scene node. Thus gust node is the graphics of the wind object */
-void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
-    _gustNode = gustSprite;
-    _gustNode->setAnchor(0.0f, 0.0f);
-    _gustNode->setPosition(Vec2());
-    _gustNode->setVisible(true);
-    if (!_node) {
-        _node = scene2::SceneNode::alloc();
-    }
-    _node->addChild(_gustNode);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {
@@ -168,13 +165,73 @@ std::map<std::string, std::any> WindObstacle::getMap() {
     };
     return m;
 }
+void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNode>> sprite, int nFrames) {
+    //Create and iterate through all our animations
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+        _node->setPriority(PRIORITY);
+    }
+    //GustSpriteNode4
+    std::vector<int> forward;
+    _gustSpriteNode4 = sprite[3];
+    _gustSpriteNode4->setVisible(true);
+    _gustSpriteNode4->setPriority(PRIORITY);
+    _node->addChild(_gustSpriteNode4);
+    //Create the spritesheet
+    _gustTimeline4 = ActionTimeline::alloc();
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    forward.push_back(0);
+    _gustAnimateSprite4 = AnimateSprite::alloc(forward);
+    _gustAction4 = (_gustAnimateSprite4->attach<scene2::SpriteNode>(_gustSpriteNode4));
+    //GustSpriteNode3
+    forward.clear();
+    _gustSpriteNode3 = sprite[2];
+    _gustSpriteNode3->setPriority(PRIORITY);
+    _node->addChild(_gustSpriteNode3);
+    _gustTimeline3 = ActionTimeline::alloc();
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    forward.push_back(0);
+    _gustAnimateSprite3 = AnimateSprite::alloc(forward);
+    _gustAction3 = (_gustAnimateSprite3->attach<scene2::SpriteNode>(_gustSpriteNode3));
+    //GustSpriteNode2
+    forward.clear();
+    _gustSpriteNode2 = sprite[1];
+    _gustSpriteNode2->setPriority(PRIORITY);
+    _node->addChild(_gustSpriteNode2);
+    _gustTimeline2 = ActionTimeline::alloc();
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    forward.push_back(0);
+    _gustAnimateSprite2 = AnimateSprite::alloc(forward);
+    _gustAction2 = (_gustAnimateSprite2->attach<scene2::SpriteNode>(_gustSpriteNode2));
+    //GustSpriteNode1
+    forward.clear();
+    _gustSpriteNode1 = sprite[0];
+    _gustSpriteNode1->setPriority(PRIORITY);
+    _node->addChild(_gustSpriteNode1);
+    _gustTimeline1 = ActionTimeline::alloc();
+    for (int ii = 1; ii < nFrames; ii++) {
+        forward.push_back(ii);
+    }
+    forward.push_back(0);
+    _gustAnimateSprite1 = AnimateSprite::alloc(forward);
+    _gustAction1 = (_gustAnimateSprite1->attach<scene2::SpriteNode>(_gustSpriteNode1));
+}
+
 /** Sets the fan animation and adds the fan sprite node to the scene node (_node) */
 void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     //Create sprite object
     _fanSpriteNode = sprite;
     _fanSpriteNode->setVisible(true);
+    _fanSpriteNode->setPriority(PRIORITY);
     if (!_node) {
         _node = scene2::SceneNode::alloc();
+        _node->setPriority(PRIORITY);
     }
     _node->addChild(_fanSpriteNode);
     

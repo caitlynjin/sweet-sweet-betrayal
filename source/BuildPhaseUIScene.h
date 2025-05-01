@@ -22,6 +22,7 @@
 #include "MessageEvent.h"
 #include "NetworkController.h"
 #include "ObjectController.h"
+#include "SoundController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -89,10 +90,14 @@ protected:
 
     /** List of icons */
     std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _iconList;
-    /** List of checkmarks */
+    /** List of icons */
+    std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkList;
+    /** Map of checkmarks */
     std::map<std::shared_ptr<cugl::scene2::PolygonNode>, std::shared_ptr<cugl::scene2::PolygonNode>> _checkmarkMap;
     /** Network Controller */
     std::shared_ptr<NetworkController> _networkController;
+
+    std::shared_ptr<SoundController> _sound;
 
     /** Starting time for the build mode timer */
     Uint64 _startTime;
@@ -128,7 +133,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>);
 
     /**
      * Initializes the grid layout on the screen for build mode.
