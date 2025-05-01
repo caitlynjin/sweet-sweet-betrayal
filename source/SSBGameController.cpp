@@ -273,9 +273,7 @@ void SSBGameController::preUpdate(float dt)
         // Check if can switch to movement phase
         if (_networkController->canSwitchToMove()){
             // Exit build mode and switch to movement phase
-            setBuildingMode(!_buildingMode);
-            _scoreCountdown==200;
-        }
+            setBuildingMode(!_buildingMode);        }
         
     }
     
