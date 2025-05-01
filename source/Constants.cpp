@@ -211,6 +211,8 @@ std::string itemToAssetName(Item item) {
             return SPIKE_RIGHT_TEXTURE;
         case (NONE):
             return nullptr;
+        default:
+            return nullptr;
     }
 }
 bool itemIsArtObject(Item item)
