@@ -208,7 +208,12 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
                        CRACK_1, CRACK_2, CRACK_3, CRACK_4, CRACK_5, CRACK_LARGE_1, MOSS_1, MOSS_2, ROCKY_1, ROCKY_2
     };
     for (auto it = inventoryItems.begin(); it != inventoryItems.end(); ++it) {
-        assetNames.push_back(itemToAssetName(*it));
+        if (itemToAssetNameMap.find(*it) != itemToAssetNameMap.end()) {
+            assetNames.push_back(itemToAssetNameMap[*it]);
+        }
+        else {
+            CULog("You likely forgot to add the item to itemToAssetNameMap");
+        }
     }
 
     _uiScene.initInventory(inventoryItems, assetNames);

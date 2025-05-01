@@ -63,6 +63,13 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
 std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile) {
     std::shared_ptr<Texture> image;
     image = _assets->get<Texture>(jsonTypeToAsset[tile->getJsonType()]);
+    std::string jsonTypeTemp = tile->getJsonType();
+    std::string jsonTypeTemp2 = jsonTypeToAsset[tile->getJsonType()];
+    //std::string jsonTypeTemp3 = jsonTypeToAsset[std::string("textures/") + std::string(tile->getJsonType())];
+    for (auto it = jsonTypeToAsset.begin(); it != jsonTypeToAsset.end(); ++it) {
+        CULog("abababa %s %s", (*it).first.c_str(), (*it).second.c_str());
+
+    }
 
     float blendingOffset = 0.01f;
 

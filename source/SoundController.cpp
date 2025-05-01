@@ -30,7 +30,8 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 	std::vector<std::string> soundNames = {
 		"glide", 
 		"button_click",
-		"move_phase"
+		"move_phase",
+		"jump"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;

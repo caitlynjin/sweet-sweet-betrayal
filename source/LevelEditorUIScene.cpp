@@ -40,6 +40,8 @@ using namespace Constants;
 #define READY_BUTTON "ready_button"
 /** The image for the left button */
 #define LEFT_BUTTON "left_button"
+/** The image for the right button */
+#define RIGHT_BUTTON "right_button"
 /** The image for the brush button */
 #define BRUSH_BUTTON "brush_button"
 /** The image for the eraser button */
@@ -88,21 +90,26 @@ bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::
     _assets = assets;
     _gridManager = gridManager;
 
-    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    rightNode->setScale(0.8f);
+    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_BUTTON));
+    rightNode->setScale(1.0f);
     _rightButton = scene2::Button::alloc(rightNode);
+    //_rightButton->setContentSize(_rightButton->getContentSize() / 2.0f);
     _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _rightButton->setPosition(_size.width * 0.6f, _size.height * 0.1f);
+    _rightButton->setPosition(_size.width * 0.7f, _size.height * 0.1f);
+    _rightButton->setScale(0.2f);
     _rightButton->activate();
     _rightButton->addListener([this](const std::string& name, bool down) {
         _rightpressed = down;
         });
 
     std::shared_ptr<scene2::PolygonNode> leftNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_BUTTON));
-    leftNode->setScale(0.8f);
+    leftNode->setScale(1.0f);
     _leftButton = scene2::Button::alloc(leftNode);
+    //_leftButton->setContentSize(_leftButton->getContentSize() / 2.0f);
     _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _leftButton->setPosition(_size.width * 0.4f, _size.height * 0.1f);
+    _leftButton->setPosition(_size.width * 0.3f, _size.height * 0.1f);
+    _leftButton->setScale(0.2f);
+    //_leftButton->setContentSize(_leftButton->getContentSize() / 3);
     _leftButton->activate();
     _leftButton->addListener([this](const std::string& name, bool down) {
         _leftpressed = down;
