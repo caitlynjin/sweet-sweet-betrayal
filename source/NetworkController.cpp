@@ -52,6 +52,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -194,6 +195,11 @@ void NetworkController::fixedUpdate(float step){
         if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
             processAnimationEvent(aEvent);
         }
+        // Check for MushroomBounceEvent
+        if(auto mbEvent = std::dynamic_pointer_cast<MushroomBounceEvent>(e)){
+            processMushroomBounceEvent(mbEvent);
+        }
+        
     }
     _scoreController->setPlayerColors(_playerColorsById);
 
@@ -385,6 +391,20 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
         }
     }
 }
+void NetworkController::processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event) {
+    CULog("processing mushroom bounce");
+    Vec2 pos = event->getPosition();
+
+    for (auto& obj : *_objects) {
+        if (auto mush = std::dynamic_pointer_cast<Mushroom>(obj)) {
+            if (mush->getPosition() == pos) { 
+                mush->triggerAnimation();
+                break;
+            }
+        }
+    }
+}
+
 
 
 

@@ -666,10 +666,12 @@ void MovePhaseController::beginContact(b2Contact *contact)
                         playerBody->SetLinearVelocity(newVelocity);
 
                         _mushroomCooldown = 10;
-                        CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
                         physics2::Obstacle* obs = (bd2->getName()=="mushroom" ? bd2 : bd1);
                         if (auto mush = dynamic_cast<Mushroom*>(obs)) {
-                            mush->triggerAnimation();
+                            auto bounceEvent = std::make_shared<MushroomBounceEvent>();
+                            bounceEvent = MushroomBounceEvent::allocMushroomBounceEvent(obs->getPosition());
+                            CULog("sending event");
+                            _network->pushOutEvent(bounceEvent);
                         }
                     }
                 }

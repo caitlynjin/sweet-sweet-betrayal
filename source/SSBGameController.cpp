@@ -339,6 +339,10 @@ void SSBGameController::preUpdate(float dt)
                 platform->updateMovingPlatform(dt);
             }
         }
+        // if (obj && obj->getItemType() == Item::MUSHROOM) {
+        //     auto mushroom = std::dynamic_pointer_cast<Mushroom>(obj);
+        //     mushroom->updateAnimation(dt);
+        // }
     }
     
 }

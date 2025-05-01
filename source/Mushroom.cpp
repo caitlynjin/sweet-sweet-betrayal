@@ -67,6 +67,7 @@ void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
 
 void Mushroom::updateAnimation(float timestep) {
     if (_animating) {
+        CULog("updating animation");
         _mushroomTimeline->update(timestep);
         //end of 1 cycle
         if (!_mushroomTimeline->isActive("current")) {
@@ -86,7 +87,7 @@ void Mushroom::update(float timestep) {
     if (!_animating) {
         _mushroomSpriteNode->setFrame(0);
     }
-    updateAnimation(timestep);
+    // updateAnimation(timestep);
 }
 
 void Mushroom::triggerAnimation() {

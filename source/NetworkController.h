@@ -17,6 +17,7 @@
 #include "ColorEvent.h"
 #include "ReadyEvent.h"
 #include "ScoreEvent.h"
+#include "MushroomBounceEvent.h"
 #include "TreasureEvent.h"
 #include "AnimationEvent.h"
 #include "ScoreController.h"
@@ -752,6 +753,12 @@ public:
      * This method takes a AnimationEvent and processes it.
      */
     void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
+
+     /**
+     * This method takes a MushroomBounceEvent and processes it.
+     */
+    void processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event);
+
     
 #pragma mark -
 #pragma mark Create Networked Objects
