@@ -1182,7 +1182,7 @@ BombFactory::createObstacle(Vec2 pos, Size size) {
     // Attach it to the scene graph (e.g., the same node as the bomb)
 //    bomb->setSceneNode(debugBox);
 
-    return std::make_pair(bomb, debugBox);
+    return std::make_pair(bomb, sprite);
 }
 
 
