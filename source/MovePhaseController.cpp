@@ -191,6 +191,15 @@ void MovePhaseController::preUpdate(float dt) {
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             _movePhaseScene.getLocalPlayer()->setGlide(true);
+            _sound->playSound("glide");
+            _movePhaseScene.getLocalPlayer()->bufferJump();
+            _network->pushOutEvent(
+                AnimationEvent::allocAnimationEvent(
+                    _network->getShortUID(),           
+                    AnimationType::GLIDE,              
+                    true                               
+                )
+            );
         }
     }
     else if (!_input->isRightDown()) {
@@ -199,7 +208,7 @@ void MovePhaseController::preUpdate(float dt) {
         }
         _movePhaseScene.getLocalPlayer()->setGlide(false);
     }
-    _movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
+    //_movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
@@ -207,18 +216,12 @@ void MovePhaseController::preUpdate(float dt) {
 
     if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
     {
-        _sound->playSound("jump");
+        //_sound->playSound("jump");
     }
-
-    
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
-
-        /**If we created a wind object, create a bunch of raycasts.*/
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
             windUpdate(wind_cast, dt);
         }
-
-//        (*it)->update(dt);
     }
 
     // TODO: Segment into uiUpdate method
@@ -333,6 +336,13 @@ void MovePhaseController::killPlayer(){
         }
         // Signal that the round is over for the player
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::MOVEMENT_END));
+        _network->pushOutEvent(
+            AnimationEvent::allocAnimationEvent(
+                _network->getShortUID(),           
+                AnimationType::DEATH,              
+                true                               
+            )
+        );
         _networkController->getScoreController()->sendScoreEvent(
             _networkController->getNetwork(),
             _networkController->getNetwork()->getShortUID(),
@@ -523,29 +533,17 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
         contact->SetEnabled(false);
         _movePhaseScene.getLocalPlayer()->setGrounded(false);
         if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y <= 0.4f) {
-            if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight()>= plat->getPlatformTop()) {
+            if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight() >= plat->getPlatformTop()) {
                 contact->SetEnabled(true);
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);
             }
             else {
-                CULog("FAIL22");
+                _movePhaseScene.getLocalPlayer()->setGrounded(true);
             }
         }
         else {
-            CULog("fail1");
+            CULog("FAIL11");
         }
-       
-        /*if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y > 0.05f) {
-            contact->SetEnabled(false);
-            if (_movePhaseScene.getLocalPlayer()->getFeetHeight() + 0.02f < plat->getPlatformTop()) {
-                _movePhaseScene.getLocalPlayer()->setGrounded(false);
-            }
-        }
-        else if ((_movePhaseScene.getLocalPlayer()->getFeetHeight()< plat->getPlatformTop()) && 
-            _movePhaseScene.getLocalPlayer()->getLinearVelocity().y > -0.1f) {
-            contact->SetEnabled(false);
-            _movePhaseScene.getLocalPlayer()->setGrounded(false);
-        }*/
     }
 }
 

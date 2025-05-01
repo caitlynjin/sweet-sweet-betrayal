@@ -353,7 +353,7 @@ void LevelEditorController::preUpdate(float dt) {
                     // Move the existing object to new position
                     CULog("Reposition object");
                     _selectedObject->setPositionInit(gridPos);
-                    if (_selectedObject->getItemType() == Item::PLATFORM) {
+                    if (_selectedObject->getItemType() == Item::MOVING_PLATFORM) {
                         auto platform = std::dynamic_pointer_cast<Platform>(_selectedObject);
                         if (platform) {
                             platform->updateMoving(gridPos);

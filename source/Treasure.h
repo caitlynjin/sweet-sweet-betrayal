@@ -11,7 +11,7 @@
 #define __TREASURE_H__
 #include <cugl/cugl.h>
 
-#define DURATION 8.0f
+#define DURATION 4.0f
 #define ACT_KEY  "current"
 
 

@@ -7,7 +7,10 @@ using namespace cugl;
 using namespace std;
 /**How many raycasting points we generate plus one*/
 constexpr int RAYS = 3;
-#define OFFSET 0.1f;
+#define OFFSET 0.1f
+#define FAN_ANIM_CYCLE 0.8f
+#define GUST_ANIM_CYCLE 3.0f
+#define PRIORITY -900
 
 class WindObstacle : public Object {
 
@@ -79,9 +82,6 @@ public:
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 
-	/*Creates the wind gust sprite**/
-	void setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite);
-
 	/*Sprite Node representing the wind object*/
 	std::shared_ptr<AnimateSprite> _windAnimate;
 	std::shared_ptr<cugl::scene2::SpriteNode> _gustNode;
@@ -120,6 +120,29 @@ public:
 	std::shared_ptr<cugl::scene2::SpriteNode> _fanSpriteNode;
 	std::shared_ptr<AnimateSprite> _fanAnimateSprite;
 	cugl::ActionFunction _fanAction;
+
+	/*Sets up all the gust animations using an array of gust sprites*/
+	void setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNode>> sprite, int nFrames);
+	/*Sprite Node representing the gust levels. Level 1 is lowest, level 4 is highest*/
+	std::shared_ptr<cugl::ActionTimeline> _gustTimeline1;
+	std::shared_ptr<cugl::scene2::SpriteNode> _gustSpriteNode1;
+	cugl::ActionFunction _gustAction1;
+	std::shared_ptr<AnimateSprite> _gustAnimateSprite1;
+
+	std::shared_ptr<cugl::ActionTimeline> _gustTimeline2;
+	std::shared_ptr<cugl::scene2::SpriteNode> _gustSpriteNode2;
+	cugl::ActionFunction _gustAction2;
+	std::shared_ptr<AnimateSprite> _gustAnimateSprite2;
+
+	std::shared_ptr<cugl::ActionTimeline> _gustTimeline3;
+	std::shared_ptr<cugl::scene2::SpriteNode> _gustSpriteNode3;
+	cugl::ActionFunction _gustAction3;
+	std::shared_ptr<AnimateSprite> _gustAnimateSprite3;
+
+	std::shared_ptr<cugl::ActionTimeline> _gustTimeline4;
+	std::shared_ptr<cugl::scene2::SpriteNode> _gustSpriteNode4;
+	cugl::ActionFunction _gustAction4;
+	std::shared_ptr<AnimateSprite> _gustAnimateSprite4;
 
 	/**
 	* Returns the scene graph node representing this WindObstacle.

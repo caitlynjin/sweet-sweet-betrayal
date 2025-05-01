@@ -89,7 +89,7 @@ public:
 	* Plays the music track with the specified key.
 	*
 	* @param key The key identifying the music track */
-	void playMusic(std::string key);
+	void playMusic(std::string key, bool loop=false);
 
 	/** Adds the music track to the end of the queue.
 	 * This will play automatically when all music tracks earlier in the queue are finished playing. 

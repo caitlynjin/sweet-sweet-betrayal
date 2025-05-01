@@ -99,35 +99,21 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
 
     _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.start"));
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.back"));
-    _gameid = scene2::Label::allocWithText("0", _assets->get<Font>("yeasty flavorsRegular66.53518676757812"));
-    _gameid->setAnchor(Vec2::ANCHOR_CENTER);
-    _gameid->setPosition(_size.width * .50 + 10,_size.height * .65);
-    _gameid->setContentWidth(_size.width * .3);
-    _gameid->setForeground(Color4::WHITE);
-    _gameid->setVisible(true);
-    scene->addChild(_gameid);
-    
-    
-    _player1Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.redglider"));
-    _filledIcon = _player1Icon->getTexture();
-    
-    _player2Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider"));    
-    _emptyIcon = _player2Icon->getTexture();
-    
-    _player3Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider_2"));
-    
-    _player4Icon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.player-count.greyglider_3"));
+    _gameid = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.room-code"));
+    _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.players-no"));
     
     // Program the buttons
     _backout->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             _backClicked = true;
+            _sound->playSound("button_click");
         }
     });
 
     _startgame->addListener([this](const std::string& name, bool down) {
-        if (down) {
+        if (!down) {
             startGame();
+            _sound->playSound("button_click");
         }
     });
     
@@ -166,9 +152,7 @@ void HostScene::reset(){
     _receiveCount = 0;
     _totalPing = 0;
     
-    _player2Icon->setTexture(_emptyIcon);
-    _player3Icon->setTexture(_emptyIcon);
-    _player4Icon->setTexture(_emptyIcon);
+    //reset here
 }
 
 /**
@@ -241,10 +225,6 @@ void HostScene::update(float timestep) {
 #pragma mark BEGIN SOLUTION
     if(_network->getStatus() == NetEventController::Status::CONNECTED){
         
-        if (!_networkController->getPlayerColorAdded()){
-            _networkController->addPlayerColor();
-        }
-        
         
         if (!_startGameClicked) {
             updateText(_startgame, "Start Game");
@@ -256,27 +236,7 @@ void HostScene::update(float timestep) {
             _startgame->deactivate();
         }
 		_gameid->setText(hex2dec(_network->getRoomID()));
-//        _player->setText(std::to_string(_network->getNumPlayers()));
-        if (_network->getNumPlayers() >= 2){
-            _player2Icon->setTexture(_filledIcon);
-        }
-        else{
-            _player2Icon->setTexture(_emptyIcon);
-        }
-        
-        if (_network->getNumPlayers() >= 3){
-            _player3Icon->setTexture(_filledIcon);
-        }
-        else{
-            _player3Icon->setTexture(_emptyIcon);
-        }
-        
-        if (_network->getNumPlayers() == 4){
-            _player4Icon->setTexture(_filledIcon);
-        }
-        else{
-            _player4Icon->setTexture(_emptyIcon);
-        }
+        _player->setText(std::to_string(_network->getNumPlayers())+"/4");
 	}
 #pragma mark END SOLUTION
 }
