@@ -2,13 +2,9 @@
 #include "Object.h"
 
 #define JSON_KEY "windObstacles"
-
-
 using namespace cugl;
 using namespace cugl::graphics;
 
-
-#define OFFSET 0.1f
 /**
  * Sets the position
  *
@@ -21,9 +17,9 @@ void WindObstacle::setPositionInit(const cugl::Vec2& position) {
     // Update ray positions
     _rayOrigins.clear();
     for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = position + Vec2(OFFSET, OFFSET + _size.height / 2) +
+        Vec2 origin = position + Vec2(OFFSET, OFFSET) +
             ((_size.width-2*OFFSET)/(_size.width))*Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
-
+        CULog("origin %f", origin.y);
         _rayOrigins.push_back(origin);
     }
 }
@@ -32,15 +28,23 @@ void WindObstacle::update(float timestep) {
     PolygonObstacle::update(timestep);
     
     _playerHits = 0;
+    _minPlyrDist = 10;
+    _minObjDist = 10;
 
     for (auto it = 0; it != RAYS; ++it) {
         if (_playerDist[it]<_rayDist[it]) {
             _playerHits++;
+            _minPlyrDist = min(_playerDist[it], _minPlyrDist);
         }
+        _minObjDist = min(_minObjDist, _rayDist[it]);
     }
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
+    if (_minObjDist != 10 or _minPlyrDist != 10) {
+        CULog("dist %f", _minObjDist);
+        CULog("Plyrdist %f", _minPlyrDist);
+    }
 
     updateAnimation(timestep);
 }
@@ -118,7 +122,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/
     for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = pos + Vec2(OFFSET, OFFSET + _size.height / 2) + 
+        Vec2 origin = pos + Vec2(OFFSET, OFFSET - _size.height / 2) + 
             ((size.width-2*OFFSET)/(_size.width))*Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
 
         _rayOrigins.push_back(origin);
@@ -137,7 +141,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
-        setName("fan");
+        setName(NAME);
         setBodyType(b2_staticBody);
         setSensor(true);
         setEnabled(false);
@@ -176,6 +180,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     _gustSpriteNode4 = sprite[3];
     _gustSpriteNode4->setVisible(true);
     _gustSpriteNode4->setPriority(PRIORITY);
+    _gustSpriteNode4->setName(NAME);
     _node->addChild(_gustSpriteNode4);
     //Create the spritesheet
     _gustTimeline4 = ActionTimeline::alloc();
@@ -189,6 +194,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.clear();
     _gustSpriteNode3 = sprite[2];
     _gustSpriteNode3->setPriority(PRIORITY);
+    _gustSpriteNode3->setName(NAME);
     _node->addChild(_gustSpriteNode3);
     _gustTimeline3 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -201,6 +207,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.clear();
     _gustSpriteNode2 = sprite[1];
     _gustSpriteNode2->setPriority(PRIORITY);
+    _gustSpriteNode2->setName(NAME);
     _node->addChild(_gustSpriteNode2);
     _gustTimeline2 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -213,6 +220,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.clear();
     _gustSpriteNode1 = sprite[0];
     _gustSpriteNode1->setPriority(PRIORITY);
+    _gustSpriteNode1->setName(NAME);
     _node->addChild(_gustSpriteNode1);
     _gustTimeline1 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -229,6 +237,7 @@ void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _fanSpriteNode = sprite;
     _fanSpriteNode->setVisible(true);
     _fanSpriteNode->setPriority(PRIORITY);
+    _fanSpriteNode->setName(NAME);
     if (!_node) {
         _node = scene2::SceneNode::alloc();
         _node->setPriority(PRIORITY);

@@ -274,12 +274,14 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
             physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
 
             // Set grounded for all non-local players
-            string fixtureName = wind->ReportFixture(f, point, normal, fraction);
+            //string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
-            wind->setRayDist(i, fraction);
+            else if (bd->getName() != "wind") {
+                wind->setRayDist(i, fraction);
+            }
             return fraction;
             };
         /**Generates the appropriate raycasts to handle collision for this wind object*/
@@ -649,7 +651,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //MANAGE COLLISIONS FOR GROUNDED OBJECTS IN THIS SECTION
             else if (((_movePhaseScene.getLocalPlayer()->getSensorName() == fd2 && !tagContainsPlayer(bd1->getName())) ||
                 (_movePhaseScene.getLocalPlayer()->getSensorName() == fd1 && !tagContainsPlayer(bd2->getName()))) && 
-                (bd2->getName() != "fan" && bd1->getName() != "fan")
+                (bd2->getName() != "wind" && bd1->getName() != "wind")
                 ) {
                 //Set player to grounded
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);
