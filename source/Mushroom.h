@@ -19,6 +19,8 @@ private:
     std::shared_ptr<cugl::AnimateSprite>      _mushroomAnimateSprite;
     cugl::ActionFunction                      _mushroomAction;
 
+    bool _shouldAnimate = false;
+
 public:
     Mushroom() : Object() {}
     Mushroom(Vec2 pos) : Object(pos, Item::MUSHROOM) {}
@@ -31,6 +33,13 @@ public:
 
     void setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
     void updateAnimation(float timestep);
+
+    void triggerAnimation() { 
+        _mushroomTimeline->remove("current");
+        _shouldAnimate = true;
+        _mushroomTimeline->add("current", _mushroomAction, 1.0f);
+    }
+    void stopAnimation()    { _shouldAnimate = false; }
 
     const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _node; }
 

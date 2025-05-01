@@ -65,11 +65,27 @@ void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _mushroomAction        = _mushroomAnimateSprite->attach<scene2::SpriteNode>(_mushroomSpriteNode);
 }
 
-void Mushroom::updateAnimation(float timestep) {
+void Mushroom::updateAnimation(float dt) {
+    if (!_shouldAnimate) {
+        // sit on frame 0 when not animating
+        _mushroomSpriteNode->setFrame(0);
+        return;
+    }
+
+    // start (or restart) the action if it’s not already running
     if (!_mushroomTimeline->isActive("current")) {
         _mushroomTimeline->add("current", _mushroomAction, 1.0f);
     }
-    _mushroomTimeline->update(timestep);
+
+    // advance the timeline
+    _mushroomTimeline->update(dt);
+
+    // if after updating it's no longer active, one cycle just finished:
+    if (!_mushroomTimeline->isActive("current")) {
+        _shouldAnimate = false;
+        // reset to frame 0 if you like
+        _mushroomSpriteNode->setFrame(0);
+    }
 }
 
 void Mushroom::update(float timestep) {
