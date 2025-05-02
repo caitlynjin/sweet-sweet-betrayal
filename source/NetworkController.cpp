@@ -392,18 +392,25 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
 }
 
 void NetworkController::processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event) {
-    CULog("processing mushroom bounce");
+    CULog("entering here");
     Vec2 pos = event->getPosition();
+    CULog("Event position: (%.2f, %.2f)", pos.x, pos.y);
 
-    for (auto& obj : *_objects) {
-        if (auto mush = std::dynamic_pointer_cast<Mushroom>(obj)) {
-            if (mush->getPosition() == pos) { 
+    // Loop over every obstacle in the NetWorld — remote mushrooms are in here too!
+    for (auto& obs : _world->getObstacles()) {
+        if (auto mush = std::dynamic_pointer_cast<Mushroom>(obs)) {
+            Vec2 mushPos = mush->getPosition();
+            CULog("Checking Mushroom at (%.2f,%.2f)", mushPos.x, mushPos.y);
+            if (mushPos == pos) {
+                CULog("processing mushroom bounce");
+                mush->getTimeline()->add("current", mush->getActionFunction(), 1.0f);
                 mush->triggerAnimation();
                 break;
             }
         }
     }
 }
+
 
 
 
@@ -479,9 +486,9 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
     std::shared_ptr<Mushroom> mushroom = std::dynamic_pointer_cast<Mushroom>(pair.first);
     
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9,9);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9, 9);
     mushroom->setMushroomAnimation(animNode, 9);
-    
+
     _objects->push_back(mushroom);
     return mushroom;
 }
@@ -994,7 +1001,7 @@ MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
     mush->setName("mushroom");
     mush->setDebugColor(DEBUG_COLOR);
     mush->setShared(true);
-    
+        
     return std::make_pair(mush, mush->getSceneNode());
 }
 

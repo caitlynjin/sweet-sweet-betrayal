@@ -671,6 +671,10 @@ void MovePhaseController::beginContact(b2Contact *contact)
                         physics2::Obstacle* obs = (bd2->getName()=="mushroom" ? bd2 : bd1);
                         if (auto mush = dynamic_cast<Mushroom*>(obs)) {
                             mush->triggerAnimation();
+                            auto bounceEvent = std::make_shared<MushroomBounceEvent>();
+                            bounceEvent = MushroomBounceEvent::allocMushroomBounceEvent(obs->getPosition());
+                            CULog("sending event");
+                            _network->pushOutEvent(bounceEvent);
                         }
                     }
                 }

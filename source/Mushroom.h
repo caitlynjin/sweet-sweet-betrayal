@@ -47,6 +47,9 @@ public:
         std::shared_ptr<Mushroom> result = std::make_shared<Mushroom>();
         return (result->init(position, size, scale) ? result : nullptr);
     }
+    std::shared_ptr<cugl::ActionTimeline> getTimeline() { return _mushroomTimeline; }
+
+    cugl::ActionFunction getActionFunction() { return _mushroomAction; }
 };
 
 #endif /* __MUSHROOM_H__ */
