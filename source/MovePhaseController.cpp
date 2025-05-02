@@ -600,6 +600,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
         if (bomb && other && !other->isRemoved()) {
             CULog("Trigger bomb explosion");
+            _sound->playSound("bomb");
             other->markRemoved(true);
             other->dispose();
         }
