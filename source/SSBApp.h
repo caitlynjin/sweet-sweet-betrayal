@@ -5,6 +5,7 @@
 #include "SSBLoadingScene.h"
 #include "StartScene.h"
 #include "MenuScene.h"
+#include "TransitionScene.h"
 #include "SSBInput.h"
 #include "NPClientScene.h"
 #include "NPHostScene.h"
@@ -16,6 +17,7 @@
 #include "WaitingHostScene.h"
 #include "DisconnectedScene.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
+#include "Constants.h"
 
 
 using namespace cugl::physics2::distrib;
@@ -44,11 +46,17 @@ protected:
     
     VictoryScene _victory;
     
+
+    TransitionScene _transition;
+    
+    bool _doTransition = false;
+
     ColorSelectScene _colorselect;
     
     WaitingHostScene _waitinghost;
     
     DisconnectedScene _disconnectedscreen;
+
     
     /***/
     PlatformInput _input;
@@ -237,6 +245,11 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     virtual void postUpdate(float dt) override;
+    
+    
+    void setTransition(bool value);
+    
+    
     /**
      * Inidividualized update method for the menu scene.
      *
@@ -291,6 +304,14 @@ public:
      */
     void resetScenes();
     
+    /**
+    * Sets up the asset, item, and JSON maps in Constants.
+    * Had to this here because updating the static variables from within Constants does not work.
+    */
+    void populateMaps();
     
+   // std::map<string, string> jsonTypeToAsset = {};
+    //std::map<string, Item> jsonTypeToItemType = {};
+    //std::map<Item, string> itemToAssetNameMap = {};
 };
 #endif /* __PF_APP_H__ */

@@ -7,6 +7,7 @@
 #include "Constants.h"
 #include <cugl/cugl.h>
 #include "string"
+#include "any"
 
 /** The key for the platform texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
@@ -83,7 +84,7 @@ std::string itemToString(Item item) {
 /**
  * Gets the default size of this Item.
  */
-cugl::Size itemToSize(Item item) {
+cugl::Size itemToSize (Item item) {
     switch (item) {
         case PLATFORM:
             return cugl::Size(3, 1);
@@ -208,7 +209,17 @@ std::string itemToAssetName(Item item) {
             return ROCKY1_TEXTURE;
         case (ROCKY_2):
             return ROCKY2_TEXTURE;
+        case (SPIKE_UP):
+            return SPIKE_UP_TEXTURE;
+        case (SPIKE_DOWN):
+            return SPIKE_DOWN_TEXTURE;
+        case (SPIKE_LEFT):
+            return SPIKE_LEFT_TEXTURE;
+        case (SPIKE_RIGHT):
+            return SPIKE_RIGHT_TEXTURE;
         case (NONE):
+            return nullptr;
+        default:
             return nullptr;
     }
 }

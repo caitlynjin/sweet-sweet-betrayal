@@ -41,8 +41,14 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
+    if (true) {
+        updateAnimation(timestep);
+    }
+    else {
 
-    updateAnimation(timestep);
+        //_node->setPosition(getPosition() * _drawScale);
+        //_node->setAngle(getAngle());
+    }
 }
 
 void WindObstacle::updateAnimation(float timestep) {
@@ -52,17 +58,19 @@ void WindObstacle::updateAnimation(float timestep) {
     }
     _fanTimeline->update(timestep);
 
-    if (!_gustTimeline4->isActive("current")) {
-        _gustTimeline4->add("current", _gustAction4, GUST_ANIM_CYCLE);
-        _gustTimeline3->add("current", _gustAction3, GUST_ANIM_CYCLE);
-        _gustTimeline2->add("current", _gustAction2, GUST_ANIM_CYCLE);
-        _gustTimeline1->add("current", _gustAction1, GUST_ANIM_CYCLE);
+    if (_gustTimeline4 != nullptr) {
+        if (!_gustTimeline4->isActive("current")) {
+            _gustTimeline4->add("current", _gustAction4, GUST_ANIM_CYCLE);
+            _gustTimeline3->add("current", _gustAction3, GUST_ANIM_CYCLE);
+            _gustTimeline2->add("current", _gustAction2, GUST_ANIM_CYCLE);
+            _gustTimeline1->add("current", _gustAction1, GUST_ANIM_CYCLE);
+            _gustSpriteNode2->setVisible(false);
+            _gustSpriteNode3->setVisible(false);
+            _gustSpriteNode1->setVisible(false);
+        }
 
-        _gustSpriteNode2->setVisible(false);
-        _gustSpriteNode3->setVisible(false);
-        _gustSpriteNode1->setVisible(false);
+        _gustTimeline4->update(timestep);
     }
-    _gustTimeline4->update(timestep);
 }
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
@@ -142,21 +150,12 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         
         _node = scene2::SpriteNode::alloc();
 
+        _node->setPriority(PRIORITY);
+        
+
         return true;
     }
     return false;
-}
-
-/** Creates a gust node and adds it to the scene node. Thus gust node is the graphics of the wind object */
-void WindObstacle::setGustSprite(std::shared_ptr<scene2::SpriteNode> gustSprite) {
-    _gustNode = gustSprite;
-    _gustNode->setAnchor(0.0f, 0.0f);
-    _gustNode->setPosition(Vec2());
-    _gustNode->setVisible(true);
-    if (!_node) {
-        _node = scene2::SceneNode::alloc();
-    }
-    _node->addChild(_gustNode);
 }
 
 std::map<std::string, std::any> WindObstacle::getMap() {
@@ -176,11 +175,13 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     //Create and iterate through all our animations
     if (!_node) {
         _node = scene2::SceneNode::alloc();
+        _node->setPriority(PRIORITY);
     }
     //GustSpriteNode4
     std::vector<int> forward;
     _gustSpriteNode4 = sprite[3];
     _gustSpriteNode4->setVisible(true);
+    _gustSpriteNode4->setPriority(PRIORITY);
     _node->addChild(_gustSpriteNode4);
     //Create the spritesheet
     _gustTimeline4 = ActionTimeline::alloc();
@@ -193,6 +194,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     //GustSpriteNode3
     forward.clear();
     _gustSpriteNode3 = sprite[2];
+    _gustSpriteNode3->setPriority(PRIORITY);
     _node->addChild(_gustSpriteNode3);
     _gustTimeline3 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -204,6 +206,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     //GustSpriteNode2
     forward.clear();
     _gustSpriteNode2 = sprite[1];
+    _gustSpriteNode2->setPriority(PRIORITY);
     _node->addChild(_gustSpriteNode2);
     _gustTimeline2 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -215,6 +218,7 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     //GustSpriteNode1
     forward.clear();
     _gustSpriteNode1 = sprite[0];
+    _gustSpriteNode1->setPriority(PRIORITY);
     _node->addChild(_gustSpriteNode1);
     _gustTimeline1 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -230,8 +234,10 @@ void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     //Create sprite object
     _fanSpriteNode = sprite;
     _fanSpriteNode->setVisible(true);
+    _fanSpriteNode->setPriority(PRIORITY);
     if (!_node) {
         _node = scene2::SceneNode::alloc();
+        _node->setPriority(PRIORITY);
     }
     _node->addChild(_fanSpriteNode);
     
