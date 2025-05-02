@@ -452,7 +452,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (THORN):
             return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
-            return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+        return _networkController->createMushroomNetworked(gridPos - itemToSize(item) * 0.5f, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

@@ -194,6 +194,12 @@
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
         },
+        "gliding-log-spritesheet": {
+            "file":      "textures/gliding-log-spritesheet.png"
+        },
+        "mushroom_bounce_spritesheet": {
+            "file":  "textures/bounce-spritesheet.png"
+        },
         "dpad": {
             "file": "textures/dpad.png",
             "wrapS": "clamp",

@@ -194,6 +194,8 @@ void SSBApp::preUpdate(float dt)
 
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
+        _network->attachEventType<MessageEvent>();
+        _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
         //_sound->addMusicToQueue("win");
