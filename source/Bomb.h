@@ -10,6 +10,9 @@
 #include <cugl/cugl.h>
 #include "Object.h"
 
+#define DURATION 4.0f
+#define ACT_KEY  "current"
+
 using namespace cugl;
 using namespace std;
 using namespace Constants;
@@ -17,6 +20,17 @@ using namespace Constants;
 class Bomb : public Object {
 
 private:
+
+protected:
+
+#pragma mark Animation Variables
+    /** Manager to process the animation actions */
+    std::shared_ptr<cugl::ActionTimeline> _timeline;
+
+    /** Animation variables */
+    std::shared_ptr<AnimateSprite> _animSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _animNode;
+    cugl::ActionFunction _animAction;
 
 public:
     Bomb() : Object() {}
@@ -58,6 +72,13 @@ public:
     bool init(const Vec2 pos, const Size size);
 
     bool init(const Vec2 pos, const Size size, string jsonType);
+
+    void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+
+    void updateAnimation(float timestep);
+
+    /** Increments an animation film strip */
+    void doStrip(cugl::ActionFunction action, float duration);
 
     // Map for JSON level management
     std::map<std::string, std::any> getMap() override;
