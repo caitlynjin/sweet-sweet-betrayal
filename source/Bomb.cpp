@@ -70,7 +70,7 @@ bool Bomb::init(const Vec2 pos, const Size size, string jsonType) {
 
         // Create bomb radius sensor
         b2PolygonShape sensorBox;
-        sensorBox.SetAsBox(1.5f, 1.5f);
+        sensorBox.SetAsBox(3.0f, 3.0f);
 
         b2FixtureDef sensorDef;
         sensorDef.shape = &sensorBox;
