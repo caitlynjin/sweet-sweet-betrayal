@@ -185,12 +185,14 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setJoystickHidden();
     }
 
-    //THE GLIDE BULLSHIT SECTION
+    //THE GLIDE BULLSHIT SECTION+
     if (_input->getRightTapped()) {
         _input->setRightTapped(false);
+        _movePhaseScene.getLocalPlayer()->setJumpHold(true);
+
         if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
-            _movePhaseScene.getLocalPlayer()->setGlide(true);
+            
             _sound->playSound("glide");
             _movePhaseScene.getLocalPlayer()->bufferJump();
             _network->pushOutEvent(
@@ -206,11 +208,11 @@ void MovePhaseController::preUpdate(float dt) {
         if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
             _movePhaseScene.getLocalPlayer()->setJumpHold(false);
         }
-        _movePhaseScene.getLocalPlayer()->setGlide(false);
+        _movePhaseScene.getLocalPlayer()->setJumpHold(true);
     }
     //_movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-    _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
+    _movePhaseScene.getLocalPlayer()->setJumpHold(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
 
 
@@ -533,14 +535,14 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
     }
     if (plat != nullptr) {
         contact->SetEnabled(false);
-        _movePhaseScene.getLocalPlayer()->setGrounded(false);
+        _movePhaseScene.getLocalPlayer()->setDetectedGround();
         if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y <= 0.4f) {
             if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight() >= plat->getPlatformTop()) {
                 contact->SetEnabled(true);
-                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                _movePhaseScene.getLocalPlayer()->setDetectedGround();
             }
             else {
-                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                _movePhaseScene.getLocalPlayer()->setDetectedGround();
             }
         }
         else {
@@ -585,7 +587,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 _playerSensorFixtures[player].emplace(fix1);
             }
             if (!_playerSensorFixtures[player].empty()) {
-                player->setGrounded(true);
+                player->setDetectedGround();
             }
         }
     }
@@ -600,7 +602,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 _playerSensorFixtures[player].emplace(fix1);
             }
             if (!_playerSensorFixtures[player].empty()) {
-                player->setGrounded(true);
+                player->setDetectedGround();
             }
         }
     }
@@ -654,7 +656,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 (bd2->getName() != "wind" && bd1->getName() != "wind")
                 ) {
                 //Set player to grounded
-                _movePhaseScene.getLocalPlayer()->setGrounded(true);
+                _movePhaseScene.getLocalPlayer()->setDetectedGround();
                 CULog("LOCAL: GROUNDED TRUE");
                 // Could have more than one ground
                 _localSensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
@@ -711,7 +713,7 @@ void MovePhaseController::endContact(b2Contact *contact)
         _localSensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
         if (_localSensorFixtures.empty())
         {
-            _movePhaseScene.getLocalPlayer()->setGrounded(false);
+            _movePhaseScene.getLocalPlayer()->setDetectedGround();
         }
     }
     
@@ -726,7 +728,7 @@ void MovePhaseController::endContact(b2Contact *contact)
                 _playerSensorFixtures[player].erase(fix1);
             }
             if (_playerSensorFixtures[player].empty()) {
-                player->setGrounded(false);
+                player->setDetectedGround();
             }
         }
     }
@@ -741,7 +743,7 @@ void MovePhaseController::endContact(b2Contact *contact)
                 _playerSensorFixtures[player].erase(fix1);
             }
             if (_playerSensorFixtures[player].empty()) {
-                player->setGrounded(false);
+                player->setDetectedGround();
             }
         }
     }

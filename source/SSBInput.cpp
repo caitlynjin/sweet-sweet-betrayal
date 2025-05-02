@@ -35,9 +35,9 @@ using namespace cugl;
 #define LISTENER_KEY      1
 
 /** This defines the joystick "deadzone" (how far we must move) */
-#define JSTICK_DEADZONE  35
+#define JSTICK_DEADZONE  40
 /** This defines the joystick radial size (for reseting the anchor) */
-#define JSTICK_RADIUS    60
+#define JSTICK_RADIUS    120
 /** How far to display the virtual joystick above the finger */
 #define JSTICK_OFFSET    80
 /** How far we must swipe up for a jump gesture */
@@ -368,6 +368,9 @@ void PlatformInput::processJoystick(const cugl::Vec2 pos) {
         } else {
             _keyLeft = false;
             _keyRight = true;
+        }
+        if (std::fabsf(diff.x) > JSTICK_DEADZONE +30) {
+            CULog("BEEGSWIPE");
         }
     } else {
         _joystick = false;
