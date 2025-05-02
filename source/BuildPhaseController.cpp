@@ -290,9 +290,9 @@ void BuildPhaseController::preUpdate(float dt) {
                         // Delete these objects
                         CULog("Bombing %d objects", (int)objectsToBomb.size());
                         for (std::shared_ptr<Object> obj : objectsToBomb) {
-                            _network->getPhysController()->removeSharedObstacle(obj);
-                            _networkController->removeObject(obj);
-                            _gridManager->deleteObject(obj);
+//                            _network->getPhysController()->removeSharedObstacle(obj);
+//                            _networkController->removeObject(obj);
+//                            _gridManager->deleteObject(obj);
                         }
                     }
                     _itemsPlaced += 1;

@@ -590,7 +590,29 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    // Set grounded for all non-local players 
+    Object* obj1 = reinterpret_cast<Object*>(body1->GetUserData().pointer);
+    Object* obj2 = reinterpret_cast<Object*>(body2->GetUserData().pointer);
+
+    // Handle bomb object explosion
+    if (fix1->IsSensor() || fix2->IsSensor()) {
+        Bomb* bomb = nullptr;
+        Object* other = nullptr;
+
+        if (fix1->IsSensor()) {
+            bomb = dynamic_cast<Bomb*>(obj1);
+            other = obj2;
+        } else {
+            bomb = dynamic_cast<Bomb*>(obj2);
+            other = obj1;
+        }
+
+        if (bomb && other) {
+            CULog("Trigger bomb explosion");
+            other->dispose();
+        }
+    }
+
+    // Set grounded for all non-local players
     if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && player->getSensorName()) {
