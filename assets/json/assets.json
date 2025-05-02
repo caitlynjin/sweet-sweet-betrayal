@@ -113,6 +113,18 @@
         "spike_tile": {
             "file": "textures/1x1-up-spike.png"
         },
+        "spike-down": {
+            "file": "textures/1x1-down-spike.png"
+        },
+        "spike-up": {
+            "file": "textures/1x1-up-spike.png"
+        },
+        "spike-left": {
+            "file": "textures/1x1-left-spike.png"
+        },
+        "spike-right": {
+            "file": "textures/1x1-right-spike.png"
+        },
         "thorns_obstacle": {
             "file": "textures/thorns-obstacle.png"
         },
@@ -141,25 +153,31 @@
             "file": "textures/goaldoor.png"
         },
         "static_fan": {
-            "file":      "textures/static-fan.png"
+            "file": "textures/static-fan.png"
         },
         "leaf_fan_spritesheet": {
-            "file":      "textures/leaf-fan-spritesheet.png"
+            "file": "textures/leaf-fan-spritesheet.png"
         },
         "static_gust": {
-            "file":      "textures/static-gust.png"
+            "file": "textures/static-gust.png"
         },
         "wind_blocked_at_2_spritesheet": {
-            "file":      "textures/wind-blocked-at-2-spritesheet.png"
+            "file": "textures/wind-blocked-at-2-spritesheet.png"
         },
         "wind_blocked_at_3_spritesheet": {
-            "file":      "textures/wind-blocked-at-3-spritesheet.png"
+            "file": "textures/wind-blocked-at-3-spritesheet.png"
         },
         "wind_blocked_at_4_spritesheet": {
-            "file":      "textures/wind-blocked-at-4-spritesheet.png"
+            "file": "textures/wind-blocked-at-4-spritesheet.png"
         },
         "wind_unobstructed_spritesheet": {
-            "file":      "textures/wind-unobstructed-spritesheet.png"
+            "file": "textures/wind-unobstructed-spritesheet.png"
+        },
+        "torch-right": {
+            "file": "textures/right-torch-spritesheet.png"
+        },
+        "gliding-log-spritesheet": {
+            "file":      "textures/gliding-log-spritesheet.png"
         },
         "mushroom_bounce_spritesheet": {
             "file":  "textures/bounce-spritesheet.png"
@@ -336,6 +354,9 @@
         "icon-thorn": {
             "file": "textures/icon-thorn.png"
         },
+        "icon-torch": {
+            "file": "textures/icon-torch.png"
+        },
         "icon-wind": {
             "file": "textures/icon-wind.png"
         },
@@ -355,14 +376,14 @@
             "file": "textures/leftgliders.png"
         },
         "end-background": {
-           "file": "textures/end-background.png"
-       },
-       "button_quit": {
-           "file": "textures/button_quit.png"
-       },
-       "button_restart": {
-           "file": "textures/button_restart.png"
-       },
+            "file": "textures/end-background.png"
+        },
+        "button_quit": {
+            "file": "textures/button_quit.png"
+        },
+        "button_restart": {
+            "file": "textures/button_restart.png"
+        },
         "numpad": {
             "file": "textures/buttons/numpad.png"
         },
@@ -383,7 +404,7 @@
         },
         "button_join": {
             "file": "textures/buttons/button_join.png"
-        }, 
+        },
         "blue-bar": {
             "file": "textures/blue-bar.png"
         },
@@ -583,7 +604,7 @@
         },
         "jump": {
             "type": "sample",
-            "file": "sounds/jump.wav",
+            "file": "sounds/sfx_jump.wav",
             "volume": 0.5
         },
         "pew": {

@@ -77,7 +77,11 @@ void GridManager::initGrid(bool isLevelEditor) {
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
     if (_spriteNode) {
-        auto image = _assets->get<Texture>(itemToAssetName(item));
+        auto image = _assets->get<Texture>(itemToAssetNameMap[item]);
+        if (image == nullptr) {
+            CULog("You likely forgot to add this item to itemToAssetNameMap");
+            return;
+        }
 
         float textureWidth = image->getWidth();
         float textureHeight = image->getHeight();

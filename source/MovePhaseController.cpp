@@ -216,7 +216,7 @@ void MovePhaseController::preUpdate(float dt) {
 
     if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
     {
-        //_sound->playSound("jump");
+        _sound->playSound("jump");
     }
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {

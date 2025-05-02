@@ -23,8 +23,10 @@ void Treasure::update(float timestep) {
         _node->setPosition(getPosition() * _drawScale);
         _node->setAngle(getAngle());
     }
+    if (getName() != "treasureLevelEditor") {
+        updateAnimation(timestep);
+    }
     
-    updateAnimation(timestep);
     
     // Should be called every frame
     updateCooldown();
