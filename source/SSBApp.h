@@ -17,6 +17,7 @@
 #include "WaitingHostScene.h"
 #include "DisconnectedScene.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
+#include "Constants.h"
 
 
 using namespace cugl::physics2::distrib;
@@ -303,6 +304,14 @@ public:
      */
     void resetScenes();
     
+    /**
+    * Sets up the asset, item, and JSON maps in Constants.
+    * Had to this here because updating the static variables from within Constants does not work.
+    */
+    void populateMaps();
     
+   // std::map<string, string> jsonTypeToAsset = {};
+    //std::map<string, Item> jsonTypeToItemType = {};
+    //std::map<Item, string> itemToAssetNameMap = {};
 };
 #endif /* __PF_APP_H__ */

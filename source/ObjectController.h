@@ -126,9 +126,9 @@ public:
     * @param size The dimensions (width, height) of the platform.
     */
 
-   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, std::string jsonType);
+   std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, std::string jsonType, bool isLevelEditorMode=false);
 
-   std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind);
+   std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind, bool isLevelEditorMode=false);
     
     
     /** Creates a treasure
