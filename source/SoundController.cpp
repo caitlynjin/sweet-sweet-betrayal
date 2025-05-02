@@ -55,7 +55,6 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		// Come back to this
 	}
 	_musicQueue = AudioEngine::get()->getMusicQueue();
-	//_musicQueue->setVolume(0.8f);
 	return true;
 }
 
@@ -74,7 +73,7 @@ void SoundController::playSound(std::string key) {
 
 // Make sure this actually works the way it's supposed to
 void SoundController::playMusic(std::string key, bool loop) {
-	_musicQueue->enqueue(_soundMap[key], loop);
+	_musicQueue->enqueue(_soundMap[key], loop, 0.4f);
 }
 
 void SoundController::addMusicToQueue(std::string key) {

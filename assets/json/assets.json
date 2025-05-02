@@ -631,7 +631,7 @@
         },
         "glide": {
             "type": "sample",
-            "file": "sounds/sfx_glide.wav",
+            "file": "sounds/sfx_glidenew.wav",
             "volume": 0.5
         },
         "button_click": {
