@@ -619,6 +619,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
             if (bd2 == _movePhaseScene.getGoalDoor().get() || bd1 == _movePhaseScene.getGoalDoor().get()){
                 _animateGoal = _reachedGoal;
                 bool anim = _animateGoal;
+                _sound->playSound("yay");
                 reachedGoal();
             }
 
@@ -655,6 +656,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                         CULog("Local Player takes treasure");
                         _network->pushOutEvent(TreasureEvent::allocTreasureEvent(_network->getShortUID()));
                         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
+                        _sound->playSound("heehee");
 //                        CULog("Local Player takes treasure");
 //                        _movePhaseScene.getLocalPlayer()->gainTreasure(_movePhaseScene.getTreasure());
                     }
