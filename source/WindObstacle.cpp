@@ -41,8 +41,14 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
+    if (true) {
+        updateAnimation(timestep);
+    }
+    else {
 
-    updateAnimation(timestep);
+        //_node->setPosition(getPosition() * _drawScale);
+        //_node->setAngle(getAngle());
+    }
 }
 
 void WindObstacle::updateAnimation(float timestep) {

@@ -205,10 +205,23 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<std::string> assetNames;
         
     inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT,
+                       SPIKE_LEFT, SPIKE_RIGHT, SPIKE_DOWN,
                        CRACK_1, CRACK_2, CRACK_3, CRACK_4, CRACK_5, CRACK_LARGE_1, MOSS_1, MOSS_2, ROCKY_1, ROCKY_2
     };
     for (auto it = inventoryItems.begin(); it != inventoryItems.end(); ++it) {
-        assetNames.push_back(itemToAssetName(*it));
+        if (itemToAssetNameMap.find(*it) != itemToAssetNameMap.end()) {
+            
+            if (*it == Item::TORCH) {
+                assetNames.push_back("icon-torch");
+            }
+            else {
+                assetNames.push_back(itemToAssetNameMap[*it]);
+            }
+            
+        }
+        else {
+            CULog("You likely forgot to add the item to itemToAssetNameMap");
+        }
     }
 
     _uiScene.initInventory(inventoryItems, assetNames);
@@ -547,9 +560,9 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
     case (MOVING_PLATFORM):
         return nullptr;//_networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _levelEditorScene.getScale() / getSystemScale());
     case (WIND):
-        return _objectController->createWindObstacle(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(),  Vec2(0, 4.0), Vec2(0, 3.0), "default");
+        return _objectController->createWindObstacle(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(),  Vec2(0, 4.0), Vec2(0, 3.0), "wind", true);
     case (SPIKE):
-        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "default");
+        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeUp");
     case (MUSHROOM):
         return _networkController->createMushroomNetworked(gridPos, Size(2, 1), _levelEditorScene.getScale());
     case (TREASURE):
@@ -592,8 +605,16 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight", scale);
         obj->setItemType(TILE_TOPRIGHT);
         return obj;
-
-
+    case (SPIKE_UP):
+        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeUp");
+    case (SPIKE_LEFT):
+        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeLeft");
+    case (SPIKE_RIGHT):
+        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeRight");
+    case (SPIKE_DOWN):
+        return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeDown");
+    case (TORCH):
+        return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "torchRight");
     case (CRACK_1):
         return _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "crack1");
     case (CRACK_2):
