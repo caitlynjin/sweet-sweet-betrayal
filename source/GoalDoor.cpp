@@ -26,6 +26,9 @@ void GoalDoor::update(float timestep) {
     if (_isAnimating) {
         updateAnimation(timestep);
     }
+    else if (_isResetting) {
+        updateAnimation(timestep);
+    }
         
 }
 
@@ -43,12 +46,17 @@ void GoalDoor::updateAnimation(float timestep) {
         doStrip(_spinAction, 1.0f);
         _isResettingFilmstrip = false;
     }
+    else if (_isResetting) {
+        doStrip(_staticAction, 1.0f);
+        _isResetting = false;
+    }
         
     
     _timeline->update(timestep);
 
 
 }
+
 
 void GoalDoor::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _spinSpriteNode = sprite;
@@ -71,9 +79,22 @@ void GoalDoor::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     // Create animation
     _spinAnimateSprite = AnimateSprite::alloc(forward);
     _spinAction = _spinAnimateSprite->attach<scene2::SpriteNode>(_spinSpriteNode);
+
+    const int span2 = 5;
+
+    std::vector<int> forward2;
+    for (int ii = 0; ii < span2; ii++) {
+        forward2.push_back(0);
+    }
+
+    // Create animation
+    _staticAnimateSprite = AnimateSprite::alloc(forward2);
+    _staticAction = _staticAnimateSprite->attach<scene2::SpriteNode>(_spinSpriteNode);
 }
 
-/**
+
+
+/**]
  * Performs a film strip action
  *
  * @param action The film strip action

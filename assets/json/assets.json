@@ -649,8 +649,44 @@
         "mushroom_boing": {
             "type": "sample",
             "file": "sounds/mushroom_boing.wav",
+            "volume": 0.5
+        },
+        "yay": {
+            "type": "sample",
+            "file": "sounds/sfx_yay.wav",
+            "volume": 0.5
+        },
+        "ow": {
+            "type": "sample",
+            "file": "sounds/sfx_ow.wav",
+            "volume": 0.5
+        },
+        "aw": {
+            "type": "sample",
+            "file": "sounds/sfx_aw.wav",
+            "volume": 0.5
+        },
+        "heeheehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heeheehee.wav",
+            "volume": 0.5
+        },
+        "heehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heehee.wav",
+            "volume": 0.5
+        },
+        "takethat": {
+            "type": "sample",
+            "file": "sounds/sfx_takethat.wav",
+            "volume": 0.5
+        },
+        "placeItem": {
+            "type": "sample",
+            "file": "sounds/sfx_placeItem.wav",
             "volume":  0.5
         }
+
     },
     "fonts": {
         "retro": {

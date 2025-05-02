@@ -398,6 +398,10 @@ void MovePhaseController::reachedGoal(){
 void MovePhaseController::processModeChange(bool value) {
     _reachedGoal = false;
     _animateGoal = false;
+    if (value) {
+        (dynamic_pointer_cast<GoalDoor>(_movePhaseScene.getGoalDoor()))->setResetting(true);
+    }
+    
     _movePhaseScene.resetCameraPos();
     _uiScene.disableUI(value);
 
@@ -621,11 +625,13 @@ void MovePhaseController::beginContact(b2Contact *contact)
             // If we hit a spike, we are DEAD
             else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
                 killPlayer();
+                _sound->playSound("ow");
             }
 
             // If we hit a thorn, we are DEAD
             else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
                 killPlayer();
+                _sound->playSound("ow");
             }
 
             //Treasure Collection

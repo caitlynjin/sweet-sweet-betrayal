@@ -63,6 +63,8 @@ protected:
     /** Whether the host is currently updating the treasure */
     bool _isHost;
 
+    bool _isResetting = false;
+
 
 #pragma mark Animation Variables
     /** Manager to process the animation actions */
@@ -70,8 +72,10 @@ protected:
 
     /** Animation variables */
     std::shared_ptr<AnimateSprite> _spinAnimateSprite;
+    std::shared_ptr<AnimateSprite> _staticAnimateSprite;
     std::shared_ptr<cugl::scene2::SpriteNode> _spinSpriteNode;
     cugl::ActionFunction _spinAction;
+    cugl::ActionFunction _staticAction;
 
 public:
 
@@ -137,6 +141,10 @@ public:
     void setAnimating(bool animating) {
         _isAnimating = animating;
         _isResettingFilmstrip = animating;
+    }
+
+    void setResetting(bool resetting) {
+        _isResetting = resetting;
     }
 
     /**
