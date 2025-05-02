@@ -72,6 +72,8 @@ std::string itemToString(Item item) {
             return "tile";
         case MUSHROOM:
             return "mushroom";
+        case BOMB:
+            return "bomb";
         case ART_OBJECT:
             return "art object";
         default:
@@ -100,6 +102,8 @@ cugl::Size itemToSize (Item item) {
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
+        case BOMB:
+            return cugl::Size(1, 1);
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
@@ -131,6 +135,8 @@ cugl::Size itemToGridSize(Item item) {
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
+        case BOMB:
+            return cugl::Size(1, 1);
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
@@ -165,6 +171,8 @@ std::string itemToAssetName(Item item) {
             return TILE_TEXTURE;
         case (MUSHROOM):
             return MUSHROOM_TEXTURE;
+        case (BOMB):
+            return BOMB_TEXTURE;
         case (ART_OBJECT):
             return EARTH_TEXTURE; // for debugging - this is not sustainable
         case (TILE_TOP):
