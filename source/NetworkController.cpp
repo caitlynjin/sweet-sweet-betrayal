@@ -52,6 +52,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
     
@@ -193,6 +194,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for AnimationEvent
         if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
             processAnimationEvent(aEvent);
+        }
+        // Check for MYBAD (Mushroom Bounce) event!!! 
+        if(auto mbEvent = std::dynamic_pointer_cast<MushroomBounceEvent>(e)){
+            processMushroomBounceEvent(mbEvent);
         }
     }
     _scoreController->setPlayerColors(_playerColorsById);
@@ -386,6 +391,40 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
     }
 }
 
+void NetworkController::processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event) {
+    CULog("entering here");
+    Vec2 pos = event->getPosition();
+    CULog("Event position: (%.2f, %.2f)", pos.x, pos.y);
+
+    // Loop over every obstacle in the NetWorld — remote mushrooms are in here too!
+    for (auto& obs : _world->getObstacles()) {
+        if (auto mush = std::dynamic_pointer_cast<Mushroom>(obs)) {
+            Vec2 mushPos = mush->getPosition();
+            CULog("Checking Mushroom at (%.2f,%.2f)", mushPos.x, mushPos.y);
+            if (mushPos == pos) {
+                CULog("processing mushroom bounce");
+                mush->getTimeline()->add("current", mush->getActionFunction(), 1.0f);
+                mush->triggerAnimation();
+                break;
+            }
+        }
+    }
+}
+
+
+
+void NetworkController::removeObject(std::shared_ptr<Object> object){
+    auto it = std::find(_objects->begin(), _objects->end(), object);
+    // Check if the element was found
+    if (it != _objects->end()) {
+        // Calculate the index by subtracting the beginning iterator
+        int index = static_cast<int>(std::distance(_objects->begin(), it));
+        _objects->erase(_objects->begin() + index);
+    }
+
+    object->dispose();
+}
+
 
 
 
@@ -459,6 +498,10 @@ std::shared_ptr<Object> NetworkController::createMushroomNetworked(Vec2 pos, Siz
     auto params = _mushroomFact->serializeParams(pos, size, scale);
     auto pair = _network->getPhysController()->addSharedObstacle(_mushroomFactID, params);
     std::shared_ptr<Mushroom> mushroom = std::dynamic_pointer_cast<Mushroom>(pair.first);
+    
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9, 9);
+    mushroom->setMushroomAnimation(animNode, 9);
+
     _objects->push_back(mushroom);
     return mushroom;
 }
@@ -471,7 +514,6 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
     return thorn;
 }
 
-
 std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str) {
     auto params = _windFact->serializeParams(pos, size, scale,  dir, str);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
@@ -481,6 +523,13 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
     return wind;
 }
 
+std::shared_ptr<Object> NetworkController::createBombNetworked(Vec2 pos, Size size) {
+    auto params = _bombFact->serializeParams(pos, size);
+    auto pair = _network->getPhysController()->addSharedObstacle(_bombFactID, params);
+    std::shared_ptr<Bomb> bomb = std::dynamic_pointer_cast<Bomb>(pair.first);
+    _objects->push_back(bomb);
+    return bomb;
+}
 
 
 /**
@@ -569,6 +618,9 @@ void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWor
     
     _windFact = WindFactory::alloc(_assets);
     _windFactID = _network->getPhysController()->attachFactory(_windFact);
+
+    _bombFact = BombFactory::alloc(_assets);
+    _bombFactID = _network->getPhysController()->attachFactory(_bombFact);
 }
 
 /**
@@ -819,6 +871,10 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
     
     std::shared_ptr<Platform> movPlat = Platform::allocMoving(pos, size, pos, end, speed);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    animNode->setAnchor(Vec2::ANCHOR_CENTER);
+    movPlat->setPlatformAnimation(animNode, 15);
     
     movPlat->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     movPlat->setDensity(BASIC_DENSITY);
@@ -827,10 +883,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     movPlat->setDebugColor(DEBUG_COLOR);
     movPlat->setName("movingPlatform");
 
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
-    movPlat->setSceneNode(sprite);
-
-    return std::make_pair(movPlat, sprite);
+    return std::make_pair(movPlat, movPlat->getSceneNode());
 }
 
 
@@ -957,23 +1010,24 @@ TreasureFactory::createObstacle(const std::vector<std::byte>& params) {
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 MushroomFactory::createObstacle(Vec2 pos, Size size, float scale) {
-    std::shared_ptr<Texture> texture = _assets->get<Texture>("mushroom");
     
-    std::shared_ptr<Mushroom> mush = Mushroom::alloc(pos, size, scale);
+    auto mush = Mushroom::alloc(pos, size, scale);
+    auto animNode = scene2::SpriteNode::allocWithSheet(
+        _assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9, 9
+    );
+    mush->setMushroomAnimation(animNode, 9);
     
-    mush->setBodyType(b2_dynamicBody);
     mush->setDensity(BASIC_DENSITY);
     mush->setFriction(BASIC_FRICTION);
     mush->setRestitution(BASIC_RESTITUTION);
+    
     mush->setName("mushroom");
     mush->setDebugColor(DEBUG_COLOR);
     mush->setShared(true);
-
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
-    mush->setSceneNode(sprite);
-
-    return std::make_pair(mush, sprite);
+        
+    return std::make_pair(mush, mush->getSceneNode());
 }
+
 
 
 std::shared_ptr<std::vector<std::byte>>
@@ -1131,4 +1185,55 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     Vec2 str(strX, strY);
 
     return createObstacle(pos, size, scale, dir, str);
+}
+
+#pragma mark -
+#pragma mark Bomb Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+BombFactory::createObstacle(Vec2 pos, Size size) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+
+    std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size);
+
+    bomb->setBodyType(b2_dynamicBody);
+    bomb->setDensity(BASIC_DENSITY);
+    bomb->setFriction(BASIC_FRICTION);
+    bomb->setRestitution(BASIC_RESTITUTION);
+    bomb->setName("bomb");
+    bomb->setDebugColor(DEBUG_COLOR);
+    bomb->setShared(true);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE_ANIMATED), 1, 14, 14);
+    bomb->setAnimation(animNode);
+
+    return std::make_pair(bomb, bomb->getSceneNode());
+}
+
+
+std::shared_ptr<std::vector<std::byte>>
+BombFactory::serializeParams(Vec2 pos, Size size) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+BombFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width  = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+
+    return createObstacle(pos, size);
 }

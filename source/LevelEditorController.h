@@ -54,7 +54,7 @@ protected:
 
     // Left in here in case it helps with drawing the sprite too (e.g. position of obstacle)
     /** Reference to the goalDoor (for collision detection) */
-    std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
+    std::shared_ptr<Object>    _goalDoor;
 
     /** The selected item in build mode (new object) */
     Item _selectedItem = NONE;
