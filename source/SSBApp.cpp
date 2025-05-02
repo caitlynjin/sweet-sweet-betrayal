@@ -78,6 +78,7 @@ void SSBApp::onShutdown()
     _hostgame.dispose();
     _joingame.dispose();
     _victory.dispose();
+    _transition.dispose();
 
     // Is this correct way of diposing networkController?
     _networkController->dispose();
@@ -167,10 +168,25 @@ void SSBApp::update(float dt)
  */
 void SSBApp::preUpdate(float dt)
 {
+    // Handle transition logic
+    if (_doTransition){
+        if (_transition.getFadingOutDone()){
+            setTransition(false);
+        }
+        if (_transition.getFadingInDone()){
+            _doTransition = false;
+            _transition.reset();
+            _transition.setActive(false);
+        }
+    }
+    
     //    CULog("Status: %d", static_cast<int>(_status));
     if (_status == LOAD && _loading.isActive())
     {
         _loading.update(0.01f);
+        if (_loading.isComplete()){
+            _loading.setActive(false);
+        }
     }
     else if (_status == LOAD)
     {
@@ -201,11 +217,19 @@ void SSBApp::preUpdate(float dt)
         _waitinghost.setSpriteBatch(_batch);
         _disconnectedscreen.init(_assets, _sound);
         _disconnectedscreen.setSpriteBatch(_batch);
+        
+        _transition.init(_assets);
+        _transition.setSpriteBatch(_batch);
+        _doTransition = true;
+        _transition.setActive(true);
+        _transition.startFadeIn();
+
         _status = START;
         _sound->playMusic("move_phase", true);
     }
     else
     {
+        _transition.preUpdate(dt);
         switch (_status)
         {
         case START:
@@ -241,10 +265,13 @@ void SSBApp::preUpdate(float dt)
                 
             //TODO: Check for a victory
                 if (_gameController.getHasVictory()){
-                    _gameController.setActive(false);
-//                    _gameController.reset();
-                    _victory.setActive(true);
-                    _status = VICTORY;
+                    setTransition(true);
+                    if (_transition.getFadingOutDone()){
+                        _gameController.setActive(false);
+                        //                    _gameController.reset();
+                        _victory.setActive(true);
+                        _status = VICTORY;
+                    }
                 }
             break;
         case LEVEL_EDITOR:
@@ -256,19 +283,25 @@ void SSBApp::preUpdate(float dt)
                 if (_networkController->getResetLevel()){
                     // Reset the level and return back to the game scene
 //                    _victory.reset();
-                    _victory.setActive(false);
-                    _gameController.reset();
-                    _gameController.setActive(true);
-                    _status = GAME;
+                    setTransition(true);
+                    if (_transition.getFadingOutDone()){
+                        _victory.setActive(false);
+                        _gameController.reset();
+                        _gameController.setActive(true);
+                        _status = GAME;
+                    }
                 }
             //TODO: Check for quit to main menu
                 if (_victory.getChoice() == VictoryScene::Choice::QUIT){
-                    _victory.setActive(false);
-                    _victory.reset();
-                    _startscreen.setActive(true);
-                    //TODO: resetGame() method
-                    resetScenes();
-                    _status = START;
+                    setTransition(true);
+                    if (_transition.getFadingOutDone()){
+                        _victory.setActive(false);
+                        _victory.reset();
+                        _startscreen.setActive(true);
+                        //TODO: resetGame() method
+                        resetScenes();
+                        _status = START;
+                    }
                 }
             break;
         case DISCONNECTED:
@@ -319,6 +352,7 @@ void SSBApp::fixedUpdate()
     {
         _network->updateNet();
     }
+
 }
 
 /**
@@ -373,29 +407,54 @@ void SSBApp::updateMenuScene(float timestep)
     switch (_mainmenu.getChoice())
     {
         case MenuScene::Choice::HOST:
-            _disconnectedscreen.reset();
-            _disconnectedscreen.setActive(false);
-            _expectedPlayers = 0;
-            _mainmenu.setActive(false);
-            _hostgame.setActive(true);
-            _status = HOST;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _disconnectedscreen.reset();
+                _disconnectedscreen.setActive(false);
+                _expectedPlayers = 0;
+                _mainmenu.setActive(false);
+                _hostgame.setActive(true);
+                _status = HOST;
+            }
             break;
         case MenuScene::Choice::JOIN:
-            _disconnectedscreen.reset();
-            _disconnectedscreen.setActive(false);
-            _expectedPlayers = 0;
-            _mainmenu.setActive(false);
-            _joingame.setActive(true);
-            _status = CLIENT;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _disconnectedscreen.reset();
+                _disconnectedscreen.setActive(false);
+                _expectedPlayers = 0;
+                _mainmenu.setActive(false);
+                _joingame.setActive(true);
+                _status = CLIENT;
+            }
             break;
         case MenuScene::Choice::BACK:
-            _mainmenu.setActive(false);
-            _startscreen.setActive(true);
-            _status = START;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _mainmenu.setActive(false);
+                _startscreen.setActive(true);
+                _status = START;
+            }
             break;
         case MenuScene::Choice::NONE:
             // DO NOTHING
             break;
+    }
+}
+
+void SSBApp::setTransition(bool value){
+    if (value){
+        if (_doTransition){
+            return;
+        }
+    }
+    _transition.setActive(true);
+    _doTransition = true;
+    if (value){
+        _transition.startFadeOut();
+    }
+    else{
+        _transition.startFadeIn();
     }
 }
 
@@ -405,11 +464,15 @@ void SSBApp::updateStartScene(float timestep)
     switch (_startscreen.getChoice())
     {
     case StartScene::Choice::START:
-        _disconnectedscreen.setActive(false);
-        _expectedPlayers = 0;
-        _startscreen.setActive(false);
-        _mainmenu.setActive(true);
-        _status = MENU;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _disconnectedscreen.setActive(false);
+            _expectedPlayers = 0;
+            _startscreen.setActive(false);
+            _mainmenu.setActive(true);
+            _status = MENU;
+        }
+
         break;
     case StartScene::Choice::LEVEL_EDITOR:
             _mainmenu.setActive(false);
@@ -440,11 +503,14 @@ void SSBApp::updateHostScene(float timestep)
     _networkController->update(timestep);
     if (_hostgame.getBackClicked())
     {
-        _network->disconnect();
-        _networkController->flushConnection();
-        _status = MENU;
-        _hostgame.setActive(false);
-        _mainmenu.setActive(true);
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _network->disconnect();
+            _networkController->flushConnection();
+            _status = MENU;
+            _hostgame.setActive(false);
+            _mainmenu.setActive(true);
+        }
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
@@ -455,20 +521,26 @@ void SSBApp::updateHostScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::INGAME)
     {
         CULog("INGAME");
-        _hostgame.setActive(false);
-        _colorselect.reset();
-        _colorselect.setActive(true);
-        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
-        _status = COLOR_SELECT;
-        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _hostgame.setActive(false);
+            _colorselect.reset();
+            _colorselect.setActive(true);
+            _colorselect.setInitialPlayerCount(_network->getNumPlayers());
+            _status = COLOR_SELECT;
+            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_START));
+        }
     }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
         _network->disconnect();
-        _hostgame.setActive(false);
-        _mainmenu.setActive(true);
-        _gameController.dispose();
-        _status = MENU;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _hostgame.setActive(false);
+            _mainmenu.setActive(true);
+            _gameController.dispose();
+            _status = MENU;
+        }
     }
 }
 
@@ -487,29 +559,47 @@ void SSBApp::updateClientScene(float timestep)
     _networkController->update(timestep);
     if (_joingame.getBackClicked())
     {
-        _network->disconnect();
-        _networkController->flushConnection();
-        _status = MENU;
-        _joingame.setActive(false);
-        _mainmenu.setActive(true);
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _network->disconnect();
+            _networkController->flushConnection();
+            _status = MENU;
+            _joingame.setActive(false);
+            _mainmenu.setActive(true);
+        }
     }
     else if (_network->getStatus() == NetEventController::Status::CONNECTED){
         _status = WAITING_HOST;
-        _joingame.setActive(false);
-        _waitinghost.setActive(true);
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _joingame.setActive(false);
+            _waitinghost.setActive(true);
+        }
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
         _network->markReady();
     }
+    else if (_network->getStatus() == NetEventController::Status::INGAME)
+    {
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _joingame.setActive(false);
+            _gameController.setActive(true);
+            _status = GAME;
+        }
+    }
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
         _network->disconnect();
-        _joingame.setActive(false);
-        _mainmenu.setActive(true);
-        _gameController.dispose();
-        _status = MENU;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _joingame.setActive(false);
+            _mainmenu.setActive(true);
+            _gameController.dispose();
+            _status = MENU;
+        }
     }
 #pragma mark END SOLUTION
 }
@@ -519,30 +609,36 @@ void SSBApp::updateColorSelectScene(float timestep){
     _networkController->fixedUpdate(timestep);
     
     if (_networkController->getNumColorReady() == _colorselect.getInitialPlayerCount()) {
-        _colorselect.setActive(false);
-        _gameController.init(_assets, _networkController, _sound);
-        _gameController.setSpriteBatch(_batch);
-        _gameController.setActive(true);
-        _expectedPlayers = _network->getNumPlayers();
-        CULog("Expected players: %d", _expectedPlayers);
-        _status = GAME;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _colorselect.setActive(false);
+            _gameController.init(_assets, _networkController, _sound);
+            _gameController.setSpriteBatch(_batch);
+            _gameController.setActive(true);
+            _expectedPlayers = _network->getNumPlayers();
+            CULog("Expected players: %d", _expectedPlayers);
+            _status = GAME;
+        }
         return;
     }
     
     if (_network->getNumPlayers() < _colorselect.getInitialPlayerCount() || _network->getStatus() == NetEventController::Status::NETERROR) {
-        _colorselect.reset();
-        _colorselect.setActive(false);
-        _network->disconnect();
-        _networkController->flushConnection();
-        _networkController->resetColorReady();
-        if (_networkController->getIsHost()) {
-            _hostgame.reset();
-            _hostgame.setActive(true);
-            _status = HOST;
-        } else {
-            _joingame.reset();
-            _joingame.setActive(true);
-            _status = CLIENT;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _colorselect.reset();
+            _colorselect.setActive(false);
+            _network->disconnect();
+            _networkController->flushConnection();
+            _networkController->resetColorReady();
+            if (_networkController->getIsHost()) {
+                _hostgame.reset();
+                _hostgame.setActive(true);
+                _status = HOST;
+            } else {
+                _joingame.reset();
+                _joingame.setActive(true);
+                _status = CLIENT;
+            }
         }
         return;
     }
@@ -554,19 +650,22 @@ void SSBApp::updateColorSelectScene(float timestep){
     switch (_colorselect.getChoice())
     {
         case ColorSelectScene::Choice::BACK:
-            _colorselect.reset();
-            _colorselect.setActive(false);
-            _network->disconnect();
-            _networkController->flushConnection();
-            _networkController->resetColorReady();
-            if (_networkController->getIsHost()){
-                _hostgame.reset();
-                _hostgame.setActive(true);
-                _status = HOST;
-            } else{
-                _joingame.reset();
-                _joingame.setActive(true);
-                _status = CLIENT;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _colorselect.reset();
+                _colorselect.setActive(false);
+                _network->disconnect();
+                _networkController->flushConnection();
+                _networkController->resetColorReady();
+                if (_networkController->getIsHost()){
+                    _hostgame.reset();
+                    _hostgame.setActive(true);
+                    _status = HOST;
+                } else{
+                    _joingame.reset();
+                    _joingame.setActive(true);
+                    _status = CLIENT;
+                }
             }
             break;
         case ColorSelectScene::Choice::NONE:
@@ -579,11 +678,14 @@ void SSBApp::updateWaitingHostScene(float timestep){
     _waitinghost.update(timestep);
     _networkController->update(timestep);
     if (_network->getStatus() == NetEventController::Status::INGAME){
-        _waitinghost.setActive(false);
-        _colorselect.reset();
-        _colorselect.setActive(true);
-        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
-        _status = COLOR_SELECT;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _waitinghost.setActive(false);
+            _colorselect.reset();
+            _colorselect.setActive(true);
+            _colorselect.setInitialPlayerCount(_network->getNumPlayers());
+            _status = COLOR_SELECT;
+        }
         return;
     }
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
@@ -592,21 +694,27 @@ void SSBApp::updateWaitingHostScene(float timestep){
         _network->markReady();
     } else if (_network->getStatus() == NetEventController::Status::NETERROR
      || _network->getNumPlayers() <= 1) {
-        _network->disconnect();
-        _networkController->flushConnection();
-        _waitinghost.setActive(false);
-        _joingame.reset();
-        _joingame.setActive(true);
-        _status = CLIENT;
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _network->disconnect();
+            _networkController->flushConnection();
+            _waitinghost.setActive(false);
+            _joingame.reset();
+            _joingame.setActive(true);
+            _status = CLIENT;
+        }
         return;
     }
     switch (_waitinghost.getChoice())
     {
         case WaitingHostScene::Choice::CANCEL:
-            _waitinghost.setActive(false);
-            _joingame.setActive(true);
-            _network->disconnect();
-            _status = CLIENT;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _waitinghost.setActive(false);
+                _joingame.setActive(true);
+                _network->disconnect();
+                _status = CLIENT;
+            }
             break;
         case WaitingHostScene::Choice::NONE:
             break;
@@ -618,13 +726,16 @@ void SSBApp::updateDisconnectedScene(float timestep){
     switch (_disconnectedscreen.getChoice())
     {
         case DisconnectedScene::Choice::QUIT:
-            _expectedPlayers = 0;
-            _disconnectedscreen.reset();
-            _disconnectedscreen.setActive(false);
-
-            _startscreen.reset();
-            _startscreen.setActive(true);
-            _status = START;
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _expectedPlayers = 0;
+                _disconnectedscreen.reset();
+                _disconnectedscreen.setActive(false);
+                
+                _startscreen.reset();
+                _startscreen.setActive(true);
+                _status = START;
+            }
             break;
         case DisconnectedScene::Choice::NONE:
             break;
@@ -696,5 +807,9 @@ void SSBApp::draw()
         break;
     default:
         break;
+    }
+    
+    if (_doTransition){
+        _transition.render();
     }
 }

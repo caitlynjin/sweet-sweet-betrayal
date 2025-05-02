@@ -218,16 +218,10 @@ void MovePhaseController::preUpdate(float dt) {
     {
         //_sound->playSound("jump");
     }
-
-    
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
-
-        /**If we created a wind object, create a bunch of raycasts.*/
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
             windUpdate(wind_cast, dt);
         }
-
-//        (*it)->update(dt);
     }
 
     // TODO: Segment into uiUpdate method
@@ -539,29 +533,17 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
         contact->SetEnabled(false);
         _movePhaseScene.getLocalPlayer()->setGrounded(false);
         if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y <= 0.4f) {
-            if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight()>= plat->getPlatformTop()) {
+            if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight() >= plat->getPlatformTop()) {
                 contact->SetEnabled(true);
                 _movePhaseScene.getLocalPlayer()->setGrounded(true);
             }
             else {
-                CULog("FAIL22");
+                _movePhaseScene.getLocalPlayer()->setGrounded(true);
             }
         }
         else {
-            CULog("fail1");
+            CULog("FAIL11");
         }
-       
-        /*if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y > 0.05f) {
-            contact->SetEnabled(false);
-            if (_movePhaseScene.getLocalPlayer()->getFeetHeight() + 0.02f < plat->getPlatformTop()) {
-                _movePhaseScene.getLocalPlayer()->setGrounded(false);
-            }
-        }
-        else if ((_movePhaseScene.getLocalPlayer()->getFeetHeight()< plat->getPlatformTop()) && 
-            _movePhaseScene.getLocalPlayer()->getLinearVelocity().y > -0.1f) {
-            contact->SetEnabled(false);
-            _movePhaseScene.getLocalPlayer()->setGrounded(false);
-        }*/
     }
 }
 

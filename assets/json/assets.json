@@ -216,9 +216,6 @@
         "background": {
             "file": "textures/backgrounds/background2.png"
         },
-        "host-join-background": {
-            "file": "textures/backgrounds/host-join-background.png"
-        },
         "button": {
             "file": "textures/button.png"
         },
@@ -313,7 +310,7 @@
             "file": "textures/treasure.png"
         },
         "treasure-sheet": {
-            "file": "textures/strawberry-sheet.png"
+            "file": "textures/strawberry-sheet32.png"
         },
         "back": {
             "file": "textures/buttons/back.png"
@@ -340,7 +337,7 @@
             "file": "textures/icon-wind.png"
         },
         "settingsbutton": {
-            "file": "textures/settingsbutton.png"
+            "file": "textures/buttons/settingsbutton.png"
         },
         "startbutton": {
             "file": "textures/buttons/startbutton.png"
@@ -363,9 +360,6 @@
        "button_restart": {
            "file": "textures/button_restart.png"
        },
-        "roomcode-background": {
-            "file": "textures/backgrounds/roomcode-background.png"
-        },
         "numpad": {
             "file": "textures/buttons/numpad.png"
         },
@@ -380,9 +374,6 @@
         },
         "button_ready": {
             "file": "textures/buttons/button_ready.png"
-        },
-        "lobby-background": {
-            "file": "textures/backgrounds/lobby-background.png"
         },
         "button_create": {
             "file": "textures/buttons/button_create.png"
@@ -461,9 +452,6 @@
         },
         "button_del": {
             "file": "textures/buttons/button_del.png"
-        },
-        "host-background": {
-            "file": "textures/backgrounds/host-background.png"
         },
         "greyglider": {
             "file": "textures/buttons/greyglider.png"
@@ -551,6 +539,21 @@
         },
         "disconnected-img": {
             "file": "textures/disconnected-img.png"
+        },
+        "players-title": {
+            "file": "textures/text/players-title.png"
+        },
+        "room-code-title": {
+            "file": "textures/text/room-code-title.png"
+        },
+        "bush-background": {
+            "file": "textures/backgrounds/bush-background.png"
+        },
+        "menu-title": {
+            "file": "textures/text/menu-title.png"
+        },
+        "join-title": {
+            "file": "textures/text/join-title.png"
         }
     },
     "jsons": {
@@ -636,6 +639,14 @@
         "yeasty flavorsRegular66.53518676757812": {
             "file": "fonts/YeastyFlavorsRegular-yweyd.ttf",
             "size": 66.53518676757812
+        },
+        "super carnivalRegular64": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 64
+        },
+        "super carnivalRegular68": {
+            "file": "fonts/SuperCarnival-j9Wq0.ttf",
+            "size": 68
         }
     },
     "widgets": {
