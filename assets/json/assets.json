@@ -684,6 +684,11 @@
         "placeItem": {
             "type": "sample",
             "file": "sounds/sfx_placeItem.wav",
+            "volume": 0.5
+        },
+        "bomb": {
+            "type": "sample",
+            "file": "sounds/sfx_bomb.wav",
             "volume":  0.5
         }
 
