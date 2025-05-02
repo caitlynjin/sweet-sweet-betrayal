@@ -327,33 +327,3 @@ void GridManager::deleteObject(std::shared_ptr<Object> obj) {
         obj = nullptr;
     }
 }
-
-/**
- * Get the objects to be bombed from this origin cell position.
- *
- * @param pos   the position the mango bomb is in
- * @return list of objects to be removed from the world
- */
-std::vector<std::shared_ptr<Object>> GridManager::objectsToBomb(Vec2 cellPos) {
-    std::vector<std::shared_ptr<Object>> objects;
-    // To ensure that there are no duplicate objects
-    std::unordered_set<Object*> seen;
-
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            if (i == 0 && j == 0) {
-                continue;
-            }
-
-            auto pos = Vec2(cellPos.x + i, cellPos.y + j);
-            auto obj = removeWorldObject(pos);
-
-            if (obj && seen.find(obj.get()) == seen.end()) {
-                objects.push_back(obj);
-                seen.insert(obj.get());
-            }
-        }
-    }
-
-    return objects;
-}

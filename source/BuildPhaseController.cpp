@@ -276,25 +276,6 @@ void BuildPhaseController::preUpdate(float dt) {
                         _gridManager->addMoveableObject(gridPos, obj);
 //                    }
 
-                    if (_selectedItem == BOMB) {
-                        // need to store objects in map of both moveable + nonmoveable objects
-                        // then use bombArea method to get the list of objects
-                        // then use removeObject to delete these objects
-//                        _network->getPhysController()->removeSharedObstacle(_selectedObject);
-//                        _objectController->removeObject(_selectedObject);
-//                        _gridManager->deleteObject(_selectedObject);
-
-                        // Get objects that need to be bombed
-                        std::vector<std::shared_ptr<Object>> objectsToBomb = _gridManager->objectsToBomb(gridPos);
-
-                        // Delete these objects
-                        CULog("Bombing %d objects", (int)objectsToBomb.size());
-                        for (std::shared_ptr<Object> obj : objectsToBomb) {
-//                            _network->getPhysController()->removeSharedObstacle(obj);
-//                            _networkController->removeObject(obj);
-//                            _gridManager->deleteObject(obj);
-                        }
-                    }
                     _itemsPlaced += 1;
 
                     // Update inventory UI

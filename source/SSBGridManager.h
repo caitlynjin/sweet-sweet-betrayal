@@ -182,14 +182,6 @@ public:
      * @param obj    the object
      */
     void deleteObject(std::shared_ptr<Object> obj);
-
-    /**
-     * Get the objects to be bombed from this origin cell position.
-     *
-     * @param pos   the position the mango bomb is in
-     * @return list of objects to be removed from the world
-     */
-    std::vector<std::shared_ptr<Object>> objectsToBomb(Vec2 cellPos);
 };
 
 #endif /* __SSB_GRID_MANAGER_H__ */
