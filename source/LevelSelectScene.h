@@ -59,7 +59,7 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _modalFrame;
     std::shared_ptr<scene2::PolygonNode> _levelImage;
     std::shared_ptr<scene2::PolygonNode> _levelName;
-    std::shared_ptr<cugl::scene2::Button> _startButton;
+    std::shared_ptr<cugl::scene2::Button> _playButton;
     std::shared_ptr<cugl::scene2::Button> _closeButton;
     
     // Modal assets

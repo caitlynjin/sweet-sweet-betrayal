@@ -86,9 +86,9 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _choice = Choice::NONE;
     
     // General level layout
-    _level1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.1st"));
-    _level2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.2nd"));
-    _level3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.3rd"));
+    _level1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x1"));
+    _level2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x2"));
+    _level3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x3"));
     _hostText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.hosttext"));
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.back"));
     
@@ -121,23 +121,29 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         }
     });
     
-    addChild(levelScene);
     
     
-    
-    std::shared_ptr<scene2::SceneNode> levelModal = _assets->get<scene2::SceneNode>("levelmodal");
-    levelModal->setContentSize(dimen);
-    levelModal->doLayout(); // Repositions the HUD
-    
-    _modalDarkener = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("levelmodal.modal.black-background"));
-    _modalFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("levelmodal.modal.modal"));
-    _levelImage = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("levelmodal.modal.placeholder-1"));
-    _levelName = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("levelmodal.modal.playground-text"));
+//    std::shared_ptr<scene2::SceneNode> levelModal = _assets->get<scene2::SceneNode>("levelmodal");
+//    levelModal->setContentSize(dimen);
+//    levelModal->doLayout(); // Repositions the HUD
+//    
+    _modalDarkener = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.black-background"));
+    _modalFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal"));
+    _levelImage = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.placeholder-1"));
+    _levelName = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.playground-text"));
 //    _startButton
-    _closeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("levelmodal.modal.modal-exit"));
-    
-    addChild(levelModal);
-    
+    _closeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.exit"));
+    _playButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.play"));
+//
+//    addChild(levelModal);
+    _modalDarkener->setVisible(true);
+    _modalFrame->setVisible(true);
+    _levelImage->setVisible(true);
+    _levelName->setVisible(true);
+    _closeButton->setVisible(true);
+    _playButton->setVisible(true);
+    levelScene->setVisible(true);
+    addChild(levelScene);
     setActive(false);
     return true;
 
