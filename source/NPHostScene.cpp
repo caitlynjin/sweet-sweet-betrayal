@@ -101,6 +101,14 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.back"));
     _gameid = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.room-code"));
     _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.players-no"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip1"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip2"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip3"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip4"));
+    
+    for (int i = 0; i < _tips.size(); ++i) {
+        _tips[i]->setVisible(i == 0);
+    }
     
     // Program the buttons
     _backout->addListener([this](const std::string& name, bool down) {
@@ -223,6 +231,13 @@ void HostScene::update(float timestep) {
      * Check for the status of `_network` (The NetworkController). If it is CONNECTED, you would need to update the scene nodes so that _gameId displays the id of the room (converted from hex to decimal) and _player displays the number of players. Additionally, you should check whether the `_startgame` button has been pressed and update its text. If it is not pressed yet, then its should display "Start Game" and be activated, otherwise, it should be deactivated and show "Starting".
      */
 #pragma mark BEGIN SOLUTION
+    _tipSwitchTimer += timestep;
+    if (_tipSwitchTimer >= _tipInterval) {
+        _tipSwitchTimer = 0.0f;
+        _tips[_currentTipIndex]->setVisible(false);
+        _currentTipIndex = (_currentTipIndex + 1) % _tips.size();
+        _tips[_currentTipIndex]->setVisible(true);
+    }
     if(_network->getStatus() == NetEventController::Status::CONNECTED){
         
         

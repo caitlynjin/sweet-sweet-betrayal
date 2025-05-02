@@ -78,7 +78,7 @@ public:
     
     bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound);
     
-    void update(float timestep);
+    void update(float timestep) override;
     
     virtual void setActive(bool value) override;
     

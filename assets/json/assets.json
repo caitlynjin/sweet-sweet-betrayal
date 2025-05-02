@@ -582,6 +582,15 @@
         "tip1": {
             "file": "textures/text/tip1.png"
         },
+        "tip2": {
+            "file": "textures/text/tip2.png"
+        },
+        "tip3": {
+            "file": "textures/text/tip3.png"
+        },
+        "tip4": {
+            "file": "textures/text/tip4.png"
+        },
         "quit": {
             "file": "textures/buttons/quit.png"
         },
