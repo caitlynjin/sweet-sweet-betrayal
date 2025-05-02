@@ -65,8 +65,13 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _joinbutton;
     /** The menu button for returning to the previous scene  */
     std::shared_ptr<cugl::scene2::Button> _backbutton;
+    /** The menu logo */
+    std::shared_ptr<scene2::PolygonNode> _text;
     /** The player menu choice */
     Choice _choice;
+    
+    float _textFloatTimer = 0.0f;
+    Vec2 _textBasePos;
 
 public:
 #pragma mark -
@@ -133,6 +138,8 @@ public:
      * @return the user's menu choice.
      */
     Choice getChoice() const { return _choice; }
+    
+    void update(float timestep) override;
 
 };
 

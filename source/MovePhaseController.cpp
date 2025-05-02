@@ -17,6 +17,7 @@
 #include "LevelModel.h"
 #include "ObjectController.h"
 #include "ScoreEvent.h"
+#include "GoalDoor.h"
 
 #include <ctime>
 #include <string>
@@ -359,6 +360,10 @@ void MovePhaseController::killPlayer(){
  Logic for when player reaches the goal
  */
 void MovePhaseController::reachedGoal(){
+    _reachedGoal = true;
+    if (_reachedGoal && !_animateGoal) {
+        (dynamic_pointer_cast<GoalDoor>(_movePhaseScene.getGoalDoor()))->setAnimating(true);
+    }
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     if (!player->getImmobile()){
         player->setImmobile(true);
@@ -391,7 +396,12 @@ void MovePhaseController::reachedGoal(){
  * @param value whether the level is in building mode.
  */
 void MovePhaseController::processModeChange(bool value) {
-
+    _reachedGoal = false;
+    _animateGoal = false;
+    if (value) {
+        (dynamic_pointer_cast<GoalDoor>(_movePhaseScene.getGoalDoor()))->setResetting(true);
+    }
+    
     _movePhaseScene.resetCameraPos();
     _uiScene.disableUI(value);
 
@@ -572,7 +582,31 @@ void MovePhaseController::beginContact(b2Contact *contact)
     physics2::Obstacle *bd1 = reinterpret_cast<physics2::Obstacle *>(body1->GetUserData().pointer);
     physics2::Obstacle *bd2 = reinterpret_cast<physics2::Obstacle *>(body2->GetUserData().pointer);
 
-    // Set grounded for all non-local players 
+    Object* obj1 = reinterpret_cast<Object*>(body1->GetUserData().pointer);
+    Object* obj2 = reinterpret_cast<Object*>(body2->GetUserData().pointer);
+
+    // Handle bomb object explosion
+    if (fix1->IsSensor() || fix2->IsSensor()) {
+        Bomb* bomb = nullptr;
+        Object* other = nullptr;
+
+        if (fix1->IsSensor()) {
+            bomb = dynamic_cast<Bomb*>(obj1);
+            other = obj2;
+        } else {
+            bomb = dynamic_cast<Bomb*>(obj2);
+            other = obj1;
+        }
+
+        if (bomb && other && !other->isRemoved()) {
+            CULog("Trigger bomb explosion");
+            _sound->playSound("bomb");
+            other->markRemoved(true);
+            other->dispose();
+        }
+    }
+
+    // Set grounded for all non-local players
     if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && player->getSensorName()) {
@@ -607,17 +641,21 @@ void MovePhaseController::beginContact(b2Contact *contact)
             //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
             // If we hit the "win" door, we are done
             if (bd2 == _movePhaseScene.getGoalDoor().get() || bd1 == _movePhaseScene.getGoalDoor().get()){
+                _animateGoal = _reachedGoal;
+                bool anim = _animateGoal;
                 reachedGoal();
             }
 
             // If we hit a spike, we are DEAD
             else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
                 killPlayer();
+                _sound->playSound("ow");
             }
 
             // If we hit a thorn, we are DEAD
             else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
                 killPlayer();
+                _sound->playSound("ow");
             }
 
             //Treasure Collection
@@ -660,6 +698,8 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 //bounce if we hit a mushroom
                 if (bd2->getName() == "mushroom" || bd1->getName() == "mushroom") {
                     if (_mushroomCooldown == 0) {
+                        _sound->playSound("mushroom_boing");
+
                         b2Body* playerBody = _movePhaseScene.getLocalPlayer()->getBody();
                         b2Vec2 newVelocity = playerBody->GetLinearVelocity();
                         newVelocity.y = 15.0f;
@@ -667,6 +707,14 @@ void MovePhaseController::beginContact(b2Contact *contact)
 
                         _mushroomCooldown = 10;
                         CULog("Mushroom bounce triggered; cooldown set to 10 frames.");
+                        physics2::Obstacle* obs = (bd2->getName()=="mushroom" ? bd2 : bd1);
+                        if (auto mush = dynamic_cast<Mushroom*>(obs)) {
+                            mush->triggerAnimation();
+                            auto bounceEvent = std::make_shared<MushroomBounceEvent>();
+                            bounceEvent = MushroomBounceEvent::allocMushroomBounceEvent(obs->getPosition());
+                            CULog("sending event");
+                            _network->pushOutEvent(bounceEvent);
+                        }
                     }
                 }
 
@@ -679,6 +727,31 @@ void MovePhaseController::beginContact(b2Contact *contact)
             }
         }
     
+}
+
+void MovePhaseController::setGoalDoorAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _spinSpriteNode = sprite;
+
+    _movePhaseScene.getGoalDoor()->setSceneNode(_spinSpriteNode);
+    _spinSpriteNode->setVisible(true);
+    //    _node->setScale(0.065f);
+
+    _goalDoorTimeline = ActionTimeline::alloc();
+
+    // Create the frame sequence
+    // For an 8x8 spritesheet
+    const int span = 32;
+
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animation
+    _spinAnimateSprite = AnimateSprite::alloc(forward);
+    _goalDoorAction = _spinAnimateSprite->attach<scene2::SpriteNode>(_spinSpriteNode);
 }
 
 /**

@@ -97,6 +97,10 @@
 #define WIND_LVL_2 "wind_blocked_at_3_spritesheet"
 #define WIND_LVL_3 "wind_blocked_at_4_spritesheet"
 #define WIND_LVL_4 "wind_unobstructed_spritesheet"
+/** The key for animated mushroom*/
+#define MUSHROOM_BOUNCE "mushroom_bounce_spritesheet"
+/** Name of the animated gliding log texture" */
+#define GLIDING_LOG_ANIMATED "gliding-log-spritesheet"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind icon*/
@@ -111,6 +115,12 @@
 #define THORN_TEXTURE "thorns_obstacle"
 /** The key for the inventory icon for the thorns */
 #define THORN_TILE_ICON "icon-thorn"
+/** The key for the bomb texture in the asset manager */
+#define BOMB_TEXTURE "bomb_obstacle"
+/** The key for the inventory icon for the mango bomb*/
+#define BOMB_ICON "icon-mango"
+/** The key for the animated bomb texture in the asset manager */
+#define BOMB_TEXTURE_ANIMATED "mango-explosion-spritesheet"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -336,6 +346,8 @@ namespace Constants {
         TILE_ITEM,
         /** A mushroom */
         MUSHROOM,
+        /** A bomb */
+        BOMB,
         /** An art object */
         ART_OBJECT,
 
@@ -346,6 +358,9 @@ namespace Constants {
         TILE_RIGHT,
         TILE_TOPLEFT,
         TILE_TOPRIGHT,
+        TILE_INSIDEFILLED,
+        TILE_INSIDELEFT,
+        TILE_INSIDERIGHT,
         CRACK_1,
         CRACK_2,
         CRACK_3,

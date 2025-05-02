@@ -78,6 +78,8 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     _hostbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.buttons.create"));
     _joinbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.buttons.join"));
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.back"));
+    _text = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("menu.menu-title"));
+    _textBasePos = _text->getPosition();
     
     // Program the buttons
     _hostbutton->addListener([this](const std::string& name, bool down) {
@@ -153,5 +155,15 @@ void MenuScene::setActive(bool value) {
     }
 }
 
+void MenuScene::update(float timestep) {
+    _textFloatTimer += timestep;
 
+    float floatAmplitude = 4.0f;
+    float floatSpeed = 7.0f;
 
+    float offsetY = floatAmplitude * std::sin(floatSpeed * _textFloatTimer);
+
+    if (_text != nullptr) {
+        _text->setPosition(_textBasePos.x, _textBasePos.y + offsetY);
+    }
+}
