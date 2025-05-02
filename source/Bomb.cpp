@@ -26,6 +26,9 @@ void Bomb::setPositionInit(const cugl::Vec2& position) {
 void Bomb::update(float timestep) {
     PolygonObstacle::update(timestep);
     updateAnimation(timestep);
+    if (!_timeline->isActive(ACT_KEY)) {
+        dispose();
+    }
 }
 
 string Bomb::getJsonKey() {
@@ -86,7 +89,6 @@ bool Bomb::init(const Vec2 pos, const Size size, string jsonType) {
 }
 
 void Bomb::updateAnimation(float timestep){
-    doStrip(_animAction, DURATION);
     _timeline->update(timestep);
 }
 
@@ -100,15 +102,15 @@ void Bomb::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite){
     const int nFrames = 14;
 
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 0; ii < nFrames; ii++) {
         forward.push_back(ii);
     }
-    // Loop back to beginning
-    forward.push_back(0);
 
     // Create animation
     _animSprite = AnimateSprite::alloc(forward);
     _animAction = _animSprite->attach<scene2::SpriteNode>(_animNode);
+
+    doStrip(_animAction, DURATION);
 }
 
 /**
@@ -118,12 +120,7 @@ void Bomb::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite){
  * @param slide  The associated movement slide
  */
 void Bomb::doStrip(cugl::ActionFunction action, float duration = DURATION) {
-
-    if (_timeline->isActive(ACT_KEY)) {
-        // NO OP
-    } else {
-        _timeline->add(ACT_KEY, action, duration);
-    }
+    _timeline->add(ACT_KEY, action, duration);
 }
 
 std::map<std::string, std::any> Bomb::getMap() {
