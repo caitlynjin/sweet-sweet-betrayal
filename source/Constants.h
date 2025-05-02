@@ -97,6 +97,10 @@
 #define WIND_LVL_2 "wind_blocked_at_3_spritesheet"
 #define WIND_LVL_3 "wind_blocked_at_4_spritesheet"
 #define WIND_LVL_4 "wind_unobstructed_spritesheet"
+/** The key for animated mushroom*/
+#define MUSHROOM_BOUNCE "mushroom_bounce_spritesheet"
+/** Name of the animated gliding log texture" */
+#define GLIDING_LOG_ANIMATED "gliding-log-spritesheet"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind icon*/
@@ -111,6 +115,12 @@
 #define THORN_TEXTURE "thorns_obstacle"
 /** The key for the inventory icon for the thorns */
 #define THORN_TILE_ICON "icon-thorn"
+/** The key for the bomb texture in the asset manager */
+#define BOMB_TEXTURE "bomb_obstacle"
+/** The key for the inventory icon for the mango bomb*/
+#define BOMB_ICON "icon-mango"
+/** The key for the animated bomb texture in the asset manager */
+#define BOMB_TEXTURE_ANIMATED "mango-explosion-spritesheet"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */
@@ -214,6 +224,10 @@
 #define MOSS2_TEXTURE "decoration-moss-2"
 #define ROCKY1_TEXTURE "decoration-rocky-1"
 #define ROCKY2_TEXTURE "decoration-rocky-2"
+#define SPIKE_UP_TEXTURE "spike-up"
+#define SPIKE_DOWN_TEXTURE "spike-down"
+#define SPIKE_LEFT_TEXTURE "spike-left"
+#define SPIKE_RIGHT_TEXTURE "spike-right"
 
 
 #pragma mark -
@@ -332,6 +346,8 @@ namespace Constants {
         TILE_ITEM,
         /** A mushroom */
         MUSHROOM,
+        /** A bomb */
+        BOMB,
         /** An art object */
         ART_OBJECT,
 
@@ -342,6 +358,9 @@ namespace Constants {
         TILE_RIGHT,
         TILE_TOPLEFT,
         TILE_TOPRIGHT,
+        TILE_INSIDEFILLED,
+        TILE_INSIDELEFT,
+        TILE_INSIDERIGHT,
         CRACK_1,
         CRACK_2,
         CRACK_3,
@@ -352,6 +371,11 @@ namespace Constants {
         MOSS_2,
         ROCKY_1,
         ROCKY_2,
+        SPIKE_UP,
+        SPIKE_DOWN,
+        SPIKE_LEFT,
+        SPIKE_RIGHT,
+        TORCH,
 
         /** No type */
         NONE
@@ -419,49 +443,11 @@ static std::map<std::string, int> jsonTypeToLayer {
     {"rocky2",1}
 };
 
-static std::map<std::string, std::string> jsonTypeToAsset
-{
-    {"default", EARTH_TEXTURE},
-    { "tileTop", TOP_TILE_TEXTURE },
-    {"tileBottom", BOTTOM_TILE_TEXTURE},
-    {"tileInner", INNER_TILE_TEXTURE},
-    {"tileLeft", LEFT_TILE_TEXTURE},
-    {"tileRight", RIGHT_TILE_TEXTURE},
-    {"tileTopLeft", TOPLEFT_TILE_TEXTURE},
-    {"tileTopRight", TOPRIGHT_TILE_TEXTURE},
-    {"crack1", CRACK1_TEXTURE},
-    {"crack2", CRACK2_TEXTURE},
-    {"crack3", CRACK3_TEXTURE},
-    {"crack4", CRACK4_TEXTURE},
-    {"crack5", CRACK5_TEXTURE},
-    {"crackLarge1", CRACKLARGE1_TEXTURE},
-    {"moss1", MOSS1_TEXTURE},
-    {"moss2", MOSS2_TEXTURE},
-    {"rocky1", ROCKY1_TEXTURE},
-    {"rocky2", ROCKY2_TEXTURE}
-};
+extern std::map<std::string, std::string> jsonTypeToAsset;
 
-static std::map<std::string, Item> jsonTypeToItemType
-{
-    {"default", Item::ART_OBJECT},
-    {"tileTop", Item::TILE_TOP},
-    {"tileBottom", Item::TILE_BOTTOM},
-    {"tileInner", Item::TILE_INNER},
-    {"tileLeft", Item::TILE_LEFT},
-    {"tileRight", Item::TILE_RIGHT},
-    {"tileTopLeft", Item::TILE_TOPLEFT},
-    {"tileTopRight", Item::TILE_TOPRIGHT},
-    {"crack1", Item::CRACK_1},
-    {"crack2", Item::CRACK_2},
-    {"crack3", Item::CRACK_3},
-    {"crack4", Item::CRACK_4},
-    {"crack5", Item::CRACK_5},
-    {"crackLarge1", Item::CRACK_LARGE_1},
-    {"moss1", Item::MOSS_1},
-    {"moss2", Item::MOSS_2},
-    {"rocky1", Item::ROCKY_1},
-    {"rocky2", Item::ROCKY_2}
-};
+extern std::map<std::string, Item> jsonTypeToItemType;
+
+extern std::map<Item, std::string> itemToAssetNameMap;
 
 /**
  Returns whether a tag contains the player keyword.

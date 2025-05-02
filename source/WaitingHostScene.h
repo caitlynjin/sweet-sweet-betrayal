@@ -54,6 +54,11 @@ protected:
     std::shared_ptr<cugl::scene2::SpriteNode> _waitSpriteNode;
     cugl::ActionFunction _waitAction;
     
+    std::vector<std::shared_ptr<cugl::scene2::SceneNode>> _tips;
+    int _currentTipIndex = 0;
+    float _tipSwitchTimer = 0.0f;
+    float _tipInterval = 3.0f;
+    
     /** The player menu choice */
     Choice _choice;
     

@@ -30,7 +30,18 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 	std::vector<std::string> soundNames = {
 		"glide", 
 		"button_click",
-		"move_phase"
+		"move_phase",
+		"jump",
+		"mushroom_boing",
+		"placeItem",
+		"yay",
+		"heeheehee",
+		"heehee",
+		"takethat",
+		"ow",
+		"aw",
+		"placeItem",
+		"bomb"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;
@@ -44,6 +55,7 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		// Come back to this
 	}
 	_musicQueue = AudioEngine::get()->getMusicQueue();
+	//_musicQueue->setVolume(0.8f);
 	return true;
 }
 

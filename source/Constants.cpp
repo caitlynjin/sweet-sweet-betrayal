@@ -7,6 +7,7 @@
 #include "Constants.h"
 #include <cugl/cugl.h>
 #include "string"
+#include "any"
 
 /** The key for the platform texture in the asset manager*/
 #define TILE_TEXTURE   "tile"
@@ -71,6 +72,8 @@ std::string itemToString(Item item) {
             return "tile";
         case MUSHROOM:
             return "mushroom";
+        case BOMB:
+            return "bomb";
         case ART_OBJECT:
             return "art object";
         default:
@@ -81,7 +84,7 @@ std::string itemToString(Item item) {
 /**
  * Gets the default size of this Item.
  */
-cugl::Size itemToSize(Item item) {
+cugl::Size itemToSize (Item item) {
     switch (item) {
         case PLATFORM:
             return cugl::Size(3, 1);
@@ -99,6 +102,8 @@ cugl::Size itemToSize(Item item) {
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
+        case BOMB:
+            return cugl::Size(1, 1);
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
@@ -130,6 +135,8 @@ cugl::Size itemToGridSize(Item item) {
             return cugl::Size(1, 1);
         case MUSHROOM:
             return cugl::Size(2, 1);
+        case BOMB:
+            return cugl::Size(1, 1);
         case ART_OBJECT:
             return cugl::Size(1, 1);
         case NONE:
@@ -164,6 +171,8 @@ std::string itemToAssetName(Item item) {
             return TILE_TEXTURE;
         case (MUSHROOM):
             return MUSHROOM_TEXTURE;
+        case (BOMB):
+            return BOMB_TEXTURE;
         case (ART_OBJECT):
             return EARTH_TEXTURE; // for debugging - this is not sustainable
         case (TILE_TOP):
@@ -200,7 +209,17 @@ std::string itemToAssetName(Item item) {
             return ROCKY1_TEXTURE;
         case (ROCKY_2):
             return ROCKY2_TEXTURE;
+        case (SPIKE_UP):
+            return SPIKE_UP_TEXTURE;
+        case (SPIKE_DOWN):
+            return SPIKE_DOWN_TEXTURE;
+        case (SPIKE_LEFT):
+            return SPIKE_LEFT_TEXTURE;
+        case (SPIKE_RIGHT):
+            return SPIKE_RIGHT_TEXTURE;
         case (NONE):
+            return nullptr;
+        default:
             return nullptr;
     }
 }

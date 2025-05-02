@@ -18,6 +18,7 @@
 #include "LevelModel.h"
 #include "ObjectController.h"
 #include "ArtObject.h"
+#include "GoalDoor.h"
 
 #include <ctime>
 #include <string>
@@ -63,6 +64,13 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
 std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile) {
     std::shared_ptr<Texture> image;
     image = _assets->get<Texture>(jsonTypeToAsset[tile->getJsonType()]);
+    std::string jsonTypeTemp = tile->getJsonType();
+    std::string jsonTypeTemp2 = jsonTypeToAsset[tile->getJsonType()];
+    //std::string jsonTypeTemp3 = jsonTypeToAsset[std::string("textures/") + std::string(tile->getJsonType())];
+    for (auto it = jsonTypeToAsset.begin(); it != jsonTypeToAsset.end(); ++it) {
+        CULog("abababa %s %s", (*it).first.c_str(), (*it).second.c_str());
+
+    }
 
     float blendingOffset = 0.01f;
 
@@ -153,9 +161,17 @@ std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, st
  */
 std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     CULog("creating moving platform");
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
+    return createMovingPlatform(plat);
+}
+
+std::shared_ptr<Object> ObjectController::createMovingPlatform(shared_ptr<Platform> plat){
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
+    std::shared_ptr<scene2::SpriteNode> glidingPlatSprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    plat->setPlatformAnimation(animNode, 15);
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
@@ -184,6 +200,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
 
     return plat;
 }
+
 /**
  * Creates a new spike.
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
@@ -197,7 +214,9 @@ std::shared_ptr<Object> ObjectController::createSpike(Vec2 pos, Size size, float
 
 std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk)
 {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(jsonTypeToAsset[spk->getJsonType()]);
+    std::string temp2 = spk->getJsonType();
+    std::string temp = jsonTypeToAsset[spk->getJsonType()];
 
     // Set the physics attributes
     spk->setBodyType(b2_staticBody);
@@ -221,19 +240,32 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType, bool isLevelEditorMode)
 {
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
-    return createWindObstacle(wind);
+    return createWindObstacle(wind, isLevelEditorMode);
 }
 
-std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
+std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind, bool isLevelEditorMode)
 {
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
+    std::shared_ptr<scene2::PolygonNode> staticSprite;
+    std::shared_ptr<scene2::SpriteNode> animNode;
 
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
-    wind->setFanAnimation(animNode, 4);
+    if (true) {
+        animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+        wind->setFanAnimation(animNode, 4);
+        wind->setSceneNode(animNode);
+        wind->setName("wind");
+    }
+    else {
+        staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
+        wind->setSceneNode(staticSprite);
+        wind->getSceneNode()->setVisible(true);
+        wind->setName("windLevelEditor");
+    }
+    
 
     /*auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
     auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 4);
@@ -262,13 +294,21 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
 
 std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure, bool isLevelEditorMode) {
     std::shared_ptr<scene2::PolygonNode> sprite;
-
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
-    _treasure->setAnimation(animNode);
+    std::shared_ptr<scene2::SpriteNode> animNode;
+    if (!isLevelEditorMode) {
+        animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
+        _treasure->setAnimation(animNode);
+        _treasure->setName("treasure");
+    }
+    else {
+        sprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>("treasure"));
+        _treasure->setSceneNode(sprite);
+        _treasure->setName("treasureLevelEditor");
+    }
 
     //    _treasure->setSceneNode(sprite);
     addObstacle(_treasure, _treasure->getSceneNode());
-    _treasure->setName("treasure");
+    
     _treasure->setDebugColor(Color4::YELLOW);
     _gameObjects->push_back(_treasure);
     if (!isLevelEditorMode) {
@@ -335,24 +375,32 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     return art;
 }
 
-std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
+std::shared_ptr<Object> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
-    std::shared_ptr<scene2::PolygonNode> sprite;
+    std::shared_ptr<scene2::SpriteNode> sprite;
+
+
+
+    sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("goal-spritesheet"), 1, 5, 5);
+    
 
     _goalPos = goalPos;
 
     Size goalSize(image->getSize().width / _scale, image->getSize().height / _scale);
     
-    std::shared_ptr<physics2::BoxObstacle> goalDoor = physics2::BoxObstacle::alloc(goalPos, goalSize);
+    std::shared_ptr<GoalDoor> goalDoor = GoalDoor::alloc(goalPos, goalSize, _scale);
+
+    goalDoor->setAnimation(sprite);
 
     goalDoor->setBodyType(b2_staticBody);
     goalDoor->setDensity(0.0f);
     goalDoor->setFriction(0.0f);
     goalDoor->setRestitution(0.0f);
     goalDoor->setSensor(true);
+    goalDoor->setName("goalDoor");
 
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    sprite->setColor(Color4(1, 255, 0));  // Greenish color
+    //sprite = scene2::PolygonNode::allocWithTexture(image);
+    //sprite->setColor(Color4(1, 255, 0));  // Greenish color
     goalDoor->setDebugColor(DEBUG_COLOR);
 
     addObstacle(goalDoor, sprite);
@@ -429,12 +477,12 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
 void ObjectController::removeObject(std::shared_ptr<Object> object){
     auto it = std::find(_gameObjects->begin(), _gameObjects->end(), object);
 
-        // Check if the element was found
+    // Check if the element was found
     if (it != _gameObjects->end()) {
-            // Calculate the index by subtracting the beginning iterator
+        // Calculate the index by subtracting the beginning iterator
         int index = static_cast<int>(std::distance(_gameObjects->begin(), it));
         _gameObjects->erase(_gameObjects->begin() + index);
-        }
+    }
 }
 
 /**

@@ -33,9 +33,9 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Constants
 /** List of all inventory items that are placeable */
-std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM };
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM, BOMB };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON };
+std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON, BOMB_ICON };
 
 
 #pragma mark -
@@ -118,7 +118,7 @@ void BuildPhaseController::preUpdate(float dt) {
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
     
-    CULog("Number players: %d", _network->getNumPlayers());
+//    CULog("Number players: %d", _network->getNumPlayers());
 
     _uiScene.preUpdate(dt);
 
@@ -268,11 +268,14 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
                 if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
-                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addMoveableObject(gridPos, obj);
+                        std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+
+                    if (_selectedItem != BOMB) {
+                        _gridManager->addMoveableObject(gridPos, obj);
+                    }
 
                     _itemsPlaced += 1;
 
@@ -437,6 +440,7 @@ void BuildPhaseController::addInvButtonListeners() {
  */
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     shared_ptr<Object> obj;
+    _sound->playSound("placeItem");
     switch (item) {
         case (PLATFORM):
             return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
@@ -452,7 +456,9 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (THORN):
             return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
-            return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+            return _networkController->createMushroomNetworked(gridPos - itemToSize(item) * 0.5f, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+        case (BOMB):
+            return _networkController->createBombNetworked(gridPos, itemToSize(item));
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

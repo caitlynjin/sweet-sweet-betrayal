@@ -55,6 +55,7 @@ bool Spike::init(const Vec2 pos, const Size size, float scale, float angle, stri
     _spikeTexture = "";
     _drawScale = scale;
     _position = pos;
+    _jsonType = jsonType;
     _itemType = Item::SPIKE;
     _size = size;
     _angle = angle;

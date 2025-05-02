@@ -47,7 +47,7 @@ protected:
     /** Reference to the debug root of the scene graph */
     std::shared_ptr<scene2::SceneNode> _debugnode;
     /** Reference to the goalDoor (for collision detection) */
-    std::shared_ptr<physics2::BoxObstacle>    _goalDoor;
+    std::shared_ptr<Object>    _goalDoor;
     /** Reference to the local player */
     std::shared_ptr<PlayerModel> _localPlayer;
     /** Reference to the treasure */
@@ -159,7 +159,7 @@ public:
     /**
      * Gets the goal door
      */
-    std::shared_ptr<physics2::BoxObstacle> getGoalDoor() { return _goalDoor; };
+    std::shared_ptr<Object> getGoalDoor() { return _goalDoor; };
 
 #pragma mark -
 #pragma mark Helpers
