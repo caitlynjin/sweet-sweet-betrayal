@@ -176,6 +176,9 @@
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
         },
+        "gliding-log-spritesheet": {
+            "file":      "textures/gliding-log-spritesheet.png"
+        },
         "dpad": {
             "file": "textures/dpad.png",
             "wrapS": "clamp",

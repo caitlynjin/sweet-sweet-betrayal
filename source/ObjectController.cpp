@@ -160,9 +160,17 @@ std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, st
  */
 std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     CULog("creating moving platform");
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
+    return createMovingPlatform(plat);
+}
+
+std::shared_ptr<Object> ObjectController::createMovingPlatform(shared_ptr<Platform> plat){
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
+    std::shared_ptr<scene2::SpriteNode> glidingPlatSprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    plat->setPlatformAnimation(animNode, 15);
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
@@ -191,6 +199,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
 
     return plat;
 }
+
 /**
  * Creates a new spike.
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
