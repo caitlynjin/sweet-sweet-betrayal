@@ -115,6 +115,8 @@
 #define BOMB_TEXTURE "bomb_obstacle"
 /** The key for the inventory icon for the mango bomb*/
 #define BOMB_ICON "icon-mango"
+/** The key for the animated bomb texture in the asset manager */
+#define BOMB_TEXTURE_ANIMATED "mango-explosion-spritesheet"
 /** The key for the win door texture in the asset manager */
 #define GOAL_TEXTURE    "goal"
 /** The key for the background texture in the asset manager */

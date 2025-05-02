@@ -97,8 +97,7 @@ void Bomb::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite){
     _timeline = ActionTimeline::alloc();
 
     // Create the frame sequence
-    // For an 8x8 spritesheet
-    const int nFrames = 32;
+    const int nFrames = 14;
 
     std::vector<int> forward;
     for (int ii = 1; ii < nFrames; ii++) {

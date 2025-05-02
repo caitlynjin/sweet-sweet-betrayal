@@ -1172,10 +1172,10 @@ BombFactory::createObstacle(Vec2 pos, Size size) {
     bomb->setDebugColor(DEBUG_COLOR);
     bomb->setShared(true);
 
-    std::shared_ptr<scene2::PolygonNode> sprite = scene2::PolygonNode::allocWithTexture(texture);
-    bomb->setSceneNode(sprite);
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE_ANIMATED), 1, 14, 14);
+    bomb->setAnimation(animNode);
 
-    return std::make_pair(bomb, sprite);
+    return std::make_pair(bomb, bomb->getSceneNode());
 }
 
 

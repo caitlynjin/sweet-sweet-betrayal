@@ -606,8 +606,9 @@ void MovePhaseController::beginContact(b2Contact *contact)
             other = obj1;
         }
 
-        if (bomb && other) {
+        if (bomb && other && !other->isRemoved()) {
             CULog("Trigger bomb explosion");
+            other->markRemoved(true);
             other->dispose();
         }
     }

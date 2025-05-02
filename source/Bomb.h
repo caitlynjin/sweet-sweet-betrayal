@@ -10,7 +10,7 @@
 #include <cugl/cugl.h>
 #include "Object.h"
 
-#define DURATION 4.0f
+#define DURATION 1.0f
 #define ACT_KEY  "current"
 
 using namespace cugl;
@@ -72,6 +72,31 @@ public:
     bool init(const Vec2 pos, const Size size);
 
     bool init(const Vec2 pos, const Size size, string jsonType);
+
+    /**
+     * Returns the scene graph node representing this Treasure.
+     *
+     * By storing a reference to the scene graph node, the model can update
+     * the node to be in sync with the physics info. It does this via the
+     * {@link Obstacle#update(float)} method.
+     *
+     * @return the scene graph node representing this PlayerModel.
+     */
+    const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _sceneNode; }
+
+    /**
+     * Sets the scene graph node representing this Treasure.
+     *
+     * By storing a reference to the scene graph node, the model can update
+     * the node to be in sync with the physics info. It does this via the
+     * {@link Obstacle#update(float)} method.
+     *
+     * @param node  The scene graph node representing this PlayerModel, which has been added to the world node already.
+     */
+    void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
+        _sceneNode = node;
+        _sceneNode->setPosition(getPositionInit());
+    }
 
     void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
 

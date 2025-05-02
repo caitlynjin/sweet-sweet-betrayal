@@ -119,6 +119,9 @@
         "bomb_obstacle": {
             "file": "textures/bomb-obstacle.png"
         },
+        "mango-explosion-spritesheet": {
+            "file": "textures/mango-explosion-spritesheet.png"
+        },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
         },
