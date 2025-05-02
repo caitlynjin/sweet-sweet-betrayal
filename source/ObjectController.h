@@ -143,7 +143,7 @@ public:
     std::shared_ptr<Object> createArtObject(Vec2 pos, Size size, float scale, float angle, string jsonType);
 
     /**creates teh goal door**/
-    std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);
+    std::shared_ptr<Object> createGoalDoor(Vec2 goalPos);
     /**
      * Adds the physics object to the physics world and loosely couples it to the scene graph
      *

@@ -18,6 +18,7 @@
 #include "LevelModel.h"
 #include "ObjectController.h"
 #include "ArtObject.h"
+#include "GoalDoor.h"
 
 #include <ctime>
 #include <string>
@@ -365,24 +366,32 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     return art;
 }
 
-std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
+std::shared_ptr<Object> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
-    std::shared_ptr<scene2::PolygonNode> sprite;
+    std::shared_ptr<scene2::SpriteNode> sprite;
+
+
+
+    sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("goal-spritesheet"), 1, 5, 5);
+    
 
     _goalPos = goalPos;
 
     Size goalSize(image->getSize().width / _scale, image->getSize().height / _scale);
     
-    std::shared_ptr<physics2::BoxObstacle> goalDoor = physics2::BoxObstacle::alloc(goalPos, goalSize);
+    std::shared_ptr<GoalDoor> goalDoor = GoalDoor::alloc(goalPos, goalSize, _scale);
+
+    goalDoor->setAnimation(sprite);
 
     goalDoor->setBodyType(b2_staticBody);
     goalDoor->setDensity(0.0f);
     goalDoor->setFriction(0.0f);
     goalDoor->setRestitution(0.0f);
     goalDoor->setSensor(true);
+    goalDoor->setName("goalDoor");
 
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    sprite->setColor(Color4(1, 255, 0));  // Greenish color
+    //sprite = scene2::PolygonNode::allocWithTexture(image);
+    //sprite->setColor(Color4(1, 255, 0));  // Greenish color
     goalDoor->setDebugColor(DEBUG_COLOR);
 
     addObstacle(goalDoor, sprite);

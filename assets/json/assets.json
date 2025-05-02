@@ -45,6 +45,21 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "tile-inside-right": {
+            "file": "textures/1x1-inside-right.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-inside-left": {
+            "file": "textures/1x1-inside-left.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-inside-filled": {
+            "file": "textures/1x1-inside-filled.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "decoration-crack-1": {
             "file": "textures/decorations/decoration-crack-1.png",
             "wrapS": "repeat",
@@ -172,6 +187,9 @@
         },
         "wind_unobstructed_spritesheet": {
             "file": "textures/wind-unobstructed-spritesheet.png"
+        },
+        "goal-spritesheet": {
+            "file": "textures/goal.png"
         },
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
@@ -625,8 +643,13 @@
             "type": "sample",
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
-            "volume":  0.5
+            "volume": 0.5
 
+        },
+        "mushroom_boing": {
+            "type": "sample",
+            "file": "sounds/mushroom_boing.wav",
+            "volume":  0.5
         }
     },
     "fonts": {
