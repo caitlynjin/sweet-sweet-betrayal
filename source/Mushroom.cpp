@@ -6,7 +6,7 @@ using namespace cugl::graphics;
 
 void Mushroom::setPositionInit(const Vec2 &position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size * 0.5f);
+    PolygonObstacle::setPosition(position + _size/2);
 }
 
 void Mushroom::dispose() {
@@ -20,7 +20,6 @@ bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
     _drawScale = scale;
     _itemType = Item::MUSHROOM;
 
-    // Define pickup region
     PolyFactory factory;
     Poly2 rect = factory.makeRect(
         Vec2(-size.width * 0.4f, -size.height * 0.5f),
@@ -67,23 +66,19 @@ void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
 
 void Mushroom::updateAnimation(float dt) {
     if (!_shouldAnimate) {
-        // sit on frame 0 when not animating
         _mushroomSpriteNode->setFrame(0);
         return;
     }
 
-    // start (or restart) the action if it’s not already running
+    // start action if it’s not already running
     if (!_mushroomTimeline->isActive("current")) {
         _mushroomTimeline->add("current", _mushroomAction, 1.0f);
     }
-
-    // advance the timeline
     _mushroomTimeline->update(dt);
 
-    // if after updating it's no longer active, one cycle just finished:
+    // only plays one cycle and sets back to frame 0
     if (!_mushroomTimeline->isActive("current")) {
         _shouldAnimate = false;
-        // reset to frame 0 if you like
         _mushroomSpriteNode->setFrame(0);
     }
 }
