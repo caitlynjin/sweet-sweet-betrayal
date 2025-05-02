@@ -465,8 +465,6 @@ void ObjectController::removeObject(std::shared_ptr<Object> object){
         int index = static_cast<int>(std::distance(_gameObjects->begin(), it));
         _gameObjects->erase(_gameObjects->begin() + index);
     }
-
-//    object->dispose();
 }
 
 /**
