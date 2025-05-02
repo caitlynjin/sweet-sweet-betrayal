@@ -302,11 +302,9 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     }
     for (auto& player : _networkController->getPlayerList()){
         if (player->getName() == "playerRed" && player->getReady()){
-            CULog("Red Ready");
             _checkmarkMap[_redIcon]->setVisible(true);
         }
         if (player->getName() == "playerBlue" && player->getReady()){
-            CULog("Blue Ready");
             _checkmarkMap[_blueIcon]->setVisible(true);
         }
         if (player->getName() == "playerGreen" && player->getReady()){
