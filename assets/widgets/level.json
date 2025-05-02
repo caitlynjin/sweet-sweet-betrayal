@@ -1,0 +1,258 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                1306,
+                576
+            ],
+            "angle": 0,
+            "position": [
+                0,
+                0
+            ],
+            "visible": true
+        },
+        "children": {
+            "mapbackground": {
+                "type": "Image",
+                "data": {
+                    "texture": "mapbackground",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        1306,
+                        576
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        0
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": 0,
+                    "y_offset": 0
+                }
+            },
+            "1st": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        292.36,
+                        250.74
+                    ],
+                    "angle": 0,
+                    "position": [
+                        86,
+                        272.26
+                    ],
+                    "visible": true,
+                    "upnode": "level-icon"
+                },
+                "children": {
+                    "level-icon": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "level-icon",
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                269.54,
+                                236.64
+                            ],
+                            "angle": 0,
+                            "position": [
+                                11.09,
+                                7.05
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "center",
+                            "y_anchor": "middle",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.32,
+                    "y_offset": 0.19
+                }
+            },
+            "2nd": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        292.36,
+                        250.74
+                    ],
+                    "angle": 0,
+                    "position": [
+                        451.1,
+                        0.26
+                    ],
+                    "visible": true,
+                    "upnode": "level-icon"
+                },
+                "children": {
+                    "level-icon": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "level-icon",
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                269.54,
+                                236.64
+                            ],
+                            "angle": 0,
+                            "position": [
+                                11.09,
+                                7.05
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "center",
+                            "y_anchor": "middle",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.04,
+                    "y_offset": -0.28
+                }
+            },
+            "3rd": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        292.36,
+                        250.74
+                    ],
+                    "angle": 0,
+                    "position": [
+                        816,
+                        227.26
+                    ],
+                    "visible": true,
+                    "upnode": "level-icon"
+                },
+                "children": {
+                    "level-icon": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "level-icon",
+                            "anchor": [
+                                0.5,
+                                0.5
+                            ],
+                            "size": [
+                                269.54,
+                                236.64
+                            ],
+                            "angle": 0,
+                            "position": [
+                                11.09,
+                                7.05
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "center",
+                            "y_anchor": "middle",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": 0.24,
+                    "y_offset": 0.11
+                }
+            },
+            "hosttext": {
+                "type": "Image",
+                "data": {
+                    "texture": "hosttext",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        815.88,
+                        174.22
+                    ],
+                    "angle": 0,
+                    "position": [
+                        0,
+                        0
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": 0.24,
+                    "y_offset": 0.11
+                }
+            }
+        }
+    }
+}
