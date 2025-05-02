@@ -45,6 +45,21 @@
             "wrapS": "repeat",
             "wrapT": "repeat"
         },
+        "tile-inside-right": {
+            "file": "textures/1x1-inside-right.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-inside-left": {
+            "file": "textures/1x1-inside-left.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
+        "tile-inside-filled": {
+            "file": "textures/1x1-inside-filled.png",
+            "wrapS": "repeat",
+            "wrapT": "repeat"
+        },
         "decoration-crack-1": {
             "file": "textures/decorations/decoration-crack-1.png",
             "wrapS": "repeat",
@@ -179,8 +194,17 @@
         "wind_unobstructed_spritesheet": {
             "file": "textures/wind-unobstructed-spritesheet.png"
         },
+        "goal-spritesheet": {
+            "file": "textures/goal.png"
+        },
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
+        },
+        "gliding-log-spritesheet": {
+            "file":      "textures/gliding-log-spritesheet.png"
+        },
+        "mushroom_bounce_spritesheet": {
+            "file":  "textures/bounce-spritesheet.png"
         },
         "dpad": {
             "file": "textures/dpad.png",
@@ -634,9 +658,55 @@
             "type": "sample",
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
-            "volume":  0.5
+            "volume": 0.5
 
+        },
+        "mushroom_boing": {
+            "type": "sample",
+            "file": "sounds/mushroom_boing.wav",
+            "volume": 0.5
+        },
+        "yay": {
+            "type": "sample",
+            "file": "sounds/sfx_yay.wav",
+            "volume": 0.5
+        },
+        "ow": {
+            "type": "sample",
+            "file": "sounds/sfx_ow.wav",
+            "volume": 0.5
+        },
+        "aw": {
+            "type": "sample",
+            "file": "sounds/sfx_aw.wav",
+            "volume": 0.5
+        },
+        "heeheehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heeheehee.wav",
+            "volume": 0.5
+        },
+        "heehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heehee.wav",
+            "volume": 0.5
+        },
+        "takethat": {
+            "type": "sample",
+            "file": "sounds/sfx_takethat.wav",
+            "volume": 0.5
+        },
+        "placeItem": {
+            "type": "sample",
+            "file": "sounds/sfx_placeItem.wav",
+            "volume": 0.5
+        },
+        "bomb": {
+            "type": "sample",
+            "file": "sounds/sfx_bomb.wav",
+            "volume":  0.5
         }
+
     },
     "fonts": {
         "retro": {

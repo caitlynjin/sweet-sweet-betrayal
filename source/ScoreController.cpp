@@ -143,7 +143,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     bar_position = Vec2(size_width * 0.55f, size_height * 0.8f);
     glider_position = Vec2(size_width * 0.22f, size_height * 0.8f);
     offset_betw_points = Vec2(size_width * 0.05f, 0);
-    offset_betw_players = Vec2(0, -size_height * 0.2f);
+    offset_betw_players = Vec2(0, -size_height * 0.18f);
 
     _playerList = playerList;
     

@@ -97,6 +97,10 @@
 #define WIND_LVL_2 "wind_blocked_at_3_spritesheet"
 #define WIND_LVL_3 "wind_blocked_at_4_spritesheet"
 #define WIND_LVL_4 "wind_unobstructed_spritesheet"
+/** The key for animated mushroom*/
+#define MUSHROOM_BOUNCE "mushroom_bounce_spritesheet"
+/** Name of the animated gliding log texture" */
+#define GLIDING_LOG_ANIMATED "gliding-log-spritesheet"
 /** The key for the inventory icon for the gliding log */
 #define GLIDING_LOG_ICON   "icon-moving-log"
 /** Name of the wind icon*/
@@ -354,6 +358,9 @@ namespace Constants {
         TILE_RIGHT,
         TILE_TOPLEFT,
         TILE_TOPRIGHT,
+        TILE_INSIDEFILLED,
+        TILE_INSIDELEFT,
+        TILE_INSIDERIGHT,
         CRACK_1,
         CRACK_2,
         CRACK_3,
