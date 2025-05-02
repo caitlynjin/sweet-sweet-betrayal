@@ -152,7 +152,6 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
 
 
         // Gameplay attributes
-        _isJumping = false;
         _faceRight = true;
         _jumpCooldown = 0;
         _glideDelay = 0.2;
@@ -741,14 +740,12 @@ void PlayerModel::handlePlayerState() {
 
     switch (_state) {
     case State::GROUNDED:
-        if (_holdingJump) {
+        CULog("Grounded");
+        if (_holdingJump and _bufferTimer < JUMP_BUFFER_DURATION) {
             _state = State::MIDDAIR;
-        }
-        // Jump! Jump only on the ground
-        if (isJumping() or _bufferTimer < JUMP_BUFFER_DURATION)
-        {
             _jumpImpulse = true;
         }
+        
         break;
     case State::GLIDING:
 
@@ -757,6 +754,7 @@ void PlayerModel::handlePlayerState() {
         }
         break;
     case State::MIDDAIR:
+        CULog("Middair");
         if (_enterAutoGlide) {
             _state = State::GLIDING;
         }
@@ -775,6 +773,7 @@ void PlayerModel::handlePlayerState() {
         CULog("Unknown player state");
         break;
     }
+    
 
     _enterAutoGlide = false;
     _undetectGround = false;

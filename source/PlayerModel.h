@@ -135,9 +135,6 @@ protected:
     //Returns whether or not we have just flipped our character from left to right this update frame.
     bool _justFlipped = false;
 
-    /** Whether we are actively jumping */
-    bool _isJumping;
-
 	/** The current horizontal movement of the character */
 	float _movement;
 	/** Which direction is the character facing */
@@ -583,12 +580,6 @@ public:
     Applies a certain amount of wind velocity to the player
     */
     void addWind(Vec2 wind) { _windvel.operator+=(wind); };
-    /**
-     * Returns true if the dude is actively jumping.
-     *
-     * @return true if the dude is actively jumping.
-     */
-    bool isJumping() const { return _isJumping && _jumpCooldown <= 0; }
     //Grounded Impulse
     void setDetectedGround() { _detectedGround = true; }
     void undetectGround() { _undetectGround = true; }
