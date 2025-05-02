@@ -359,20 +359,18 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _bottomFrame->setVisible(value);
     _leftFrame->setVisible(value);
     _timerFrame->setVisible(value);
-    for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
-        for (auto& player : _networkController->getPlayerList()){
-            if (player->getName() == "playerRed" && player->getReady()){
-                _checkmarkMap[_redIcon]->setVisible(false);
-            }
-            if (player->getName() == "playerBlue" && player->getReady()){
-                _checkmarkMap[_blueIcon]->setVisible(false);
-            }
-            if (player->getName() == "playerGreen" && player->getReady()){
-                _checkmarkMap[_greenIcon]->setVisible(false);
-            }
-            if (player->getName() == "playerYellow" && player->getReady()){
-                _checkmarkMap[_yellowIcon]->setVisible(false);
-            }
+    for (auto& player : _networkController->getPlayerList()){
+        if (player->getName() == "playerRed"){
+            _checkmarkMap[_redIcon]->setVisible(false);
+        }
+        if (player->getName() == "playerBlue"){
+            _checkmarkMap[_blueIcon]->setVisible(false);
+        }
+        if (player->getName() == "playerGreen"){
+            _checkmarkMap[_greenIcon]->setVisible(false);
+        }
+        if (player->getName() == "playerYellow"){
+            _checkmarkMap[_yellowIcon]->setVisible(false);
         }
     }
 

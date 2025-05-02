@@ -346,7 +346,7 @@ void NetworkController::processReadyEvent(const std::shared_ptr<ReadyEvent>& eve
     for (auto player : _playerList){
         if (player->getColor() == color){
             player->setReady(ready);
-            CULog("%d", player->getReady());
+            CULog("Ready: %d", player->getReady());
         }
     }
 }
