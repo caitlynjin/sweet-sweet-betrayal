@@ -527,7 +527,24 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
     physics2::Obstacle* bd2 = reinterpret_cast<physics2::Obstacle*>(body2->GetUserData().pointer);
 
     Platform* plat = nullptr;
-   
+
+    Object* obj1 = reinterpret_cast<Object*>(contact->GetFixtureA()->GetBody()->GetUserData().pointer);
+    Object* obj2 = reinterpret_cast<Object*>(contact->GetFixtureB()->GetBody()->GetUserData().pointer);
+
+    bool isWind1 = dynamic_cast<WindObstacle*>(obj1) != nullptr;
+    bool isWind2 = dynamic_cast<WindObstacle*>(obj2) != nullptr;
+    // If one of the objects is wind, prevent collision (stops player from colliding with fan WITHOUT wind being a sensor)
+    if (isWind1 || isWind2) {
+        contact->SetEnabled(false);
+    }
+
+    bool isMushroom1 = dynamic_cast<Mushroom*>(obj1) != nullptr;
+    bool isMushroom2 = dynamic_cast<Mushroom*>(obj2) != nullptr;
+    // Disables player - mushroom collision (makes it passthrough)
+    if (isMushroom1 || isMushroom2) {
+        contact->SetEnabled(false);
+    }
+
     if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
         if (bd2->getName() == "platform" || bd2->getName() == "movingPlatform") {
             plat = dynamic_cast<Platform*>(bd2);
