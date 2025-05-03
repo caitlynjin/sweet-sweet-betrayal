@@ -94,6 +94,8 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _hostText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.hosttext"));
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.back"));
     
+    _level2->setColor(Color4::GRAY);
+    _level3->setColor(Color4::GRAY);
     
     // modal buttons and assets
     
@@ -214,7 +216,10 @@ void LevelSelectScene::setActive(bool value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
-            _level1->activate();
+            if (_networkController->getIsHost()){
+                _level1->activate();
+            }
+            
 //            _level2->activate();
 //            _level3->activate();
             _backbutton->activate();
