@@ -258,6 +258,15 @@ void NetworkController::resetRound(){
     _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
 }
 
+/**
+ * Makes players unready
+ */
+void NetworkController::playersUnready(){
+    for (auto& player : _playerList){
+        _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), player->getColor(), false));
+    }
+}
+
 
 #pragma mark -
 #pragma mark Process Network Events

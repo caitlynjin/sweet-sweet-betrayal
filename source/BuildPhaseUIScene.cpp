@@ -378,6 +378,9 @@ void BuildPhaseUIScene::setVisible(bool value) {
         _timer->setText(std::to_string(BUILD_TIME));
         _startTime = Application::get()->getEllapsedMicros();
     }
+    else{
+        _networkController->playersUnready();
+    }
 }
 
 /**
