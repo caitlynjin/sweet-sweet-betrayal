@@ -240,7 +240,6 @@ void NetworkController::reset(){
     
     // Reset network in-game variables
     _numReady = 0;
-    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
     _numReset = 0;
     resetTreasureRandom();
     _readyMessageSent = false;
@@ -255,7 +254,6 @@ void NetworkController::reset(){
 void NetworkController::resetRound(){
     _numReady = 0;
     _numReset = 0;
-    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
 }
 
 /**
