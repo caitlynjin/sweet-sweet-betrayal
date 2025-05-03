@@ -62,25 +62,13 @@ bool Bomb::init(const Vec2 pos, const Size size, string jsonType) {
     _position = pos;
 
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
+    Poly2 rect = factory.makeRect(Vec2(-1.25f, -1.25f), Size(2.5f, 2.5f)); // Center offset for bomb radius of size 2.5x2.5
 
     if (PolygonObstacle::init(rect)){
         setPosition(pos + size/2);
+
+        // For bomb radius
         setSensor(true);
-
-        // Create bomb radius sensor
-        b2PolygonShape sensorBox;
-        sensorBox.SetAsBox(3.0f, 3.0f);
-
-        b2FixtureDef sensorDef;
-        sensorDef.shape = &sensorBox;
-        sensorDef.isSensor = true;
-        sensorDef.userData.pointer = reinterpret_cast<uintptr_t>(this);
-
-        // Attach the sensor to the body
-        if (_body != nullptr) {
-            _body->CreateFixture(&sensorDef);
-        }
 
         return true;
     }

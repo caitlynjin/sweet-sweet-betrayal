@@ -286,6 +286,38 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     return wind;
 }
 
+/**
+* Creates a new bomb.
+*
+* @return the bomb
+*
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+std::shared_ptr<Object> ObjectController::createBomb(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode) {
+    std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size, jsonType);
+    return createBomb(bomb, isLevelEditorMode);
+}
+
+std::shared_ptr<Object> ObjectController::createBomb(std::shared_ptr<Bomb> bomb, bool isLevelEditorMode) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+
+    bomb->setBodyType(b2_dynamicBody);
+    bomb->setDensity(BASIC_DENSITY);
+    bomb->setFriction(BASIC_FRICTION);
+    bomb->setRestitution(BASIC_RESTITUTION);
+    bomb->setName("bomb");
+    bomb->setDebugColor(DEBUG_COLOR);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE_ANIMATED), 1, 14, 14);
+    bomb->setAnimation(animNode);
+
+    addObstacle(bomb, bomb->getSceneNode());
+    _gameObjects->push_back(bomb);
+
+    return bomb;
+}
+
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType, bool isLevelEditorMode){
     std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
     std::shared_ptr<Treasure> treas = Treasure::alloc(pos, image->getSize() / _scale, _scale);
