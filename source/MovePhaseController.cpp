@@ -94,6 +94,9 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _complete = false;
     setDebug(false);
 
+    // Set the players inivisible at the start
+    _networkController->getLocalPlayer()->setVisible(false);
+
     return true;
 };
 
@@ -400,6 +403,7 @@ void MovePhaseController::processModeChange(bool value) {
     _animateGoal = false;
     if (value) {
         (dynamic_pointer_cast<GoalDoor>(_movePhaseScene.getGoalDoor()))->setResetting(true);
+        _networkController->getLocalPlayer()->setVisible(false);
     }
     
     _movePhaseScene.resetCameraPos();
