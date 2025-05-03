@@ -92,12 +92,11 @@ public:
     void updateAnimation(float timestep);
 
     std::shared_ptr<cugl::ActionTimeline> _platTimeline;
-    std::shared_ptr<scene2::SceneNode> _node;
     std::shared_ptr<cugl::scene2::SpriteNode> _platSpriteNode;
     std::shared_ptr<AnimateSprite> _platAnimateSprite;
     cugl::ActionFunction _platAction;
 
-    const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _node; }
+    const std::shared_ptr<scene2::SceneNode>& getSceneNode() const { return _sceneNode; }
 };
 
 
