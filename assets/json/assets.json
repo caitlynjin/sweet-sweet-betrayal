@@ -588,11 +588,23 @@
         "playground-text": {
             "file": "textures/level-select/playground-text.png"
         },
+        "gorges-text": {
+            "file": "textures/level-select/gorges-text.png"
+        },
+        "winds-text": {
+            "file": "textures/level-select/winds-text.png"
+        },
         "modal-exit": {
             "file": "textures/level-select/modal-exit.png"
         },
         "placeholder-1": {
             "file": "textures/level-select/party-playground.png"
+        },
+        "winds-img": {
+            "file": "textures/level-select/wild-winds.png"
+        },
+        "gorges-img": {
+            "file": "textures/level-select/gorgeous-gorges.png"
         },
         "playbutton": {
             "file": "textures/level-select/playbutton.png"

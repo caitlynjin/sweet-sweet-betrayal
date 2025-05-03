@@ -103,6 +103,16 @@ public:
     virtual void setActive(bool value) override;
     
     Choice getChoice() const { return _choice; }
+    
+    /**
+     Shows the level modal for the appropriate level number
+     */
+    void selectLevel(int levelNum);
+    
+    /**
+        Sets the visibility of the modal.
+     */
+    void setModalVisible(bool visibile);
 
 };
 
