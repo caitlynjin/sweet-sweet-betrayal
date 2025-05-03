@@ -538,6 +538,13 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
         contact->SetEnabled(false);
     }
 
+    bool isMushroom1 = dynamic_cast<Mushroom*>(obj1) != nullptr;
+    bool isMushroom2 = dynamic_cast<Mushroom*>(obj2) != nullptr;
+    // Disables player - mushroom collision (makes it passthrough)
+    if (isMushroom1 || isMushroom2) {
+        contact->SetEnabled(false);
+    }
+
     if (tagContainsPlayer(bd1->getName()) && bd1 == _movePhaseScene.getLocalPlayer().get()) {        
         if (bd2->getName() == "platform" || bd2->getName() == "movingPlatform") {
             plat = dynamic_cast<Platform*>(bd2);

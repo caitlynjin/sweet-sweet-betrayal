@@ -132,6 +132,18 @@ public:
    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind, bool isLevelEditorMode=false);
 
     /**
+    * Creates a new mushroom.
+    *
+    * @return the mushroom
+    *
+    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+    * @param size The dimensions (width, height) of the platform.
+    */
+    std::shared_ptr<Object> createMushroom(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode);
+
+    std::shared_ptr<Object> createMushroom(std::shared_ptr<Mushroom> mush, bool isLevelEditorMode);
+
+    /**
     * Creates a new bomb.
     *
     * @return the bomb

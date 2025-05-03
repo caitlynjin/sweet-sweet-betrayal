@@ -14,6 +14,24 @@ void Mushroom::dispose() {
     markRemoved(true);
 }
 
+bool Mushroom::init(const Vec2 pos, const Size size, std::string jsonType) {
+    _position = pos;
+    _size     = size;
+    _jsonType = jsonType;
+    _itemType = Item::MUSHROOM;
+
+    PolyFactory factory;
+    Poly2 rect = factory.makeRect(Vec2(-1.0f, -0.5f), size);
+    if (!PolygonObstacle::init(rect)) {
+        return false;
+    }
+
+    setPosition(pos + size * 0.5f);
+    setSensor(false);
+
+    return true;
+}
+
 bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
     _position = pos;
     _size     = size;
@@ -21,36 +39,28 @@ bool Mushroom::init(const Vec2 pos, const Size size, float scale) {
     _itemType = Item::MUSHROOM;
 
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(
-        Vec2(-size.width * 0.4f, -size.height * 0.5f),
-        Size(size.width * 0.8f, size.height)
-    );
+    Poly2 rect = factory.makeRect(Vec2(-1.0f, -0.5f), size);
     if (!PolygonObstacle::init(rect)) {
         return false;
     }
 
     setPosition(pos + size * 0.5f);
-    setSensor(true);
-    setDebugColor(Color4::YELLOW);
-
-    _node = scene2::SpriteNode::alloc();
-    _node->setPosition(getPosition() * _drawScale);
+    setSensor(false);
 
     return true;
 }
 
 void Mushroom::setMushroomAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames) {
     _mushroomSpriteNode = sprite;
-    _mushroomSpriteNode->setAnchor(0.0f, 0.0f);
     _mushroomSpriteNode->setPosition(Vec2());
     _mushroomSpriteNode->setVisible(true);
 
-    if (!_node) {
-        _node = scene2::SpriteNode::alloc();
+    if (!_sceneNode) {
+        _sceneNode = scene2::SpriteNode::alloc();
     } else {
-        _node->removeAllChildren();
+        _sceneNode->removeAllChildren();
     }
-    _node->addChild(_mushroomSpriteNode);
+    _sceneNode->addChild(_mushroomSpriteNode);
 
     std::vector<int> frames;
     frames.reserve(nFrames);
@@ -85,12 +95,6 @@ void Mushroom::updateAnimation(float dt) {
 
 void Mushroom::update(float timestep) {
     PolygonObstacle::update(timestep);
-
-    if (_node) {
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(getAngle());
-    }
-
     updateAnimation(timestep);
 }
 
