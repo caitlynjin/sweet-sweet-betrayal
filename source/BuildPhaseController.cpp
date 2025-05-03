@@ -344,11 +344,11 @@ void BuildPhaseController::preUpdate(float dt) {
     if (_uiScene.getIsReady() && !_readyMessageSent){
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+        _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _player->getColor(), true));
         _readyMessageSent = true;
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
-        _player->setReady(false);
     }
 }
 
