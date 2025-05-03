@@ -178,10 +178,10 @@ void Platform::setPlatformAnimation(std::shared_ptr<scene2::SpriteNode> sprite, 
     _platSpriteNode->setAnchor(0.0f, 0.0f);
     _platSpriteNode->setPosition(getPosition().x - 120, getPosition().y - 32);
     _platSpriteNode->setVisible(true);
-    if (!_node) {
-        _node = scene2::SceneNode::alloc();
+    if (!_sceneNode) {
+        _sceneNode = scene2::SceneNode::alloc();
     }
-    _node->addChild(_platSpriteNode);
+    _sceneNode->addChild(_platSpriteNode);
 
     //Create the spritesheet
     _platTimeline = ActionTimeline::alloc();

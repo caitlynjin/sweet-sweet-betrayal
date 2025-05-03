@@ -455,7 +455,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
         case (THORN):
             return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
-            return _networkController->createMushroomNetworked(gridPos - itemToSize(item) * 0.5f, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+            return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
         case (BOMB):
             return _networkController->createBombNetworked(gridPos, itemToSize(item));
         case (TREASURE):

@@ -68,6 +68,9 @@ protected:
     int  _prevTakenIndex = -1;
     bool _isReady;
     
+    float _bounceTimer = 0.0f;
+    cugl::Vec2 _redBasePos, _blueBasePos, _yellowBasePos, _greenBasePos;
+    
 public:
 #pragma mark -
 #pragma mark Constructors
@@ -96,6 +99,8 @@ public:
      * @param value whether the scene is currently active
      */
     virtual void setActive(bool value) override;
+    
+    virtual void update(float dt) override;
     
     Choice getChoice() const { return _choice; }
     

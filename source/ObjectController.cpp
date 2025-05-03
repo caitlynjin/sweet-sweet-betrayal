@@ -8,6 +8,7 @@
 #include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
+#include "Mushroom.h"
 #include "Tile.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
@@ -284,6 +285,69 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     _gameObjects->push_back(wind);
 
     return wind;
+}
+
+/**
+* Creates a new mushroom.
+*
+* @return the mushroom
+*
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+std::shared_ptr<Object> ObjectController::createMushroom(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode) {
+    std::shared_ptr<Mushroom> mush = Mushroom::alloc(pos, size, jsonType);
+    return createMushroom(mush, isLevelEditorMode);
+}
+
+std::shared_ptr<Object> ObjectController::createMushroom(std::shared_ptr<Mushroom> mush, bool isLevelEditorMode) {
+    auto animNode = scene2::SpriteNode::allocWithSheet(
+        _assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9, 9
+    );
+    mush->setMushroomAnimation(animNode, 9);
+
+    mush->setDensity(BASIC_DENSITY);
+    mush->setFriction(BASIC_FRICTION);
+    mush->setRestitution(BASIC_RESTITUTION);
+    mush->setName("mushroom");
+    mush->setDebugColor(DEBUG_COLOR);
+
+    addObstacle(mush, mush->getSceneNode());
+    _gameObjects->push_back(mush);
+
+    return mush;
+}
+
+/**
+* Creates a new bomb.
+*
+* @return the bomb
+*
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+std::shared_ptr<Object> ObjectController::createBomb(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode) {
+    std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size, jsonType);
+    return createBomb(bomb, isLevelEditorMode);
+}
+
+std::shared_ptr<Object> ObjectController::createBomb(std::shared_ptr<Bomb> bomb, bool isLevelEditorMode) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+
+    bomb->setBodyType(b2_dynamicBody);
+    bomb->setDensity(BASIC_DENSITY);
+    bomb->setFriction(BASIC_FRICTION);
+    bomb->setRestitution(BASIC_RESTITUTION);
+    bomb->setName("bomb");
+    bomb->setDebugColor(DEBUG_COLOR);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE_ANIMATED), 1, 14, 14);
+    bomb->setAnimation(animNode);
+
+    addObstacle(bomb, bomb->getSceneNode());
+    _gameObjects->push_back(bomb);
+
+    return bomb;
 }
 
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType, bool isLevelEditorMode){
