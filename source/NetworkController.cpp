@@ -48,6 +48,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<LevelEvent>();
     _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
@@ -78,6 +79,7 @@ void NetworkController::resetNetwork(){
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
     _network->attachEventType<MessageEvent>();
     _network->attachEventType<ColorEvent>();
+    _network->attachEventType<LevelEvent>();
     _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
@@ -194,6 +196,10 @@ void NetworkController::fixedUpdate(float step){
         if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
             processAnimationEvent(aEvent);
         }
+        // Check for LevelEvent
+        if(auto lEvent = std::dynamic_pointer_cast<LevelEvent>(e)){
+            processLevelEvent(lEvent);
+        }
     }
     _scoreController->setPlayerColors(_playerColorsById);
 
@@ -241,6 +247,8 @@ void NetworkController::reset(){
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
+    
+    _levelSelected = 0;
 }
 
 
@@ -311,6 +319,8 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             CULog("Reset received");
             _resetLevel = true;
             break;
+        case Message::HOST_PICK:
+            _levelSelected = 1;
         default:
             // Handle unknown message types
             std::cout << "Unknown message type received" << std::endl;
@@ -335,6 +345,12 @@ void NetworkController::processColorEvent(const std::shared_ptr<ColorEvent>& eve
     }
 }
 
+/**
+ * This method takes a LevelEvent and processes it.
+ */
+void NetworkController::processLevelEvent(const std::shared_ptr<LevelEvent>& event){
+    _levelSelected = event->getLevelNum();
+}
 /**
  * This method takes a ReadyEvent and processes it.
  */

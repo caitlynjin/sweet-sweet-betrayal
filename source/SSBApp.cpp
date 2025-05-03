@@ -564,6 +564,17 @@ void SSBApp::updateHostScene(float timestep)
  * @param timestep  The amount of time (in seconds) since the last frame
  */
 void SSBApp::updateLevelSelectScene(float timestep){
+    if (_levelSelect.getChoice() == LevelSelectScene::Choice::LEVEL1){
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _gameController.init(_assets, _networkController, _sound);
+            _gameController.setSpriteBatch(_batch);
+            _levelSelect.setActive(false);
+            _gameController.setActive(true);
+            _status = GAME;
+        }
+    }
+    
     return;
 }
 

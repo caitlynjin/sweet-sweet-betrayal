@@ -15,6 +15,7 @@
 #include "SSBInput.h"
 #include "SoundController.h"
 #include "NetworkController.h"
+#include "LevelEvent.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -49,6 +50,8 @@ protected:
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
     
+    std::shared_ptr<NetworkController> _networkController;
+    
     std::shared_ptr<cugl::scene2::Button> _level1;
     std::shared_ptr<cugl::scene2::Button> _level2;
     std::shared_ptr<cugl::scene2::Button> _level3;
@@ -61,6 +64,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _levelName;
     std::shared_ptr<cugl::scene2::Button> _playButton;
     std::shared_ptr<cugl::scene2::Button> _closeButton;
+    
+    int _levelView;
     
     // Modal assets
     

@@ -73,6 +73,8 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
 
     _sound = sound;
     
+    _networkController = networkController;
+    
     // Acquire the scene built by the asset loader and resize it the scene
     std::shared_ptr<scene2::SceneNode> levelScene = _assets->get<scene2::SceneNode>("level-select");
     levelScene->setContentSize(dimen);
@@ -98,21 +100,21 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     // Program the buttons
     _level1->addListener([this](const std::string& name, bool down) {
         if (!down) {
-            _choice = Choice::LEVEL1;
+            _levelView = 1;
             _sound->playSound("button_click");
             selectLevel(1);
         }
     });
     _level2->addListener([this](const std::string& name, bool down) {
         if (!down) {
-            _choice = Choice::LEVEL2;
+            _levelView = 2;
             _sound->playSound("button_click");
             selectLevel(2);
         }
     });
     _level3->addListener([this](const std::string& name, bool down) {
         if (!down) {
-            _choice = Choice::LEVEL3;
+            _levelView = 3;
             _sound->playSound("button_click");
             selectLevel(3);
         }
@@ -134,6 +136,7 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     
     _closeButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
+            _choice = Choice::NONE;
             _sound->playSound("button_click");
             setModalVisible(false);
         }
@@ -142,6 +145,22 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _playButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _sound->playSound("button_click");
+            
+            if (_levelView == 1){
+                _choice = LEVEL1;
+            }
+            if (_levelView == 2){
+                _choice = LEVEL2;
+            }
+            if (_levelView == 3){
+                _choice = LEVEL3;
+            }
+            
+            auto event = std::dynamic_pointer_cast<LevelEvent>(
+                                                               LevelEvent::allocLevelEvent(_levelView)
+            );
+            std::shared_ptr<NetEventController> network = _networkController->getNetwork();
+            network->pushOutEvent(event);
         }
     });
     
@@ -172,10 +191,13 @@ void LevelSelectScene::dispose() {
  */
 void LevelSelectScene::reset(){
     _choice = Choice::NONE;
+    _levelView = 0;
 }
 
 void LevelSelectScene::update(float dt){
-    
+    if (_networkController->getLevelSelected() != 0){
+        _choice = static_cast<Choice>(_networkController->getLevelSelected());
+    }
 }
 
 /**
@@ -193,8 +215,8 @@ void LevelSelectScene::setActive(bool value) {
         if (value) {
             _choice = NONE;
             _level1->activate();
-            _level2->activate();
-            _level3->activate();
+//            _level2->activate();
+//            _level3->activate();
             _backbutton->activate();
 //            _closeButton->activate();
 //            _playButton->activate();
@@ -246,27 +268,29 @@ void LevelSelectScene::setModalVisible(bool visible){
     if (visible){
         _closeButton->activate();
         _playButton->activate();
-        
-        _level1->deactivate();
-        _level2->deactivate();
-        _level3->deactivate();
-        _backbutton->deactivate();
-        _level1->setDown(false);
-        _level2->setDown(false);
-        _level3->setDown(false);
-        
+//        
+//        if (_level1->isVisible() && _level1->isActive()) {
+//            _level1->deactivate();
+//        }
+//        _level2->deactivate();
+//        _level3->deactivate();
+//        _backbutton->deactivate();
+//        _level1->setDown(false);
+//        _level2->setDown(false);
+//        _level3->setDown(false);
+//        
     }
-    else {
-        _closeButton->deactivate();
-        _playButton->deactivate();
-        _closeButton->setDown(false);
-        _playButton->setDown(false);
-        
-        _level1->activate();
-        _level2->activate();
-        _level3->activate();
-        _backbutton->activate();
-    }
+//    else {
+//        _closeButton->deactivate();
+//        _playButton->deactivate();
+//        _closeButton->setDown(false);
+//        _playButton->setDown(false);
+//        
+//        _level1->activate();
+//        _level2->activate();
+//        _level3->activate();
+//        _backbutton->activate();
+//    }
     
     _modalDarkener->setVisible(visible);
     _modalFrame->setVisible(visible);
