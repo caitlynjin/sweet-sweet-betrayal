@@ -24,6 +24,8 @@ private:
     std::shared_ptr<cugl::physics2::BoxObstacle> _box;
     /**owned by a player**/
 
+    bool _justInit;
+
 
 protected:
     /** The texture for the Projectile */
@@ -104,15 +106,8 @@ public:
         _node->setPosition(getPositionInit() * _drawScale);
     }
 
-    /**
-     Sets the spinning animation for the Projectile.
-     */
-    void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-
-    void updateAnimation(float timestep);
-
-    /** Increments an animation film strip */
-    void doStrip(cugl::ActionFunction action, float duration);
+    //Set the texture for this projectile
+    void setTextureNode(std::shared_ptr<cugl::scene2::SpriteNode> tex);
 
     std::map<std::string, std::any> getMap() override;
     /**

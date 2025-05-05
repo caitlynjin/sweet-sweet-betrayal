@@ -266,20 +266,6 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
         wind->getSceneNode()->setVisible(true);
         wind->setName("windLevelEditor");
     }
-    
-
-    /*auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
-    auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 4);
-    auto animNode3 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_3), 1, 14, 4);
-    auto animNode4 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_4), 1, 14, 4);
-    std::vector<std::shared_ptr<scene2::SpriteNode>> gusts;
-
-    gusts.push_back(animNode1);
-    gusts.push_back(animNode2);
-    gusts.push_back(animNode3);
-    gusts.push_back(animNode4);
-
-    wind->setGustAnimation(gusts, 14);*/
 
     addObstacle(wind, wind->getSceneNode());
     _gameObjects->push_back(wind);

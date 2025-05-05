@@ -15,7 +15,7 @@ using namespace cugl;
 using namespace cugl::physics2::distrib;
 
 enum class GameObjEventType {
-    DELETE,
+    DELETE_EVENT,
     // Add other event types like MOVE, CREATE if needed
 };
 

@@ -1210,12 +1210,11 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 ProjectileFactory::createObstacle(Vec2 pos, Size size) {
     //Allocate Fan Animations
     std::shared_ptr<Projectile> proj = Projectile::alloc(pos, size, 1.0f, "projectile");
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+    auto sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE), 1, 1, 1);
 
+    proj->setTextureNode(sprite);
     proj->setPositionInit(pos);
-    proj->setEnabled(false);
-
-    // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
-
     return std::make_pair(proj, proj->getSceneNode());
 }
 
@@ -1243,16 +1242,6 @@ ProjectileFactory::createObstacle(const std::vector<std::byte>& params) {
     float height = _deserializer.readFloat();
     Size size(width, height);
 
-    float scale = _deserializer.readFloat();
-
-    float dirX = _deserializer.readFloat();
-    float dirY = _deserializer.readFloat();
-    Vec2 dir(dirX, dirY);
-
-    float strX = _deserializer.readFloat();
-    float strY = _deserializer.readFloat();
-    Vec2 str(strX, strY);
-
     return createObstacle(pos, size);
 }
 
@@ -1261,8 +1250,6 @@ ProjectileFactory::createObstacle(const std::vector<std::byte>& params) {
 
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 BombFactory::createObstacle(Vec2 pos, Size size) {
-    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
-
     std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size);
 
     bomb->setBodyType(b2_dynamicBody);

@@ -22,21 +22,21 @@ bool Projectile::init(const Vec2 pos, const Size size, float scale, string jsonT
     Size nsize = size;
     _ProjectileTexture = "";
     _position = pos;
-    _size = size;
     _jsonType = jsonType;
-    //_itemType = Item::Projectile;
     _drawScale = scale;
-
+    _justInit = true;
+    
     PolyFactory factory;
-    Poly2 circle = factory.makeCircle(pos, 0.5f);
-
+    Poly2 circle = factory.makeCircle(Vec2(0,0), 0.25f);
+    
     if (PolygonObstacle::init(circle)) {
         setName("Projectile");
         setDebugColor(Color4::YELLOW);
-        setPosition(pos + size / 2);
+        setDensity(5.0f);
+        setPosition(pos);
         setBodyType(b2_dynamicBody);
         _node = scene2::SpriteNode::alloc();
-
+        
         return true;
     }
 
@@ -56,79 +56,40 @@ std::map<std::string, std::any> Projectile::getMap() {
 }
 
 void Projectile::update(float timestep) {
-    //    Vec2 currPos = getPosition();
-    //    currPos += Vec2(1,1);
-    //    setPosition(currPos);
-    //    _box->setPosition(currPos);
-
-    //    if (_node != nullptr) {
-    //        _node->setPosition(getPosition()*_drawScale);
-    //    }
-
     PolygonObstacle::update(timestep);
-    if (_node != nullptr)
-    {
-        _node->setPosition(getPosition() * _drawScale);
-        _node->setAngle(getAngle());
-    }
 
-    //updateAnimation(timestep);
+    b2Vec2 force(0.0f, 4.0f);
+    _body->ApplyForceToCenter(force, true);
+
+    if (_justInit) {
+        _body->ApplyLinearImpulseToCenter(const b2Vec2(40.0f, 1.0f), true);
+        _justInit = false;
+    }
 }
 
 void Projectile::setPositionInit(const cugl::Vec2& position) {
     _position = position;
-    PolygonObstacle::setPosition(position + _size / 2);
+    PolygonObstacle::setPosition(position);
 
     if (_node != nullptr) {
-        _node->setPosition((position + _size / 2) * _drawScale);
+        _node->setPosition((position));
     }
+}
+
+void Projectile::setTextureNode(std::shared_ptr<cugl::scene2::SpriteNode> sprite) {
+
+    //Create and iterate through all our animations
+    if (!_node) {
+        _node = scene2::SceneNode::alloc();
+    }
+    //GustSpriteNode4
+    sprite->setVisible(true);
+    sprite->setPriority(0);
+    _node->addChild(sprite);
 }
 
 string Projectile::getJsonKey() {
     return JSON_KEY;
-}
-
-void Projectile::updateAnimation(float timestep) {
-    doStrip(_spinAction, DURATION);
-    _timeline->update(timestep);
-}
-
-/**
- * Performs a film strip action
- *
- * @param action The film strip action
- * @param slide  The associated movement slide
- */
-void Projectile::doStrip(cugl::ActionFunction action, float duration = DURATION) {
-
-    if (_timeline->isActive(ACT_KEY)) {
-        // NO OP
-    }
-    else {
-        _timeline->add(ACT_KEY, action, duration);
-    }
-}
-
-void Projectile::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
-    _spinSpriteNode = sprite;
-
-    _node = _spinSpriteNode;
-    _spinSpriteNode->setVisible(true);
-
-    _timeline = ActionTimeline::alloc();
-
-    // Create the frame sequence
-    const int span = 64;
-    std::vector<int> forward;
-    for (int ii = 1; ii < span; ii++) {
-        forward.push_back(ii);
-    }
-    // Loop back to beginning
-    forward.push_back(0);
-
-    // Create animation
-    _spinAnimateSprite = AnimateSprite::alloc(forward);
-    _spinAction = _spinAnimateSprite->attach<scene2::SpriteNode>(_spinSpriteNode);
 }
 
 void Projectile::dispose() {

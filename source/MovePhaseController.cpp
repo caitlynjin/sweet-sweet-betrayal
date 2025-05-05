@@ -268,6 +268,14 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
     int i = 0;
     std::vector<cugl::Vec2> lst = wind->getRayOrigins();
 
+    _timer += dt;
+    if (_timer > 0.5) {
+        _networkController->createProjectileNetworked(wind->getRayOrigins()[0], Size(1, 1));
+        CULog("location origin");
+        _timer = 0.0f;
+    }
+    
+
     for (auto it = lst.begin(); it != lst.end(); ++it) {
         Vec2 rayEnd = *it + (wind->getWindDirection());
 

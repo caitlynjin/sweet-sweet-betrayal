@@ -75,6 +75,9 @@ protected:
     /** Starting player position */
     float _playerStart;
 
+    //TEMP VARIABLE
+    float _timer=0.0f;
+
     /** Whether we have completed this "game" */
     bool _complete;
     /** Whether or not debug mode is active */
