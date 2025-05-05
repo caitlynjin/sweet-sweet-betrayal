@@ -523,6 +523,15 @@ std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size si
     return wind;
 }
 
+std::shared_ptr<Object> NetworkController::createProjectileNetworked(Vec2 pos, Size size) {
+    auto params = _projectileFact->serializeParams(pos, size);
+    auto pair = _network->getPhysController()->addSharedObstacle(_projectileFactID, params);
+    std::shared_ptr<Projectile> proj = std::dynamic_pointer_cast<Projectile>(pair.first);
+
+    _objects->push_back(proj);
+    return proj;
+}
+
 std::shared_ptr<Object> NetworkController::createBombNetworked(Vec2 pos, Size size) {
     auto params = _bombFact->serializeParams(pos, size);
     auto pair = _network->getPhysController()->addSharedObstacle(_bombFactID, params);
@@ -618,6 +627,9 @@ void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWor
     
     _windFact = WindFactory::alloc(_assets);
     _windFactID = _network->getPhysController()->attachFactory(_windFact);
+
+    _projectileFact = ProjectileFactory::alloc(_assets);
+    _projectileFactID = _network->getPhysController()->attachFactory(_projectileFact);
 
     _bombFact = BombFactory::alloc(_assets);
     _bombFactID = _network->getPhysController()->attachFactory(_bombFact);
@@ -1185,6 +1197,59 @@ WindFactory::createObstacle(const std::vector<std::byte>& params) {
     Vec2 str(strX, strY);
 
     return createObstacle(pos, size, scale, dir, str);
+}
+
+#pragma mark -
+#pragma mark Projectile Factory
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ProjectileFactory::createObstacle(Vec2 pos, Size size) {
+    //Allocate Fan Animations
+    std::shared_ptr<Projectile> proj = Projectile::alloc(pos, size, 1.0f, "projectile");
+
+    proj->setPositionInit(pos);
+    proj->setEnabled(false);
+
+    // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
+
+    return std::make_pair(proj, proj->getSceneNode());
+}
+
+std::shared_ptr<std::vector<std::byte>>
+ProjectileFactory::serializeParams(Vec2 pos, Size size) {
+    _serializer.reset();
+    _serializer.writeFloat(pos.x);
+    _serializer.writeFloat(pos.y);
+    _serializer.writeFloat(size.width);
+    _serializer.writeFloat(size.height);
+
+    return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
+}
+
+std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
+ProjectileFactory::createObstacle(const std::vector<std::byte>& params) {
+    _deserializer.reset();
+    _deserializer.receive(params);
+
+    float posX = _deserializer.readFloat();
+    float posY = _deserializer.readFloat();
+    Vec2 pos(posX, posY);
+
+    float width = _deserializer.readFloat();
+    float height = _deserializer.readFloat();
+    Size size(width, height);
+
+    float scale = _deserializer.readFloat();
+
+    float dirX = _deserializer.readFloat();
+    float dirY = _deserializer.readFloat();
+    Vec2 dir(dirX, dirY);
+
+    float strX = _deserializer.readFloat();
+    float strY = _deserializer.readFloat();
+    Vec2 str(strX, strY);
+
+    return createObstacle(pos, size);
 }
 
 #pragma mark -

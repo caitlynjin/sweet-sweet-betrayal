@@ -24,6 +24,7 @@
 #include "Treasure.h"
 #include "Mushroom.h"
 #include "WindObstacle.h"
+#include "Projectile.h"
 #include "Thorn.h"
 #include "Bomb.h"
 #include "Message.h"
@@ -340,6 +341,33 @@ class WindFactory : public ObstacleFactory {
     };
 
 /**
+ * The factory class for projectile objects.
+ */
+class ProjectileFactory : public ObstacleFactory {
+public:
+    std::shared_ptr<AssetManager> _assets;
+    LWSerializer _serializer;
+    LWDeserializer _deserializer;
+
+    static std::shared_ptr<ProjectileFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<ProjectileFactory>();
+        f->init(assets);
+        return f;
+    }
+
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size);
+
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size);
+
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
+
+
+/**
  * The factory class for bomb objects.
  */
 class BombFactory : public ObstacleFactory {
@@ -468,6 +496,10 @@ protected:
     /** Variables for Wind Factory */
     std::shared_ptr<WindFactory> _windFact;
     Uint32 _windFactID;
+
+    /** Variables for Projectile Factory */
+    std::shared_ptr<ProjectileFactory> _projectileFact;
+    Uint32 _projectileFactID;
 
     /** Variables for Bomb Factory */
     std::shared_ptr<BombFactory> _bombFact;
@@ -844,6 +876,13 @@ public:
      * @return the thorn being created
      */
     std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str);
+
+    /**
+     * Creates a networked wind obstacle.
+     *
+     * @return the thorn being created
+     */
+    std::shared_ptr<Object> createProjectileNetworked(Vec2 pos, Size size);
 
     /**
      * Creates a networked bomb.
