@@ -987,6 +987,11 @@ public:
      * Resets the necessary logic to start a new round
      */
     void resetRound();
+
+    /**
+     * Makes players unready
+     */
+    void playersUnready();
     
     /**
      Checks if win condition has been met and sends a message to reset the level.

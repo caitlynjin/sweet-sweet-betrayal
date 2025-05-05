@@ -240,7 +240,6 @@ void NetworkController::reset(){
     
     // Reset network in-game variables
     _numReady = 0;
-    _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, false));
     _numReset = 0;
     resetTreasureRandom();
     _readyMessageSent = false;
@@ -255,6 +254,15 @@ void NetworkController::reset(){
 void NetworkController::resetRound(){
     _numReady = 0;
     _numReset = 0;
+}
+
+/**
+ * Makes players unready
+ */
+void NetworkController::playersUnready(){
+    for (auto& player : _playerList){
+        _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), player->getColor(), false));
+    }
 }
 
 
@@ -272,7 +280,6 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
         case Message::BUILD_READY:
             // Increment number of players ready
             _numReady++;
-            _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _color, true));
             break;
         
         case Message::MOVEMENT_END:
@@ -351,6 +358,7 @@ void NetworkController::processReadyEvent(const std::shared_ptr<ReadyEvent>& eve
     for (auto player : _playerList){
         if (player->getColor() == color){
             player->setReady(ready);
+            CULog("Ready: %d", player->getReady());
         }
     }
 }
@@ -1146,11 +1154,7 @@ WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDire
     gusts.push_back(animNode4);
 
     wind->setGustAnimation(gusts, 14);
-
     wind->setPositionInit(pos);
-    wind->setEnabled(false);
-
-    // IN ORDER TO NETWORK GUST ANIMIATIONS, MAY NEED TO ADD GUST SPRITE AS CHILD TO FANSPRITE --> TAKE A LOOK AT HOW PLAYER ANIMATIONS ARE SETUP IN DUDE FACTORY, ALL ANIMATIONS ARE CHILDREN OF A ROOT NODE
 
     return std::make_pair(wind, wind->getSceneNode());
 }
