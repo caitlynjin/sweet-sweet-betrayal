@@ -146,6 +146,9 @@
         "bomb_obstacle": {
             "file": "textures/bomb-obstacle.png"
         },
+        "lychee": {
+            "file": "textures/lychee.png"
+        },
         "mango-explosion-spritesheet": {
             "file": "textures/mango-explosion-spritesheet.png"
         },

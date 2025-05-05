@@ -116,6 +116,8 @@
 /** The key for the inventory icon for the thorns */
 #define THORN_TILE_ICON "icon-thorn"
 /** The key for the bomb texture in the asset manager */
+#define LYCHEE_TEXTURE "lychee"
+/** The key for the bomb texture in the asset manager */
 #define BOMB_TEXTURE "bomb_obstacle"
 /** The key for the inventory icon for the mango bomb*/
 #define BOMB_ICON "icon-mango"

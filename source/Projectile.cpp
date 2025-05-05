@@ -27,14 +27,15 @@ bool Projectile::init(const Vec2 pos, const Size size, float scale, string jsonT
     _justInit = true;
     
     PolyFactory factory;
-    Poly2 circle = factory.makeCircle(Vec2(0,0), 0.25f);
+    Poly2 circle = factory.makeCircle(Vec2(0,0), RADIUS);
     
     if (PolygonObstacle::init(circle)) {
         setName("Projectile");
         setDebugColor(Color4::YELLOW);
-        setDensity(5.0f);
+        setDensity(DENSITY);
         setPosition(pos);
         setBodyType(b2_dynamicBody);
+        setFixedRotation(true);
         _node = scene2::SpriteNode::alloc();
         
         return true;
@@ -58,13 +59,15 @@ std::map<std::string, std::any> Projectile::getMap() {
 void Projectile::update(float timestep) {
     PolygonObstacle::update(timestep);
 
-    b2Vec2 force(0.0f, 4.0f);
+    b2Vec2 force(0.0f, UP_FORCE);
     _body->ApplyForceToCenter(force, true);
 
     if (_justInit) {
-        _body->ApplyLinearImpulseToCenter(const b2Vec2(40.0f, 1.0f), true);
+        _body->ApplyLinearImpulseToCenter(b2Vec2(INIT_IMPULSE, 1.0f), true);
         _justInit = false;
     }
+    //_node->setAngle(_node->getAngle() + (timestep*5/2*M_PI));
+    _projectileSprite->setAngle(_projectileSprite->getAngle() + (timestep * 5 / 2 * M_PI));
 }
 
 void Projectile::setPositionInit(const cugl::Vec2& position) {
@@ -85,7 +88,13 @@ void Projectile::setTextureNode(std::shared_ptr<cugl::scene2::SpriteNode> sprite
     //GustSpriteNode4
     sprite->setVisible(true);
     sprite->setPriority(0);
+    sprite->setAnchor(0.5f, 0.5f);
+    sprite->setPosition(-13.0f, 0.0f);
+
     _node->addChild(sprite);
+
+    _projectileSprite = sprite;
+    
 }
 
 string Projectile::getJsonKey() {

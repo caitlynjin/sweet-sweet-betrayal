@@ -13,6 +13,10 @@
 
 #define DURATION 8.0f
 #define ACT_KEY  "current"
+#define DENSITY 12.0f
+#define INIT_IMPULSE 20.0f
+#define UP_FORCE 3.0f
+#define RADIUS 0.25f
 
 
 using namespace cugl;
@@ -44,6 +48,8 @@ protected:
     std::shared_ptr<AnimateSprite> _spinAnimateSprite;
     std::shared_ptr<cugl::scene2::SpriteNode> _spinSpriteNode;
     cugl::ActionFunction _spinAction;
+
+    std::shared_ptr<cugl::scene2::SpriteNode> _projectileSprite;
 
 public:
 

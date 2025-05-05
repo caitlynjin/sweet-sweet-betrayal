@@ -1210,8 +1210,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 ProjectileFactory::createObstacle(Vec2 pos, Size size) {
     //Allocate Fan Animations
     std::shared_ptr<Projectile> proj = Projectile::alloc(pos, size, 1.0f, "projectile");
-    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
-    auto sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE), 1, 1, 1);
+    auto sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(LYCHEE_TEXTURE), 1, 1, 1);
 
     proj->setTextureNode(sprite);
     proj->setPositionInit(pos);
