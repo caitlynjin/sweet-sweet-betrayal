@@ -7,10 +7,53 @@ using namespace cugl;
 using namespace cugl::graphics;
 
 void ArtObject::update(float timestep) {
+    if (!_isAnimated) {
+        doStrip(_animationAction, _animationDuration);
+        _timeline->update(timestep);
+    }
 }
 
 string ArtObject::getJsonKey() {
     return JSON_KEY;
+}
+
+void ArtObject::setAnimationDuration(float dur) {
+    _animationDuration = dur;
+}
+
+void ArtObject::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
+    _animateSpriteNode = sprite;
+
+    _node = _animateSpriteNode;
+    _animateSpriteNode->setVisible(true);
+    //    _node->setScale(0.065f);
+
+    _timeline = ActionTimeline::alloc();
+
+    // Create the frame sequence
+    // For an 8x8 spritesheet
+    const int span = 32;
+
+    std::vector<int> forward;
+    for (int ii = 1; ii < span; ii++) {
+        forward.push_back(ii);
+    }
+    // Loop back to beginning
+    forward.push_back(0);
+
+    // Create animation
+    _animateSprite = AnimateSprite::alloc(forward);
+    _animationAction = _animateSprite->attach<scene2::SpriteNode>(_animateSpriteNode);
+}
+
+/** Increments an animation film strip */
+void ArtObject::doStrip(cugl::ActionFunction action, float duration) {
+    if (_timeline->isActive(ACT_KEY)) {
+        // NO OP
+    }
+    else {
+        _timeline->add(ACT_KEY, action, duration);
+    }
 }
 
 #pragma mark -
