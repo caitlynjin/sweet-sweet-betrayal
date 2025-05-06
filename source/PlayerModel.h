@@ -79,6 +79,8 @@ using namespace Constants;
 #define WIND_FACTOR 0.05f
 #define WIND_FACTOR_GLIDING 0.4f
 #define WIND_FACTOR_AIR 0.08f
+//At what distance should wind be functional for gliding vs non gliding players
+#define WIND_DIST_THRESHOLD 0.6f
 //Determines for how long we can 'halt' a jump middair, allowing the player to control how high they jump
 #define JUMP_DURATION 0.6f
 #define JUMP_STOP_DAMPING 0.2f
@@ -91,6 +93,7 @@ using namespace Constants;
 #define STARTING_VELOCITY 1.75f
 /*Air friction*/
 #define AIR_DAMPING = 2.5f
+
 
 
 
@@ -170,7 +173,10 @@ protected:
     bool _justFlipped = false;
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
-    Vec2 _windvel;
+    Vec2 _windVel;
+    //Stores how far the player is away from wind at moment of gust blowing the player.
+    float _windDist;
+    
     //Handles jump damping. Jumptimer starts counting down upon jumping. During this time, release jump to dampen your vertical velocity.
     float _jumpTimer = 0.0f;
 
@@ -575,7 +581,7 @@ public:
     /**
     Applies a certain amount of wind velocity to the player
     */
-    void addWind(Vec2 wind) { _windvel.operator+=(wind); };
+    void addWind(Vec2 wind, float dist) { _windVel.operator+=(wind); _windDist = dist; };
     /**
      * Returns true if the dude is actively jumping.
      *

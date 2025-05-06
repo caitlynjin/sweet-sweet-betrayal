@@ -95,6 +95,9 @@ public:
 	/*How hard and what direction the wind is blowing the player in*/
 	const Vec2 getWindForce() { return _windForce; };
 
+	//
+	const float getPlayerToWindDist() { return _currentPlayerDist; }
+
 	/**Returns the list of wind origins*/
 
 	const std::vector<Vec2> getRayOrigins(){return _rayOrigins;};
@@ -117,7 +120,6 @@ public:
 	/*Animation methods*/
 	void setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
 	void updateAnimation(float timestep);
-	void doStrip(cugl::ActionFunction action, float duration);
 
 	//Animation variables
 	std::shared_ptr<cugl::ActionTimeline> _fanTimeline;

@@ -159,7 +159,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         _jumpCooldown = 0;
         _glideDelay = 0.2;
         _glideTimer = 0;
-        _windvel = Vec2();
+        _windVel = Vec2();
         
         return true;
     }
@@ -818,12 +818,15 @@ void PlayerModel::windUpdate(float dt)
     else if (_isGrounded) {
         mult = WIND_FACTOR;
     }
-    b2Vec2 vel = _body->GetLinearVelocity();
-    vel.x += _windvel.x * mult;
-    vel.y += _windvel.y * mult;
-    _body->SetLinearVelocity(vel);
 
-    _windvel = Vec2(0, 0);
+    if (_windDist < WIND_DIST_THRESHOLD || _isGliding) {
+        b2Vec2 vel = _body->GetLinearVelocity();
+        vel.x += _windVel.x * mult;
+        vel.y += _windVel.y * mult;
+        _body->SetLinearVelocity(vel);
+    }
+    
+    _windVel = Vec2(0, 0);
 }
 
 #pragma mark -

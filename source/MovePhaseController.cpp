@@ -294,7 +294,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
     }
     wind->update(dt);
     if (wind->getPlayerHits() > 0) {
-        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce());
+        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce(), wind->getPlayerToWindDist());
     }
 }
 
