@@ -20,9 +20,11 @@ void WindObstacle::setPositionInit(const cugl::Vec2& position) {
 
     // Update ray positions
     _rayOrigins.clear();
+    float rayDiff = (_size.width - 2 * OFFSET)/(RAYS*_size.width);
+
     for (int it = 0; it != RAYS; it++) {
         Vec2 origin = position + Vec2(OFFSET, OFFSET + _size.height / 2) +
-            ((_size.width-2*OFFSET)/(_size.width))*Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
+            Vec2(rayDiff * it, 0);
 
         _rayOrigins.push_back(origin);
     }
@@ -32,23 +34,30 @@ void WindObstacle::update(float timestep) {
     PolygonObstacle::update(timestep);
     
     _playerHits = 0;
+    _currentPlayerDist = 2.0f;
+    _prevRayDist = _minRayDist;
+    _minRayDist = 2.0f;
+    
 
     for (auto it = 0; it != RAYS; ++it) {
         if (_playerDist[it]<_rayDist[it]) {
             _playerHits++;
+            _currentPlayerDist = min(_playerDist[it], _currentPlayerDist);
         }
+        _minRayDist = min(_rayDist[it], _minRayDist);
+        
     }
+    CULog("playerdist %f", _currentPlayerDist);
+    CULog("raydist %f", _minRayDist);
+    CULog("pos %f", _position.x);
+
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
     if (true) {
         updateAnimation(timestep);
     }
-    else {
-
-        //_node->setPosition(getPosition() * _drawScale);
-        //_node->setAngle(getAngle());
-    }
+    
 }
 
 void WindObstacle::updateAnimation(float timestep) {
@@ -57,6 +66,9 @@ void WindObstacle::updateAnimation(float timestep) {
         _fanTimeline->add("current", _fanAction, FAN_ANIM_CYCLE);
     }
     _fanTimeline->update(timestep);
+    //we need this piece of shit variable becasue for some fucking reason raycasting only works every other call?
+    //Seriously what the fuck
+    float actualMin = min(_prevRayDist, _minRayDist);
 
     if (_gustTimeline4 != nullptr) {
         if (!_gustTimeline4->isActive("current")) {
@@ -68,8 +80,28 @@ void WindObstacle::updateAnimation(float timestep) {
             _gustSpriteNode3->setVisible(false);
             _gustSpriteNode1->setVisible(false);
         }
+        _gustSpriteNode2->setVisible(false);
+        _gustSpriteNode3->setVisible(false);
+        _gustSpriteNode1->setVisible(false);
+        _gustSpriteNode4->setVisible(false);
+
+        if (actualMin >= 1.0f) {
+            _gustSpriteNode4->setVisible(true);
+        }
+        else if (actualMin >= 0.75f) {
+            _gustSpriteNode3->setVisible(true);
+        }
+        else if (actualMin >= 0.25f) {
+            _gustSpriteNode2->setVisible(true);
+        }
+        else {
+            _gustSpriteNode1->setVisible(true);
+        }
 
         _gustTimeline4->update(timestep);
+        _gustTimeline3->update(timestep);
+        _gustTimeline2->update(timestep);
+        _gustTimeline1->update(timestep);
     }
 }
 
@@ -125,6 +157,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     _jsonType = jsonType;
 
     _drawScale = 1.0f;
+    _minRayDist = 2.0f;
     
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/

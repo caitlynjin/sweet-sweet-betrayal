@@ -23,6 +23,11 @@ private:
 
 	/**How many of the rays we have hit the player with.*/
 	int _playerHits;
+	//How far the player is along the ray
+	float _currentPlayerDist;
+	//The closest detected raycast collision
+	float _minRayDist;
+	float _prevRayDist;
 
 	/**The points where we are raycasting from. */
 

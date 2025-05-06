@@ -24,7 +24,7 @@ std::shared_ptr<NetEvent> GameObjectEvent::newEvent() {
 
 std::shared_ptr<NetEvent> GameObjectEvent::allocDeletion(int objId) {
     auto event = std::make_shared<GameObjectEvent>();
-    event->_type = GameObjEventType::DELETE;
+    event->_type = GameObjEventType::DELETE_EVENT;
     event->_objId = objId;
     return event;
 }
