@@ -160,7 +160,9 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         _glideDelay = 0.2;
         _glideTimer = 0;
         _windvel = Vec2();
-        
+
+        setVisible(false);
+
         return true;
     }
 
