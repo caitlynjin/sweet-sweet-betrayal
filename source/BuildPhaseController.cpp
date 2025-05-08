@@ -225,6 +225,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
         if (trashBounds.contains(touchPos)) {
             CULog("Deleted object");
+            _sound->playSound("discardItem");
             _uiScene.getTrashButton()->setDown(false);
 
             if (_selectedObject) {

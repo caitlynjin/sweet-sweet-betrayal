@@ -639,7 +639,7 @@
             "type": "sample",
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
-            "volume": 0.5
+            "volume": 0.2
 
         },
         "mushroom_boing": {
@@ -711,6 +711,11 @@
             "type": "sample",
             "file": "sounds/sfx_timer_tick.wav",
             "volume": 0.5
+        },
+        "discardItem": {
+            "type": "sample",
+            "file": "sounds/discardItem.wav",
+            "volume":  0.5
         }
 
     },
