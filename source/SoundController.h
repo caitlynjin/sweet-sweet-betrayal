@@ -28,10 +28,32 @@ protected:
 	/** The audio queue, used for storing music */
 	std::shared_ptr<cugl::audio::AudioQueue>   _musicQueue;
 
+	/** The global music volume, ranging from 0.0 (silent) to 1.0 (maximum) */
+	float _musicVolume;
+
+	/** The global SFX volume, ranging from 0.0 (silent) to 1.0 (maximum) */
+	float _sfxVolume;
+
 	/** The map linking each string key to its corresponding sound */
 	std::map<std::string, std::shared_ptr<cugl::audio::Sound>> _soundMap;
 
-	std::shared_ptr<Sound> _jumpSound;
+	/** The map linking each string key to its corresponding music
+	*	These are only stored in separate maps because it helps 
+	*   with separating settings menu logic for music vs SFX.
+	*/ 
+	std::map<std::string, std::shared_ptr<cugl::audio::Sound>> _musicMap;
+
+
+
+	/** The map linking each sound (represented by its string key) to its original volume.
+	* Useful for settings menu calculations.
+	*/
+	std::map<std::string, float> _soundOriginalVolumeMap;
+
+	/** The map linking each music track (represented by its string key) to its original volume.
+	* Useful for settings menu calculations.
+	*/
+	std::map<std::string, float> _musicOriginalVolumeMap;
 
 
 public:
@@ -109,6 +131,34 @@ public:
 	*
 	* @param key The key identifying the music track */
 	void stopMusic(std::string key);
+
+	/** Gets the global music volume. 
+	* The volumes of all music tracks are multiplied by this value.
+	* 
+	* @return the global music volume
+	*/
+	float getMusicVolume() {
+		return _musicVolume;
+	}
+
+	/** Gets the global SFX volume.
+	* The volumes of all SFX are multiplied by this value.
+	* 
+	* @return the global SFX volume
+	*/
+	float getSFXVolume() {
+		return _sfxVolume;
+	}
+
+	/** Sets the global music volume. 
+	* @param the global music volume to be set
+	*/
+	void setMusicVolume(float vol);
+
+	/** Sets the global SFX volume.
+	* @param the global SFX volume to be set
+	*/
+	void setSFXVolume(float vol);
 
 };
 

@@ -225,6 +225,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
         if (trashBounds.contains(touchPos)) {
             CULog("Deleted object");
+            _sound->playSound("discardItem");
             _uiScene.getTrashButton()->setDown(false);
 
             if (_selectedObject) {
@@ -270,7 +271,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
                         std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
 
                     if (_selectedItem != BOMB) {

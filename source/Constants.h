@@ -199,7 +199,8 @@
 /** The font for the timer */
 #define TIMER_FONT  "yeasty flavorsRegular66.53518676757812"
 
-
+/** The layering priority for pass-through platforms */
+#define PLATFORM_PRIORITY -1
 #pragma mark -
 #pragma mark Environment Textures
 /** The key for the background texture in the asset manager */
@@ -443,6 +444,23 @@ static std::map<std::string, int> jsonTypeToLayer {
     {"rocky2",1}
 };
 
+/** 
+* Maps each animated ArtObject (represented by its jsonType string) 
+* to the rows and cols of its animation spritesheet.
+* Important for getting the dimensions of art object animations
+* as well as for whether or not a particular art object shoudl be animated in the first place.
+*/
+static std::map<std::string, std::pair<int, int>> animatedArtObjects{
+    {"torchRight", std::make_pair<int, int>(1, 8)}
+};
+
+/** These are updated externally to make it easier to add new assets.
+* Check out ArtAssetMapHelper to populate these.
+* This means that you can add (most of) the information for new art assets all in one place,
+* instead of having to update every map every time you add a new art object / JSON type.
+* The remaining static maps in this file, as well as the methods in the .cpp, are for cases that
+* are important sometimes but not for all objects (layers, animations, etc.).
+*/
 extern std::map<std::string, std::string> jsonTypeToAsset;
 
 extern std::map<std::string, Item> jsonTypeToItemType;
