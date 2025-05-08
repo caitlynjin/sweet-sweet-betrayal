@@ -333,7 +333,8 @@ void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate
     if (animation == AnimationType::DEATH) {
         CULog("playing dead animation");
         _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);   
-        setDead(true);         
+        setDead(true);
+        setGhost(_node, true);
     }
     else if (animation == AnimationType::GLIDE) {
         if (!_glideSpriteNode->isVisible()) {
@@ -899,4 +900,34 @@ ColorType PlayerModel::getColor() {
     }
     // DEFAULT
     return ColorType::RED;
+}
+
+#pragma mark -
+#pragma mark Helpers
+
+/**
+ * Sets whether the player is transparent.
+ *
+ * @param node      the player scene node
+ * @param value     whether to set the player to transparent or not
+ */
+void PlayerModel::setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value) {
+    if (value) {
+        // Save original color
+        _originalColors[node] = node->getColor();
+
+        // Set transparent
+        Color4 color = node->getColor();
+        color.a = 150;
+        node->setColor(color);
+    } else {
+        // Restore original color if saved
+        if (_originalColors.find(node) != _originalColors.end()) {
+            node->setColor(_originalColors[node]);
+        }
+    }
+
+    for (const auto& child : node->getChildren()) {
+        setGhost(child, value);
+    }
 }

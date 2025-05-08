@@ -120,7 +120,7 @@ void MovePhaseController::resetRound() {
 
     _movePhaseScene.resetPlayerProperties();
     _movePhaseScene.resetCameraPos();
-    
+
 //    _movePhaseScene.reset();
 //    _uiScene.reset();
 }
@@ -355,6 +355,7 @@ void MovePhaseController::killPlayer(){
         );
         
         player->setDead(true);
+        player->setGhost(player->getSceneNode(), true);
     }
     
 }

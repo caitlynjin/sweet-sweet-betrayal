@@ -468,7 +468,10 @@ void SSBGameController::setBuildingMode(bool value) {
     for (auto player : players){
         player->setImmobile(value);
         player->setVisible(false);
+        player->setGhost(player->getSceneNode(), false);
     }
+    std::shared_ptr<PlayerModel> player = _networkController->getLocalPlayer();
+    player->setGhost(player->getSceneNode(), false);
 }
 
 #pragma mark -
