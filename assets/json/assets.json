@@ -620,37 +620,9 @@
         "server": "json/server.json"
     },
     "sounds": {
-        "game": {
-            "type": "sample",
-            "file": "sounds/DD_Main.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
-        "win": {
-            "type": "sample",
-            "file": "sounds/DD_Victory.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
-        "lose": {
-            "type": "sample",
-            "file": "sounds/DD_Failure.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
         "jump": {
             "type": "sample",
             "file": "sounds/sfx_jump.wav",
-            "volume": 0.5
-        },
-        "pew": {
-            "type": "sample",
-            "file": "sounds/pew.wav",
-            "volume": 0.5
-        },
-        "pop": {
-            "type": "sample",
-            "file": "sounds/plop.wav",
             "volume": 0.5
         },
         "glide": {
@@ -713,7 +685,32 @@
         "bomb": {
             "type": "sample",
             "file": "sounds/sfx_bomb.wav",
-            "volume":  0.5
+            "volume": 0.5
+        },
+        "redSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_red_select.wav",
+            "volume": 0.5
+        },
+        "blueSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_blue_select.wav",
+            "volume": 0.5
+        },
+        "yellowSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_yellow_select.wav",
+            "volume": 0.5
+        },
+        "greenSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_green_select.wav",
+            "volume": 0.5
+        },
+        "timer": {
+            "type": "sample",
+            "file": "sounds/sfx_timer_tick.wav",
+            "volume": 0.5
         }
 
     },

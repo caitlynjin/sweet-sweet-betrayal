@@ -30,7 +30,7 @@ protected:
     float _angle;
 
     /** Whether or not the art object is animated */
-    bool _isAnimated;
+    bool _isAnimated = false;
 
     /** The scene graph node for the ArtObject. */
     std::shared_ptr<scene2::SceneNode> _node;
@@ -58,6 +58,8 @@ public:
     ~ArtObject(void) override { dispose(); }
 
     void dispose() override;
+
+    void setAnimated(bool isAnimated);
 
     void setAnimationDuration(float dur);
 

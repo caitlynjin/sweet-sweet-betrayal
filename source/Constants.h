@@ -199,7 +199,8 @@
 /** The font for the timer */
 #define TIMER_FONT  "yeasty flavorsRegular66.53518676757812"
 
-
+/** The layering priority for pass-through platforms */
+#define PLATFORM_PRIORITY -1
 #pragma mark -
 #pragma mark Environment Textures
 /** The key for the background texture in the asset manager */

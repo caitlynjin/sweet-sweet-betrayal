@@ -41,7 +41,12 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		"ow",
 		"aw",
 		"placeItem",
-		"bomb"
+		"bomb",
+		"redSelect",
+		"blueSelect",
+		"yellowSelect",
+		"greenSelect",
+		"timer"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;

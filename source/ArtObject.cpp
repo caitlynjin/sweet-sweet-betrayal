@@ -1,5 +1,6 @@
 #include "ArtObject.h"
 #include "Object.h"
+#include "Constants.h"
 
 #define JSON_KEY "artObjects"
 
@@ -7,7 +8,7 @@ using namespace cugl;
 using namespace cugl::graphics;
 
 void ArtObject::update(float timestep) {
-    if (!_isAnimated) {
+    if (_isAnimated) {
         doStrip(_animationAction, _animationDuration);
         _timeline->update(timestep);
     }
@@ -21,6 +22,10 @@ void ArtObject::setAnimationDuration(float dur) {
     _animationDuration = dur;
 }
 
+void ArtObject::setAnimated(bool isAnimated) {
+    _isAnimated = isAnimated;
+}
+
 void ArtObject::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
     _animateSpriteNode = sprite;
 
@@ -30,9 +35,11 @@ void ArtObject::setAnimation(std::shared_ptr<scene2::SpriteNode> sprite) {
 
     _timeline = ActionTimeline::alloc();
 
+    auto pair = animatedArtObjects[_jsonType];
+
     // Create the frame sequence
     // For an 8x8 spritesheet
-    const int span = 32;
+    const int span = pair.first * pair.second;
 
     std::vector<int> forward;
     for (int ii = 1; ii < span; ii++) {
@@ -91,7 +98,6 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     _itemType = Item::ART_OBJECT;
     _jsonType = jsonType;
     _itemType = jsonTypeToItemType[jsonType];
-    CULog("jsonType is %s", jsonType.c_str());
     
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -1.0f), size*0.1);
@@ -124,6 +130,7 @@ void ArtObject::setLayer(int layer) {
 
 void ArtObject::dispose() {
     Object::dispose();
+    markRemoved(true);
 
     if (_node && _node->getParent()) {
         _node->removeFromParent();
