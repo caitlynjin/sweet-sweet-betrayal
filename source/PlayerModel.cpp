@@ -736,7 +736,7 @@ void PlayerModel::update(float dt)
         
     // Allows the player to still move on a moving platform even if dead
 
-    if (_onMovingPlat)
+    if (_onMovingPlat&& MovingPlat != nullptr)
     {
         CULog("on moving platform");
         Vec2 platformVel = MovingPlat->getLinearVelocity();
