@@ -29,6 +29,9 @@ void Platform::updateAnimation(float timestep) {
 
 void Platform::update(float timestep) {
     PolygonObstacle::update(timestep);
+    if (_moving){
+        updateAnimation(timestep);
+    }
 }
 
 void Platform::updateMovingPlatform(float timestep) {
@@ -60,7 +63,6 @@ void Platform::updateMovingPlatform(float timestep) {
         CULog("Platform has turned %d times", _turnCount);
         _turnCount=0;
     }
-    updateAnimation(timestep);
 }
 
 
