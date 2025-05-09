@@ -335,7 +335,7 @@ void SSBGameController::preUpdate(float dt)
         if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
             auto platform = std::dynamic_pointer_cast<Platform>(obj);
             if (platform && platform->getOwnerId() == _networkController->getNetwork()->getShortUID()) {
-                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
+//                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
                 platform->updateMovingPlatform(dt);
             }
         }
