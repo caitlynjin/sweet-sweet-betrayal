@@ -109,10 +109,6 @@ private:
 	CU_DISALLOW_COPY_AND_ASSIGN(PlayerModel);
     
     std::shared_ptr<Treasure> _treasure;
-
-    /** This map stores all the original colors of the nodes to be used to set player tranpsarency */
-    std::unordered_map<std::shared_ptr<cugl::scene2::SceneNode>, cugl::Color4> _originalColors;
-
 protected:
     /*Stores our current state*/
     enum class State {

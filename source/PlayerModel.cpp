@@ -913,18 +913,15 @@ ColorType PlayerModel::getColor() {
  */
 void PlayerModel::setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value) {
     if (value) {
-        // Save original color
-        _originalColors[node] = node->getColor();
-
         // Set transparent
         Color4 color = node->getColor();
         color.a = 150;
         node->setColor(color);
     } else {
-        // Restore original color if saved
-        if (_originalColors.find(node) != _originalColors.end()) {
-            node->setColor(_originalColors[node]);
-        }
+        // Restore color
+        Color4 color = node->getColor();
+        color.a = 255;
+        node->setColor(color);
     }
 
     for (const auto& child : node->getChildren()) {
