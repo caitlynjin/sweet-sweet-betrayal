@@ -65,24 +65,6 @@ std::shared_ptr<Object> ObjectController::createTile(Vec2 pos, Size size, string
 std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile) {
     std::shared_ptr<Texture> image;
     image = _assets->get<Texture>(jsonTypeToAsset[tile->getJsonType()]);
-    std::string jsonTypeTemp = tile->getJsonType();
-    std::string jsonTypeTemp2 = jsonTypeToAsset[tile->getJsonType()];
-    //std::string jsonTypeTemp3 = jsonTypeToAsset[std::string("textures/") + std::string(tile->getJsonType())];
-    for (auto it = jsonTypeToAsset.begin(); it != jsonTypeToAsset.end(); ++it) {
-        CULog("abababa %s %s", (*it).first.c_str(), (*it).second.c_str());
-
-    }
-
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(tile->getPositionInit().x, tile->getPositionInit().y, tile->getSize().width - blendingOffset, tile->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
 
     // Set the physics attributes
     tile->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
@@ -92,7 +74,6 @@ std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile)
     tile->setDebugColor(DEBUG_COLOR);
     tile->setName("tile");
 
-    poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     tile->setSceneNode(sprite);
 
@@ -387,37 +368,27 @@ std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, f
 
 std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObject> art) {
     std::shared_ptr<Texture> image;
-
+    bool isAnimated = animatedArtObjects.find(art->getJsonType()) != animatedArtObjects.end();
     image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
     if (image == nullptr) {
         image = _assets->get<Texture>("earth");
     }
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Vec2 offset = Vec2(0, 0);
-    if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), art->getJsonType()) != xOffsetArtObjects.end()) {
-        offset += Vec2(32, 0);
+    int rows = 1;
+    int cols = 1;
+    if (isAnimated) {
+        auto pair = animatedArtObjects[art->getJsonType()];
+        rows = pair.first;
+        cols = pair.second;
+        // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
+        art->setAnimationDuration(1.0f);
     }
-    if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), art->getJsonType()) != yOffsetArtObjects.end()) {
-        offset += Vec2(0, 32);
-    }
-
-    Poly2 poly(Rect(art->getPositionInit().x, art->getPositionInit().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
     art->setSceneNode(sprite);
+    art->setAnimated(isAnimated);
     if (jsonTypeToLayer.find(art->getJsonType()) != jsonTypeToLayer.end()) {
         // jsonType IS in the map
         art->setLayer(jsonTypeToLayer[art->getJsonType()]);
     }
-    CULog("layer is %d", art->getLayer());
     /* ArtObjects are still objects, and thus still have BoxObstacles.
      * They also need this to be rendered properly in the physics world.
      * Otherwise we'd have to have separate logic using an addChild method 
@@ -433,7 +404,7 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     // Disable ArtObject collision physics
     art->setSensor(true);
     addObstacle(art, sprite);
-
+    art->setAnimation(sprite);
     _gameObjects->push_back(art);
 
     return art;

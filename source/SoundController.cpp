@@ -24,13 +24,12 @@ SoundController::SoundController() {}
  */
 bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 
-	std::vector<std::string> soundsToLoop = {
+	std::vector<std::string> musicTracks = {
 		"move_phase"
 	};
 	std::vector<std::string> soundNames = {
 		"glide", 
 		"button_click",
-		"move_phase",
 		"jump",
 		"mushroom_boing",
 		"placeItem",
@@ -41,7 +40,13 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		"ow",
 		"aw",
 		"placeItem",
-		"bomb"
+		"bomb",
+		"redSelect",
+		"blueSelect",
+		"yellowSelect",
+		"greenSelect",
+		"timer",
+		"discardItem"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;
@@ -50,12 +55,16 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		sound = assets->get<Sound>(name);
 		_sounds.push_back(sound);
 		_soundMap.emplace(name, sound);
+		_soundOriginalVolumeMap.emplace(name, sound->getVolume());
 	}
-	for (auto it = soundsToLoop.begin(); it != soundsToLoop.end(); ++it) {
-		// Come back to this
+	for (auto it = musicTracks.begin(); it != musicTracks.end(); ++it) {
+		name = *it;
+		sound = assets->get<Sound>(name);
+		_sounds.push_back(sound);
+		_musicMap.emplace(name, sound);
+		_musicOriginalVolumeMap.emplace(name, sound->getVolume());
 	}
 	_musicQueue = AudioEngine::get()->getMusicQueue();
-	//_musicQueue->setVolume(0.8f);
 	return true;
 }
 
@@ -74,11 +83,11 @@ void SoundController::playSound(std::string key) {
 
 // Make sure this actually works the way it's supposed to
 void SoundController::playMusic(std::string key, bool loop) {
-	_musicQueue->enqueue(_soundMap[key], loop);
+	_musicQueue->enqueue(_musicMap[key], loop);
 }
 
 void SoundController::addMusicToQueue(std::string key) {
-	_musicQueue->enqueue(_soundMap[key]);
+	_musicQueue->enqueue(_musicMap[key]);
 }
 
 /**
@@ -95,6 +104,21 @@ void SoundController::stopSound(std::string key) {
 * @param key The key identifying the music track */
 void SoundController::stopMusic(std::string key) {
 	_musicQueue->pause();
+}
+
+void SoundController::setMusicVolume(float vol) {
+	_musicVolume = vol;
+	for (auto it = _musicMap.begin(); it != _musicMap.end(); ++it) {
+		it->second->setVolume(_musicOriginalVolumeMap[it->first] * vol);
+	}
+}
+
+void SoundController::setSFXVolume(float vol) {
+	_sfxVolume = vol;
+	for (auto it = _soundMap.begin(); it != _soundMap.end(); ++it) {
+		it->second->setVolume(_soundOriginalVolumeMap[it->first] * vol);
+	}
+	
 }
 
 void SoundController::dispose() {}
