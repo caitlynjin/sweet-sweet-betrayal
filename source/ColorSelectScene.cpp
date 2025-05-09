@@ -109,7 +109,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _readybutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::READY;
-            _networkController->flushConnection();
+//            _networkController->flushConnection();
             _networkController->setLocalColor(_myColor);
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
             _isReady = true;

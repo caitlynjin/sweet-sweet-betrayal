@@ -83,6 +83,7 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ReadyEvent>();
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
+    _network->attachEventType<AnimationEvent>();
     _localID = _network->getShortUID();
 }
 
@@ -200,6 +201,7 @@ void NetworkController::fixedUpdate(float step){
         if(auto lEvent = std::dynamic_pointer_cast<LevelEvent>(e)){
             processLevelEvent(lEvent);
         }
+        CULog("No event matched");
     }
     _scoreController->setPlayerColors(_playerColorsById);
 

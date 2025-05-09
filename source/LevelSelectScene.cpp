@@ -74,6 +74,7 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _sound = sound;
     
     _networkController = networkController;
+    _network = networkController->getNetwork();
     
     // Acquire the scene built by the asset loader and resize it the scene
     std::shared_ptr<scene2::SceneNode> levelScene = _assets->get<scene2::SceneNode>("level-select");
@@ -158,11 +159,16 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
                 _choice = LEVEL3;
             }
             
-            auto event = std::dynamic_pointer_cast<LevelEvent>(
-                                                               LevelEvent::allocLevelEvent(_levelView)
-            );
-            std::shared_ptr<NetEventController> network = _networkController->getNetwork();
-            network->pushOutEvent(event);
+            _playPressed = true;
+            
+//            CULog("Level view num: %d", _levelView);
+            //            auto event = std::dynamic_pointer_cast<LevelEvent>(
+            //                                                               LevelEvent::allocLevelEvent(_levelView)
+            //            );
+            //            std::shared_ptr<NetEventController> network = _networkController->getNetwork();
+//            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
+            
+//            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_PICK));
         }
     });
     
@@ -197,7 +203,15 @@ void LevelSelectScene::reset(){
 }
 
 void LevelSelectScene::update(float dt){
-    if (_networkController->getLevelSelected() != 0){
+    // If host, send out level selected when play button pressed
+    if (_network->isHost() && _playPressed){
+        _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
+        _playPressed = false;
+    }
+    
+    // Client checks for level selected by host
+    if (!_network->isHost() && _networkController->getLevelSelected() != 0){
+        CULog("Client receives level selected");
         _choice = static_cast<Choice>(_networkController->getLevelSelected());
     }
 }

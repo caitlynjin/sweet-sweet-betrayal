@@ -51,6 +51,8 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _background;
     
     std::shared_ptr<NetworkController> _networkController;
+    /** The network */
+    std::shared_ptr<cugl::physics2::distrib::NetEventController> _network;
     
     std::shared_ptr<cugl::scene2::Button> _level1;
     std::shared_ptr<cugl::scene2::Button> _level2;
@@ -67,6 +69,7 @@ protected:
     
     int _levelView;
     
+    bool _playPressed = false;
     // Modal assets
     
 
