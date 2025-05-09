@@ -560,7 +560,7 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
     case (MOVING_PLATFORM):
         return nullptr;//_networkController->createMovingPlatformNetworked(gridPos, itemToSize(item), gridPos + Vec2(3, 0), 1, _levelEditorScene.getScale() / getSystemScale());
     case (WIND):
-        return _objectController->createWindObstacle(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(),  Vec2(0, 4.0), Vec2(0, 3.0), "wind", true);
+        return _objectController->createWindObstacle(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(),  Vec2(0, 4.0), Vec2(0, 3.0), 0,"wind", true);
     case (SPIKE):
         return _objectController->createSpike(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "spikeUp");
     case (MUSHROOM):

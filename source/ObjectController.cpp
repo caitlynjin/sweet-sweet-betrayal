@@ -241,9 +241,10 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType, bool isLevelEditorMode)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, const float angle,
+    string jsonType, bool isLevelEditorMode)
 {
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength,angle, jsonType);
     return createWindObstacle(wind, isLevelEditorMode);
 }
 

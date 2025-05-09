@@ -1126,7 +1126,7 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDirection, const Vec2 windStrength) {
     //Allocate Fan Animations
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, 0);
 
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
     wind->setFanAnimation(animNode, 4);
@@ -1160,7 +1160,6 @@ WindFactory::serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirectio
     _serializer.writeFloat(windDirection.y);
     _serializer.writeFloat(windStrength.x);
     _serializer.writeFloat(windStrength.y);
-    
 
     return std::make_shared<std::vector<std::byte>>(_serializer.serialize());
 }

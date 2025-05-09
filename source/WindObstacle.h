@@ -71,20 +71,20 @@ public:
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
 	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
-		const Vec2 windStrength) {
+		const Vec2 windStrength, const float angle) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size,scale, windDirection, windStrength) ? result : nullptr);
+		return (result->init(position, size,scale, windDirection, windStrength, angle) ? result : nullptr);
 	}
 
 	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
-		const Vec2 windStrength, string jsonType) {
+		const Vec2 windStrength,const float angle, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, scale, windDirection, windStrength, jsonType) ? result : nullptr);
+		return (result->init(position, size, scale, windDirection, windStrength, angle,jsonType) ? result : nullptr);
 	}
 	/*Intialize according to position and size. Need to change later*/
-	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, const float angle);
 
-	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, const float angle,string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 
@@ -93,10 +93,13 @@ public:
 	std::shared_ptr<cugl::scene2::SpriteNode> _gustNode;
 	cugl::ActionFunction _windAction;
 
+	//Regenerate and set ray origins
+	void setRayOrigins();
+
 	/*How hard and what direction the wind is blowing the player in*/
 	const Vec2 getWindForce() { return _windForce; };
 
-	//
+	//Get the distnace of the last ray cast to the player
 	const float getPlayerToWindDist() { return _currentPlayerDist; }
 
 	/**Returns the list of wind origins*/

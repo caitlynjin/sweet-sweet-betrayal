@@ -20,15 +20,7 @@ void WindObstacle::setPositionInit(const cugl::Vec2& position) {
     
 
     // Update ray positions
-    _rayOrigins.clear();
-    float rayDiff = (_size.width - 2 * OFFSET)/(RAYS*_size.width);
-
-    for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = position + Vec2(OFFSET, OFFSET) +
-            Vec2(rayDiff * it, 0);
-
-        _rayOrigins.push_back(origin);
-    }
+    setRayOrigins();
 }
 
 void WindObstacle::update(float timestep) {
@@ -48,9 +40,9 @@ void WindObstacle::update(float timestep) {
         _minRayDist = min(_rayDist[it], _minRayDist);
         
     }
-    CULog("playerdist %f", _currentPlayerDist);
+    /*CULog("playerdist %f", _currentPlayerDist);
     CULog("raydist %f", _minRayDist);
-    CULog("pos %f", _position.x);
+    CULog("pos %f", _position.x);*/
 
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
@@ -105,6 +97,41 @@ void WindObstacle::updateAnimation(float timestep) {
         _gustTimeline1->update(timestep);
     }
 }
+void WindObstacle::setRayOrigins() {
+    // Update ray positions
+    _rayOrigins.clear();
+    //Account for the angle.
+    float rayDiff = (_size.width - 2 * OFFSET) / (RAYS * _size.width);
+    Vec2 diffVec = Vec2();
+    Vec2 posDiff = Vec2(OFFSET, OFFSET);
+    CULog("angel %f", _angle);
+    if (_angle <= 0) {
+        diffVec = Vec2(rayDiff, 0);
+        
+    }
+    else if (_angle <= (M_PI / 2 + 0.1f)) {
+        diffVec = Vec2(0, -rayDiff);
+        posDiff.y = 1 - OFFSET;
+    }
+    else if (_angle <= M_PI+0.1f) {
+        diffVec = Vec2(-rayDiff,0);
+        posDiff.x = 1 - OFFSET;
+    }
+    else{
+        diffVec = Vec2(0,rayDiff);
+        posDiff.y = 1 - OFFSET;
+        posDiff.x = 1 - OFFSET;
+    }
+
+    for (int it = 0; it != RAYS; it++) {
+        Vec2 origin = _position + posDiff + diffVec * it;
+            //Vec2(rayDiff * it, 0);
+        _rayOrigins.push_back(origin);
+        CULog("Origin.x %f", origin.x);
+        CULog("Origin.y %f", origin.y);
+    }
+    
+}
 
 string WindObstacle::ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction) {
     b2Body* body = contact->GetBody();
@@ -134,8 +161,8 @@ using namespace cugl;
 #pragma mark -
 #pragma mark Constructors
 
-bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength) {
-    return WindObstacle::init(pos, size, scale, windDirection, windStrength, "default");
+bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, const float angle) {
+    return WindObstacle::init(pos, size, scale, windDirection, windStrength, angle, "default");
 }
 /**
  * Initializes a new WindObstacle at the given position.
@@ -146,7 +173,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
  * @param windStrength How strongly the wind blows the player.
  * @return  true if the obstacle is initialized properly, false otherwise.
  */
-bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType) {
+bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, const float angle, string jsonType) {
     float _rayDist[RAYS + 1];
     float _playerDist[RAYS + 1];
 
@@ -156,25 +183,25 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     _position = pos;
     _size = size;
     _jsonType = jsonType;
+    _angle = angle;
 
     _drawScale = 1.0f;
     _minRayDist = 2.0f;
     
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/
-    float rayDiff = (_size.width - 2 * OFFSET) / (RAYS * _size.width);
-
-    for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = pos + Vec2(OFFSET, OFFSET) +
-            Vec2(rayDiff * it, 0);
-
-        _rayOrigins.push_back(origin);
-    }
+    
 
     /*Here we intialize the direction and trajectory*/
     _windDirection = windDirection;
     _windForce = windStrength;
 
+    //Debugging
+    /*_angle = 1.5f*M_PI;
+    _windDirection =Vec2(4,0);
+    _windForce = Vec2(4,0);*/
+
+    setRayOrigins();
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
