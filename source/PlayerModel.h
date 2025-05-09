@@ -76,11 +76,11 @@ using namespace Constants;
 /**Initial burst of speed when the player begins gliding or changes direction*/
 #define GLIDE_BOOST_FACTOR 1.2f
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define WIND_FACTOR 0.05f
-#define WIND_FACTOR_GLIDING 0.4f
-#define WIND_FACTOR_AIR 0.08f
+#define WIND_FACTOR 0.4f
+#define WIND_FACTOR_GLIDING 0.3f
+#define WIND_FACTOR_AIR 0.25f
 //At what distance should wind be functional for gliding vs non gliding players
-#define WIND_DIST_THRESHOLD 0.6f
+#define WIND_DIST_THRESHOLD 0.35f
 //Determines for how long we can 'halt' a jump middair, allowing the player to control how high they jump
 #define JUMP_DURATION 0.6f
 #define JUMP_STOP_DAMPING 0.2f

@@ -265,6 +265,10 @@ void MovePhaseController::preUpdate(float dt) {
 }
 
 void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float dt) {
+    if (wind->getPlayerHits() > 0) {
+        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce(), wind->getPlayerToWindDist());
+    }
+
     int i = 0;
     std::vector<cugl::Vec2> lst = wind->getRayOrigins();
 
@@ -279,11 +283,14 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
 
             // Set grounded for all non-local players
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
-            if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
+            if ( bd == _movePhaseScene.getLocalPlayer().get()) {
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
-            wind->setRayDist(i, fraction);
+            if (bd->getName() != "fan") {
+                wind->setRayDist(i, fraction);
+            }
+            
             return fraction;
             };
         /**Generates the appropriate raycasts to handle collision for this wind object*/
@@ -292,10 +299,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
         ++i;
 
     }
-    wind->update(dt);
-    if (wind->getPlayerHits() > 0) {
-        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce(), wind->getPlayerToWindDist());
-    }
+    //wind->update(dt);
 }
 
 /**

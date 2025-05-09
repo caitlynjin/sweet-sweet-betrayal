@@ -797,14 +797,8 @@ void PlayerModel::glideUpdate(float dt)
     {
         _body->SetLinearDamping(0);
     }
-
-    if (_justGlided == true) {
-        _justGlided = false;
-    }
-    if (_justExitedGlide == true) {
-        _justExitedGlide = false;
-    }
-
+    _justGlided = false;
+    _justExitedGlide = false;
 }
 /**
 Inflicts an appropriate force to the player based on _windspeed
@@ -823,6 +817,10 @@ void PlayerModel::windUpdate(float dt)
         b2Vec2 vel = _body->GetLinearVelocity();
         vel.x += _windVel.x * mult;
         vel.y += _windVel.y * mult;
+        if (vel.y <= 0 && _windVel.y>0 && !_isGliding) {
+            vel.y += 3*_windVel.y * mult;
+        }
+        
         _body->SetLinearVelocity(vel);
     }
     

@@ -28,6 +28,7 @@ private:
 	//The closest detected raycast collision
 	float _minRayDist;
 	float _prevRayDist;
+	float _angle = M_PI/2;
 
 	/**The points where we are raycasting from. */
 

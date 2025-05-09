@@ -15,15 +15,16 @@ using namespace cugl::graphics;
  * @param position   The position
  */
 void WindObstacle::setPositionInit(const cugl::Vec2& position) {
-    _position = position;
     PolygonObstacle::setPosition((position)*_drawScale);
+    _position = position;
+    
 
     // Update ray positions
     _rayOrigins.clear();
     float rayDiff = (_size.width - 2 * OFFSET)/(RAYS*_size.width);
 
     for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = position + Vec2(OFFSET, OFFSET + _size.height / 2) +
+        Vec2 origin = position + Vec2(OFFSET, OFFSET) +
             Vec2(rayDiff * it, 0);
 
         _rayOrigins.push_back(origin);
@@ -54,9 +55,9 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
-    if (true) {
-        updateAnimation(timestep);
-    }
+    
+    updateAnimation(timestep);
+    
     
 }
 
@@ -161,9 +162,11 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     
     /**Intialize wind specific variables*/
     /**Here we intialize the origins of the ray tracers*/
+    float rayDiff = (_size.width - 2 * OFFSET) / (RAYS * _size.width);
+
     for (int it = 0; it != RAYS; it++) {
-        Vec2 origin = pos + Vec2(OFFSET, OFFSET + _size.height / 2) + 
-            ((size.width-2*OFFSET)/(_size.width))*Vec2((_size.width/2)*(RAYS-2*it)/RAYS, 0);
+        Vec2 origin = pos + Vec2(OFFSET, OFFSET) +
+            Vec2(rayDiff * it, 0);
 
         _rayOrigins.push_back(origin);
     }
@@ -182,7 +185,9 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         setFriction(0.0f);
         setRestitution(0.0f);
         setName("fan");
-        setBodyType(b2_dynamicBody);
+        setSensor(true);
+        setAngle(_angle);
+        //setBodyType(b2_dynamicBody);
         
         _node = scene2::SpriteNode::alloc();
         _node->setPriority(PRIORITY);
