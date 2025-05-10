@@ -521,11 +521,11 @@ void PlayerModel::applyForce()
     //Apply a small linear velocity burst when we turn around on the ground, for gamefeel
     if (_justFlipped && isGrounded()) {
         if (_faceRight) {
-            CULog("FLIPBOOST");
+//            CULog("FLIPBOOST");
             vel.x += STARTING_VELOCITY;
         }
         else if (!_faceRight) {
-            CULog("FLIPBOOST");
+//            CULog("FLIPBOOST");
             vel.x -= STARTING_VELOCITY;
         }
     }
