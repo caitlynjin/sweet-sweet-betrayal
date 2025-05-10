@@ -174,7 +174,12 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     //_sound->playMusic("move_phase");
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
-    
+
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setVisible(false);
+    }
+
     return true;
 }
 
@@ -462,6 +467,8 @@ void SSBGameController::setBuildingMode(bool value) {
     std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
     for (auto player : players){
         player->setImmobile(value);
+        player->setVisible(false);
+        player->setGhost(player->getSceneNode(), false);
     }
 }
 
