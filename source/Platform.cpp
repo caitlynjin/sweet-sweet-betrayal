@@ -19,7 +19,7 @@ void Platform::setPositionInit(const cugl::Vec2& position) {
 void Platform::updateAnimation(float timestep) {
     if (_platTimeline->isActive("current")) {
         // NO OP
-        CULog("PlatformAnimationPrepping");
+//        CULog("PlatformAnimationPrepping");
     }
     else {
         _platTimeline->add("current", _platAction, 1.0f);
