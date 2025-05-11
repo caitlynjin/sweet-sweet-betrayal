@@ -114,6 +114,8 @@ void BuildPhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseController::preUpdate(float dt) {
+    _gridManager->update(dt);
+
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
@@ -240,7 +242,8 @@ void BuildPhaseController::preUpdate(float dt) {
             }
         } else {
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
+                if (!_gridManager->canPlaceExisting(gridPos, _selectedObject)) {
+                    CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                     // Move the object back to its original position
                     _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);

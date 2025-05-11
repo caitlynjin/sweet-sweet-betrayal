@@ -66,6 +66,56 @@ void GridManager::initGrid(bool isLevelEditor) {
     _grid->addChild(_spriteNode);
 }
 
+/**
+ * The method called to update the grid.
+ *
+ * @param timestep  The amount of time (in seconds) since the last frame
+ */
+void GridManager::update(float timestep) {
+    // Ensure objects in the world are added to grid
+    for (const auto& obs : _world->getObstacles()) {
+        std::shared_ptr<Object> object = std::static_pointer_cast<Object>(obs);
+        Vec2 cellPos = object->getPositionInit();
+        auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
+
+        auto it = worldObjToPosMap.find(object);
+        if (it == worldObjToPosMap.end()) {
+            // Unable to find object on grid
+            CULog("Add created object to grid");
+            addObject(object);
+        } else if (originPosPair != worldObjToPosMap[object]) {
+            CULog("originPosPair: (%f, %f)", originPosPair.first, originPosPair.second);
+            CULog("pos on worldOBjToPosMap: (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second);
+
+            // Update object position on map
+//            CULog("Updating object position");
+            moveWorldObject(object);
+            addObject(object);
+        }
+    }
+
+    // Convert Obstacles to Objects
+    std::unordered_set<std::shared_ptr<Object>> objects;
+    for (const auto& obs : _world->getObstacles()) {
+        objects.insert(std::static_pointer_cast<Object>(obs));
+    }
+
+    // Make a copy of the keys to avoid iterator invalidation
+    std::vector<std::shared_ptr<Object>> keysToCheck;
+    for (const auto& objPosPair : worldObjToPosMap) {
+        keysToCheck.push_back(objPosPair.first);
+    }
+
+    // Ensure objects NOT in the world are removed from the grid
+    for (const auto& obj : keysToCheck) {
+        if (objects.find(obj) == objects.end()) {
+            CULog("Removed deleted object from grid");
+            moveWorldObject(obj);
+            deleteObject(obj);
+        }
+    }
+}
+
 #pragma mark -
 #pragma mark Attribute Properties
 
@@ -120,21 +170,27 @@ void GridManager::setSpriteInvisible(){
 void GridManager::addObject(std::shared_ptr<Object> obj) {
     Vec2 cellPos = obj->getPositionInit();
     Size size = obj->getSize();
+    auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
+
+    // Add the origin position of the object
+    worldObjToPosMap[obj] = originPosPair;
+    CULog("updated position to (%f, %f)", originPosPair.first, originPosPair.second);
 
     // Add the object to every position it exists in
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // TODO: Check if the y-axis offset is positive or negative
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
-            if (obj->getItemType() != Item::ART_OBJECT) {
-                hasObjMap[posPair] = true;
-            }
             if (itemIsArtObject(obj->getItemType())) {
                 posToArtObjMap[posPair].push_back(obj);
             }
+            else {
+                posToWorldObjMap[posPair] = obj;
+                hasObjMap[posPair] = true;
+            }
         }
     }
-};
+}
 
 /**
  * Adds the moveable object to the object map to this location.
@@ -170,7 +226,7 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
             
         }
     }
-};
+}
 
 /**
  * Removes the moveable object from the object map, if it exists.
@@ -219,7 +275,6 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
             }
             else {
                 posToObjMap.erase(posPair);
-                posToWorldObjMap.erase(posPair);
                 hasObjMap.erase(posPair);
             }
             
@@ -228,34 +283,23 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
 
     // Clear the origin position of the object
     objToPosMap.erase(obj);
-    worldObjToPosMap.erase(obj);
 
     return obj;
-};
+}
 
 /**
- * Removes the object from the world object map, if it exists.
+ * Removes the world object from the object map, if it exists.
  *
  *@return   the world object removed
  *
- *@param cellPos    the cell position
+ *@param obj    the world object
  */
-std::shared_ptr<Object> GridManager::removeWorldObject(Vec2 cellPos) {
-    // Find object in object map
-    auto posPair = std::make_pair(cellPos.x, cellPos.y);
-    std::shared_ptr<Object> obj;
-
-    auto it = posToWorldObjMap.find(posPair);
-    if (it == posToWorldObjMap.end()) {
-        // If unable to find object
-        return nullptr;
-    }
-    obj = it->second;
+std::shared_ptr<Object> GridManager::moveWorldObject(std::shared_ptr<Object> obj) {
+    Size size = obj->getSize();
 
     // Clear all positions the object occupies
     auto originPosX = worldObjToPosMap[obj].first;
     auto originPosY = worldObjToPosMap[obj].second;
-    Size size = itemToGridSize(obj->getItemType());
 
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
@@ -263,9 +307,11 @@ std::shared_ptr<Object> GridManager::removeWorldObject(Vec2 cellPos) {
             auto posPair = std::make_pair(originPosX + i, originPosY + j);
 
             posToWorldObjMap.erase(posPair);
-//            hasObjMap.erase(posPair);
+            hasObjMap.erase(posPair);
         }
     }
+
+    // DO NOT remove the object from the `worldObjToPos` map
 
     return obj;
 }
@@ -311,6 +357,34 @@ bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
     return true;
 };
 
+/**
+ * Checks whether we can place an existing object in the cell position.
+ *
+ * @return false if there exists an object
+ *
+ * @param cellPos    the cell position
+ */
+bool GridManager::canPlaceExisting(Vec2 cellPos, std::shared_ptr<Object> obj) {
+    Size size = obj->getSize();
+
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // Find object in object map
+            auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
+
+            if (hasObjMap.find(posPair) != hasObjMap.end()) {
+                // Check if it's the same object
+                if (posToWorldObjMap[posPair] != obj) {
+                    // Space occupied
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 void GridManager::clear() {
     posToArtObjMap.clear();
     posToObjMap.clear();
@@ -326,6 +400,9 @@ void GridManager::clear() {
  */
 void GridManager::deleteObject(std::shared_ptr<Object> obj) {
     // Clears maps and returns the object
+    objToPosMap.erase(obj);
+    worldObjToPosMap.erase(obj);
+
     if (obj) {
         obj->dispose();
         obj = nullptr;

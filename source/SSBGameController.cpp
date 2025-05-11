@@ -156,7 +156,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, offset, assets);
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, offset, assets, _world);
 
     _movePhaseController = std::make_shared<MovePhaseController>();
     _buildPhaseController = std::make_shared<BuildPhaseController>();
@@ -234,6 +234,7 @@ void SSBGameController::reset()
  */
 void SSBGameController::update(float timestep)
 {
+    _networkController->getObjects();
 }
 
 /**

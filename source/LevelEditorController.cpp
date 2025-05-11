@@ -128,7 +128,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets);
+    _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets, _world);
 
     shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
     worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
