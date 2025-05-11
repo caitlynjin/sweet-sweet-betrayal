@@ -109,7 +109,6 @@ private:
 	CU_DISALLOW_COPY_AND_ASSIGN(PlayerModel);
     
     std::shared_ptr<Treasure> _treasure;
-
 protected:
     /*Stores our current state*/
     enum class State {
@@ -759,6 +758,14 @@ public:
     void setVisible(bool value) {
         _node->setVisible(value);
     }
+
+    /**
+     * Sets whether the player is transparent.
+     *
+     * @param node      the player scene node
+     * @param value     whether to set the player to transparent or not
+     */
+    void setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value);
 
 };
 

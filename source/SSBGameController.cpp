@@ -174,7 +174,12 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     //_sound->playMusic("move_phase");
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
-    
+
+    std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
+    for (auto player : players){
+        player->setVisible(false);
+    }
+
     return true;
 }
 
@@ -335,7 +340,7 @@ void SSBGameController::preUpdate(float dt)
         if (obj && obj->getItemType() == Item::MOVING_PLATFORM) {
             auto platform = std::dynamic_pointer_cast<Platform>(obj);
             if (platform && platform->getOwnerId() == _networkController->getNetwork()->getShortUID()) {
-                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
+//                CULog("Updating moving platform owned by %d with dt = %.4f", platform->getOwnerId(), dt);
                 platform->updateMovingPlatform(dt);
             }
         }
@@ -462,6 +467,8 @@ void SSBGameController::setBuildingMode(bool value) {
     std::vector<std::shared_ptr<PlayerModel>> players = _networkController->getPlayerList();
     for (auto player : players){
         player->setImmobile(value);
+        player->setVisible(false);
+        player->setGhost(player->getSceneNode(), false);
     }
 }
 
