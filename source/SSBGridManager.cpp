@@ -331,7 +331,7 @@ bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
             // Find object in object map
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
-            if (hasObjMap.find(posPair) != hasObjMap.end() && !itemIsArtObject(item)) {
+            if (posToWorldObjMap[posPair] != nullptr && !itemIsArtObject(item)) {
                 return false;   // Object exists in position
                 // TODO : if it's an art object, instead check if artobjmap has that itemtype in it at that spot
             }
@@ -372,7 +372,7 @@ bool GridManager::canPlaceExisting(Vec2 cellPos, std::shared_ptr<Object> obj) {
             // Find object in object map
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
-            if (hasObjMap.find(posPair) != hasObjMap.end()) {
+            if (posToWorldObjMap[posPair] != nullptr) {
                 // Check if it's the same object
                 if (posToWorldObjMap[posPair] != obj) {
                     // Space occupied
