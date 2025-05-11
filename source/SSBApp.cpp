@@ -170,6 +170,9 @@ void SSBApp::update(float dt)
  */
 void SSBApp::preUpdate(float dt)
 {
+    if (_network){
+        CULog("Network status: %d", static_cast<int>(_network->getStatus())); 
+    }
     // Handle transition logic
     if (_doTransition){
         if (_transition.getFadingOutDone()){
@@ -616,6 +619,9 @@ void SSBApp::updateColorSelectScene(float timestep){
     _colorselect.update(timestep);
     _networkController->fixedUpdate(timestep);
     
+    
+    CULog("Number color ready: %d", _networkController->getNumColorReady());
+    CULog("Initial player count: %d", _colorselect.getInitialPlayerCount());
     if (_networkController->getNumColorReady() == _colorselect.getInitialPlayerCount()) {
         setTransition(true);
         if (_transition.getFadingOutDone()){
@@ -651,8 +657,8 @@ void SSBApp::updateColorSelectScene(float timestep){
         return;
     }
     
-    if (_colorselect._getReady()){
-        _colorselect._setReadyEnabled(false);
+    if (_colorselect.getReady()){
+        _colorselect.setReadyEnabled(false);
     }
     
     switch (_colorselect.getChoice())

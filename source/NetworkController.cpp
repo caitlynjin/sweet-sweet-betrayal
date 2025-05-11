@@ -241,10 +241,14 @@ void NetworkController::reset(){
     // Reset network in-game variables
     _numReady = 0;
     _numReset = 0;
+    _numColorReady = 0;
+    
     resetTreasureRandom();
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
+    _colorsSynced = false;
+    _playerColorAdded = false;
 }
 
 
@@ -275,6 +279,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
     Message message = event->getMesage();
     switch (message) {
         case Message::COLOR_READY:
+            CULog("Received color ready message");
             _numColorReady++;
             break;
         case Message::BUILD_READY:
