@@ -233,7 +233,7 @@ void MovePhaseScene::reset() {
     _camera->setPosition(_initialCameraPos);
     _camera->update();
 
-    populate();
+//    populate();
 }
 
 /**
