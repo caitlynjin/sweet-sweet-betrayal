@@ -104,6 +104,8 @@ void WindObstacle::setRayOrigins() {
     float rayDiff = (_size.width - 2 * OFFSET) / (RAYS * _size.width);
     Vec2 diffVec = Vec2();
     Vec2 posDiff = Vec2(OFFSET, OFFSET);
+    Vec2 posAdjust = Vec2();
+    //We need to offset the position if we have a different angle. seems a bit overkill?
     CULog("angel %f", _angle);
     if (_angle <= 0) {
         diffVec = Vec2(rayDiff, 0);
@@ -112,16 +114,20 @@ void WindObstacle::setRayOrigins() {
     else if (_angle <= (M_PI / 2 + 0.1f)) {
         diffVec = Vec2(0, -rayDiff);
         posDiff.y = 1 - OFFSET;
+        posAdjust = Vec2(-1,0);
     }
     else if (_angle <= M_PI+0.1f) {
         diffVec = Vec2(-rayDiff,0);
         posDiff.x = 1 - OFFSET;
+        posAdjust = Vec2(-1, 1);
     }
     else{
         diffVec = Vec2(0,rayDiff);
         posDiff.y = 1 - OFFSET;
         posDiff.x = 1 - OFFSET;
+        posAdjust = Vec2(0, 1);
     }
+    
 
     for (int it = 0; it != RAYS; it++) {
         Vec2 origin = _position + posDiff + diffVec * it;
@@ -197,28 +203,30 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     _windForce = windStrength;
 
     //Debugging
-    /*_angle = 1.5f*M_PI;
+    _angle = 1.5f*M_PI;
     _windDirection =Vec2(4,0);
-    _windForce = Vec2(4,0);*/
+    _windForce = Vec2(4,0);
 
     setRayOrigins();
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
+    Poly2 rect = factory.makeRect(Vec2(200.0f, 200.0f), size);
+    
 
-    if (PolygonObstacle::init(rect)){
+    if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
         setPosition(pos + size/2);
+        
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
         setName("fan");
         setSensor(true);
+        //setAnchor(1.0f, 0.0f);
         setAngle(_angle);
-        //setBodyType(b2_dynamicBody);
+        //setAnchor(0.0f, 0.0f);
         
         _node = scene2::SpriteNode::alloc();
         _node->setPriority(PRIORITY);
-
         return true;
     }
     return false;
