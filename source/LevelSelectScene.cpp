@@ -206,6 +206,7 @@ void LevelSelectScene::update(float dt){
     // If host, send out level selected when play button pressed
     if (_network->isHost() && _playPressed){
         _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
+//        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_PICK));
         _playPressed = false;
     }
     
