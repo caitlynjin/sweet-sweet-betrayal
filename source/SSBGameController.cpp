@@ -195,17 +195,11 @@ void SSBGameController::dispose()
     }
 
     _input->dispose();
-    _objectController->dispose();
     _backgroundScene.dispose();
     _buildPhaseController->dispose();
     _movePhaseController->dispose();
-    if (_gridManager) {
-        _gridManager->getGridNode() = nullptr;
-        _gridManager->dispose();
-    }
     _backgroundScene.dispose();
     _background->dispose();
-    _backround.reset();
     Scene2::dispose();
 }
 
@@ -227,7 +221,6 @@ void SSBGameController::reset()
     // _networkController->reset(); //handled in APP
     _buildPhaseController->reset();
     _movePhaseController->reset();
-    _objectController->reset();
     _gridManager.reset();
     _hasVictory       = false;
     _scoreCountdown   = -1;
@@ -236,7 +229,7 @@ void SSBGameController::reset()
     _nextInRoundIndex = 0;
    
     //TODO: do we need this
-    setBuildingMode(true)
+    setBuildingMode(true);
         
     _hasVictory = false;
 }

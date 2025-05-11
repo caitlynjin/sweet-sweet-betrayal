@@ -63,21 +63,14 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
 }
 
 void NetworkController::dispose(){
-   if (_active)
-   {
-        //TODO: Dispose variables
-        _readyButton = nullptr;
-        _rightButton = nullptr;
-        _leftButton = nullptr;
-        if (_network) {
-        _network->disconnect();
-        _network->dispose();
-        _network.reset();
-        }
-        _tSpawnPoints.clear();
-        _usedSpawns.clear();
-        Scene2::dispose();
-   }
+    //TODO: Dispose variables
+    if (_network) {
+    _network->disconnect();
+    _network->dispose();
+    _network.reset();
+    }
+    _tSpawnPoints.clear();
+    _usedSpawns.clear();
    
 
 }
@@ -244,30 +237,22 @@ void NetworkController::postUpdate(float remain){
  * Resets the status of the game so that we can play again.
  */
 void NetworkController::reset(){
-    // Reset score controller
+
     _scoreController->reset();
-    
-    // Reset network in-game variables
-    _numReady = 0;
-    _numReset = 0;
+    _numColorReady = 0.0f;
+    _numReady      = 0.0f;
+    _numReset      = 0.0f;
+
     resetTreasureRandom();
-    _usedSpanws = nullptr;
+
+    _usedSpawns.clear();
+
     _onColorTaken = nullptr;
-    _numColorReady = nullptr;
-    _playerColorAdded = nullptr;
-    _readyMessageSent = false;
-    _filtersSet = false;
-    _resetLevel = false;
-    _numColorReady    = 0;
-    _numReady         = 0;
-    _numReset         = 0;
     _playerColorAdded = false;
     _readyMessageSent = false;
     _filtersSet       = false;
     _colorsSynced     = false;
     _resetLevel       = false;
-
-    _usedSpawns.clear();
 }
 
 
