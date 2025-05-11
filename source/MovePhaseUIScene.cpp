@@ -40,6 +40,10 @@ using namespace Constants;
 #define INFO_COLOR      Color4::WHITE
 /** The font for Round and Gem info */
 #define INFO_FONT    "marker"
+/** The image for the left button */
+#define LEFT_BUTTON "left_button"
+/** The image for the right button */
+#define RIGHT_BUTTON "right_button"
 
 #pragma mark -
 #pragma mark Constructors
@@ -68,6 +72,8 @@ void MovePhaseUIScene::dispose() {
         _greenIcon = nullptr;
         _yellowIcon = nullptr;
         _treasureIcon = nullptr;
+        _rightButton = nullptr;
+        _leftButton = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
 //        }
@@ -138,6 +144,34 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _rightnode->setScale(0.35f);
     _rightnode->setVisible(false);
     addChild(_rightnode);
+
+    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_BUTTON));
+    _rightButton = scene2::Button::alloc(rightNode);
+    _rightButton->setScale(0.2f);
+    _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _rightButton->setPosition(_size.width * 0.65f, _size.height * 0.15f);
+    _rightButton->deactivate();
+    _rightButton->setVisible(false);
+    _rightButton->addListener([this](const std::string &name, bool down) {
+        _rightpressed = down;
+        std::rotate(_networkController->getAlivePlayers().begin(), _networkController->getAlivePlayers().begin() + 1,
+                    _networkController->getAlivePlayers().end());
+    });
+    addChild(_rightButton);
+
+    std::shared_ptr<scene2::PolygonNode> leftNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_BUTTON));
+    _leftButton = scene2::Button::alloc(leftNode);
+    _leftButton->setScale(0.2f);
+    _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _leftButton->setPosition(_size.width * 0.36f, _size.height * 0.15f);
+    _leftButton->deactivate();
+    _leftButton->setVisible(false);
+    _leftButton->addListener([this](const std::string &name, bool down) {
+        _leftpressed = down;
+        std::rotate(_networkController->getAlivePlayers().begin(), _networkController->getAlivePlayers().end(),
+                    _networkController->getAlivePlayers().end());
+    });
+    addChild(_leftButton);
 
     std::shared_ptr<scene2::PolygonNode> jumpNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
     jumpNode->setScale(0.75f);
@@ -269,6 +303,12 @@ void MovePhaseUIScene::preUpdate(float dt) {
         _scoreController->initScoreboardNodes(this, Vec2::ANCHOR_CENTER, _networkController->getPlayerList(), _size.width, _size.height);
         scoreBoardInitialized = true;
     }
+    if(_networkController->getLocalPlayer()->isDead() && !_networkController->getAlivePlayers().empty()){
+        _rightButton->activate();
+        _leftButton->activate();
+        _rightButton->setVisible(true);
+        _leftButton->setVisible(true);
+    }
 }
 
 /**
@@ -298,6 +338,10 @@ void MovePhaseUIScene::disableUI(bool value) {
     if (value){
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
+        _rightButton->deactivate();
+        _leftButton->deactivate();
+        _rightButton->setVisible(false);
+        _leftButton->setVisible(false);
     }
     else{
         _jumpbutton->activate();

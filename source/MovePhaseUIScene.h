@@ -51,6 +51,10 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _leftnode;
     /** Reference to the right joystick image */
     std::shared_ptr<scene2::PolygonNode> _rightnode;
+    /** Reference to the right spectate button */
+    std::shared_ptr<cugl::scene2::Button> _rightButton;
+    /** Reference to the left spectate button */
+    std::shared_ptr<cugl::scene2::Button> _leftButton;
     /** Reference to the jump button */
     std::shared_ptr<cugl::scene2::Button> _jumpbutton;
     /** Reference to the glide button */
@@ -89,6 +93,10 @@ protected:
     bool _didjump;
     /** Whether player is gliding */
     bool _didglide;
+    /** Whether right spectate button is being pressed */
+    bool _rightpressed = false;
+    /** Whether left spectate button is being pressed */
+    bool _leftpressed = false;
     
     /**stores score controller instance**/
     std::shared_ptr<ScoreController> _scoreController;
@@ -253,6 +261,20 @@ public:
      * Get whether the jump button is held down.
      */
     bool isJumpDown();
+
+    /**
+    * @return true if the right button was pressed
+    */
+    bool getRightPressed() {
+        return _rightpressed;
+    }
+
+    /**
+    * @return true if the left button was pressed
+    */
+    bool getLeftPressed() {
+        return _leftpressed;
+    }
 
     /**
      * Set the glide button active.
