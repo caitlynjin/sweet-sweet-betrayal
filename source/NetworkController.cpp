@@ -676,6 +676,17 @@ void NetworkController::trySetFilters(){
     }
 }
 
+std::vector<std::shared_ptr<PlayerModel>> NetworkController::getAlivePlayers() {
+    std::vector<std::shared_ptr<PlayerModel>> alivePlayers = _playerList;
+    for (auto& player : _playerList){
+        if (player->isDead()){
+            auto newEnd = std::remove(alivePlayers.begin(), alivePlayers.end(), player);
+            alivePlayers.erase(newEnd, alivePlayers.end());
+        }
+    }
+    return alivePlayers;
+}
+
 
 #pragma mark -
 #pragma mark Factories

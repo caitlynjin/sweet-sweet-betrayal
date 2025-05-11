@@ -250,11 +250,23 @@ void MovePhaseController::preUpdate(float dt) {
     
 
     // TODO: Segment into updateCamera method
-    if (_movePhaseScene.getLocalPlayer()->getPosition().x >= 0 && _movePhaseScene.getLocalPlayer()->getPosition().x <= _movePhaseScene.getGoalDoor()->getPosition().x){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+    if (!_movePhaseScene.getLocalPlayer()->isDead() && _movePhaseScene.getLocalPlayer()->getPosition().x >= 0 && _movePhaseScene.getLocalPlayer()->getPosition().x <= _movePhaseScene.getGoalDoor()->getPosition().x){ getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
                                                                    (_movePhaseScene.getLocalPlayer()->getPosition().x *
                                                                     56 + SCENE_WIDTH / 3.0f -
                                                                     getCamera()->getPosition().x),
                                     getCamera()->getPosition().y, 0));
+    }
+    else if (_movePhaseScene.getLocalPlayer()->isDead()){
+        if (!_networkController->getAlivePlayers().empty()){
+            shared_ptr<PlayerModel> spectatedPlayer = _networkController->getAlivePlayers().front();
+            if (spectatedPlayer->getPosition().x >= 0 && spectatedPlayer->getPosition().x <= _movePhaseScene.getGoalDoor()->getPosition().x){
+                getCamera()->setPosition(Vec3(getCamera()->getPosition().x + (7 * dt) *
+                                                                             (spectatedPlayer->getPosition().x *
+                                                                              56 + SCENE_WIDTH / 3.0f -
+                                                                              getCamera()->getPosition().x),
+                                              getCamera()->getPosition().y, 0));
+            }
+        }
     }
     _movePhaseScene.preUpdate(dt);
     

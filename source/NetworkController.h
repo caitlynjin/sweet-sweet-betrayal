@@ -644,7 +644,11 @@ public:
     std::vector<std::shared_ptr<PlayerModel>> getPlayerList(){
         return _playerList;
     }
-    
+
+    /**
+     * Returns the set of alive player objects in game
+     */
+    std::vector<std::shared_ptr<PlayerModel>> getAlivePlayers();
     /**
      * Returns the color of the player by their shortUID
      */
