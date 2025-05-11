@@ -63,14 +63,23 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
 }
 
 void NetworkController::dispose(){
-//    if (_active)
-//    {
-//        //TODO: Dispose variables
-//        _readyButton = nullptr;
-//        _rightButton = nullptr;
-//        _leftButton = nullptr;
-//        Scene2::dispose();
-//    }
+   if (_active)
+   {
+        //TODO: Dispose variables
+        _readyButton = nullptr;
+        _rightButton = nullptr;
+        _leftButton = nullptr;
+        if (_network) {
+        _network->disconnect();
+        _network->dispose();
+        _network.reset();
+        }
+        _tSpawnPoints.clear();
+        _usedSpawns.clear();
+        Scene2::dispose();
+   }
+   
+
 }
 
 void NetworkController::resetNetwork(){
@@ -242,9 +251,23 @@ void NetworkController::reset(){
     _numReady = 0;
     _numReset = 0;
     resetTreasureRandom();
+    _usedSpanws = nullptr;
+    _onColorTaken = nullptr;
+    _numColorReady = nullptr;
+    _playerColorAdded = nullptr;
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
+    _numColorReady    = 0;
+    _numReady         = 0;
+    _numReset         = 0;
+    _playerColorAdded = false;
+    _readyMessageSent = false;
+    _filtersSet       = false;
+    _colorsSynced     = false;
+    _resetLevel       = false;
+
+    _usedSpawns.clear();
 }
 
 

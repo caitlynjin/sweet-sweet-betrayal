@@ -109,6 +109,10 @@ void StartScene::dispose() {
         Scene2::dispose();
     }
 }
+
+void StartScene::reset() {
+    _choice = Choice::NONE
+}
 /**
  * Sets whether the scene is currently active
  *

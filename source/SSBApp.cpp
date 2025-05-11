@@ -755,8 +755,8 @@ void SSBApp::resetScenes(){
     _networkController->resetNetwork();
     _networkController->resetColorReady();
     _gameController.reset();
-    _network->disconnect();
-    _gameController.dispose();
+    // _network->disconnect();
+    // _gameController.dispose(); //This should be in dispose
     
     _startscreen.reset();
     _mainmenu.reset();
