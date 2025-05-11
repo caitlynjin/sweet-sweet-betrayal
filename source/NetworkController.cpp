@@ -820,7 +820,9 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
     plat->setShared(true);
 
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    sprite->setPriority(PLATFORM_PRIORITY);
     plat->setSceneNode(sprite);
+    
 
     return std::make_pair(plat, sprite);
 }

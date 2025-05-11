@@ -28,6 +28,9 @@ using namespace cugl;
 using namespace Constants;
 using namespace cugl::physics2::distrib;
 
+/** Starting build time for timer */
+#define BUILD_TIME 30
+
 /**
  * This class is the build phase UI scene.
  */
@@ -70,6 +73,11 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _bottomFrame;
     /** Reference to the timer frame */
     std::shared_ptr<cugl::scene2::PolygonNode> _timerFrame;
+
+    /** The elapsed time for the timer during the previous frame.
+    * Used to regulate timer sound effects.
+    */
+    Uint64 _previousElapsedTime = BUILD_TIME;
 
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;

@@ -45,9 +45,6 @@ using namespace Constants;
 /** The texture for the inventory */
 #define INVENTORY "inventory"
 
-/** Starting build time for timer */
-#define BUILD_TIME 30
-
 #pragma mark -
 #pragma mark Constructors
 /**
@@ -255,9 +252,16 @@ void BuildPhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseUIScene::preUpdate(float dt) {
+
     Uint64 currentTime = Application::get()->getEllapsedMicros();
     Uint64 elapsedTime = currentTime - _startTime;
-    _timer->setText(std::to_string(BUILD_TIME - elapsedTime / 1000000));
+    auto numSeconds = BUILD_TIME - elapsedTime / 1000000;
+    _timer->setText(std::to_string(numSeconds));
+    // If we just changed seconds
+    if (numSeconds != _previousElapsedTime && numSeconds <= 10) {
+        _sound->playSound("timer");
+    }
+    _previousElapsedTime = numSeconds;
     if (elapsedTime >= BUILD_TIME * 1000000){
         _isReady = true;
     }
@@ -377,6 +381,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     if (value){
         _timer->setText(std::to_string(BUILD_TIME));
         _startTime = Application::get()->getEllapsedMicros();
+        _previousElapsedTime = BUILD_TIME;
     }
     else{
         _networkController->playersUnready();
