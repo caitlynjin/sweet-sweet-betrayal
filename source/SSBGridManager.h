@@ -95,6 +95,9 @@ public:
     /** Clears the object maps */
     void clear();
 
+    /** Clears this rounds' object maps */
+    void clearRound();
+
     /**
      * The method called to update the grid.
      *

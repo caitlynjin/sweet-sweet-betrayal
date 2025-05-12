@@ -203,7 +203,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
             // If object exists
             if (obj) {
-//                CULog("Selected existing object");
+                CULog("Selected existing object");
                 if (!itemIsArtObject(obj->getItemType())) {
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
@@ -250,7 +250,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
-//                    CULog("Reposition object");
+                    CULog("Reposition object");
                     
                     _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType()== Item::MOVING_PLATFORM) {
@@ -377,6 +377,8 @@ void BuildPhaseController::render() {
  * @param value whether the level is in building mode.
  */
 void BuildPhaseController::processModeChange(bool value) {
+    _gridManager->clearRound();
+
     _buildPhaseScene.setVisible(value);
     _buildPhaseScene.resetCameraPos();
 

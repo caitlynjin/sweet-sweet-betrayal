@@ -421,6 +421,11 @@ void GridManager::clear() {
     worldObjToPosMap.clear();
 }
 
+void GridManager::clearRound() {
+    posToObjMap.clear();
+    objToPosMap.clear();
+}
+
 /**
  * Deletes the object at this cell position from the world.
  *
