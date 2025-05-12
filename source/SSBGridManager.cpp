@@ -432,6 +432,23 @@ void GridManager::clearRound() {
  * @param obj    the object
  */
 void GridManager::deleteObject(std::shared_ptr<Object> obj) {
+    Size size = obj->getSize();
+    
+    // Clear all positions the object occupies
+    auto originPosX = objToPosMap[obj].first;
+    auto originPosY = objToPosMap[obj].second;
+
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(originPosX + i, originPosY + j);
+
+            posToWorldObjMap.erase(posPair);
+            posToObjMap.erase(posPair);
+            hasObjMap.erase(posPair);
+        }
+    }
+
     // Clears maps and returns the object
     objToPosMap.erase(obj);
     worldObjToPosMap.erase(obj);
