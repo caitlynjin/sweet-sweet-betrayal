@@ -404,7 +404,10 @@ protected:
     
     /** The list of all players */
     std::vector<std::shared_ptr<PlayerModel>> _playerList;
-    
+
+    /** The list of all alive players */
+    std::vector<std::shared_ptr<PlayerModel>> _alivePlayerList;
+
     /** Map for accessing player color based off network id */
     std::unordered_map<int, ColorType> _playerColorsById;
     
@@ -648,7 +651,9 @@ public:
     /**
      * Returns the set of alive player objects in game
      */
-    std::vector<std::shared_ptr<PlayerModel>> getAlivePlayers();
+    std::vector<std::shared_ptr<PlayerModel>> getAlivePlayers(){
+        return _alivePlayerList;
+    }
     /**
      * Returns the color of the player by their shortUID
      */

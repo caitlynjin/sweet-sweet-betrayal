@@ -55,6 +55,8 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
+
+    _alivePlayerList = _playerList;
     
     // TODO: Create player-id hashmap
     
@@ -134,6 +136,13 @@ void NetworkController::preUpdate(float dt){
     }
     
     _scoreController->preUpdate(dt);
+
+    for (auto& player : _playerList){
+        if (player->isDead()){
+            auto newEnd = std::remove(_alivePlayerList.begin(), _alivePlayerList.end(), player);
+            _alivePlayerList.erase(newEnd, _alivePlayerList.end());
+        }
+    }
     
 }
 
@@ -675,18 +684,6 @@ void NetworkController::trySetFilters(){
         _filtersSet = true;
     }
 }
-
-std::vector<std::shared_ptr<PlayerModel>> NetworkController::getAlivePlayers() {
-    std::vector<std::shared_ptr<PlayerModel>> alivePlayers = _playerList;
-    for (auto& player : _playerList){
-        if (player->isDead()){
-            auto newEnd = std::remove(alivePlayers.begin(), alivePlayers.end(), player);
-            alivePlayers.erase(newEnd, alivePlayers.end());
-        }
-    }
-    return alivePlayers;
-}
-
 
 #pragma mark -
 #pragma mark Factories
