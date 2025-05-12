@@ -118,7 +118,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _sound->playMusic("move_phase", true);
 
     // Networked physics world
-    _world = physics2::distrib::NetWorld::alloc(rect,gravity);
+    _world = physics2::distrib::NetWorld::alloc(rect * 2,gravity);
     _world->activateCollisionCallbacks(true);
     _world->beforeSolve = [this](b2Contact *contact, const b2Manifold *oldManifold) {
         _movePhaseController->beforeSolve(contact, oldManifold);
@@ -156,7 +156,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, offset, assets);
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, offset, assets);
 
     _movePhaseController = std::make_shared<MovePhaseController>();
     _buildPhaseController = std::make_shared<BuildPhaseController>();
@@ -172,12 +172,38 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
 
     //_sound->playMusic("move_phase");
+
+    // Create parallax art assets
+    createParallaxObjects();
+    
     _active = true;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
     
     return true;
 }
 
+void SSBGameController::createParallaxObjects() {
+    std::shared_ptr<Object> obj;
+    //std::vector<int> layers = { -5, -4, -3, -2 };
+    //std::vector<float> scrollRates = { 0.04f, 0.1f, 0.15f, 0.3f };
+    std::vector<std::string> jsonTypes = { "parallax0", "parallax1", "parallax2", "parallax3" };
+    shared_ptr<JsonReader> jsonReader;
+    jsonReader = JsonReader::allocWithAsset("json/parallax/parallax.json");
+    shared_ptr<JsonValue> json = jsonReader->readJson();
+    for (size_t itemNo = 0; itemNo < jsonTypes.size(); itemNo++) {
+        auto objData = json->get(jsonTypes[itemNo]);
+        obj = _objectController->createParallaxArtObject(
+            Vec2(objData->getFloat("x"), objData->getFloat("y")), 
+            Size(1, 1), 
+            _scale, 
+            0, 
+            objData->getInt("layer"), 
+            objData->getFloat("scrollRate"),
+            jsonTypes[itemNo]
+        );
+        _parallaxObjects.push_back(obj);
+    }
+}
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
@@ -339,6 +365,13 @@ void SSBGameController::preUpdate(float dt)
                 platform->updateMovingPlatform(dt);
             }
         }
+    }
+    // Update parallax objects
+    for (auto it = _parallaxObjects.begin(); it != _parallaxObjects.end(); ++it) {
+        auto artObj = (dynamic_pointer_cast<ArtObject>((*it)));
+        artObj->setPositionInit(Vec2((_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
+            artObj->getPositionInit().y));
+        CULog("%d", _initialCameraPos - artObj->getParallaxScrollRate() * (_initialCameraPos - _camera->getPosition()));
     }
     
 }
