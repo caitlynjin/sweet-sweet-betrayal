@@ -75,21 +75,26 @@ void GridManager::update(float timestep) {
     // Ensure objects in the world are added to grid
     for (const auto& obs : _world->getObstacles()) {
         std::shared_ptr<Object> object = std::static_pointer_cast<Object>(obs);
-        Vec2 cellPos = object->getPositionInit();
-        auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
+        Vec2 currCellPos = object->getPosition() - object->getSize()/2;
+        auto currPosPair = std::make_pair(currCellPos.x, currCellPos.y);
+
+        if (object->getItemType() == Item::PLATFORM && object->getName() == "platform") {
+            CULog("Object pos in map vs current pos: (%f, %f),  (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second, currPosPair.first, currPosPair.second);
+        }
 
         auto it = worldObjToPosMap.find(object);
         if (it == worldObjToPosMap.end()) {
             // Unable to find object on grid
-            CULog("Add created object to grid");
-            // TODO: Removing this fixed issue??? Need to now fix reset of moveable objects each round
-//            addObject(object);
-        } else if (originPosPair != worldObjToPosMap[object]) {
-            CULog("originPosPair: (%f, %f)", originPosPair.first, originPosPair.second);
-//            CULog("pos on worldOBjToPosMap: (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second);
+            CULog("Add created %s to grid", object->getName().c_str());
+            addObject(object);
+        }
+
+        if (currPosPair != worldObjToPosMap[object]) {
+            if (object->getItemType() == Item::PLATFORM && object->getName() == "platform") {
+                CULog("Updating object position: (%f, %f) -> (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second, currPosPair.first, currPosPair.second);
+            }
 
             // Update object position on map
-            CULog("Updating object position");
             moveWorldObject(object);
             addObject(object);
         }
@@ -169,13 +174,13 @@ void GridManager::setSpriteInvisible(){
  *@param obj    the object
  */
 void GridManager::addObject(std::shared_ptr<Object> obj) {
-    Vec2 cellPos = obj->getPositionInit();
+    Vec2 cellPos = obj->getPosition() - obj->getSize()/2;
     Size size = obj->getSize();
     auto originPosPair = std::make_pair(cellPos.x, cellPos.y);
 
     // Add the origin position of the object
     worldObjToPosMap[obj] = originPosPair;
-    CULog("updated position to (%f, %f)", originPosPair.first, originPosPair.second);
+//    CULog("updated position to (%f, %f)", originPosPair.first, originPosPair.second);
 
     // Add the object to every position it exists in
     for (int i = 0; i < size.getIWidth(); i++) {
