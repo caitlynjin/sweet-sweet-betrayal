@@ -376,6 +376,9 @@ void BuildPhaseController::processModeChange(bool value) {
 
     _uiScene.setVisible(value);
     _itemsPlaced = 0;
+    _selectedItem = Item::NONE;
+    _selectedObject = nullptr;
+    _input->setInventoryStatus(PlatformInput::InventoryStatus::WAITING);
 
     if (value){
         randomizeItems();

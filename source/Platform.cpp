@@ -19,7 +19,7 @@ void Platform::setPositionInit(const cugl::Vec2& position) {
 void Platform::updateAnimation(float timestep) {
     if (_platTimeline->isActive("current")) {
         // NO OP
-        CULog("PlatformAnimationPrepping");
+//        CULog("PlatformAnimationPrepping");
     }
     else {
         _platTimeline->add("current", _platAction, 1.0f);
@@ -29,6 +29,9 @@ void Platform::updateAnimation(float timestep) {
 
 void Platform::update(float timestep) {
     PolygonObstacle::update(timestep);
+    if (_moving){
+        updateAnimation(timestep);
+    }
 }
 
 void Platform::updateMovingPlatform(float timestep) {
@@ -60,7 +63,6 @@ void Platform::updateMovingPlatform(float timestep) {
         CULog("Platform has turned %d times", _turnCount);
         _turnCount=0;
     }
-    updateAnimation(timestep);
 }
 
 
