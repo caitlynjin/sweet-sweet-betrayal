@@ -250,8 +250,8 @@
                 "data": {
                     "texture": "tip1",
                     "anchor": [
-                        0.5,
-                        0
+                        0,
+                        1
                     ],
                     "size": [
                         614,
@@ -265,11 +265,11 @@
                     "visible": true
                 },
                 "layout": {
-                    "x_anchor": "center",
-                    "y_anchor": "bottom",
+                    "x_anchor": "left",
+                    "y_anchor": "top",
                     "absolute": false,
-                    "x_offset": 0.01,
-                    "y_offset": 0.03
+                    "x_offset": 0.27,
+                    "y_offset": -0.8
                 }
             },
             "waiting-host-title": {
