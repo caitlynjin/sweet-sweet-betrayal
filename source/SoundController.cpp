@@ -68,6 +68,7 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		_musicOriginalVolumeMap.emplace(name, sound->getVolume());
 	}
 	_musicQueue = AudioEngine::get()->getMusicQueue();
+	_musicQueue->pause();
 	return true;
 }
 
@@ -86,6 +87,7 @@ void SoundController::playSound(std::string key) {
 
 // Make sure this actually works the way it's supposed to
 void SoundController::playMusic(std::string key, bool loop, bool useCrossFade) {
+	_musicQueue->pause();
 	if (useCrossFade) {
 		_musicQueue->enqueue(_musicMap[key], loop, 1.0f, CROSS_FADE);
 		_musicQueue->advance(0, CROSS_FADE);
@@ -94,6 +96,7 @@ void SoundController::playMusic(std::string key, bool loop, bool useCrossFade) {
 		_musicQueue->enqueue(_musicMap[key], loop, 1.0f);
 		_musicQueue->advance(0);
 	}
+	_musicQueue->resume();
 	
 }
 
