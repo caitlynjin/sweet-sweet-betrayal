@@ -82,13 +82,14 @@ void GridManager::update(float timestep) {
         if (it == worldObjToPosMap.end()) {
             // Unable to find object on grid
             CULog("Add created object to grid");
-            addObject(object);
+            // TODO: Removing this fixed issue??? Need to now fix reset of moveable objects each round
+//            addObject(object);
         } else if (originPosPair != worldObjToPosMap[object]) {
             CULog("originPosPair: (%f, %f)", originPosPair.first, originPosPair.second);
-            CULog("pos on worldOBjToPosMap: (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second);
+//            CULog("pos on worldOBjToPosMap: (%f, %f)", worldObjToPosMap[object].first, worldObjToPosMap[object].second);
 
             // Update object position on map
-//            CULog("Updating object position");
+            CULog("Updating object position");
             moveWorldObject(object);
             addObject(object);
         }
@@ -206,6 +207,32 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
     std::string y = std::to_string(cellPos.y);
     CULog("%s", x.c_str());
     CULog("%s", y.c_str());
+
+    Vec2 prevCellPos = obj->getPositionInit();
+    auto prevOriginPosPair = std::make_pair(prevCellPos.x, prevCellPos.y);
+
+    // Clear all positions the object occupies
+    auto originPosX = objToPosMap[obj].first;
+    auto originPosY = objToPosMap[obj].second;
+
+    for (int i = 0; i < size.getIWidth(); i++) {
+        for (int j = 0; j < size.getIHeight(); j++) {
+            // TODO: Check if the y-axis offset is positive or negative
+            auto posPair = std::make_pair(originPosX + i, originPosY + j);
+
+            posToWorldObjMap.erase(posPair);
+            posToObjMap.erase(posPair);
+            hasObjMap.erase(posPair);
+        }
+    }
+
+    // Clear the origin position of the object
+    objToPosMap.erase(obj);
+//    worldObjToPosMap.erase(obj);
+
+
+
+
     // Add the origin position of the object
     objToPosMap[obj] = originPosPair;
     worldObjToPosMap[obj] = originPosPair;
@@ -255,34 +282,36 @@ std::shared_ptr<Object> GridManager::moveObject(Vec2 cellPos) {
     else {
         obj = it->second;
     }
-    Size size = itemToGridSize(obj->getItemType());
-
-    // Clear all positions the object occupies
-    auto originPosX = objToPosMap[obj].first;
-    auto originPosY = objToPosMap[obj].second;
-
-    for (int i = 0; i < size.getIWidth(); i++) {
-        for (int j = 0; j < size.getIHeight(); j++) {
-            // TODO: Check if the y-axis offset is positive or negative
-            auto posPair = std::make_pair(originPosX + i, originPosY + j);
-            if (movingArtObject) {
-                auto artObjs = posToArtObjMap[posPair];
-                artObjs.erase(std::remove(artObjs.begin(), artObjs.end(), obj), artObjs.end());
-                if (artObjs.size() == 0) {
-                    posToArtObjMap.erase(posPair);
-                }
-
-            }
-            else {
-                posToObjMap.erase(posPair);
-                hasObjMap.erase(posPair);
-            }
-            
-        }
-    }
-
-    // Clear the origin position of the object
-    objToPosMap.erase(obj);
+//    Size size = itemToGridSize(obj->getItemType());
+//
+//    // Clear all positions the object occupies
+//    auto originPosX = objToPosMap[obj].first;
+//    auto originPosY = objToPosMap[obj].second;
+//
+//    for (int i = 0; i < size.getIWidth(); i++) {
+//        for (int j = 0; j < size.getIHeight(); j++) {
+//            // TODO: Check if the y-axis offset is positive or negative
+//            auto posPair = std::make_pair(originPosX + i, originPosY + j);
+//            if (movingArtObject) {
+//                auto artObjs = posToArtObjMap[posPair];
+//                artObjs.erase(std::remove(artObjs.begin(), artObjs.end(), obj), artObjs.end());
+//                if (artObjs.size() == 0) {
+//                    posToArtObjMap.erase(posPair);
+//                }
+//
+//            }
+//            else {
+//                posToWorldObjMap.erase(posPair);
+//                posToObjMap.erase(posPair);
+//                hasObjMap.erase(posPair);
+//            }
+//            
+//        }
+//    }
+//
+//    // Clear the origin position of the object
+//    objToPosMap.erase(obj);
+////    worldObjToPosMap.erase(obj);
 
     return obj;
 }
@@ -332,6 +361,7 @@ bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
             if (posToWorldObjMap[posPair] != nullptr && !itemIsArtObject(item)) {
+//                CULog("posToWorldObjMap[posPair] object type: %s", posToWorldObjMap[posPair]->getName().c_str());
                 return false;   // Object exists in position
                 // TODO : if it's an art object, instead check if artobjmap has that itemtype in it at that spot
             }
@@ -372,12 +402,10 @@ bool GridManager::canPlaceExisting(Vec2 cellPos, std::shared_ptr<Object> obj) {
             // Find object in object map
             auto posPair = std::make_pair(cellPos.x + i, cellPos.y + j);
 
-            if (posToWorldObjMap[posPair] != nullptr) {
-                // Check if it's the same object
-                if (posToWorldObjMap[posPair] != obj) {
-                    // Space occupied
-                    return false;
-                }
+            // Check if object exists in the position AND it's not the same object being moved
+            if (posToWorldObjMap[posPair] != nullptr && posToWorldObjMap[posPair] != obj) {
+//                CULog("posToWorldObjMap[posPair] object type: %s", posToWorldObjMap[posPair]->getName().c_str());
+                return false;
             }
         }
     }

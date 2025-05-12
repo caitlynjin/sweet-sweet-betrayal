@@ -147,18 +147,18 @@ void BuildPhaseController::preUpdate(float dt) {
 
         // Show placing object indicator when dragging object
         if (_selectedItem != NONE) {
-            
-            if (_selectedObject) {
-                // Move the existing object to new position
-                _selectedObject->setPositionInit(gridPosWithOffset);
-                
-                // Trigger obstacle update listener
-                if (_selectedObject->getListener()) {
-                    _selectedObject->getListener()(_selectedObject.get());
-                }
-            } else {
-                _gridManager->setObject(gridPosWithOffset, _selectedItem);
-            }
+            // TODO: Remove if want object moving to be just the sprite
+//            if (_selectedObject) {
+//                // Move the existing object to new position
+//                _selectedObject->setPositionInit(gridPosWithOffset);
+//                
+//                // Trigger obstacle update listener
+//                if (_selectedObject->getListener()) {
+//                    _selectedObject->getListener()(_selectedObject.get());
+//                }
+//            } else {
+            _gridManager->setObject(gridPosWithOffset, _selectedItem);
+//            }
         }
         if (screenPos.x <= 200 && _buildPhaseScene.getCamera()->getPosition().x >= 600){
             Uint64 currentTime = Application::get()->getEllapsedMicros();
@@ -203,7 +203,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
             // If object exists
             if (obj) {
-                CULog("Selected existing object");
+//                CULog("Selected existing object");
                 if (!itemIsArtObject(obj->getItemType())) {
                     _selectedObject = obj;
                     _selectedItem = obj->getItemType();
@@ -250,7 +250,8 @@ void BuildPhaseController::preUpdate(float dt) {
                     _prevPos = Vec2(0, 0);
                 } else {
                     // Move the existing object to new position
-                    CULog("Reposition object");
+//                    CULog("Reposition object");
+                    
                     _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType()== Item::MOVING_PLATFORM) {
                         CULog("is platform");
@@ -288,6 +289,8 @@ void BuildPhaseController::preUpdate(float dt) {
                     {
                         _uiScene.activateInventory(false);
                     }
+                } else {
+                    CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                 }
             }
 
