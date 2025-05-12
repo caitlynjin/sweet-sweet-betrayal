@@ -362,6 +362,49 @@ std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasur
     return _treasure;
 }
 
+std::shared_ptr<Object> ObjectController::createParallaxArtObject(Vec2 pos, Size size, float scale, float angle, int layer, float scrollRate, string jsonType) {
+    std::shared_ptr<ArtObject> artObj = ArtObject::alloc(pos, size, scale, angle, layer, jsonType);
+    artObj->setParallaxScrollRate(scrollRate);
+    auto newObj = createParallaxArtObject(artObj);
+    (dynamic_pointer_cast<ArtObject>(newObj))->setLayer(layer);
+    return newObj;
+}
+
+/* DO NOT call this overload directly. If you do, it will not have a proper scroll rate. Use the other overload instead. */
+std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_ptr<ArtObject> art) {
+    std::shared_ptr<Texture> image;
+    bool isAnimated = animatedArtObjects.find(art->getJsonType()) != animatedArtObjects.end();
+    image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
+    if (image == nullptr) {
+        image = _assets->get<Texture>("earth");
+    }
+    int rows = 1;
+    int cols = 1;
+    if (isAnimated) {
+        auto pair = animatedArtObjects[art->getJsonType()];
+        rows = pair.first;
+        cols = pair.second;
+        // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
+        art->setAnimationDuration(1.0f);
+    }
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
+    art->setSceneNode(sprite);
+    art->setAnimated(isAnimated);
+    art->setBodyType(b2_staticBody);
+    art->setDensity(BASIC_DENSITY);
+    art->setFriction(BASIC_FRICTION);
+    art->setRestitution(BASIC_RESTITUTION);
+    art->setDebugColor(DEBUG_COLOR);
+    art->setName("artObject");
+    // Disable ArtObject collision physics
+    art->setSensor(true);
+    addObstacle(art, sprite);
+    art->setAnimation(sprite);
+    _gameObjects->push_back(art);
+
+    return art;
+}
+
 std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
     return createArtObject(ArtObject::alloc(pos, size, scale, angle, jsonType));
 }

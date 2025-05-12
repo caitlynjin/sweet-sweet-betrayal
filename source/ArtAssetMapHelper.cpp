@@ -56,19 +56,36 @@ void ArtAssetMapHelper::populateConstantsMaps()
     { std::string("tileInsideFilled"), std::string("tile-inside-filled"), Item::TILE_INSIDEFILLED},
     { std::string("tileInsideLeft"), std::string("tile-inside-left"), Item::TILE_INSIDELEFT},
     { std::string("tileInsideRight"), std::string("tile-inside-right"), Item::TILE_INSIDERIGHT},
+        {std::string("parallax0"), std::string("parallax-0")},
+        {std::string("parallax1"), std::string("parallax-1")},
+        {std::string("parallax2"), std::string("parallax-2")},
+        {std::string("parallax3"), std::string("parallax-3")},
     };
     std::vector<std::any> tempVec;
     for (auto it = vec.begin(); it != vec.end(); ++it) {
         tempVec = *it;
-        if (std::any_cast<std::string>(tempVec[0]) == std::string("tileLeft")) {
-            CULog("correct");
-            if (std::any_cast<std::string>(tempVec[1]) == std::string(LEFT_TILE_TEXTURE)) {
-                CULog("also correct");
-            }
-        }
         Constants::jsonTypeToAsset[std::any_cast<std::string>(tempVec[0])] = std::any_cast<std::string>(tempVec[1]);
-        Constants::jsonTypeToItemType[std::any_cast<std::string>(tempVec[0])] = std::any_cast<Item>(tempVec[2]);
-        Constants::itemToAssetNameMap[std::any_cast<Item>(tempVec[2])] = std::any_cast<std::string>(tempVec[1]);
+        
+        if (tempVec.size() > 2) {
+            Constants::jsonTypeToItemType[std::any_cast<std::string>(tempVec[0])] = std::any_cast<Item>(tempVec[2]);
+            Constants::itemToAssetNameMap[std::any_cast<Item>(tempVec[2])] = std::any_cast<std::string>(tempVec[1]);
+        }
+        
 
     }
+
+    std::vector<std::vector<std::any>> parallaxData = {
+        {std::string("parallax-0"), -5, 0.1f},
+        {std::string("parallax-1"), -4, 0.2f},
+        {std::string("parallax-2"), -3, 0.3f},
+        {std::string("parallax-3"), -2, 0.4f},
+
+    };
+    for (auto it = parallaxData.begin(); it != parallaxData.end(); ++it) {
+        tempVec = *it;
+        //Constants::parallaxTextureToLayerMap[std::any_cast<std::string>(tempVec[0])] = std::any_cast<int>(tempVec[1]);
+        //Constants::parallaxTextureToScrollRateMap[std::any_cast<std::string>(tempVec[0])] = std::any_cast<float>(tempVec[2]);
+    }
+    
+        
 }

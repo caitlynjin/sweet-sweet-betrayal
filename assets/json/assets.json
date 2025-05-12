@@ -201,10 +201,10 @@
             "file": "textures/right-torch-spritesheet.png"
         },
         "gliding-log-spritesheet": {
-            "file":      "textures/gliding-log-spritesheet.png"
+            "file": "textures/gliding-log-spritesheet.png"
         },
         "mushroom_bounce_spritesheet": {
-            "file":  "textures/bounce-spritesheet.png"
+            "file": "textures/bounce-spritesheet.png"
         },
         "dpad": {
             "file": "textures/dpad.png",
@@ -614,6 +614,18 @@
         },
         "join-title": {
             "file": "textures/text/join-title.png"
+        },
+        "parallax-0": {
+            "file": "textures/parallax/0.png"
+        },
+        "parallax-1": {
+            "file": "textures/parallax/1.png"
+        },
+        "parallax-2": {
+            "file": "textures/parallax/2.png"
+        },
+        "parallax-3": {
+            "file": "textures/parallax/3.png"
         }
     },
     "jsons": {
@@ -641,6 +653,12 @@
             "stream": true,
             "volume": 0.2
 
+        },
+        "main_menu": {
+            "type": "sample",
+            "file": "sounds/music_main_menu_5_11.ogg",
+            "stream": true,
+            "volume": 0.2
         },
         "mushroom_boing": {
             "type": "sample",

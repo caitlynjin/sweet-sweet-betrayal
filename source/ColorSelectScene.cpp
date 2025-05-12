@@ -109,6 +109,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     });
     _readybutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
+            _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
             _networkController->flushConnection();
             _networkController->setLocalColor(_myColor);
