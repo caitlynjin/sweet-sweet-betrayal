@@ -257,6 +257,7 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     Uint64 elapsedTime = currentTime - _startTime;
     auto numSeconds = BUILD_TIME - elapsedTime / 1000000;
     _timer->setText(std::to_string(numSeconds));
+    _timer->setHorizontalAlignment(HorizontalAlign::CENTER);
     // If we just changed seconds
     if (numSeconds != _previousElapsedTime && numSeconds <= 10) {
         _sound->playSound("timer");
@@ -264,12 +265,6 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     _previousElapsedTime = numSeconds;
     if (elapsedTime >= BUILD_TIME * 1000000){
         _isReady = true;
-    }
-    else if (BUILD_TIME - elapsedTime / 1000000 < 10){
-        _timer->setPosition(_size.width * 0.52f, _size.height * 0.9f);
-    }
-    else if (BUILD_TIME - elapsedTime / 1000000 < 20){
-        _timer->setPosition(_size.width * 0.51f, _size.height * 0.9f);
     }
     if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
         // TODO: Finish player ready logic
