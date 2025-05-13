@@ -846,7 +846,7 @@ void MovePhaseController::endContact(b2Contact *contact)
     }
 
     if ((bd1 == _movePhaseScene.getLocalPlayer().get() && bd2->getName() == "movingPlatform") ||
-        (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "movingPlatform"))
+        (bd2 == _movePhaseScene.getLocalPlayer().get() && bd1->getName() == "movingPlatform")&& !_movePhaseScene.getLocalPlayer()->isGrounded())
     {
         _movePhaseScene.getLocalPlayer()->setOnMovingPlat(false);
         _movePhaseScene.getLocalPlayer()->setMovingPlat(nullptr);
