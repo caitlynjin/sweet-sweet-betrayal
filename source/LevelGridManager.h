@@ -62,10 +62,10 @@ public:
      *
      * Each grid cell is a Box2d unit.
      *
-     * @return  A newly allocated GridManager
+     * @return  A newly allocated LevelGridManager
      */
-    static std::shared_ptr<GridManager> alloc(bool isLevelEditor, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets) {
-        auto manager = std::make_shared<GridManager>();
+    static std::shared_ptr<LevelGridManager> alloc(bool isLevelEditor, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets) {
+        auto manager = std::make_shared<LevelGridManager>();
 
         manager->_assets = assets;
         manager->_scale = scale;
