@@ -147,6 +147,9 @@ void BuildPhaseController::preUpdate(float dt) {
 
         // Show placing object indicator when dragging object
         if (_selectedItem != NONE) {
+            if (_selectedObject) {
+                _selectedObject->setGhost(_selectedObject->getSceneNode(), true);
+            }
             // TODO: Remove if want object moving to be just the sprite
 //            if (_selectedObject) {
 //                // Move the existing object to new position
@@ -242,6 +245,8 @@ void BuildPhaseController::preUpdate(float dt) {
             }
         } else {
             if (_selectedObject) {
+                _selectedObject->setGhost(_selectedObject->getSceneNode(), false);
+
                 if (!_gridManager->canPlaceExisting(gridPos, _selectedObject)) {
                     CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                     // Move the object back to its original position
