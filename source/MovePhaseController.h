@@ -100,6 +100,10 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
+    
+    /** Gets called after level select scene */
+    bool finishInit();
+    
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */

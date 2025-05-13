@@ -527,7 +527,7 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("HANDSHAKE");
         _networkController->setIsHost(true);
-//        _gameController.init(_assets, _networkController, _sound);
+        _gameController.init(_assets, _networkController, _sound);
 //        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -572,7 +572,7 @@ void SSBApp::updateLevelSelectScene(float timestep){
     if (_levelSelect.getChoice() == LevelSelectScene::Choice::LEVEL1){
         setTransition(true);
         if (_transition.getFadingOutDone()){
-            _gameController.init(_assets, _networkController, _sound);
+            _gameController.finishInit();
             _gameController.setSpriteBatch(_batch);
             _levelSelect.setActive(false);
             _gameController.setActive(true);
@@ -618,7 +618,7 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
-//        _gameController.init(_assets, _networkController, _sound);
+        _gameController.init(_assets, _networkController, _sound);
 //        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
@@ -734,7 +734,7 @@ void SSBApp::updateWaitingHostScene(float timestep){
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
-//        _gameController.init(_assets, _networkController, _sound);
+        _gameController.init(_assets, _networkController, _sound);
 //        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     } else if (_network->getStatus() == NetEventController::Status::NETERROR

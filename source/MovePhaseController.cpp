@@ -61,6 +61,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _world = world;
     _input = input;
     _gridManager = gridManager;
+    _sound = sound;
 
     _networkController = networkController;
     _network = networkController->getNetwork();
@@ -77,17 +78,20 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     
     // SEPARATE INTO PART 2 FOR WHEN LEVEL NUMBER IS LOADED IN
     // OR DON'T CALL UPDATE UNTIL LEVEL NUMBER IS LOADED IN
+    
+    return true;
+};
 
+bool MovePhaseController::finishInit(){
     // Initialize move phase scene
-    _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);
+    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
-    _sound = sound;
 
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
+    _uiScene.init(_assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -97,7 +101,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     setDebug(false);
 
     return true;
-};
+}
 
 /**
  * Disposes of all (non-static) resources allocated to this mode.

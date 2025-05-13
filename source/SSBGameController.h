@@ -169,6 +169,9 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
         const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    
+    /** To be called after level select */
+    bool finishInit();
 
 #pragma mark -
 #pragma mark Gameplay Handling
