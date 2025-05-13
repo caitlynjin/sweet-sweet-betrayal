@@ -53,5 +53,4 @@ void LevelEvent::deserialize(const std::vector<std::byte>& data){
     // Read the integer and cast it back to the enum type
     int levelNum = _deserializer.readSint32();
     _levelNum = levelNum;
-    CULog("Finish deserialize");
 }

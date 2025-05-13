@@ -135,6 +135,12 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     // Start in building mode
     _buildingMode = true;
+    
+    _movePhaseController = std::make_shared<MovePhaseController>();
+    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
+    
+    // RETURN AFTER THIS, MAKE PART 2
+    
 
     // Start up the input handler
     _input = std::make_shared<PlatformInput>();
@@ -158,11 +164,11 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, offset, assets);
 
-    _movePhaseController = std::make_shared<MovePhaseController>();
+//    _movePhaseController = std::make_shared<MovePhaseController>();
     _buildPhaseController = std::make_shared<BuildPhaseController>();
 
     // Initialize movement phase controller
-    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
+//    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
     
@@ -172,7 +178,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
 
     //_sound->playMusic("move_phase");
-    _active = true;
+    _active = false;
     Application::get()->setClearColor(Color4f::CORNFLOWER);
     
     return true;
@@ -195,6 +201,16 @@ void SSBGameController::dispose()
     _movePhaseController->dispose();
     Scene2::dispose();
 }
+
+//void SSBGameController::setActive(bool value){
+//    if (isActive() != value) {
+//        Scene2::setActive(value);
+//        
+//        _active = value;
+//        _buildPhaseController->getBuildPhaseScene().setActive(value);
+//        _buildPhaseController->getBuildPhaseUI().setActive(value);
+//    }
+//}
 
 #pragma mark -
 #pragma mark Level Layout

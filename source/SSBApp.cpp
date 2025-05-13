@@ -233,7 +233,7 @@ void SSBApp::preUpdate(float dt)
         _transition.startFadeIn();
 
         _status = START;
-        _sound->playMusic("move_phase", true);
+//        _sound->playMusic("move_phase", true);
     }
     else
     {
@@ -527,6 +527,8 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("HANDSHAKE");
         _networkController->setIsHost(true);
+//        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
@@ -564,6 +566,9 @@ void SSBApp::updateHostScene(float timestep)
  * @param timestep  The amount of time (in seconds) since the last frame
  */
 void SSBApp::updateLevelSelectScene(float timestep){
+    _levelSelect.update(timestep);
+    _networkController->fixedUpdate(timestep);
+    
     if (_levelSelect.getChoice() == LevelSelectScene::Choice::LEVEL1){
         setTransition(true);
         if (_transition.getFadingOutDone()){
@@ -613,6 +618,8 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
+//        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
@@ -727,6 +734,8 @@ void SSBApp::updateWaitingHostScene(float timestep){
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
+//        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     } else if (_network->getStatus() == NetEventController::Status::NETERROR
      || _network->getNumPlayers() <= 1) {

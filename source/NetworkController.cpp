@@ -169,7 +169,7 @@ void NetworkController::fixedUpdate(float step){
     if (!_localID){
         _localID = _network->getShortUID();
     }
-    _scoreController->fixedUpdate(step);
+//    _scoreController->fixedUpdate(step);
     // Process messaging events
     if(_network->isInAvailable()){
         auto e = _network->popInEvent();
@@ -322,6 +322,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             _resetLevel = true;
             break;
         case Message::HOST_PICK:
+            CULog("Host picked message received by client");
             _levelSelected = 1;
         default:
             // Handle unknown message types

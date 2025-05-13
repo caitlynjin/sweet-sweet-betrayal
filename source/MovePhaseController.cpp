@@ -74,6 +74,9 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
     
+    
+    // SEPARATE INTO PART 2 FOR WHEN LEVEL NUMBER IS LOADED IN
+    // OR DON'T CALL UPDATE UNTIL LEVEL NUMBER IS LOADED IN
 
     // Initialize move phase scene
     _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);

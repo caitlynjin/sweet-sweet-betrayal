@@ -40,6 +40,14 @@ public:
     };
 
 protected:
+    
+    // CONSTANTS
+    float const MAX_ALPHA = 255.0f;
+    
+    float const MIN_ALPHA = 150.0f;
+    
+    float const FLASH_RATE = 2.0f;
+    
     /** The asset manager for this scene. */
     std::shared_ptr<cugl::AssetManager> _assets;
 
@@ -67,9 +75,10 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _playButton;
     std::shared_ptr<cugl::scene2::Button> _closeButton;
     
-    int _levelView;
+    int _levelView = 0;
     
     bool _playPressed = false;
+    bool _decreaseAlpha = true;
     // Modal assets
     
 
@@ -121,6 +130,9 @@ public:
         Sets the visibility of the modal.
      */
     void setModalVisible(bool visibile);
+    
+    /** Visually updates the alpha values of the level select buttons */
+    void animateButtons();
 
 };
 

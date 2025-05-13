@@ -95,8 +95,8 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _hostText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.hosttext"));
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.back"));
     
-    _level2->setColor(Color4::GRAY);
-    _level3->setColor(Color4::GRAY);
+//    _level2->setColor(Color4::GRAY);
+//    _level3->setColor(Color4::GRAY);
     
     // modal buttons and assets
     
@@ -105,23 +105,20 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         if (!down) {
             _levelView = 1;
             _sound->playSound("button_click");
-            selectLevel(1);
         }
     });
-    _level2->addListener([this](const std::string& name, bool down) {
-        if (!down) {
-            _levelView = 2;
-            _sound->playSound("button_click");
-            selectLevel(2);
-        }
-    });
-    _level3->addListener([this](const std::string& name, bool down) {
-        if (!down) {
-            _levelView = 3;
-            _sound->playSound("button_click");
-            selectLevel(3);
-        }
-    });
+//    _level2->addListener([this](const std::string& name, bool down) {
+//        if (!down) {
+//            _levelView = 2;
+//            _sound->playSound("button_click");
+//        }
+//    });
+//    _level3->addListener([this](const std::string& name, bool down) {
+//        if (!down) {
+//            _levelView = 3;
+//            _sound->playSound("button_click");
+//        }
+//    });
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
@@ -141,7 +138,8 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         if (!down) {
             _choice = Choice::NONE;
             _sound->playSound("button_click");
-            setModalVisible(false);
+
+            _levelView = 0;
         }
     });
     
@@ -160,15 +158,6 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
             }
             
             _playPressed = true;
-            
-//            CULog("Level view num: %d", _levelView);
-            //            auto event = std::dynamic_pointer_cast<LevelEvent>(
-            //                                                               LevelEvent::allocLevelEvent(_levelView)
-            //            );
-            //            std::shared_ptr<NetEventController> network = _networkController->getNetwork();
-//            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
-            
-//            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_PICK));
         }
     });
     
@@ -202,19 +191,39 @@ void LevelSelectScene::reset(){
     _levelView = 0;
 }
 
+// Update level event to store whether to display the modal
+
 void LevelSelectScene::update(float dt){
-    // If host, send out level selected when play button pressed
-    if (_network->isHost() && _playPressed){
-        _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
-//        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::HOST_PICK));
-        _playPressed = false;
+    
+    // Host handles level selection
+    if (_network->isHost()){
+        // If a level has been selected, show the pop-up modal
+        if (_levelView != 0){
+            selectLevel(_levelView);
+        }
+
+        // If the modal is currently active and level view has been reset, deactivate the modal
+        if (_playButton->isActive() && _levelView == 0){
+            setModalVisible(false);
+        }
+        
+        
+        // If host, send out level selected when play button pressed
+        if (_playPressed){
+            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
+            _playPressed = false;
+        }
     }
     
     // Client checks for level selected by host
-    if (!_network->isHost() && _networkController->getLevelSelected() != 0){
-        CULog("Client receives level selected");
-        _choice = static_cast<Choice>(_networkController->getLevelSelected());
+    if (!_network->isHost() && (_networkController->getLevelSelected() != 0)){
+        _levelView = _networkController->getLevelSelected();
+        _choice = static_cast<Choice>(_levelView);
     }
+    
+    
+    // Update buttons
+    animateButtons();
 }
 
 /**
@@ -233,25 +242,26 @@ void LevelSelectScene::setActive(bool value) {
             _choice = NONE;
             if (_networkController->getIsHost()){
                 _level1->activate();
+                _level2->activate();
+                _level3->activate();
+                _closeButton->activate();
+                _playButton->activate();
             }
-            
-//            _level2->activate();
-//            _level3->activate();
-            _backbutton->activate();
-//            _closeButton->activate();
-//            _playButton->activate();
+    
+//            _backbutton->activate();
+
         } else {
             _level1->deactivate();
             _level2->deactivate();
             _level3->deactivate();
-            _backbutton->deactivate();
+//            _backbutton->deactivate();
             _closeButton->deactivate();
             _playButton->deactivate();
             // If any were pressed, reset them
             _level1->setDown(false);
             _level2->setDown(false);
             _level3->setDown(false);
-            _backbutton->setDown(false);
+//            _backbutton->setDown(false);
             _closeButton->setDown(false);
             _playButton->setDown(false);
         }
@@ -288,29 +298,28 @@ void LevelSelectScene::setModalVisible(bool visible){
     if (visible){
         _closeButton->activate();
         _playButton->activate();
-//        
-//        if (_level1->isVisible() && _level1->isActive()) {
-//            _level1->deactivate();
-//        }
-//        _level2->deactivate();
-//        _level3->deactivate();
+        
+        _level1->deactivate();
+        _level2->deactivate();
+        _level3->deactivate();
 //        _backbutton->deactivate();
-//        _level1->setDown(false);
-//        _level2->setDown(false);
-//        _level3->setDown(false);
-//        
+        
+        _level1->setDown(false);
+        _level2->setDown(false);
+        _level3->setDown(false);
+        
     }
-//    else {
-//        _closeButton->deactivate();
-//        _playButton->deactivate();
-//        _closeButton->setDown(false);
-//        _playButton->setDown(false);
-//        
-//        _level1->activate();
-//        _level2->activate();
-//        _level3->activate();
+    else {
+        _closeButton->deactivate();
+        _playButton->deactivate();
+        _closeButton->setDown(false);
+        _playButton->setDown(false);
+        
+        _level1->activate();
+        _level2->activate();
+        _level3->activate();
 //        _backbutton->activate();
-//    }
+    }
     
     _modalDarkener->setVisible(visible);
     _modalFrame->setVisible(visible);
@@ -318,5 +327,31 @@ void LevelSelectScene::setModalVisible(bool visible){
     _levelName->setVisible(visible);
     _closeButton->setVisible(visible);
     _playButton->setVisible(visible);
+}
+
+
+void LevelSelectScene::animateButtons(){
+    Color4 currColor = _level1->getColor();
+    float alpha = currColor.a;
+    
+    if (_decreaseAlpha){
+        alpha -= FLASH_RATE;
+        alpha = alpha < MIN_ALPHA ? MIN_ALPHA : alpha;
+        if (alpha <= MIN_ALPHA){
+            _decreaseAlpha = false;
+        }
+    }
+    else{
+        alpha += FLASH_RATE;
+        alpha = alpha > 255 ? 255 : alpha;
+        if (alpha >= MAX_ALPHA){
+            _decreaseAlpha = true;
+        }
+    }
+    
+    currColor.a = alpha;
+    _level1->setColor(currColor);
+    _level2->setColor(currColor);
+    _level3->setColor(currColor);
 }
 
