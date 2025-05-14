@@ -83,6 +83,7 @@ using namespace Constants;
 #define JUMP_DURATION 0.6f
 #define JUMP_STOP_DAMPING 0.2f
 #define JUMP_BUFFER_DURATION 0.2f
+#define COYOTE_DURATION 0.2f
 #define GLIDE_FALL_SPEED -2.5f
 #define GLIDE_UPWARD_THRUST 15.0f
 //How much we should slow down the player when they turn middair

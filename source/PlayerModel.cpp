@@ -695,6 +695,7 @@ void PlayerModel::update(float dt)
         case State::MIDDAIR:
             _jumpCooldown = JUMP_COOLDOWN;
             _bufferTimer += dt;
+            _coyoteTimer += dt;
             _glideBoostTimer += dt;
             if (_holdingJump and _isDampEnabled) {
                 b2Vec2 vel = _body->GetLinearVelocity();
@@ -757,14 +758,14 @@ void PlayerModel::handlePlayerState() {
             _jumpImpulse = true;
         }
         else if (_undetectGround && !_detectedGround) {
+            _coyoteTimer = 0;
             _state = State::MIDDAIR;
         }
 
-        if (_jumpImpulse || _bufferTimer < JUMP_BUFFER_DURATION) {
+        if ((_jumpImpulse || _bufferTimer < JUMP_BUFFER_DURATION)) {
             b2Vec2 force(0, PLAYER_JUMP);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
             CULog("Jump!");
-            _jumpTimer = JUMP_DURATION;
             _jumpImpulse = false;
             _bufferTimer = JUMP_BUFFER_DURATION;
         }
@@ -782,16 +783,18 @@ void PlayerModel::handlePlayerState() {
     case State::MIDDAIR:
         //CULog("Middair");
         //Enter gliding upon input! If we just hit the jump button in the middle of the air, also throw in a jump buffer.
-        if (_enterAutoGlide || _justJumped) {
+         if (_detectedGround && !_undetectGround) {
+            _state = State::GROUNDED;
+        }
+
+        else if (_enterAutoGlide || _justJumped) {
             _state = State::GLIDING;
             _justGlided = true;
             if (_justJumped) {
                 _bufferTimer = 0;
             }
         }
-        if (_detectedGround && !_undetectGround) {
-            _state = State::GROUNDED;
-        }
+        
         break;
     default:
         CULog("Unknown player state");
