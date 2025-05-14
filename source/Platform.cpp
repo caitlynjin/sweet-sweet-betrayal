@@ -1,3 +1,5 @@
+#include <cugl/cugl.h>
+
 #include "Platform.h"
 #include "Object.h"
 

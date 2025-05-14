@@ -565,6 +565,45 @@
         "join-title": {
             "file": "textures/text/join-title.png"
         },
+        "mapbackground": {
+            "file": "textures/level-select/level-select-background.png"
+        },
+        "level-icon": {
+            "file": "textures/level-select/level-icon.png"
+        },
+        "black-background": {
+            "file": "textures/level-select/black-background.png"
+        },
+        "modal": {
+            "file": "textures/level-select/modal.png"
+        },
+        "playground-text": {
+            "file": "textures/level-select/playground-text.png"
+        },
+        "gorges-text": {
+            "file": "textures/level-select/gorges-text.png"
+        },
+        "winds-text": {
+            "file": "textures/level-select/winds-text.png"
+        },
+        "modal-exit": {
+            "file": "textures/level-select/modal-exit.png"
+        },
+        "placeholder-1": {
+            "file": "textures/level-select/party-playground.png"
+        },
+        "winds-img": {
+            "file": "textures/level-select/wild-winds.png"
+        },
+        "gorges-img": {
+            "file": "textures/level-select/gorgeous-gorges.png"
+        },
+        "playbutton": {
+            "file": "textures/level-select/playbutton.png"
+        },
+        "hosttext": {
+            "file": "textures/level-select/hosttext.png"
+        },
         "parallax-0": {
             "file": "textures/parallax/0.png"
         },
@@ -576,6 +615,30 @@
         },
         "parallax-3": {
             "file": "textures/parallax/3.png"
+        },
+        "modal": {
+            "file": "textures/modal.png"
+        },
+        "resume": {
+            "file": "textures/buttons/resume.png"
+        },
+        "disconnect": {
+            "file": "textures/buttons/disconnect.png"
+        },
+        "slider": {
+            "file": "textures/slider.png"
+        },
+        "knob": {
+            "file": "textures/knob.png"
+        },
+        "music": {
+            "file": "textures/music.png"
+        },
+        "sfx": {
+            "file": "textures/sfx.png"
+        },
+        "pause-button": {
+            "file": "textures/buttons/pause-button.png"
         }
     },
     "jsons": {
@@ -740,7 +803,10 @@
         "host" : "widgets/host.json",
         "colorselect" : "widgets/colorselect.json",
         "waiting-host": "widgets/waiting-host.json",
-        "disconnected": "widgets/disconnected.json"
+        "disconnected": "widgets/disconnected.json",
+        "pause": "widgets/pause.json",
+        "level" : "widgets/level.json",
+        "levelmodal" : "widgets/levelmodal.json"
     },
     "scene2s": {
         "start": {
@@ -807,6 +873,26 @@
                 "key": "colorselect"
             }
         },
+        "level-select" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the level select screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "level"
+            }
+        },
+        "levelmodal" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the level select screen's modal",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "levelmodal"
+            }
+        },
         "disconnected": {
             "type": "Widget",
             "format": {
@@ -814,6 +900,15 @@
             },
             "data": {
                 "key": "disconnected"
+            }
+        },
+        "pause": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "pause"
             }
         },
         "game": {
