@@ -254,7 +254,10 @@ void MovePhaseController::preUpdate(float dt) {
                                                                    (_movePhaseScene.getLocalPlayer()->getPosition().x *
                                                                     56 + SCENE_WIDTH / 3.0f -
                                                                     getCamera()->getPosition().x),
-                                    getCamera()->getPosition().y, 0));
+        getCamera()->getPosition().y + (4 * dt) *
+        (_movePhaseScene.getLocalPlayer()->getPosition().y *
+            40 + SCENE_HEIGHT / 4.0 -
+            getCamera()->getPosition().y), 0));
     }
     _movePhaseScene.preUpdate(dt);
     

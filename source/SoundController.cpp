@@ -7,6 +7,8 @@
 
 #include "SoundController.h"
 
+#define CROSS_FADE 0.5f
+
 using namespace cugl;
 using namespace cugl::audio;
 
@@ -25,7 +27,8 @@ SoundController::SoundController() {}
 bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 
 	std::vector<std::string> musicTracks = {
-		"move_phase"
+		"move_phase",
+		"main_menu"
 	};
 	std::vector<std::string> soundNames = {
 		"glide", 
@@ -82,8 +85,16 @@ void SoundController::playSound(std::string key) {
 * @param key The key identifying the music track */
 
 // Make sure this actually works the way it's supposed to
-void SoundController::playMusic(std::string key, bool loop) {
-	_musicQueue->enqueue(_musicMap[key], loop);
+void SoundController::playMusic(std::string key, bool loop, bool useCrossFade) {
+	if (useCrossFade) {
+		_musicQueue->enqueue(_musicMap[key], loop, 1.0f, CROSS_FADE);
+		_musicQueue->advance(0, CROSS_FADE);
+	}
+	else {
+		_musicQueue->enqueue(_musicMap[key], loop, 1.0f);
+		_musicQueue->advance(0);
+	}
+	
 }
 
 void SoundController::addMusicToQueue(std::string key) {
@@ -106,19 +117,50 @@ void SoundController::stopMusic(std::string key) {
 	_musicQueue->pause();
 }
 
-void SoundController::setMusicVolume(float vol) {
+void SoundController::setMusicVolume(float vol, bool savePreferences) {
 	_musicVolume = vol;
 	for (auto it = _musicMap.begin(); it != _musicMap.end(); ++it) {
 		it->second->setVolume(_musicOriginalVolumeMap[it->first] * vol);
 	}
+	if (savePreferences) {
+		saveAudioPreferences();
+	}
+	
 }
 
-void SoundController::setSFXVolume(float vol) {
+void SoundController::setSFXVolume(float vol, bool savePreferences) {
 	_sfxVolume = vol;
 	for (auto it = _soundMap.begin(); it != _soundMap.end(); ++it) {
 		it->second->setVolume(_soundOriginalVolumeMap[it->first] * vol);
 	}
+	if (savePreferences) {
+		saveAudioPreferences();
+	}
 	
+}
+
+void SoundController::saveAudioPreferences() {
+	std::shared_ptr<JsonWriter> jsonWriter = JsonWriter::alloc(Application::get()->getSaveDirectory() + "preferences.json");
+	std::shared_ptr<JsonValue> json = JsonValue::allocObject();
+	json->appendValue("musicVolume", double(_musicVolume));
+	json->appendValue("sfxVolume", double(_sfxVolume));
+	jsonWriter->writeJson(json);
+	jsonWriter->close();
+}
+
+void SoundController::loadAudioPreferences() {
+	std::shared_ptr<JsonReader> jsonReader = JsonReader::alloc(Application::get()->getSaveDirectory() + "preferences.json");
+	if (jsonReader == nullptr) {
+		return;
+	}
+	std::shared_ptr<JsonValue> json = jsonReader->readJson();
+
+	float musicVol = json->get("musicVolume")->asFloat();
+	float sfxVol = json->get("sfxVolume")->asFloat();
+
+	setMusicVolume(musicVol, false);
+	setSFXVolume(sfxVol, true);
+
 }
 
 void SoundController::dispose() {}
