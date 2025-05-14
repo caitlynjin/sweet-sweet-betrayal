@@ -28,7 +28,11 @@ private:
 	//The closest detected raycast collision
 	float _minRayDist;
 	float _prevRayDist;
-	float _angle = M_PI/2;
+	float _angle;
+
+	Vec2 _anchorOffset = Vec2();
+	Vec2 _fanOffset = Vec2();
+	Vec2 _animationOffest = Vec2(0.0f, 0.0f);
 
 	/**The points where we are raycasting from. */
 

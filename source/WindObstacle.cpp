@@ -115,17 +115,23 @@ void WindObstacle::setRayOrigins() {
         diffVec = Vec2(0, -rayDiff);
         posDiff.y = 1 - OFFSET;
         posAdjust = Vec2(-1,0);
+        _anchorOffset = Vec2(0, 0.2);
+        _fanOffset = Vec2(0, 1.0);
     }
     else if (_angle <= M_PI+0.1f) {
         diffVec = Vec2(-rayDiff,0);
         posDiff.x = 1 - OFFSET;
         posAdjust = Vec2(-1, 1);
+        _anchorOffset = Vec2(1.0, 0.2);
+        _fanOffset = Vec2(1.0, 1.0);
     }
     else{
-        diffVec = Vec2(0,rayDiff);
+        diffVec = Vec2(0,-rayDiff);
         posDiff.y = 1 - OFFSET;
         posDiff.x = 1 - OFFSET;
         posAdjust = Vec2(0, 1);
+        _anchorOffset = Vec2(1.0,0.0f);
+        _fanOffset = Vec2(1.0f, 0.0);
     }
     
 
@@ -202,15 +208,10 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     _windDirection = windDirection;
     _windForce = windStrength;
 
-    //Debugging
-    _angle = 1.5f*M_PI;
-    _windDirection =Vec2(4,0);
-    _windForce = Vec2(4,0);
-
     setRayOrigins();
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(200.0f, 200.0f), size);
+    Poly2 rect = factory.makeRect(Vec2(0.5f,0.5f), size);
     
 
     if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
@@ -221,9 +222,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         setRestitution(0.0f);
         setName("fan");
         setSensor(true);
-        //setAnchor(1.0f, 0.0f);
         setAngle(_angle);
-        //setAnchor(0.0f, 0.0f);
         
         _node = scene2::SpriteNode::alloc();
         _node->setPriority(PRIORITY);
@@ -256,6 +255,10 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     _gustSpriteNode4 = sprite[3];
     _gustSpriteNode4->setVisible(true);
     _gustSpriteNode4->setPriority(PRIORITY);
+
+    _gustSpriteNode4->setAnchor(_anchorOffset);
+    _gustSpriteNode4->setPosition(_animationOffest);
+    
     _node->addChild(_gustSpriteNode4);
     //Create the spritesheet
     _gustTimeline4 = ActionTimeline::alloc();
@@ -269,6 +272,10 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.clear();
     _gustSpriteNode3 = sprite[2];
     _gustSpriteNode3->setPriority(PRIORITY);
+
+    _gustSpriteNode3->setAnchor(_anchorOffset);
+    _gustSpriteNode3->setPosition(_animationOffest);
+    
     _node->addChild(_gustSpriteNode3);
     _gustTimeline3 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -281,6 +288,10 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.clear();
     _gustSpriteNode2 = sprite[1];
     _gustSpriteNode2->setPriority(PRIORITY);
+
+    _gustSpriteNode2->setAnchor(_anchorOffset);
+    _gustSpriteNode2->setPosition(_animationOffest);
+    
     _node->addChild(_gustSpriteNode2);
     _gustTimeline2 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -289,10 +300,13 @@ void WindObstacle::setGustAnimation(std::vector<std::shared_ptr<scene2::SpriteNo
     forward.push_back(0);
     _gustAnimateSprite2 = AnimateSprite::alloc(forward);
     _gustAction2 = (_gustAnimateSprite2->attach<scene2::SpriteNode>(_gustSpriteNode2));
-    //GustSpriteNode1
     forward.clear();
     _gustSpriteNode1 = sprite[0];
     _gustSpriteNode1->setPriority(PRIORITY);
+
+    _gustSpriteNode1->setAnchor(_anchorOffset);
+    _gustSpriteNode1->setPosition(_animationOffest);
+    
     _node->addChild(_gustSpriteNode1);
     _gustTimeline1 = ActionTimeline::alloc();
     for (int ii = 1; ii < nFrames; ii++) {
@@ -309,6 +323,9 @@ void WindObstacle::setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _fanSpriteNode = sprite;
     _fanSpriteNode->setVisible(true);
     _fanSpriteNode->setPriority(PRIORITY);
+
+    _fanSpriteNode->setAnchor(_fanOffset);
+    _fanSpriteNode->setPosition(_animationOffest);
     if (!_node) {
         _node = scene2::SceneNode::alloc();
         _node->setPriority(PRIORITY);

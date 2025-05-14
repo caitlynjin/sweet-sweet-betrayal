@@ -159,7 +159,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         _jumpCooldown = 0;
         _glideDelay = 0.2;
         _glideTimer = 0;
-        _windvel = Vec2();
+        _windVel = Vec2();
 
         setVisible(false);
 
