@@ -1115,7 +1115,7 @@ ThornFactory::createObstacle(Vec2 pos, Size size) {
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(texture, 1, 1);
     thorn->setSceneNode(sprite);
 
-    return std::make_pair(thorn, sprite);
+    return std::make_pair(thorn, thorn->getSceneNode());
 }
 
 
