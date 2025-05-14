@@ -848,7 +848,7 @@ void PlayerModel::windUpdate(float dt)
         mult = WIND_FACTOR_AIR;
         break;
     case State::GLIDING:
-        mult = WIND_FACTOR;
+        mult = WIND_FACTOR_GLIDING;
         break;
     case State::MIDDAIR:
         mult = WIND_FACTOR_AIR;
