@@ -403,7 +403,10 @@ void SSBGameController::preUpdate(float dt)
             artObj->getPositionInit().y));
         CULog("%d", _initialCameraPos - artObj->getParallaxScrollRate() * (_initialCameraPos - _camera->getPosition()));
     }
-    
+
+    if (_isPaused != _buildPhaseController->getIsPaused()) {
+        _isPaused = _buildPhaseController->getIsPaused();
+    }
 }
 
 /**

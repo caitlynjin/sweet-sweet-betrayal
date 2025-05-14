@@ -66,6 +66,9 @@ protected:
     /** Starting time for acceleration timer */
     Uint64 _accelerationStart;
 
+    /** Whether the game is paused */
+    bool _isPaused;
+
 
 public:
 #pragma mark -
@@ -106,6 +109,16 @@ public:
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
 
     void render();
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
 
 #pragma mark -
 #pragma mark Helpers
