@@ -62,6 +62,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _world = world;
     _input = input;
     _gridManager = gridManager;
+    _sound = sound;
 
     _networkController = networkController;
     _network = networkController->getNetwork();
@@ -75,17 +76,23 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
     
+    
+    // SEPARATE INTO PART 2 FOR WHEN LEVEL NUMBER IS LOADED IN
+    // OR DON'T CALL UPDATE UNTIL LEVEL NUMBER IS LOADED IN
+    
+    return true;
+};
 
+bool MovePhaseController::finishInit(){
     // Initialize move phase scene
-    _movePhaseScene.init(assets, world, gridManager, networkController, &_objects);
+    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
-    _sound = sound;
 
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
+    _uiScene.init(_assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -98,7 +105,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController->getLocalPlayer()->setVisible(false);
 
     return true;
-};
+}
 
 /**
  * Disposes of all (non-static) resources allocated to this mode.
@@ -120,7 +127,7 @@ void MovePhaseController::resetRound() {
 
     _movePhaseScene.resetPlayerProperties();
     _movePhaseScene.resetCameraPos();
-    
+
 //    _movePhaseScene.reset();
 //    _uiScene.reset();
 }
@@ -254,7 +261,10 @@ void MovePhaseController::preUpdate(float dt) {
                                                                    (_movePhaseScene.getLocalPlayer()->getPosition().x *
                                                                     56 + SCENE_WIDTH / 3.0f -
                                                                     getCamera()->getPosition().x),
-                                    getCamera()->getPosition().y, 0));
+        getCamera()->getPosition().y + (4 * dt) *
+        (_movePhaseScene.getLocalPlayer()->getPosition().y *
+            40 + SCENE_HEIGHT / 4.0 -
+            getCamera()->getPosition().y), 0));
     }
     _movePhaseScene.preUpdate(dt);
     
@@ -341,6 +351,7 @@ void MovePhaseController::killPlayer(){
     std::shared_ptr<PlayerModel> player = _movePhaseScene.getLocalPlayer();
     // Send message to network that the player has ended their movement phase
     if (!player->isDead()){
+        _sound->playSound("ow");
         // If player had treasure, remove from their possession
         if (player->hasTreasure){
             player->removeTreasure();
@@ -363,6 +374,7 @@ void MovePhaseController::killPlayer(){
         );
         
         player->setDead(true);
+        player->setGhost(player->getSceneNode(), true);
     }
     
 }
@@ -614,12 +626,13 @@ void MovePhaseController::beginContact(b2Contact *contact)
     Object* obj1 = reinterpret_cast<Object*>(body1->GetUserData().pointer);
     Object* obj2 = reinterpret_cast<Object*>(body2->GetUserData().pointer);
 
+
     // Handle bomb object explosion
-    if (fix1->IsSensor() || fix2->IsSensor()) {
+    if (obj1->getName() == "bomb" || obj2->getName() == "bomb") {
         Bomb* bomb = nullptr;
         Object* other = nullptr;
 
-        if (fix1->IsSensor()) {
+        if (obj1->getName() == "bomb") {
             bomb = dynamic_cast<Bomb*>(obj1);
             other = obj2;
         } else {
@@ -627,11 +640,13 @@ void MovePhaseController::beginContact(b2Contact *contact)
             other = obj1;
         }
 
-        if (bomb && other && !other->isRemoved()) {
+
+        if (bomb && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure") {
             CULog("Trigger bomb explosion");
             _sound->playSound("bomb");
             other->markRemoved(true);
             other->dispose();
+            
         }
     }
 
@@ -678,13 +693,11 @@ void MovePhaseController::beginContact(b2Contact *contact)
             // If we hit a spike, we are DEAD
             else if (bd2->getName() == "spike" ||bd1->getName() == "spike"  ){
                 killPlayer();
-                _sound->playSound("ow");
             }
 
             // If we hit a thorn, we are DEAD
             else if (bd2->getName() == "thorn" ||bd1->getName() == "thorn"  ){
                 killPlayer();
-                _sound->playSound("ow");
             }
 
             //Treasure Collection
@@ -706,6 +719,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                         
                         // Local player takes treasure
                         CULog("Local Player takes treasure");
+                        _sound->playSound("heehee");
                         _network->pushOutEvent(TreasureEvent::allocTreasureEvent(_network->getShortUID()));
                         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::TREASURE_TAKEN));
 //                        CULog("Local Player takes treasure");

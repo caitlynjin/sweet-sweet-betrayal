@@ -22,7 +22,8 @@ enum class Message {
     TREASURE_WON,     // Signal that a player has won a treasure
     MAKE_UNSTEALABLE, // Signal to make treasure unstealable
     SCORE_UPDATE,     // Signal a score update
-    RESET_LEVEL       // Signal a level to reset
+    RESET_LEVEL,      // Signal a level to reset
+    HOST_PICK         // Signal that host has picked a level
 };
 
 /**

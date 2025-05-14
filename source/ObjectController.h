@@ -168,6 +168,9 @@ public:
     std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
     std::shared_ptr<Object> createArtObject(Vec2 pos, Size size, float scale, float angle, string jsonType);
 
+    /** Creates a parallax art object */
+    std::shared_ptr<Object> createParallaxArtObject(Vec2 pos, Size size, float scale, float angle, int layer, float scrollRate, string jsonType);
+    std::shared_ptr<Object> createParallaxArtObject(std::shared_ptr<ArtObject> art);
     /**creates teh goal door**/
     std::shared_ptr<Object> createGoalDoor(Vec2 goalPos);
     /**

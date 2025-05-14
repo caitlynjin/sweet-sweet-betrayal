@@ -1,6 +1,7 @@
 #include "SSBApp.h"
 #include "SSBInput.h"
 #include "Constants.h"
+#include "ArtAssetMapHelper.h"
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -77,6 +78,7 @@ void SSBApp::onShutdown()
     _startscreen.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
+    _levelSelect.dispose();
     _joingame.dispose();
     _victory.dispose();
     _transition.dispose();
@@ -198,13 +200,7 @@ void SSBApp::preUpdate(float dt)
         _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
-        //_sound->addMusicToQueue("win");
-        //_sound->addMusicToQueue("lose");
         populateMaps();
-        for (auto it = Constants::jsonTypeToAsset.begin(); it != Constants::jsonTypeToAsset.end(); ++it) {
-            CULog("cdcdcdcdc %s %s", (*it).first.c_str(), (*it).second.c_str());
-
-        }
         _loading.dispose();
         _startscreen.init(_assets, _sound);
         _startscreen.setActive(true);
@@ -214,10 +210,14 @@ void SSBApp::preUpdate(float dt)
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets, _networkController, _sound);
         _hostgame.setSpriteBatch(_batch);
+        _levelSelect.init(_assets, _networkController, _sound);
+        _levelSelect.setSpriteBatch(_batch);
         _joingame.init(_assets, _networkController, _sound);
         _joingame.setSpriteBatch(_batch);
         _victory.init(_assets, _sound, _networkController);
         _victory.setSpriteBatch(_batch);
+        _pause.init(_assets, _sound);
+        _pause.setSpriteBatch(_batch);
         _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
         _waitinghost.init(_assets, _sound);
@@ -232,7 +232,8 @@ void SSBApp::preUpdate(float dt)
         _transition.startFadeIn();
 
         _status = START;
-        _sound->playMusic("move_phase", true);
+
+        _sound->playMusic("main_menu", true);
     }
     else
     {
@@ -257,6 +258,9 @@ void SSBApp::preUpdate(float dt)
         case COLOR_SELECT:
             updateColorSelectScene(dt);
             break;
+        case LEVEL_SELECT:
+            updateLevelSelectScene(dt);
+            break;
         case GAME:
             _gameController.preUpdate(dt);
             if (_network->getNumPlayers() < _expectedPlayers || _network->getStatus() == NetEventController::Status::NETERROR) {
@@ -278,6 +282,15 @@ void SSBApp::preUpdate(float dt)
                         //                    _gameController.reset();
                         _victory.setActive(true);
                         _status = VICTORY;
+                    }
+                }
+            // Check for pressing pause button
+                if (_gameController.getIsPaused()) {
+                    setTransition(true);
+                    if (_transition.getFadingOutDone()){
+                        _gameController.setActive(false);
+                        _pause.setActive(true);
+                        _status = PAUSED;
                     }
                 }
             break;
@@ -311,6 +324,8 @@ void SSBApp::preUpdate(float dt)
                     }
                 }
             break;
+        case PAUSED:
+            _pause.update(dt);
         case DISCONNECTED:
             updateDisconnectedScene(dt);
             break;
@@ -523,6 +538,8 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("HANDSHAKE");
         _networkController->setIsHost(true);
+        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
@@ -549,6 +566,35 @@ void SSBApp::updateHostScene(float timestep)
             _status = MENU;
         }
     }
+}
+
+/**
+ * Inidividualized update method for the level select scene.
+ *
+ * This method keeps the primary {@link #update} from being a mess of switch
+ * statements. It also handles the transition logic from the host scene.
+ *
+ * @param timestep  The amount of time (in seconds) since the last frame
+ */
+void SSBApp::updateLevelSelectScene(float timestep){
+    _levelSelect.update(timestep);
+    _networkController->fixedUpdate(timestep);
+    
+    // Check if host has pressed play on a specific level
+    if (_levelSelect.getChoice() != LevelSelectScene::Choice::NONE){
+        int levelChoice = static_cast<int>(_levelSelect.getChoice());
+        setTransition(true);
+        if (_transition.getFadingOutDone()){
+            _gameController.setLevelNum(levelChoice);
+            _gameController.finishInit();
+            _gameController.setSpriteBatch(_batch);
+            _levelSelect.setActive(false);
+            _gameController.setActive(true);
+            _status = GAME;
+        }
+    }
+    
+    return;
 }
 
 /**
@@ -586,6 +632,8 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
+        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     }
     else if (_network->getStatus() == NetEventController::Status::INGAME)
@@ -619,12 +667,14 @@ void SSBApp::updateColorSelectScene(float timestep){
         setTransition(true);
         if (_transition.getFadingOutDone()){
             _colorselect.setActive(false);
-            _gameController.init(_assets, _networkController, _sound);
-            _gameController.setSpriteBatch(_batch);
-            _gameController.setActive(true);
+//            _gameController.init(_assets, _networkController, _sound);
+//            _gameController.setSpriteBatch(_batch);
+//            _gameController.setActive(true);
+            CULog("Switch to level select");
+            _levelSelect.setActive(true);
             _expectedPlayers = _network->getNumPlayers();
             CULog("Expected players: %d", _expectedPlayers);
-            _status = GAME;
+            _status = LEVEL_SELECT;
         }
         return;
     }
@@ -698,6 +748,8 @@ void SSBApp::updateWaitingHostScene(float timestep){
     else if (_network->getStatus() == NetEventController::Status::HANDSHAKE && _network->getShortUID())
     {
         _networkController->setIsHost(false);
+        _gameController.init(_assets, _networkController, _sound);
+//        _gameController.setSpriteBatch(_batch);
         _network->markReady();
     } else if (_network->getStatus() == NetEventController::Status::NETERROR
      || _network->getNumPlayers() <= 1) {
@@ -762,6 +814,7 @@ void SSBApp::resetScenes(){
     _hostgame.reset();
     _joingame.reset();
     _colorselect.reset();
+    _levelSelect.reset();
     _waitinghost.reset();
     _disconnectedscreen.reset();
     _expectedPlayers = 0;
@@ -801,6 +854,9 @@ void SSBApp::draw()
     case COLOR_SELECT:
         _colorselect.render();
         break;
+    case LEVEL_SELECT:
+        _levelSelect.render();
+        break;
     case GAME:
         _gameController.render();
     case LEVEL_EDITOR:
@@ -825,67 +881,5 @@ std::map<std::string, Item> Constants::jsonTypeToItemType = {};
 std::map<Item, std::string> Constants::itemToAssetNameMap = {};
 
 void SSBApp::populateMaps() {
-    /* For each row,
-    * Element 0 = jsonType (string)
-    * Element 1 = texture (string)
-    * Element 2 = itemType (part of Item enum, must be updated there in Constants.h as well)
-    * Element 3 = itemSize
-    * Element 4 = itemToGridSize (pretty much same as Element 3, except for moving platforms
-    */
-    std::vector <std::vector<std::any>> vec = {
-    {std::string("default"), std::string(EARTH_TEXTURE), Item::ART_OBJECT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTop"), std::string(TOP_TILE_TEXTURE), Item::TILE_TOP, cugl::Size(1, 1), cugl::Size(1, 1) },
-    {std::string("tileBottom"), std::string(BOTTOM_TILE_TEXTURE), Item::TILE_BOTTOM, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileInner"), std::string(INNER_TILE_TEXTURE), Item::TILE_INNER, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileLeft"), std::string(LEFT_TILE_TEXTURE), Item::TILE_LEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileRight"), std::string(RIGHT_TILE_TEXTURE), Item::TILE_RIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTopLeft"), std::string(TOPLEFT_TILE_TEXTURE), Item::TILE_TOPLEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTopRight"), std::string(TOPRIGHT_TILE_TEXTURE), Item::TILE_TOPRIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("crack1"), std::string(CRACK1_TEXTURE), Item::CRACK_1, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack2"), std::string(CRACK2_TEXTURE), Item::CRACK_2, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack3"), std::string(CRACK3_TEXTURE), Item::CRACK_3, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack4"), std::string(CRACK4_TEXTURE), Item::CRACK_4, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack5"), std::string(CRACK5_TEXTURE), Item::CRACK_5, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crackLarge1"), std::string(CRACKLARGE1_TEXTURE), Item::CRACK_LARGE_1, cugl::Size(2, 2), cugl::Size(2, 2)},
-    {std::string("moss1"), std::string(MOSS1_TEXTURE), Item::MOSS_1, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("moss2"), std::string(MOSS2_TEXTURE), Item::MOSS_2, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("rocky1"), std::string(ROCKY1_TEXTURE), Item::ROCKY_1, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("rocky2"), std::string(ROCKY2_TEXTURE), Item::ROCKY_2, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeUp"), std::string(SPIKE_UP_TEXTURE), Item::SPIKE_UP, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeDown"), std::string(SPIKE_DOWN_TEXTURE), Item::SPIKE_DOWN, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeLeft"), std::string(SPIKE_LEFT_TEXTURE), Item::SPIKE_LEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeRight"), std::string(SPIKE_RIGHT_TEXTURE), Item::SPIKE_RIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    // Note that from here on out, these items likely won't ever be saved in a JSON file.
-        // I am putting them here to consolidate all of this logic into one place.
-        {std::string("thorn"), std::string(THORN_TEXTURE), Item::THORN},
-        {std::string("wind"), std::string(FAN_TEXTURE), Item::WIND},
-        {std::string("platform"), std::string(LOG_TEXTURE), Item::PLATFORM},
-        {std::string("movingPlatform"), std::string(GLIDING_LOG_TEXTURE), Item::MOVING_PLATFORM},
-        {std::string("spike"), std::string(SPIKE_TILE_TEXTURE), Item::SPIKE},
-        {std::string("treasure"), std::string(TREASURE_TEXTURE), Item::TREASURE},
-        {std::string("artObject"), std::string(EARTH_TEXTURE), Item::ART_OBJECT},
-        {std::string("tileItem"), std::string(TILE_TEXTURE), Item::TILE_ITEM},
-        {std::string("mushroom"), std::string(MUSHROOM_TEXTURE), Item::MUSHROOM},
-        {std::string("bomb"), std::string(BOMB_TEXTURE), Item::BOMB},
-        {std::string("none"), std::string(EARTH_TEXTURE), Item::NONE},
-    { std::string("torchRight"), std::string("torch-right"), Item::TORCH },
-    { std::string("tileInsideFilled"), std::string("tile-inside-filled"), Item::TILE_INSIDEFILLED},
-    { std::string("tileInsideLeft"), std::string("tile-inside-left"), Item::TILE_INSIDELEFT},
-    { std::string("tileInsideRight"), std::string("tile-inside-right"), Item::TILE_INSIDERIGHT},
-    };
-    std::vector<std::any> tempVec;
-    for (auto it = vec.begin(); it != vec.end(); ++it) {
-        tempVec = *it;
-        if (std::any_cast<std::string>(tempVec[0]) == std::string("tileLeft")) {
-            CULog("correct");
-            if (std::any_cast<std::string>(tempVec[1]) == std::string(LEFT_TILE_TEXTURE)) {
-                CULog("also correct");
-            }
-        }
-        Constants::jsonTypeToAsset[std::any_cast<std::string>(tempVec[0])] = std::any_cast<std::string>(tempVec[1]);
-        Constants::jsonTypeToItemType[std::any_cast<std::string>(tempVec[0])] = std::any_cast<Item>(tempVec[2]);
-        Constants::itemToAssetNameMap[std::any_cast<Item>(tempVec[2])] = std::any_cast<std::string>(tempVec[1]);
-        //std::any_cast<Item>(tempVec[2]);
-
-    }
+    ArtAssetMapHelper::populateConstantsMaps();
 }

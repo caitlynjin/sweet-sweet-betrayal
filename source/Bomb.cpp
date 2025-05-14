@@ -60,7 +60,7 @@ bool Bomb::init(const Vec2 pos, const Size size, string jsonType) {
     _itemType = Item::BOMB;
     _jsonType = jsonType;
     _position = pos;
-
+    setName("bomb");
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(-1.25f, -1.25f), Size(2.5f, 2.5f)); // Center offset for bomb radius of size 2.5x2.5
 

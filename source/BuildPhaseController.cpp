@@ -172,7 +172,7 @@ void BuildPhaseController::preUpdate(float dt) {
             }
             _buildPhaseScene.getCamera()->update();
         }
-        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= 4* _objectController->getGoalPos().x * 64){
             Uint64 currentTime = Application::get()->getEllapsedMicros();
             Uint64 elapsedTime = currentTime - _accelerationStart;
             if (elapsedTime < 500000){
@@ -225,6 +225,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
         if (trashBounds.contains(touchPos)) {
             CULog("Deleted object");
+            _sound->playSound("discardItem");
             _uiScene.getTrashButton()->setDown(false);
 
             if (_selectedObject) {
@@ -270,7 +271,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
                         std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
 
                     if (_selectedItem != BOMB) {
@@ -312,7 +313,7 @@ void BuildPhaseController::preUpdate(float dt) {
     }
 
     // TODO: Segment out to another method, uiSceneUpdate()
-    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= 4 * _objectController->getGoalPos().x * 64){
         Uint64 currentTime = Application::get()->getEllapsedMicros();
         Uint64 elapsedTime = currentTime - _accelerationStart;
         if (elapsedTime < 500000){
@@ -350,6 +351,10 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
     }
+
+    if (_isPaused != _uiScene.getIsPaused()) {
+        _isPaused = _uiScene.getIsPaused();
+    }
 }
 
 void BuildPhaseController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
@@ -375,6 +380,9 @@ void BuildPhaseController::processModeChange(bool value) {
 
     _uiScene.setVisible(value);
     _itemsPlaced = 0;
+    _selectedItem = Item::NONE;
+    _selectedObject = nullptr;
+    _input->setInventoryStatus(PlatformInput::InventoryStatus::WAITING);
 
     if (value){
         randomizeItems();
