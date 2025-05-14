@@ -164,7 +164,88 @@
                     "y_offset": 0.54
                 }
             },
-            "tips": {
+            "tip4": {
+                "type": "Image",
+                "data": {
+                    "texture": "tip4",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        725,
+                        108
+                    ],
+                    "angle": 0,
+                    "position": [
+                        291,
+                        20
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.22,
+                    "y_offset": -0.78
+                }
+            },
+            "tip3": {
+                "type": "Image",
+                "data": {
+                    "texture": "tip3",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        802,
+                        64
+                    ],
+                    "angle": 0,
+                    "position": [
+                        258,
+                        36
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.2,
+                    "y_offset": -0.83
+                }
+            },
+            "tip2": {
+                "type": "Image",
+                "data": {
+                    "texture": "tip2",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        859,
+                        90
+                    ],
+                    "angle": 0,
+                    "position": [
+                        224,
+                        36
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.17,
+                    "y_offset": -0.78
+                }
+            },
+            "tip1": {
                 "type": "Image",
                 "data": {
                     "texture": "tip1",

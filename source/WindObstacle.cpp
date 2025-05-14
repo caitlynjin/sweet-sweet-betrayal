@@ -41,12 +41,14 @@ void WindObstacle::update(float timestep) {
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
     std::fill(_rayDist, _rayDist + RAYS, 600);
-    if (_minObjDist != 10 or _minPlyrDist != 10) {
-        CULog("dist %f", _minObjDist);
-        CULog("Plyrdist %f", _minPlyrDist);
+    if (true) {
+        updateAnimation(timestep);
     }
+    else {
 
-    updateAnimation(timestep);
+        //_node->setPosition(getPosition() * _drawScale);
+        //_node->setAngle(getAngle());
+    }
 }
 
 void WindObstacle::updateAnimation(float timestep) {
@@ -85,8 +87,13 @@ string WindObstacle::getJsonKey() {
 void WindObstacle::dispose() {
     Object::dispose();
 
+    CULog("Diposing wind");
     markRemoved(true);
-//    _gust = nullptr;
+
+    if (_node && _node->getParent()) {
+        _node->removeFromParent();
+        _node = nullptr;
+    }
 }
 
 using namespace cugl;
@@ -137,19 +144,15 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     Poly2 rect = factory.makeRect(Vec2(-0.5f, -0.5f), size);
 
     if (PolygonObstacle::init(rect)){
-        setPosition(pos);
+        setPosition(pos + size/2);
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
-        setName(NAME);
-        setBodyType(b2_staticBody);
-        setSensor(true);
-        setEnabled(false);
+        setName("fan");
+        setBodyType(b2_dynamicBody);
         
         _node = scene2::SpriteNode::alloc();
-
         _node->setPriority(PRIORITY);
-        
 
         return true;
     }

@@ -15,6 +15,7 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "MushroomBounceEvent.h"
 #include "ReadyEvent.h"
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
@@ -24,6 +25,7 @@
 #include "Mushroom.h"
 #include "WindObstacle.h"
 #include "Thorn.h"
+#include "Bomb.h"
 #include "Message.h"
 
 using namespace cugl;
@@ -83,7 +85,6 @@ public:
      */
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
 };
-
 
 /**
  * The factory class for trap objects.
@@ -258,6 +259,7 @@ public:
     std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
     createObstacle(const std::vector<std::byte>& params) override;
 };
+
 /**
  * The factory class for mushroom objects.
  */
@@ -337,6 +339,31 @@ class WindFactory : public ObstacleFactory {
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
 
+/**
+ * The factory class for bomb objects.
+ */
+class BombFactory : public ObstacleFactory {
+public:
+    std::shared_ptr<AssetManager> _assets;
+    LWSerializer _serializer;
+    LWDeserializer _deserializer;
+
+    static std::shared_ptr<BombFactory> alloc(std::shared_ptr<AssetManager>& assets) {
+        auto f = std::make_shared<BombFactory>();
+        f->init(assets);
+        return f;
+    }
+
+    void init(std::shared_ptr<AssetManager>& assets) {
+        _assets = assets;
+    }
+
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size);
+
+    std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size);
+
+    std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
+};
 
 /**
  * This class is the scene for the UI of the game.
@@ -441,6 +468,10 @@ protected:
     /** Variables for Wind Factory */
     std::shared_ptr<WindFactory> _windFact;
     Uint32 _windFactID;
+
+    /** Variables for Bomb Factory */
+    std::shared_ptr<BombFactory> _bombFact;
+    Uint32 _bombFactID;
 
 public:
 #pragma mark -
@@ -752,6 +783,11 @@ public:
      * This method takes a AnimationEvent and processes it.
      */
     void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
+
+    /**
+     * This method takes a MushroomBounceEvent and processes it.
+     */
+    void processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event);
     
 #pragma mark -
 #pragma mark Create Networked Objects
@@ -808,6 +844,13 @@ public:
      * @return the thorn being created
      */
     std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str);
+
+    /**
+     * Creates a networked bomb.
+     *
+     * @return the bomb being created
+     */
+    std::shared_ptr<Object> createBombNetworked(Vec2 pos, Size size);
 
     /**
      * The method called to update the game mode.
@@ -905,6 +948,11 @@ public:
      * Resets the necessary logic to start a new round
      */
     void resetRound();
+
+    /**
+     * Makes players unready
+     */
+    void playersUnready();
     
     /**
      Checks if win condition has been met and sends a message to reset the level.
@@ -919,6 +967,8 @@ public:
     
     /** Sets the onColorTaken callback function */
     void setOnColorTaken (const std::function<void(ColorType, int)>& function) { _onColorTaken = function; }
+
+    void removeObject(std::shared_ptr<Object> object);
 
 };
 

@@ -47,6 +47,11 @@ protected:
     /** The players label (for updating) */
     std::shared_ptr<cugl::scene2::Label> _player;
     
+    std::vector<std::shared_ptr<cugl::scene2::SceneNode>> _tips;
+    int _currentTipIndex = 0;
+    float _tipSwitchTimer = 0.0f;
+    float _tipInterval = 3.0f;
+    
 //    /** The player icons for showing players joined */
 //    std::shared_ptr<cugl::scene2::PolygonNode> _player1Icon;
 //    std::shared_ptr<cugl::scene2::PolygonNode> _player2Icon;

@@ -1,5 +1,7 @@
 #include "SSBApp.h"
 #include "SSBInput.h"
+#include "Constants.h"
+#include "ArtAssetMapHelper.h"
 
 using namespace cugl;
 using namespace cugl::graphics;
@@ -193,11 +195,11 @@ void SSBApp::preUpdate(float dt)
 
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
+        _network->attachEventType<MessageEvent>();
+        _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
-        //_sound->addMusicToQueue("win");
-        //_sound->addMusicToQueue("lose");
-
+        populateMaps();
         _loading.dispose();
         _startscreen.init(_assets, _sound);
         _startscreen.setActive(true);
@@ -225,7 +227,7 @@ void SSBApp::preUpdate(float dt)
         _transition.startFadeIn();
 
         _status = START;
-        _sound->playMusic("move_phase", true);
+        _sound->playMusic("main_menu", true);
     }
     else
     {
@@ -812,4 +814,11 @@ void SSBApp::draw()
     if (_doTransition){
         _transition.render();
     }
+}
+std::map<std::string, std::string> Constants::jsonTypeToAsset = {};
+std::map<std::string, Item> Constants::jsonTypeToItemType = {};
+std::map<Item, std::string> Constants::itemToAssetNameMap = {};
+
+void SSBApp::populateMaps() {
+    ArtAssetMapHelper::populateConstantsMaps();
 }

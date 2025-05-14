@@ -154,7 +154,7 @@ void MovePhaseScene::populate() {
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     level->setScale(_scale);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/windy.json");
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/playground.json");
     _gridManager->clear();
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
@@ -323,6 +323,10 @@ Vec2 MovePhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
     int yGrid = yBox2D;
 
     return Vec2(xGrid, yGrid);
+}
+
+/**
+ * This method links a scene node to the obstacle.
 }
 
 /**

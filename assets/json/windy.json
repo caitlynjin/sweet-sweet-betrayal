@@ -642,7 +642,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 40,
 					"y": 0
@@ -651,7 +651,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 41,
 					"y": 0
@@ -660,7 +660,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 42,
 					"y": 0
@@ -669,7 +669,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 43,
 					"y": 0
@@ -678,7 +678,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 40,
 					"y": 8
@@ -687,7 +687,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 41,
 					"y": 8
@@ -696,7 +696,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 42,
 					"y": 8
@@ -705,7 +705,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 43,
 					"y": 8
@@ -714,7 +714,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 44,
 					"y": 8
@@ -723,7 +723,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 29,
 					"y": 2
@@ -732,7 +732,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 30,
 					"y": 1
@@ -741,7 +741,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 22,
 					"y": 8
@@ -750,7 +750,7 @@
 					"angle": 0,
 					"height": 1,
 					"scale": 64,
-					"type": "",
+					"type": "spikeUp",
 					"width": 1,
 					"x": 23,
 					"y": 8

@@ -8,6 +8,7 @@
 #include "SSBGameController.h"
 #include "Constants.h"
 #include "Platform.h"
+#include "Mushroom.h"
 #include "Tile.h"
 #include "Spike.h"
 #include <box2d/b2_world.h>
@@ -18,6 +19,7 @@
 #include "LevelModel.h"
 #include "ObjectController.h"
 #include "ArtObject.h"
+#include "GoalDoor.h"
 
 #include <ctime>
 #include <string>
@@ -64,17 +66,6 @@ std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile)
     std::shared_ptr<Texture> image;
     image = _assets->get<Texture>(jsonTypeToAsset[tile->getJsonType()]);
 
-    float blendingOffset = 0.01f;
-
-    Poly2 poly(Rect(tile->getPositionInit().x, tile->getPositionInit().y, tile->getSize().width - blendingOffset, tile->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-
     // Set the physics attributes
     tile->setBodyType(b2_dynamicBody);   // Must be dynamic for position to update
     tile->setDensity(BASIC_DENSITY);
@@ -83,7 +74,6 @@ std::shared_ptr<Object> ObjectController::createTile(std::shared_ptr<Tile> tile)
     tile->setDebugColor(DEBUG_COLOR);
     tile->setName("tile");
 
-    poly *= _scale;
     std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
     tile->setSceneNode(sprite);
 
@@ -153,9 +143,17 @@ std::shared_ptr<Object> ObjectController::createPlatform(Vec2 pos, Size size, st
  */
 std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed) {
     CULog("creating moving platform");
-    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
 
     std::shared_ptr<Platform> plat = Platform::allocMoving(pos, size, pos, end, speed);
+    return createMovingPlatform(plat);
+}
+
+std::shared_ptr<Object> ObjectController::createMovingPlatform(shared_ptr<Platform> plat){
+    std::shared_ptr<Texture> image = _assets->get<Texture>(GLIDING_LOG_TEXTURE);
+    std::shared_ptr<scene2::SpriteNode> glidingPlatSprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(GLIDING_LOG_ANIMATED), 1, 15, 15);
+    plat->setPlatformAnimation(animNode, 15);
 
     // Removes the black lines that display from wrapping
     float blendingOffset = 0.01f;
@@ -184,6 +182,7 @@ std::shared_ptr<Object> ObjectController::createMovingPlatform(Vec2 pos, Size si
 
     return plat;
 }
+
 /**
  * Creates a new spike.
  * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
@@ -197,7 +196,9 @@ std::shared_ptr<Object> ObjectController::createSpike(Vec2 pos, Size size, float
 
 std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk)
 {
-    std::shared_ptr<Texture> image = _assets->get<Texture>(SPIKE_TILE_TEXTURE);
+    std::shared_ptr<Texture> image = _assets->get<Texture>(jsonTypeToAsset[spk->getJsonType()]);
+    std::string temp2 = spk->getJsonType();
+    std::string temp = jsonTypeToAsset[spk->getJsonType()];
 
     // Set the physics attributes
     spk->setBodyType(b2_staticBody);
@@ -221,19 +222,32 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType, bool isLevelEditorMode)
 {
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
-    return createWindObstacle(wind);
+    return createWindObstacle(wind, isLevelEditorMode);
 }
 
-std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind)
+std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<WindObstacle> wind, bool isLevelEditorMode)
 {
     std::shared_ptr<Texture> gust = _assets->get<Texture>(GUST_TEXTURE);
     std::shared_ptr<scene2::SpriteNode> gustSprite = scene2::SpriteNode::allocWithSheet(gust, 1, 1);
+    std::shared_ptr<scene2::PolygonNode> staticSprite;
+    std::shared_ptr<scene2::SpriteNode> animNode;
 
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
-    wind->setFanAnimation(animNode, 4);
+    if (true) {
+        animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+        wind->setFanAnimation(animNode, 4);
+        wind->setSceneNode(animNode);
+        wind->setName("wind");
+    }
+    else {
+        staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
+        wind->setSceneNode(staticSprite);
+        wind->getSceneNode()->setVisible(true);
+        wind->setName("windLevelEditor");
+    }
+    
 
     /*auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
     auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 4);
@@ -254,6 +268,69 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     return wind;
 }
 
+/**
+* Creates a new mushroom.
+*
+* @return the mushroom
+*
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+std::shared_ptr<Object> ObjectController::createMushroom(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode) {
+    std::shared_ptr<Mushroom> mush = Mushroom::alloc(pos, size, jsonType);
+    return createMushroom(mush, isLevelEditorMode);
+}
+
+std::shared_ptr<Object> ObjectController::createMushroom(std::shared_ptr<Mushroom> mush, bool isLevelEditorMode) {
+    auto animNode = scene2::SpriteNode::allocWithSheet(
+        _assets->get<Texture>(MUSHROOM_BOUNCE), 1, 9, 9
+    );
+    mush->setMushroomAnimation(animNode, 9);
+
+    mush->setDensity(BASIC_DENSITY);
+    mush->setFriction(BASIC_FRICTION);
+    mush->setRestitution(BASIC_RESTITUTION);
+    mush->setName("mushroom");
+    mush->setDebugColor(DEBUG_COLOR);
+
+    addObstacle(mush, mush->getSceneNode());
+    _gameObjects->push_back(mush);
+
+    return mush;
+}
+
+/**
+* Creates a new bomb.
+*
+* @return the bomb
+*
+* @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+* @param size The dimensions (width, height) of the platform.
+*/
+std::shared_ptr<Object> ObjectController::createBomb(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode) {
+    std::shared_ptr<Bomb> bomb = Bomb::alloc(pos, size, jsonType);
+    return createBomb(bomb, isLevelEditorMode);
+}
+
+std::shared_ptr<Object> ObjectController::createBomb(std::shared_ptr<Bomb> bomb, bool isLevelEditorMode) {
+    std::shared_ptr<Texture> texture = _assets->get<Texture>(BOMB_TEXTURE);
+
+    bomb->setBodyType(b2_dynamicBody);
+    bomb->setDensity(BASIC_DENSITY);
+    bomb->setFriction(BASIC_FRICTION);
+    bomb->setRestitution(BASIC_RESTITUTION);
+    bomb->setName("bomb");
+    bomb->setDebugColor(DEBUG_COLOR);
+
+    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(BOMB_TEXTURE_ANIMATED), 1, 14, 14);
+    bomb->setAnimation(animNode);
+
+    addObstacle(bomb, bomb->getSceneNode());
+    _gameObjects->push_back(bomb);
+
+    return bomb;
+}
+
 std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, string jsonType, bool isLevelEditorMode){
     std::shared_ptr<Texture> image = _assets->get<Texture>("treasure");
     std::shared_ptr<Treasure> treas = Treasure::alloc(pos, image->getSize() / _scale, _scale);
@@ -262,13 +339,21 @@ std::shared_ptr<Object> ObjectController::createTreasure(Vec2 pos, Size size, st
 
 std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasure> _treasure, bool isLevelEditorMode) {
     std::shared_ptr<scene2::PolygonNode> sprite;
-
-    auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
-    _treasure->setAnimation(animNode);
+    std::shared_ptr<scene2::SpriteNode> animNode;
+    if (!isLevelEditorMode) {
+        animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("treasure-sheet"), 8, 8, 64);
+        _treasure->setAnimation(animNode);
+        _treasure->setName("treasure");
+    }
+    else {
+        sprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>("treasure"));
+        _treasure->setSceneNode(sprite);
+        _treasure->setName("treasureLevelEditor");
+    }
 
     //    _treasure->setSceneNode(sprite);
     addObstacle(_treasure, _treasure->getSceneNode());
-    _treasure->setName("treasure");
+    
     _treasure->setDebugColor(Color4::YELLOW);
     _gameObjects->push_back(_treasure);
     if (!isLevelEditorMode) {
@@ -277,43 +362,76 @@ std::shared_ptr<Object> ObjectController::createTreasure(std::shared_ptr<Treasur
     return _treasure;
 }
 
+std::shared_ptr<Object> ObjectController::createParallaxArtObject(Vec2 pos, Size size, float scale, float angle, int layer, float scrollRate, string jsonType) {
+    std::shared_ptr<ArtObject> artObj = ArtObject::alloc(pos, size, scale, angle, layer, jsonType);
+    artObj->setParallaxScrollRate(scrollRate);
+    auto newObj = createParallaxArtObject(artObj);
+    (dynamic_pointer_cast<ArtObject>(newObj))->setLayer(layer);
+    return newObj;
+}
+
+/* DO NOT call this overload directly. If you do, it will not have a proper scroll rate. Use the other overload instead. */
+std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_ptr<ArtObject> art) {
+    std::shared_ptr<Texture> image;
+    bool isAnimated = animatedArtObjects.find(art->getJsonType()) != animatedArtObjects.end();
+    image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
+    if (image == nullptr) {
+        image = _assets->get<Texture>("earth");
+    }
+    int rows = 1;
+    int cols = 1;
+    if (isAnimated) {
+        auto pair = animatedArtObjects[art->getJsonType()];
+        rows = pair.first;
+        cols = pair.second;
+        // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
+        art->setAnimationDuration(1.0f);
+    }
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
+    art->setSceneNode(sprite);
+    art->setAnimated(isAnimated);
+    art->setBodyType(b2_staticBody);
+    art->setDensity(BASIC_DENSITY);
+    art->setFriction(BASIC_FRICTION);
+    art->setRestitution(BASIC_RESTITUTION);
+    art->setDebugColor(DEBUG_COLOR);
+    art->setName("artObject");
+    // Disable ArtObject collision physics
+    art->setSensor(true);
+    addObstacle(art, sprite);
+    art->setAnimation(sprite);
+    _gameObjects->push_back(art);
+
+    return art;
+}
+
 std::shared_ptr<Object> ObjectController::createArtObject(Vec2 pos, Size size, float scale, float angle, std::string jsonType) {
     return createArtObject(ArtObject::alloc(pos, size, scale, angle, jsonType));
 }
 
 std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObject> art) {
     std::shared_ptr<Texture> image;
-
+    bool isAnimated = animatedArtObjects.find(art->getJsonType()) != animatedArtObjects.end();
     image = _assets->get<Texture>(jsonTypeToAsset[art->getJsonType()]);
     if (image == nullptr) {
         image = _assets->get<Texture>("earth");
     }
-    // Removes the black lines that display from wrapping
-    float blendingOffset = 0.01f;
-
-    Vec2 offset = Vec2(0, 0);
-    if (std::find(xOffsetArtObjects.begin(), xOffsetArtObjects.end(), art->getJsonType()) != xOffsetArtObjects.end()) {
-        offset += Vec2(32, 0);
+    int rows = 1;
+    int cols = 1;
+    if (isAnimated) {
+        auto pair = animatedArtObjects[art->getJsonType()];
+        rows = pair.first;
+        cols = pair.second;
+        // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
+        art->setAnimationDuration(1.0f);
     }
-    if (std::find(yOffsetArtObjects.begin(), yOffsetArtObjects.end(), art->getJsonType()) != yOffsetArtObjects.end()) {
-        offset += Vec2(0, 32);
-    }
-
-    Poly2 poly(Rect(art->getPositionInit().x, art->getPositionInit().y, art->getSize().width - blendingOffset, art->getSize().height - blendingOffset));
-
-    // Call this on a polygon to get a solid shape
-    EarclipTriangulator triangulator;
-    triangulator.set(poly.vertices);
-    triangulator.calculate();
-    poly.setIndices(triangulator.getTriangulation());
-    triangulator.clear();
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, 1, 1);
+    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
     art->setSceneNode(sprite);
+    art->setAnimated(isAnimated);
     if (jsonTypeToLayer.find(art->getJsonType()) != jsonTypeToLayer.end()) {
         // jsonType IS in the map
         art->setLayer(jsonTypeToLayer[art->getJsonType()]);
     }
-    CULog("layer is %d", art->getLayer());
     /* ArtObjects are still objects, and thus still have BoxObstacles.
      * They also need this to be rendered properly in the physics world.
      * Otherwise we'd have to have separate logic using an addChild method 
@@ -329,30 +447,38 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     // Disable ArtObject collision physics
     art->setSensor(true);
     addObstacle(art, sprite);
-
+    art->setAnimation(sprite);
     _gameObjects->push_back(art);
 
     return art;
 }
 
-std::shared_ptr<physics2::BoxObstacle> ObjectController::createGoalDoor(Vec2 goalPos) {
+std::shared_ptr<Object> ObjectController::createGoalDoor(Vec2 goalPos) {
     std::shared_ptr<Texture> image = _assets->get<Texture>(GOAL_TEXTURE);
-    std::shared_ptr<scene2::PolygonNode> sprite;
+    std::shared_ptr<scene2::SpriteNode> sprite;
+
+
+
+    sprite = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>("goal-spritesheet"), 1, 5, 5);
+    
 
     _goalPos = goalPos;
 
     Size goalSize(image->getSize().width / _scale, image->getSize().height / _scale);
     
-    std::shared_ptr<physics2::BoxObstacle> goalDoor = physics2::BoxObstacle::alloc(goalPos, goalSize);
+    std::shared_ptr<GoalDoor> goalDoor = GoalDoor::alloc(goalPos, goalSize, _scale);
+
+    goalDoor->setAnimation(sprite);
 
     goalDoor->setBodyType(b2_staticBody);
     goalDoor->setDensity(0.0f);
     goalDoor->setFriction(0.0f);
     goalDoor->setRestitution(0.0f);
     goalDoor->setSensor(true);
+    goalDoor->setName("goalDoor");
 
-    sprite = scene2::PolygonNode::allocWithTexture(image);
-    sprite->setColor(Color4(1, 255, 0));  // Greenish color
+    //sprite = scene2::PolygonNode::allocWithTexture(image);
+    //sprite->setColor(Color4(1, 255, 0));  // Greenish color
     goalDoor->setDebugColor(DEBUG_COLOR);
 
     addObstacle(goalDoor, sprite);
@@ -429,12 +555,12 @@ void ObjectController::processLevelObject(std::shared_ptr<Object> obj, bool leve
 void ObjectController::removeObject(std::shared_ptr<Object> object){
     auto it = std::find(_gameObjects->begin(), _gameObjects->end(), object);
 
-        // Check if the element was found
+    // Check if the element was found
     if (it != _gameObjects->end()) {
-            // Calculate the index by subtracting the beginning iterator
+        // Calculate the index by subtracting the beginning iterator
         int index = static_cast<int>(std::distance(_gameObjects->begin(), it));
         _gameObjects->erase(_gameObjects->begin() + index);
-        }
+    }
 }
 
 /**

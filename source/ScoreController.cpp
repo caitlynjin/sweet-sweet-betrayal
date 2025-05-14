@@ -17,15 +17,46 @@ bool ScoreController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 }
 
 void ScoreController::dispose() {
+    for (auto &entry : _scoreIcons) {
+        if (entry.second) { entry.second->removeFromParent(); }
+    }
+    _scoreIcons.clear();
+
+    for (auto &entry : _inRoundIcons) {
+        if (entry.second) { entry.second->removeFromParent(); }
+    }
+    _inRoundIcons.clear();
+
+    _dotsToRemove.clear();
     _playerRoundScores.clear();
     _playerTotalScores.clear();
+    _playerBaseDotPos.clear();
+    _playerColors.clear();
     _assets = nullptr;
 }
 
 void ScoreController::reset() {
     _playerRoundScores.clear();
     _playerTotalScores.clear();
-    
+
+    for (auto &entry : _inRoundIcons) {
+        if (entry.second) { entry.second->removeFromParent(); }
+    }
+    _inRoundIcons.clear();
+
+    for (const std::string &dotKey : _dotsToRemove) {
+        auto it = _scoreIcons.find(dotKey);
+        if (it != _scoreIcons.end()) {
+            it->second->removeFromParent();
+            _scoreIcons.erase(it);
+        }
+    }
+    _dotsToRemove.clear();
+
+    for (auto &entry : _scoreIcons) {
+        if (entry.second) { entry.second->removeFromParent(); }
+    }
+    _scoreIcons.clear();
 }
 
 void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event) {
@@ -143,7 +174,7 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     bar_position = Vec2(size_width * 0.55f, size_height * 0.8f);
     glider_position = Vec2(size_width * 0.22f, size_height * 0.8f);
     offset_betw_points = Vec2(size_width * 0.05f, 0);
-    offset_betw_players = Vec2(0, -size_height * 0.2f);
+    offset_betw_players = Vec2(0, -size_height * 0.18f);
 
     _playerList = playerList;
     
@@ -258,6 +289,8 @@ std::shared_ptr<scene2::PolygonNode> ScoreController::createIcon(const std::stri
 
 //set in round nodes visible
 void ScoreController::commitRoundIcons(const std::string& username) {
+    CULog("Before commit: _inRoundIcons size = %lu, _scoreIcons size = %lu", _inRoundIcons.size(), _scoreIcons.size());
+
     for (auto it = _inRoundIcons.begin(); it != _inRoundIcons.end(); ) {
         if (it->first.find(username) != std::string::npos) {
             it->second->setVisible(true);
@@ -272,7 +305,7 @@ void ScoreController::commitRoundIcons(const std::string& username) {
         if (it->find(username) != std::string::npos) {
             auto dotIt = _scoreIcons.find(*it);
             if (dotIt != _scoreIcons.end()) {
-                CULog("Removing dotKey: %s\n", it->c_str());
+                CULog("Removing dotKey: %s", it->c_str());
                 dotIt->second->setVisible(false);
                 dotIt->second->removeFromParent();
                 _scoreIcons.erase(dotIt);
@@ -282,7 +315,10 @@ void ScoreController::commitRoundIcons(const std::string& username) {
             ++it;
         }
     }
+
+    CULog("After commit: _inRoundIcons size = %lu, _scoreIcons size = %lu", _inRoundIcons.size(), _scoreIcons.size());
 }
+
 
 
 
