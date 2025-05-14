@@ -576,6 +576,27 @@
         },
         "parallax-3": {
             "file": "textures/parallax/3.png"
+        },
+        "modal": {
+            "file": "textures/modal.png"
+        },
+        "resume": {
+            "file": "textures/buttons/resume.png"
+        },
+        "disconnect": {
+            "file": "textures/buttons/disconnect.png"
+        },
+        "slider": {
+            "file": "textures/slider.png"
+        },
+        "knob": {
+            "file": "textures/knob.png"
+        },
+        "music": {
+            "file": "textures/music.png"
+        },
+        "sfx": {
+            "file": "textures/sfx.png"
         }
     },
     "jsons": {
@@ -740,7 +761,8 @@
         "host" : "widgets/host.json",
         "colorselect" : "widgets/colorselect.json",
         "waiting-host": "widgets/waiting-host.json",
-        "disconnected": "widgets/disconnected.json"
+        "disconnected": "widgets/disconnected.json",
+        "pause": "widgets/pause.json"
     },
     "scene2s": {
         "start": {
