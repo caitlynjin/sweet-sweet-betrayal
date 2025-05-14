@@ -15,6 +15,7 @@
 #include "LevelEditorController.h"
 #include "ColorSelectScene.h"
 #include "WaitingHostScene.h"
+#include "LevelSelectScene.h"
 #include "DisconnectedScene.h"
 #include <cugl/physics2/distrib/CUNetEventController.h>
 #include "Constants.h"
@@ -27,7 +28,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED
+        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -48,6 +49,8 @@ protected:
     
 
     TransitionScene _transition;
+    
+    LevelSelectScene _levelSelect;
     
     bool _doTransition = false;
 
@@ -286,6 +289,8 @@ public:
     void updateWaitingHostScene(float timestep);
     
     void updateDisconnectedScene(float timestep);
+    
+    void updateLevelSelectScene(float timestep);
     
     /**
      * The method called to draw the application to the screen.

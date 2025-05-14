@@ -125,6 +125,14 @@ public:
      * Triggers a change in building mode.
      */
     void setBuildingMode(bool value);
+    
+    BuildPhaseScene getBuildPhaseScene(){
+        return _buildPhaseScene;
+    }
+    
+    BuildPhaseUIScene getBuildPhaseUI(){
+        return _uiScene;
+    }
 
     /**
      * Randomizes the items in the inventory and selects only a `count` of these items.

@@ -28,7 +28,16 @@ using namespace cugl::physics2::distrib;
  * This class is the build phase scene.
  */
 class MovePhaseScene : public scene2::Scene2 {
+    
+    
 protected:
+    // JSON LEVEL CONSTANTS
+    
+    string LEVEL_1 = "json/playground.json";
+    string LEVEL_2 = "json/alpha.json";
+    string LEVEL_3 = "json/playground.json";
+    
+    
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
     /** The Box2D world */
@@ -59,6 +68,8 @@ protected:
     Vec2 _offset;
     /** The initial position of the camera */
     Vec2 _initialCameraPos;
+    
+    int _levelNum = 0;
 
 
 public:
@@ -160,6 +171,16 @@ public:
      * Gets the goal door
      */
     std::shared_ptr<Object> getGoalDoor() { return _goalDoor; };
+    
+    /** Sets the level number */
+    void setLevelNum(int level){
+        _levelNum = level;
+    }
+    
+    /** Returns the level number */
+    int getLevelNum(){
+        return _levelNum;
+    }
 
 #pragma mark -
 #pragma mark Helpers
