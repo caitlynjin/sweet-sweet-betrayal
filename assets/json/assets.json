@@ -522,41 +522,41 @@
         "timer": {
             "file": "textures/timer.png"
         },
-        "select-green": {
-            "file": "textures/buttons/select-green.png"
+        "green-selected": {
+            "file": "textures/buttons/green-selected.png"
         },
-        "select-yellow": {
-            "file": "textures/buttons/select-yellow.png"
+        "yellow-selected": {
+            "file": "textures/buttons/yellow-selected.png"
         },
-        "select-blue": {
-            "file": "textures/buttons/select-blue.png"
+        "blue-selected": {
+            "file": "textures/buttons/blue-selected.png"
         },
-        "select-red": {
-            "file": "textures/buttons/select-red.png"
+        "red-selected": {
+            "file": "textures/buttons/red-selected.png"
         },
-        "color-green": {
-            "file": "textures/buttons/color-green.png"
+        "green-button": {
+            "file": "textures/buttons/green-button.png"
         },
-        "color-yellow": {
-            "file": "textures/buttons/color-yellow.png"
+        "yellow-button": {
+            "file": "textures/buttons/yellow-button.png"
         },
-        "color-blue": {
-            "file": "textures/buttons/color-blue.png"
+        "blue-button": {
+            "file": "textures/buttons/blue-button.png"
         },
-        "color-red": {
-            "file": "textures/buttons/color-red.png"
+        "red-button": {
+            "file": "textures/buttons/red-button.png"
         },
-        "taken-green": {
-            "file": "textures/buttons/taken-green.png"
+        "green-taken": {
+            "file": "textures/buttons/green-taken.png"
         },
-        "taken-yellow": {
-            "file": "textures/buttons/taken-yellow.png"
+        "yellow-taken": {
+            "file": "textures/buttons/yellow-taken.png"
         },
-        "taken-blue": {
-            "file": "textures/buttons/taken-blue.png"
+        "blue-taken": {
+            "file": "textures/buttons/blue-taken.png"
         },
-        "taken-red": {
-            "file": "textures/buttons/taken-red.png"
+        "red-taken": {
+            "file": "textures/buttons/red-taken.png"
         },
         "colorselect-title": {
             "file": "textures/text/colorselect-title.png"

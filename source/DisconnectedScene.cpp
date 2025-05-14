@@ -49,7 +49,7 @@ bool DisconnectedScene::init(const std::shared_ptr<cugl::AssetManager>& assets, 
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
     
-    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("menu.background"));
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("disconnected.background"));
     if (_background) {
         _background->setAnchor(Vec2::ANCHOR_CENTER);
         Size tex = _background->getContentSize();
