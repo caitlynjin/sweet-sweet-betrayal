@@ -85,14 +85,23 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void VictoryScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _restartButton = nullptr;
-        _quitButton = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _restartButton->clearListeners();
+    _quitButton->clearListeners();
+    _restartButton = nullptr;
+    _quitButton = nullptr;
+    _assets = nullptr;
+    _sound = nullptr;
+    _networkController = nullptr;
+    _network = nullptr;
+    _input.dispose();
+
+    
+    _active = false;
+    Scene2::dispose();
+    
 }
 /**
  * Sets whether the scene is currently active
@@ -118,6 +127,10 @@ void VictoryScene::setActive(bool value) {
             _quitButton->setDown(false);
         }
     }
+}
+
+void VictoryScene::reset(){
+    _choice = Choice::NONE;
 }
 
 /**

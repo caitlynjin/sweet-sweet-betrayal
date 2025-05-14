@@ -75,6 +75,8 @@ void NetworkController::dispose(){
 }
 
 void NetworkController::resetNetwork(){
+    reset();
+    _network->disablePhysics();
     _network->disconnect();
     _network->dispose();
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
@@ -85,6 +87,7 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
 }
 
@@ -256,6 +259,8 @@ void NetworkController::reset(){
     _numReset = 0;
     _numColorReady = 0;
     
+    _playerIDs.clear();
+    
     resetTreasureRandom();
     _readyMessageSent = false;
     _filtersSet = false;
@@ -264,6 +269,7 @@ void NetworkController::reset(){
     _playerColorAdded = false;
     
     _levelSelected = 0;
+    _levelSelectData = make_tuple(0, false, false);
 }
 
 

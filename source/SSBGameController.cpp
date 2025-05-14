@@ -229,6 +229,7 @@ void SSBGameController::createParallaxObjects() {
  */
 void SSBGameController::dispose()
 {
+    reset();
     _world = nullptr;
 
     if (_gridManager) {

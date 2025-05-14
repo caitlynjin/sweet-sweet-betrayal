@@ -199,8 +199,6 @@ void SSBApp::preUpdate(float dt)
 
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
-        _network->attachEventType<MessageEvent>();
-        _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
         populateMaps();
@@ -308,10 +306,7 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
-                        _victory.reset();
-                        _startscreen.setActive(true);
-                        //TODO: resetGame() method
-                        resetScenes();
+                        resetGame();
                         _status = START;
                     }
                 }
@@ -875,4 +870,61 @@ std::map<Item, std::string> Constants::itemToAssetNameMap = {};
 
 void SSBApp::populateMaps() {
     ArtAssetMapHelper::populateConstantsMaps();
+}
+
+/**
+ Resets the entire state of the application. Disposes of all scenes and the network and re-initializes them.
+ */
+void SSBApp::resetGame(){
+    // Dispose of all necessary scenes
+    _startscreen.dispose();
+    _mainmenu.dispose();
+    _joingame.dispose();
+    _hostgame.dispose();
+    _victory.dispose();
+    
+    _levelSelect.dispose();
+    
+    _colorselect.dispose();
+    _waitinghost.dispose();
+    _disconnectedscreen.dispose();
+    
+    _gameController.dispose();
+    
+    // Clear network variables
+    _networkController->resetNetwork();
+    _networkController = nullptr;
+    _network = nullptr;
+    
+    _batch = nullptr;
+    _batch = SpriteBatch::alloc();
+    
+    // Re-initialize all necessary logic and scenes
+    _networkController = NetworkController::alloc(_assets);
+    _network = _networkController->getNetwork();
+    _sound = SoundController::alloc(_assets);
+
+    populateMaps();
+    _startscreen.init(_assets, _sound);
+    _startscreen.setActive(true);
+
+    _startscreen.setSpriteBatch(_batch);
+    _mainmenu.init(_assets, _sound);
+    _mainmenu.setSpriteBatch(_batch);
+    _hostgame.init(_assets, _networkController, _sound);
+    _hostgame.setSpriteBatch(_batch);
+    _levelSelect.init(_assets, _networkController, _sound);
+    _levelSelect.setSpriteBatch(_batch);
+    _joingame.init(_assets, _networkController, _sound);
+    _joingame.setSpriteBatch(_batch);
+    _victory.init(_assets, _sound, _networkController);
+    _victory.setSpriteBatch(_batch);
+    _colorselect.init(_assets, _networkController, _sound);
+    _colorselect.setSpriteBatch(_batch);
+    _waitinghost.init(_assets, _sound);
+    _waitinghost.setSpriteBatch(_batch);
+    _disconnectedscreen.init(_assets, _sound);
+    _disconnectedscreen.setSpriteBatch(_batch);
+    
+    _sound->playMusic("main_menu", true);
 }

@@ -142,10 +142,31 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void HostScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _active = false;
+    reset();
+    removeAllChildren();
+    
+    _active = false;
+    _network = nullptr;
+    _networkController = nullptr;
+    _assets = nullptr;
+    
+    for (auto node : _tips){
+        node = nullptr;
     }
+    
+    _tips.clear();
+    _sound = nullptr;
+    
+    _startgame->clearListeners();
+    _backout->clearListeners();
+    _startgame = nullptr;
+    _backout = nullptr;
+    
+    
+    _gameid = nullptr;
+    _player = nullptr;
+    
+    Scene2::dispose();
 }
 
 /**
@@ -159,6 +180,10 @@ void HostScene::reset(){
     _sendCount = 0;
     _receiveCount = 0;
     _totalPing = 0;
+    
+    _currentTipIndex = 0;
+    _tipSwitchTimer = 0.0f;
+    _tipInterval = 3.0f;
     
     //reset here
 }
@@ -231,6 +256,9 @@ void HostScene::update(float timestep) {
      * Check for the status of `_network` (The NetworkController). If it is CONNECTED, you would need to update the scene nodes so that _gameId displays the id of the room (converted from hex to decimal) and _player displays the number of players. Additionally, you should check whether the `_startgame` button has been pressed and update its text. If it is not pressed yet, then its should display "Start Game" and be activated, otherwise, it should be deactivated and show "Starting".
      */
 #pragma mark BEGIN SOLUTION
+    CULog("Start button pressed: %d", _startGameClicked);
+    
+    
     _tipSwitchTimer += timestep;
     if (_tipSwitchTimer >= _tipInterval) {
         _tipSwitchTimer = 0.0f;

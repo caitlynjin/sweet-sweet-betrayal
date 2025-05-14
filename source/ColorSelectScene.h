@@ -67,6 +67,7 @@ protected:
     ColorType _myColor = ColorType::RED;
     int  _prevTakenIndex = -1;
     bool _isReady;
+    bool _pressedReady = false;
     
     float _bounceTimer = 0.0f;
     cugl::Vec2 _redBasePos, _blueBasePos, _yellowBasePos, _greenBasePos;

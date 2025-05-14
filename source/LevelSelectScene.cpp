@@ -180,12 +180,42 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void LevelSelectScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    
+    _background = nullptr;
+    _active = false;
+    _networkController = nullptr;
+    _network = nullptr;
+    
+    _assets = nullptr;
+    
+    _level1->clearListeners();
+    _level2->clearListeners();
+    _level3->clearListeners();
+    _backbutton->clearListeners();
+    
+    _playButton->clearListeners();
+    _closeButton->clearListeners();
+
+   _sound = nullptr;
+    _input.dispose();
+   _background = nullptr;
+   _level1 = nullptr;
+   _level2 = nullptr;
+   _level3 = nullptr;
+   _backbutton = nullptr;
+   _hostText = nullptr;
+   
+   _modalDarkener = nullptr;
+   _modalFrame = nullptr;
+   _levelImage = nullptr;
+   _levelName = nullptr;
+   _playButton = nullptr;
+   _closeButton = nullptr;
+    
+    Scene2::dispose();
+    
 }
 
 /**
@@ -194,6 +224,17 @@ void LevelSelectScene::dispose() {
 void LevelSelectScene::reset(){
     _choice = Choice::NONE;
     _levelView = 0;
+    
+    _playPressed = false;
+    _decreaseAlpha = true;
+    _levelPressed = false;
+    _closePressed = false;
+    _showModal = false;
+    setModalVisible(false);
+    
+    if (_network->isHost()){
+        setModalActive(false);
+    }
 }
 
 // Update level event to store whether to display the modal

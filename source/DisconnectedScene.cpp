@@ -65,12 +65,18 @@ bool DisconnectedScene::init(const std::shared_ptr<cugl::AssetManager>& assets, 
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void DisconnectedScene::dispose(){
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    _assets = nullptr;
+    _sound = nullptr;
+    _input.dispose();
+    
+    _quitbutton->clearListeners();
+    _quitbutton = nullptr;
+    Scene2::dispose();
+    
 }
 
 /**

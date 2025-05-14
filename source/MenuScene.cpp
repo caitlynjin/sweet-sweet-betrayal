@@ -111,12 +111,27 @@ bool MenuScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void MenuScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    
+    _assets = nullptr;
+
+    _sound = nullptr;
+    _input.dispose();
+
+    _hostbutton->clearListeners();
+    _joinbutton->clearListeners();
+    _backbutton->clearListeners();
+    
+    _hostbutton = nullptr;
+    _joinbutton = nullptr;
+    _backbutton = nullptr;
+    _text = nullptr;
+    
+    Scene2::dispose();
+    
 }
 
 /**
@@ -124,6 +139,7 @@ void MenuScene::dispose() {
  */
 void MenuScene::reset(){
     _choice = Choice::NONE;
+    _textFloatTimer = 0.0f;
 }
 
 /**

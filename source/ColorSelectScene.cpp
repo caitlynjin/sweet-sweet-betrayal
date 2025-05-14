@@ -109,13 +109,9 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     });
     _readybutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
-            CULog("Pressed ready");
             _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
-//            _networkController->flushConnection();
-            _networkController->setLocalColor(_myColor);
-            CULog("Sent out color ready message");
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
+            _pressedReady = true;
             _isReady = true;
             _sound->playSound("button_click");
         }
@@ -168,12 +164,44 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void ColorSelectScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    
+    _assets = nullptr;
+    _sound = nullptr;
+    _networkController = nullptr;
+    _network = nullptr;
+    _input.dispose();
+
+    _backbutton->clearListeners();
+    _readybutton->clearListeners();
+    _redbutton->clearListeners();
+    _bluebutton->clearListeners();
+    _yellowbutton->clearListeners();
+    _greenbutton->clearListeners();
+    
+    _backbutton = nullptr;
+    _readybutton = nullptr;
+    _redbutton = nullptr;
+    _bluebutton = nullptr;
+    _yellowbutton = nullptr;
+    _greenbutton = nullptr;
+    _redNormal = nullptr;
+    _redSelected = nullptr;
+    _redTaken = nullptr;
+    _blueNormal = nullptr;
+    _blueSelected = nullptr;
+    _blueTaken = nullptr;
+    _yellowNormal = nullptr;
+    _yellowSelected = nullptr;
+    _yellowTaken = nullptr;
+    _greenNormal = nullptr;
+    _greenSelected = nullptr;
+    _greenTaken = nullptr;
+    
+    Scene2::dispose();
 }
 
 /**
@@ -185,8 +213,11 @@ void ColorSelectScene::reset(){
     _myColor = ColorType::RED;
     resetButtons();
     _isReady = false;
+    _pressedReady = false;
     setReadyEnabled(false);
     _initialPlayerCount = 0;
+    _prevTakenIndex = -1;
+    _bounceTimer = 0.0f;
 }
 
 /**
@@ -232,6 +263,16 @@ void ColorSelectScene::setActive(bool value) {
 }
 
 void ColorSelectScene::update(float dt) {
+    // Update ready logic
+    if (_pressedReady){
+        CULog("Pressed ready");
+        _networkController->setLocalColor(_myColor);
+        CULog("Sent out color ready message");
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
+        _pressedReady = false;
+    }
+    
+    // Update visual effects
     _bounceTimer += dt;
     const float iconAmplitude = 5.0f;
     const float iconSpeed     = 4.0f;
