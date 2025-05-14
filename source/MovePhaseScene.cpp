@@ -327,6 +327,10 @@ Vec2 MovePhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
 
 /**
  * This method links a scene node to the obstacle.
+}
+
+/**
+ * This method links a scene node to the obstacle.
  *
  * This method adds a listener so that the sceneNode will move along with the obstacle.
  */

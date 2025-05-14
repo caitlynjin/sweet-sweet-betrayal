@@ -66,6 +66,8 @@ protected:
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     /** The list of objects */
     std::vector<std::shared_ptr<Object>> _objects;
+    /** The list of parallax objects */
+    std::vector<std::shared_ptr<Object>> _parallaxObjects;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -170,6 +172,9 @@ public:
     bool init(const std::shared_ptr<AssetManager>& assets,
         const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
+    /** Creates all the parallax art objects. */
+
+    void createParallaxObjects();
 #pragma mark -
 #pragma mark Gameplay Handling
     /**

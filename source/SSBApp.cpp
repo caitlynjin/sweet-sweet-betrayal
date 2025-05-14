@@ -202,13 +202,7 @@ void SSBApp::preUpdate(float dt)
         _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
-        //_sound->addMusicToQueue("win");
-        //_sound->addMusicToQueue("lose");
         populateMaps();
-        for (auto it = Constants::jsonTypeToAsset.begin(); it != Constants::jsonTypeToAsset.end(); ++it) {
-            CULog("cdcdcdcdc %s %s", (*it).first.c_str(), (*it).second.c_str());
-
-        }
         _loading.dispose();
         _startscreen.init(_assets, _sound);
         _startscreen.setActive(true);
@@ -236,7 +230,7 @@ void SSBApp::preUpdate(float dt)
         _transition.startFadeIn();
 
         _status = START;
-        _sound->playMusic("move_phase", true);
+        _sound->playMusic("main_menu", true);
     }
     else
     {
