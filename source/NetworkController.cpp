@@ -138,7 +138,7 @@ void NetworkController::preUpdate(float dt){
     _scoreController->preUpdate(dt);
 
     for (auto& player : _playerList){
-        if (player->isDead()){
+        if (player->isDead() && std::find(_alivePlayerList.begin(), _alivePlayerList.end(), player) != _alivePlayerList.end()){
             auto newEnd = std::remove(_alivePlayerList.begin(), _alivePlayerList.end(), player);
             _alivePlayerList.erase(newEnd, _alivePlayerList.end());
         }

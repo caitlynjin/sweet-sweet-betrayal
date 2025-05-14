@@ -173,7 +173,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
         _leftpressed = down;
         if (_networkController->getAlivePlayers().size() > 1){
             std::rotate(_networkController->getAlivePlayers().begin(),
-                        _networkController->getAlivePlayers().end(),
+                        _networkController->getAlivePlayers().begin() + _networkController->getAlivePlayers().size() - 1,
                         _networkController->getAlivePlayers().end());
         }
     });
