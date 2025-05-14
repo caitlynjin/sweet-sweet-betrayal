@@ -61,6 +61,15 @@ BuildPhaseUIScene::BuildPhaseUIScene() : Scene2() {}
 void BuildPhaseUIScene::dispose() {
     if (_active)
     {
+        for (auto& button : _inventoryButtons) {
+            button->dispose();
+        }
+        _inventoryButtons.clear();
+        _assets = nullptr;
+        _gridManager = nullptr;
+        
+        _inventoryBackground= nullptr;
+        _inventoryOverlay = nullptr;
         _readyButton = nullptr;
         _rightButton = nullptr;
         _leftButton = nullptr;
@@ -77,6 +86,8 @@ void BuildPhaseUIScene::dispose() {
         for (std::shared_ptr<cugl::scene2::PolygonNode> checkmark : _checkmarkList){
             checkmark = nullptr;
         }
+        _iconList.clear();
+        _checkmarkMap.clear();
         Scene2::dispose();
     }
 };

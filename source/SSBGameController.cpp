@@ -265,12 +265,24 @@ void SSBGameController::reset()
     // Clear the world
     _world->clear();
     
+    
     // Reset all controllers
     _networkController->reset();
+    _objectController->reset();
     _buildPhaseController->reset();
+    
     _movePhaseController->reset();
+    _gridManager->clear();
+
+    //we might not need these
+    _objects.clear();
+    _parallaxObjects.clear();
         
     _hasVictory = false;
+    int _scoreCountdown = -1;
+    int _beforeScoreBoard = 15;
+    int _nextInRoundDelay = 30;
+    size_t _nextnRoundIndex = 0;s    
 }
 
 #pragma mark -

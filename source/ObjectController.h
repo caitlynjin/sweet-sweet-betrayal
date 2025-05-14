@@ -66,6 +66,9 @@ public:
                      const std::shared_ptr<scene2::SceneNode> debug_node,
                      std::vector<std::shared_ptr<Object>>* gameObjects);
 
+    void reset();
+    
+    void dispose();
 
     /** Returns the list of objects. 
     *

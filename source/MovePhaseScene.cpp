@@ -78,8 +78,18 @@ MovePhaseScene::MovePhaseScene() : Scene2(),
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void MovePhaseScene::dispose() {
+    _assets = nullptr;
+    _network = nullptr;
+    _world = nullptr;
+    _objectController = nullptr;
+    _gridManager = nullptr;
+    _networkController = nullptr;
+    _objects = nullptr;
     _worldnode = nullptr;
     _debugnode = nullptr;
+    _goalDoor = nullptr;
+    _localPlayer = nullptr;
+    _treasure = nullptr;
 };
 
 /**
@@ -126,9 +136,11 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
 
     // Initialize object controller
     _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, _objects);
-
-    addChild(_gridManager->getGridNode());
-
+    auto gridNode = _gridManager->getGridNode();
+    if (gridNode->getScene() == this) {
+        removeChild(gridNode);
+    }
+    addChild(gridNode);
     _active = true;
     populate();
 
@@ -239,11 +251,14 @@ void MovePhaseScene::populate() {
 void MovePhaseScene::reset() {
     resetPlayerProperties();
     
-    _localPlayer = nullptr;
-    _goalDoor = nullptr;
-    _treasure = nullptr;
-    _objects = nullptr;
-    
+    if (_gridManager) {
+        auto gridNode = _gridManager->getGridNode();
+        if (gridNode->getScene() == this) {
+            removeChild(gridNode);
+        }
+        _gridManager->getGridNode() = nullptr;
+    }
+    _gridManager->getGridNode() = nullptr;
     _levelNum = 0;
 
     _worldnode->removeAllChildren();

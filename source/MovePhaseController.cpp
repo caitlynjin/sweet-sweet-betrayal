@@ -113,7 +113,17 @@ bool MovePhaseController::finishInit(){
 void MovePhaseController::dispose() {
     _complete = false;
     _debug = false;
-
+    _assets = nullptr;
+    _network = nullptr;
+    _gridManager = nullptr;
+    _objectController = nullptr;
+    _networkController = nullptr;
+    _input = nullptr;
+    _sound = nullptr;
+    _camera = nullptr;
+    _objects.clear();
+    _localSensorFixtures.clear();
+    _playerSensorFixtures.clear();
     _movePhaseScene.dispose();
     _uiScene.dispose();
 }
@@ -136,6 +146,17 @@ void MovePhaseController::resetRound() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::reset() {
+    
+    if (_gridManager) {
+        _gridManager->getGridNode() = nullptr;
+    }
+    //maybe we dont need this
+    // if (_gridManager) {
+    //     auto gridNode = _gridManager->getGridNode();
+    //     if (gridNode->getParent()) {
+    //         gridNode->removeFromParent();
+    //     }
+    // }
     // TODO: Need to properly reset
     _currRound = 1;
     _mushroomCooldown = 0;

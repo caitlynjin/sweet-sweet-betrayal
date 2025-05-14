@@ -172,7 +172,6 @@ void SSBApp::update(float dt)
 void SSBApp::preUpdate(float dt)
 {
     if (_network){
-        CULog("Network status: %d", static_cast<int>(_network->getStatus())); 
     }
     // Handle transition logic
     if (_doTransition){
@@ -299,8 +298,10 @@ void SSBApp::preUpdate(float dt)
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
                         _gameController.reset();
-                        _gameController.setActive(true);
-                        _status = GAME;
+                        _levelSelect.setActive(true);
+                        _expectedPlayers = _network->getNumPlayers();
+                        CULog("Expected players: %d", _expectedPlayers);
+                        _status = LEVEL_SELECT;
                     }
                 }
             //TODO: Check for quit to main menu

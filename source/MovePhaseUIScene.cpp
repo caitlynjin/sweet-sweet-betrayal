@@ -55,24 +55,28 @@ MovePhaseUIScene::MovePhaseUIScene() : Scene2() {}
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void MovePhaseUIScene::dispose() {
-    if (_active)
-    {
-        _winnode = nullptr;
-        _losenode = nullptr;
+    _assets = nullptr;
+    _winnode = nullptr;
+    _losenode = nullptr;
 //        _roundsnode = nullptr;
-        _leftnode = nullptr;
-        _rightnode = nullptr;
-        _progressBar = nullptr;
-        _redIcon = nullptr;
-        _blueIcon = nullptr;
-        _greenIcon = nullptr;
-        _yellowIcon = nullptr;
-        _treasureIcon = nullptr;
+    _leftnode = nullptr;
+    _rightnode = nullptr;
+    _progressBar = nullptr;
+    _redIcon = nullptr;
+    _blueIcon = nullptr;
+    _greenIcon = nullptr;
+    _yellowIcon = nullptr;
+    _treasureIcon = nullptr;
+    _scoreboardOverlay = nullptr;
+    _scoreboardNode = nullptr;
+    _playerScores.clear();
+    _scoreController = nullptr;
+    _networkController = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
 //        }
-        Scene2::dispose();
-    }
+    Scene2::dispose();
+
 };
 
 /**
@@ -255,6 +259,16 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
  */
 void MovePhaseUIScene::reset() {
     scoreBoardInitialized = false;
+    _scoreboardOverlay->setVisible(false);
+    _scoreController->setScoreboardVisible(false);
+    setWinVisible(false);
+    setLoseVisible(false);
+
+    disableUI(false);
+    setJoystickHidden();
+
+    _didjump = false;
+    _didglide = false;
 }
 
 /**

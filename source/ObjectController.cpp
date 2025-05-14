@@ -54,6 +54,10 @@ ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
     _debugnode = debug_node;
     _gameObjects = gameObjects;
 };
+
+void ObjectController::reset() {
+    _gameObjects->clear();
+}
 /**
 Creates a 1 by 1 tile
 */

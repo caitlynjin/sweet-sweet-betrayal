@@ -61,7 +61,9 @@ BuildPhaseScene::BuildPhaseScene() : Scene2() {}
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void BuildPhaseScene::dispose() {
-
+    Scene2::dispose();
+    _assets = nullptr;
+    _scrollPane = nullptr;
 };
 
 /**
@@ -102,6 +104,7 @@ bool BuildPhaseScene::init(const std::shared_ptr<AssetManager>& assets, std::sha
  * This method disposes of the world and creates a new one.
  */
 void BuildPhaseScene::reset() {
+    // removeAllChildren();
     // Reset camera properties
     _camera->setPosition(_cameraInitialPos);
     _camera->update();

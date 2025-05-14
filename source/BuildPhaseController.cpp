@@ -87,6 +87,17 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 void BuildPhaseController::dispose() {
     _buildPhaseScene.dispose();
     _uiScene.dispose();
+    _assets = nullptr;
+    _gridManager = nullptr;
+    _objectController = nullptr;
+    _networkController = nullptr;
+    _network = nullptr;
+    _sound = nullptr;
+    _input = nullptr;
+    _player = nullptr;
+    inventoryItems.clear();
+    assetNames.clear();
+    _selectedObject = nullptr;
 }
 
 #pragma mark -
@@ -98,6 +109,7 @@ void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
     randomizeItems();
     addInvButtonListeners();
+    // _uiScene.activateInventory(true);
     _uiScene.reset();
     
     // Reset controller variables
