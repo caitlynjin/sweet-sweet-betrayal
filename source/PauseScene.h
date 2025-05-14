@@ -136,6 +136,15 @@ public:
 
     void update(float timestep) override;
 
+    /**
+     * Returns the user's menu choice.
+     *
+     * This will return NONE if the user had no yet made a choice.
+     *
+     * @return the user's menu choice.
+     */
+    Choice getChoice() const { return _choice; }
+
 };
 
 #endif /* __SSB_PAUSE_SCENE_H__ */

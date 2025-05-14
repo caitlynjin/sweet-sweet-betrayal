@@ -31,7 +31,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
@@ -82,14 +82,15 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _sfxLabel = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfx"));
     _sfxSlider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfxslider.slider"));
     _sfxKnob = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfxslider.knob"));
-    _disconnectButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.buttons.disconnect"));
-    _resumeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.buttons.resume"));
+    _disconnectButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.disconnect"));
+    _resumeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.resume"));
 
     // Program the buttons
     _disconnectButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::DISCONNECT;
             _sound->playSound("button_click");
+            CULog("Pressed disconnect");
         }
     });
     _resumeButton->addListener([this](const std::string& name, bool down) {
@@ -112,6 +113,15 @@ void PauseScene::dispose() {
     if (_active) {
         removeAllChildren();
         _background = nullptr;
+        _modal = nullptr;
+        _musicLabel = nullptr;
+        _musicSlider = nullptr;
+        _musicKnob = nullptr;
+        _sfxLabel = nullptr;
+        _sfxSlider = nullptr;
+        _sfxKnob = nullptr;
+        _disconnectButton = nullptr;
+        _resumeButton = nullptr;
         _active = false;
         Scene2::dispose();
     }

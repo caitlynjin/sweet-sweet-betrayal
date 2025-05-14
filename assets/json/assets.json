@@ -597,6 +597,9 @@
         },
         "sfx": {
             "file": "textures/sfx.png"
+        },
+        "pause-button": {
+            "file": "textures/buttons/pause-button.png"
         }
     },
     "jsons": {

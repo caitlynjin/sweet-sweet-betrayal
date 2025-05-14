@@ -351,6 +351,10 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
     }
+
+    if (_isPaused != _uiScene.getIsPaused()) {
+        _isPaused = _uiScene.getIsPaused();
+    }
 }
 
 void BuildPhaseController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {

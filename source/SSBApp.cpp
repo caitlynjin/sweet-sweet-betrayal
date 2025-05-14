@@ -213,6 +213,8 @@ void SSBApp::preUpdate(float dt)
         _joingame.setSpriteBatch(_batch);
         _victory.init(_assets, _sound, _networkController);
         _victory.setSpriteBatch(_batch);
+        _pause.init(_assets, _sound);
+        _pause.setSpriteBatch(_batch);
         _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
         _waitinghost.init(_assets, _sound);
@@ -275,6 +277,15 @@ void SSBApp::preUpdate(float dt)
                         _status = VICTORY;
                     }
                 }
+            // Check for pressing pause button
+                if (_gameController.getIsPaused()) {
+                    setTransition(true);
+                    if (_transition.getFadingOutDone()){
+                        _gameController.setActive(false);
+                        _pause.setActive(true);
+                        _status = PAUSED;
+                    }
+                }
             break;
         case LEVEL_EDITOR:
             _levelEditorController.preUpdate(dt);
@@ -306,6 +317,8 @@ void SSBApp::preUpdate(float dt)
                     }
                 }
             break;
+        case PAUSED:
+            _pause.update(dt);
         case DISCONNECTED:
             updateDisconnectedScene(dt);
             break;
