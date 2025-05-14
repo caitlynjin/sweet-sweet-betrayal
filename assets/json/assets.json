@@ -838,6 +838,15 @@
                 "key": "disconnected"
             }
         },
+        "pause": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "pause"
+            }
+        },
         "game": {
             "type": "Node",
             "format": {

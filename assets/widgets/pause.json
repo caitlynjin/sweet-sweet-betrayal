@@ -216,12 +216,10 @@
                     "visible": true
                 },
                 "children": {
-                    "Frame 1": {
-                        "type": "Node",
-                        "format": {
-                            "type": "Anchored"
-                        },
+                    "slider": {
+                        "type": "Image",
                         "data": {
+                            "texture": "slider",
                             "anchor": [
                                 0,
                                 1
@@ -236,35 +234,6 @@
                                 5
                             ],
                             "visible": true
-                        },
-                        "children": {
-                            "slider": {
-                                "type": "Image",
-                                "data": {
-                                    "texture": "slider",
-                                    "anchor": [
-                                        0,
-                                        1
-                                    ],
-                                    "size": [
-                                        525,
-                                        95
-                                    ],
-                                    "angle": 0,
-                                    "position": [
-                                        0,
-                                        0
-                                    ],
-                                    "visible": true
-                                },
-                                "layout": {
-                                    "x_anchor": "left",
-                                    "y_anchor": "top",
-                                    "absolute": false,
-                                    "x_offset": 0,
-                                    "y_offset": 0
-                                }
-                            }
                         },
                         "layout": {
                             "x_anchor": "left",
