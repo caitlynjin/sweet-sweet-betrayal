@@ -79,8 +79,11 @@ protected:
     
     bool _playPressed = false;
     bool _decreaseAlpha = true;
-    // Modal assets
+    bool _levelPressed = false;
+    bool _closePressed = false;
     
+    // Booleans for client-side
+    bool _showModal = false;
 
     
     /** Glider image variables */
@@ -130,6 +133,11 @@ public:
         Sets the visibility of the modal.
      */
     void setModalVisible(bool visibile);
+    
+    /**
+        Sets the active state  of the modal.
+     */
+    void setModalActive(bool value);
     
     /** Visually updates the alpha values of the level select buttons */
     void animateButtons();

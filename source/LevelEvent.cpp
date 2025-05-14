@@ -22,9 +22,11 @@ std::shared_ptr<NetEvent> LevelEvent::newEvent(){
     return std::make_shared<LevelEvent>();
 }
 
-std::shared_ptr<NetEvent> LevelEvent::allocLevelEvent(int levelNum){
+std::shared_ptr<NetEvent> LevelEvent::allocLevelEvent(int levelNum, bool showModal, bool playPressed){
     auto event = std::make_shared<LevelEvent>();
     event->_levelNum = levelNum;
+    event->_showModal = showModal;
+    event->_playPressed = playPressed;
     return event;
 }
 
@@ -35,6 +37,8 @@ std::vector<std::byte> LevelEvent::serialize(){
     _serializer.reset();
     // Serialize the enum as an integer
     _serializer.writeSint32(static_cast<Sint32>(_levelNum));
+    _serializer.writeBool(_showModal);
+    _serializer.writeBool(_playPressed);
     return _serializer.serialize();
 }
 
@@ -53,4 +57,6 @@ void LevelEvent::deserialize(const std::vector<std::byte>& data){
     // Read the integer and cast it back to the enum type
     int levelNum = _deserializer.readSint32();
     _levelNum = levelNum;
+    _showModal = _deserializer.readBool();
+    _playPressed = _deserializer.readBool();
 }

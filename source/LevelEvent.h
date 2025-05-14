@@ -22,6 +22,8 @@ protected:
     LWDeserializer _deserializer;
     
     int _levelNum;
+    bool _showModal;
+    bool _playPressed;
     
 public:
     /**
@@ -33,7 +35,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<NetEvent> allocLevelEvent(int levelNum);
+    static std::shared_ptr<NetEvent> allocLevelEvent(int levelNum, bool showModal, bool playPressed);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -52,6 +54,12 @@ public:
     
     /** Gets the level number of the event. */
     int getLevelNum() { return _levelNum; }
+    
+    /** Gets whether to show the modal. */
+    bool getShowModal() { return _showModal; }
+    
+    /** Gets whether play was pressed. */
+    bool getPlayPressed() { return _playPressed; }
 
 };
 

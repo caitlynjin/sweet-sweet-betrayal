@@ -105,20 +105,23 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         if (!down) {
             _levelView = 1;
             _sound->playSound("button_click");
+            _levelPressed = true;
         }
     });
-//    _level2->addListener([this](const std::string& name, bool down) {
-//        if (!down) {
-//            _levelView = 2;
-//            _sound->playSound("button_click");
-//        }
-//    });
-//    _level3->addListener([this](const std::string& name, bool down) {
-//        if (!down) {
-//            _levelView = 3;
-//            _sound->playSound("button_click");
-//        }
-//    });
+    _level2->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _levelView = 2;
+            _sound->playSound("button_click");
+            _levelPressed = true;
+        }
+    });
+    _level3->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _levelView = 3;
+            _sound->playSound("button_click");
+            _levelPressed = true;
+        }
+    });
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
@@ -140,6 +143,7 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
             _sound->playSound("button_click");
 
             _levelView = 0;
+            _closePressed = true;
         }
     });
     
@@ -163,6 +167,7 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     
     
     setModalVisible(false);
+    setModalActive(false);
 
     
     addChild(levelScene);
@@ -205,20 +210,52 @@ void LevelSelectScene::update(float dt){
         // If the modal is currently active and level view has been reset, deactivate the modal
         if (_playButton->isActive() && _levelView == 0){
             setModalVisible(false);
+            setModalActive(false);
         }
         
+        // If host presses a level, show the pop-up for all clients
+        if (_levelPressed){
+            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView, true, false));
+            _levelPressed = false;
+        }
+        
+        // If host pressed close modal, close the modal for all clients
+        if (_closePressed){
+            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView, false, false));
+            _closePressed = false;
+        }
         
         // If host, send out level selected when play button pressed
         if (_playPressed){
-            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView));
+            _network->pushOutEvent(LevelEvent::allocLevelEvent(_levelView, true, true));
             _playPressed = false;
         }
     }
     
     // Client checks for level selected by host
-    if (!_network->isHost() && (_networkController->getLevelSelected() != 0)){
-        _levelView = _networkController->getLevelSelected();
-        _choice = static_cast<Choice>(_levelView);
+//    if (!_network->isHost() && (_networkController->getLevelSelected() != 0)){
+//        _levelView = _networkController->getLevelSelected();
+//        _choice = static_cast<Choice>(_levelView);
+//    }
+    
+    // CLIENT-SIDE UPDATE
+    if (!_network->isHost()){
+        tuple<int, bool, bool> levelData = _networkController->getLevelSelectData();
+        _levelView = get<0>(levelData);
+        bool showModal = get<1>(levelData);
+        bool hostPressedPlay = get<2>(levelData);
+        
+        // Update visibility state of the modal
+        if (_showModal != showModal){
+            _showModal = showModal;
+            setModalVisible(showModal);
+        }
+        
+        // Check if host pressed play
+        if (showModal && hostPressedPlay){
+            _playButton->setDown(true);
+            _choice = static_cast<Choice>(_levelView);
+        }
     }
     
     
@@ -288,6 +325,9 @@ void LevelSelectScene::selectLevel(int levelNum){
     }
     
     setModalVisible(true);
+    if (_network->isHost()){
+        setModalActive(true);
+    }
 }
 
 /**
@@ -295,7 +335,16 @@ void LevelSelectScene::selectLevel(int levelNum){
  */
 void LevelSelectScene::setModalVisible(bool visible){
     
-    if (visible){
+    _modalDarkener->setVisible(visible);
+    _modalFrame->setVisible(visible);
+    _levelImage->setVisible(visible);
+    _levelName->setVisible(visible);
+    _closeButton->setVisible(visible);
+    _playButton->setVisible(visible);
+}
+
+void LevelSelectScene::setModalActive(bool value){
+    if (value){
         _closeButton->activate();
         _playButton->activate();
         
@@ -320,13 +369,6 @@ void LevelSelectScene::setModalVisible(bool visible){
         _level3->activate();
 //        _backbutton->activate();
     }
-    
-    _modalDarkener->setVisible(visible);
-    _modalFrame->setVisible(visible);
-    _levelImage->setVisible(visible);
-    _levelName->setVisible(visible);
-    _closeButton->setVisible(visible);
-    _playButton->setVisible(visible);
 }
 
 

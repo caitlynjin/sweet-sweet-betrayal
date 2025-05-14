@@ -289,6 +289,14 @@ public:
      */
     void setHasVictory(bool value);
     
+    void setLevelNum(int level){
+        _movePhaseController->setLevelNum(level);
+    }
+    
+    int getLevelNum(){
+        return _movePhaseController->getLevelNum();
+    }
+    
     /**
      Returns whether a player has won the current level.
      */

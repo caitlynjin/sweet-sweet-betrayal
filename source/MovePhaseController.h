@@ -160,6 +160,10 @@ public:
      */
     void killPlayer();
     
+    MovePhaseScene getMovePhaseScene(){
+        return _movePhaseScene;
+    }
+    
     /**
      *  Called when player reaches the goal
      */
@@ -230,6 +234,14 @@ public:
      * Gets local player
      */
     shared_ptr<PlayerModel> getLocalPlayer() { return _movePhaseScene.getLocalPlayer(); };
+    
+    void setLevelNum(int level){
+        _movePhaseScene.setLevelNum(level);
+    }
+    
+    int getLevelNum(){
+        return _movePhaseScene.getLevelNum();
+    }
 
 #pragma mark -
 #pragma mark State Access
