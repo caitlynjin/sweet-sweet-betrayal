@@ -112,7 +112,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             CULog("Pressed ready");
             _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
-            _networkController->flushConnection();
+//            _networkController->flushConnection();
             _networkController->setLocalColor(_myColor);
             CULog("Sent out color ready message");
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
