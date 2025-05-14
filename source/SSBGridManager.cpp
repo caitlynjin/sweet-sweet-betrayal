@@ -148,8 +148,6 @@ void GridManager::addMoveableObject(Vec2 cellPos, std::shared_ptr<Object> obj) {
 
     std::string x = std::to_string(cellPos.x);
     std::string y = std::to_string(cellPos.y);
-    CULog("%s", x.c_str());
-    CULog("%s", y.c_str());
     // Add the origin position of the object
     objToPosMap[obj] = originPosPair;
     worldObjToPosMap[obj] = originPosPair;

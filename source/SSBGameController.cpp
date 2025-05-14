@@ -376,7 +376,6 @@ void SSBGameController::preUpdate(float dt)
         auto artObj = (dynamic_pointer_cast<ArtObject>((*it)));
         artObj->setPositionInit(Vec2((_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
             artObj->getPositionInit().y));
-        CULog("%d", _initialCameraPos - artObj->getParallaxScrollRate() * (_initialCameraPos - _camera->getPosition()));
     }
     
 }

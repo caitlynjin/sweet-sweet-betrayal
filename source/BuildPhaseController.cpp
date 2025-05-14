@@ -412,7 +412,6 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
-        CULog("%s", pairedItems[i].second.c_str());
     }
 
     _uiScene.setInventoryButtons(inventoryItems, assetNames);

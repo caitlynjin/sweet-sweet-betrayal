@@ -190,11 +190,13 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     //THE GLIDE BULLSHIT SECTION+
+
+    //Check if we have held down the right side of the screen. If we have
     if (_input->getRightTapped()) {
         _input->setRightTapped(false);
         _movePhaseScene.getLocalPlayer()->setJumpHold(true);
 
-        if (!_movePhaseScene.getLocalPlayer()->isGrounded())
+        /*if (!_movePhaseScene.getLocalPlayer()->isGrounded())
         {
             
             _sound->playSound("glide");
@@ -206,24 +208,25 @@ void MovePhaseController::preUpdate(float dt) {
                     true                               
                 )
             );
-        }
+        }*/
     }
+    //If the player has released the right side of the screen
     else if (!_input->isRightDown()) {
         if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
             _movePhaseScene.getLocalPlayer()->setJumpHold(false);
         }
-        _movePhaseScene.getLocalPlayer()->setJumpHold(true);
+        //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
     }
-    //_movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-    _movePhaseScene.getLocalPlayer()->setJumpHold(_uiScene.getDidJump());
-    _movePhaseScene.getLocalPlayer()->applyForce();
+
+    //CALLED HERE
+    //_movePhaseScene.getLocalPlayer()->applyForce();
 
 
-    if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
-    {
-        _sound->playSound("jump");
-    }
+    //if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
+    //{
+    //    _sound->playSound("jump");
+    //}
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
             windUpdate(wind_cast, dt);
@@ -571,18 +574,21 @@ void MovePhaseController::beforeSolve(b2Contact* contact, const b2Manifold* oldM
     }
     if (plat != nullptr) {
         contact->SetEnabled(false);
-        _movePhaseScene.getLocalPlayer()->setDetectedGround();
         if (_movePhaseScene.getLocalPlayer()->getLinearVelocity().y <= 0.4f) {
+            //If we are not going upwards in velocity, check if we are above the platform.
             if (_movePhaseScene.getLocalPlayer()->getPrevFeetHeight() >= plat->getPlatformTop()) {
+                //If we are indeed above, the platform should be tangible.
                 contact->SetEnabled(true);
-                _movePhaseScene.getLocalPlayer()->setDetectedGround();
+                _movePhaseScene.getLocalPlayer()->setDetectedGround(true);
             }
             else {
-                _movePhaseScene.getLocalPlayer()->setDetectedGround();
+                _movePhaseScene.getLocalPlayer()->undetectGround();
+                //_movePhaseScene.getLocalPlayer()->setDetectedGround(true);
             }
         }
         else {
             CULog("FAIL11");
+            _movePhaseScene.getLocalPlayer()->undetectGround();
         }
     }
 }
@@ -650,7 +656,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 _playerSensorFixtures[player].emplace(fix1);
             }
             if (!_playerSensorFixtures[player].empty()) {
-                player->setDetectedGround();
+                player->setDetectedGround(true);
             }
         }
     }
@@ -665,7 +671,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 _playerSensorFixtures[player].emplace(fix1);
             }
             if (!_playerSensorFixtures[player].empty()) {
-                player->setDetectedGround();
+                player->setDetectedGround(true);
             }
         }
     }
@@ -722,7 +728,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 (bd2->getName() != "wind" && bd1->getName() != "wind")
                 ) {
                 //Set player to grounded
-                _movePhaseScene.getLocalPlayer()->setDetectedGround();
+                _movePhaseScene.getLocalPlayer()->setDetectedGround(true);
                 CULog("LOCAL: GROUNDED TRUE");
                 // Could have more than one ground
                 _localSensorFixtures.emplace(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
@@ -814,7 +820,8 @@ void MovePhaseController::endContact(b2Contact *contact)
         _localSensorFixtures.erase(_movePhaseScene.getLocalPlayer().get() == bd1 ? fix2 : fix1);
         if (_localSensorFixtures.empty())
         {
-            _movePhaseScene.getLocalPlayer()->setDetectedGround();
+            _movePhaseScene.getLocalPlayer()->undetectGround();
+            _movePhaseScene.getLocalPlayer()->setDetectedGround(false);
         }
     }
     
@@ -829,7 +836,7 @@ void MovePhaseController::endContact(b2Contact *contact)
                 _playerSensorFixtures[player].erase(fix1);
             }
             if (_playerSensorFixtures[player].empty()) {
-                player->setDetectedGround();
+                player->undetectGround();
             }
         }
     }
@@ -844,7 +851,7 @@ void MovePhaseController::endContact(b2Contact *contact)
                 _playerSensorFixtures[player].erase(fix1);
             }
             if (_playerSensorFixtures[player].empty()) {
-                player->setDetectedGround();
+                player->undetectGround();
             }
         }
     }

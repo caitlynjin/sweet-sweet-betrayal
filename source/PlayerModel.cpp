@@ -66,7 +66,7 @@
 #define PLAYER_DENSITY 3.25f
 /** The impulse for the character jump */
 
-#define PLAYER_JUMP 23.5f
+#define PLAYER_JUMP 21.5f
 /** Debug color for the sensor */
 #define DEBUG_COLOR Color4::RED
 /** Multipliers for wind speed when player is gliding and not gliding*/
@@ -447,7 +447,13 @@ void PlayerModel::dispose()
  */
 void PlayerModel::setMovement(float value)
 {
+    if (_movement == 0 and value != 0) {
+        _justMoved = true;
+    }
+
     _movement = value;
+
+
     bool face = _movement > 0;
     if (_movement == 0 || _faceRight == face)
     {
@@ -455,6 +461,9 @@ void PlayerModel::setMovement(float value)
     }
 
     // Change facing
+    if (_faceRight != face) {
+        _justFlipped = true;
+    }
     _faceRight = face;
     
     updateFacing();
@@ -482,8 +491,6 @@ void PlayerModel::updateFacing(){
         _jumpSpriteNode->setScale(flipValue, 1.0f);
         _jumpSpriteNode->setPosition(Vec2(offsetValue, 0.0f));
     }
-
-    _justFlipped = true;
 }
 /**
  * Applies the force to the body of this dude
@@ -497,22 +504,22 @@ void PlayerModel::applyForce()
         return;
     }
     b2Vec2 vel = _body->GetLinearVelocity();
-
     // Don't want to be moving. Damp out player motion when on the ground or not gliding
     switch (_state) {
     case State::GROUNDED:
-        //Apply a small linear velocity burst when we turn around on the ground, for gamefeel
-        /*if (_justFlipped) {
+        //Apply a small linear velocity burst when we turn around on the ground, slowing us down.
+        //We go faster overall, but start a bit slower.
+        if (_justFlipped || _justMoved) {
             if (_faceRight) {
-                CULog("FLIPBOOST");
-                vel.x += STARTING_VELOCITY;
-            }
-            else if (!_faceRight) {
                 CULog("FLIPBOOST");
                 vel.x -= STARTING_VELOCITY;
             }
-        }*/
-        _bufferTimer = JUMP_BUFFER_DURATION;
+            else if (!_faceRight) {
+                CULog("FLIPBOOST");
+                vel.x += STARTING_VELOCITY;
+            }
+        }
+        
         break;
     case State::GLIDING:
         break;
@@ -521,15 +528,6 @@ void PlayerModel::applyForce()
     default:
         CULog("Unknown player state");
         break;
-    }
-    //JUMP!
-    if (_jumpImpulse) {
-        b2Vec2 force(0, PLAYER_JUMP);
-        _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
-        _jumpTimer = JUMP_DURATION;
-        if (_bufferTimer < JUMP_BUFFER_DURATION) {
-            CULog("BUFFERED");
-        }
     }
 
     _body->SetLinearVelocity(vel);
@@ -541,16 +539,18 @@ void PlayerModel::applyForce()
     }
     else
     {
-        b2Vec2 force(getMovement(), 0);
+        b2Vec2 force(getMovement()*MORE_VELOCITY, 0);
         _body->ApplyForce(force, _body->GetPosition(), true);
     } 
 
     handleFriction();
+
+    _justMoved = false;
 }
 
 void PlayerModel::handleFriction() {
-    b2Vec2 vel = _body->GetLinearVelocity();
 
+    //First apply state based frictions
     switch (_state) {
     case State::GROUNDED:
         if (fabs(getVX()) >= getMaxSpeed())
@@ -562,6 +562,11 @@ void PlayerModel::handleFriction() {
         if (getVY() <= GLIDE_FALL_SPEED) {
             setVY(GLIDE_FALL_SPEED);
         }
+        if (fabs(getVX()) >= getMaxSpeed()*1.4f)
+        {
+            setVX(SIGNUM(getVX()) * getMaxSpeed());
+        }
+
         break;
     case State::MIDDAIR:
         if (fabs(getVX()) >= getMaxSpeed())
@@ -573,7 +578,9 @@ void PlayerModel::handleFriction() {
         CULog("Unknown player state");
         break;
     }
-    //Handle y velocity
+
+    //Handle more universal velocity stuff here.
+    b2Vec2 vel = _body->GetLinearVelocity();
     if (fabs(getVY()) >= PLAYER_MAX_Y_SPEED)
     {
         setVY(SIGNUM(getVY()) * PLAYER_MAX_Y_SPEED);
@@ -582,7 +589,8 @@ void PlayerModel::handleFriction() {
     if (getMovement() == 0.0f || _justFlipped)
     {
         if (_state == State::GROUNDED)
-        {// Instant friction on the ground or when we flip on the ground
+        {
+            // Instant friction on the ground or when we flip on the ground
             vel.x = vel.x * GROUND_DAMPING;
         }
         //Friction middair, but less
@@ -614,11 +622,6 @@ void PlayerModel::update(float dt)
     
     // Change player facing
     //TODO-FIX THIS SHIT TO RESPECT CONTROLS
-    if (getVX() > 0) {
-        _faceRight = true;
-    } else if(getVX() < 0){
-        _faceRight = false;
-    }
     updateFacing();
 
     if (_isDead && _deathAction) {
@@ -643,7 +646,7 @@ void PlayerModel::update(float dt)
             _deathSpriteNode->setVisible(false);
         }
         doStrip(GLIDE_ACTION_KEY, _glideAction);
-    } else if (_state==State::GROUNDED && _jumpAction){
+    } else if (_state==State::MIDDAIR && _jumpAction){
         if (!_jumpSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(false);
             _walkSpriteNode->setVisible(false);
@@ -700,6 +703,7 @@ void PlayerModel::update(float dt)
                     CULog("autogliding");
                 }
             }
+
             break;
         default:
             CULog("Unknown player state");
@@ -709,6 +713,7 @@ void PlayerModel::update(float dt)
 
         windUpdate(dt);
         glideUpdate(dt);
+        applyForce();
         CapsuleObstacle::update(dt);
         
         if (_node != nullptr)
@@ -736,6 +741,8 @@ void PlayerModel::update(float dt)
     _justGlided = false;
     _justExitedGlide = false;
     _justJumped = false;
+    _undetectGround = false;
+    //_detectedGround = false;
 }
 
 void PlayerModel::handlePlayerState() {
@@ -744,43 +751,53 @@ void PlayerModel::handlePlayerState() {
     switch (_state) {
     case State::GROUNDED:
         CULog("Grounded");
-        if (_holdingJump and _bufferTimer < JUMP_BUFFER_DURATION) {
+        //or _bufferTimer < JUMP_BUFFER_DURATION
+        if (_holdingJump && _justJumped) {
             _state = State::MIDDAIR;
             _jumpImpulse = true;
         }
-        
+        else if (_undetectGround && !_detectedGround) {
+            _state = State::MIDDAIR;
+        }
+
+        if (_jumpImpulse || _bufferTimer < JUMP_BUFFER_DURATION) {
+            b2Vec2 force(0, PLAYER_JUMP);
+            _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
+            CULog("Jump!");
+            _jumpTimer = JUMP_DURATION;
+            _jumpImpulse = false;
+            _bufferTimer = JUMP_BUFFER_DURATION;
+        }
         break;
     case State::GLIDING:
-
-        if (_detectedGround && !_undetectGround) {
+        //CULog("Gliding");
+        if ((_detectedGround && !_undetectGround)) {
             _state = State::GROUNDED;
         }
+        else if (!_holdingJump) {
+            _state = State::MIDDAIR;
+        }
+
         break;
     case State::MIDDAIR:
-        CULog("Middair");
-        if (_enterAutoGlide) {
-            _state = State::GLIDING;
-        }
-        if (_justJumped) {
+        //CULog("Middair");
+        //Enter gliding upon input! If we just hit the jump button in the middle of the air, also throw in a jump buffer.
+        if (_enterAutoGlide || _justJumped) {
             _state = State::GLIDING;
             _justGlided = true;
+            if (_justJumped) {
+                _bufferTimer = 0;
+            }
         }
-
         if (_detectedGround && !_undetectGround) {
             _state = State::GROUNDED;
-            CULog("detected ground");
         }
-        
         break;
     default:
         CULog("Unknown player state");
         break;
     }
-    
-
     _enterAutoGlide = false;
-    _undetectGround = false;
-    _detectedGround = false;
 }
 
 void PlayerModel::glideUpdate(float dt)
@@ -800,6 +817,7 @@ void PlayerModel::glideUpdate(float dt)
         //Apply a small upwards boost middair to simulate air resistance experienced by gliding while falling-
         //Scales with how long the player has been middair, and how long since the player has last glided.
         if (_justGlided) {
+            CULog("Boost");
             float thrust_mult = min(_glideBoostTimer, _glideBoostDelay);
             b2Vec2 force(0, GLIDE_UPWARD_THRUST * (thrust_mult / _glideBoostDelay));
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);

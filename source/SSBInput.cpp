@@ -370,7 +370,7 @@ void PlatformInput::processJoystick(const cugl::Vec2 pos) {
             _keyRight = true;
         }
         if (std::fabsf(diff.x) > JSTICK_DEADZONE +30) {
-            CULog("BEEGSWIPE");
+            //CULog("BEEGSWIPE");
         }
     } else {
         _joystick = false;
