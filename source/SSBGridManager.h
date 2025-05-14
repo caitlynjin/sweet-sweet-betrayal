@@ -21,12 +21,16 @@ using namespace cugl::graphics;
 */
 class GridManager {
 public:
+    /** Maps grid positions to all world objects */
+    std::map<std::pair<int, int>, std::shared_ptr<Object>> posToWorldObjMap;
     /** Maps grid positions to moveable world objects */
     std::map<std::pair<int, int>, std::shared_ptr<Object>> posToObjMap;
     /** Maps grid positions to moveable art objects */
     std::map<std::pair<int, int>, std::vector<std::shared_ptr<Object>>> posToArtObjMap;
     /** Maps grid positions to whether there exists an object (moveable or non-moveable) that contains the grid box */
     std::map<std::pair<int, int>, bool> hasObjMap;
+    /** Maps all world objects to bottom left position of objects */
+    std::map<std::shared_ptr<Object>, std::pair<int, int>> worldObjToPosMap;
     /** Maps moveable world objects to bottom left position of objects */
     std::map<std::shared_ptr<Object>, std::pair<int, int>> objToPosMap;
 
@@ -153,6 +157,15 @@ public:
     std::shared_ptr<Object> moveObject(Vec2 cellPos);
 
     /**
+     * Removes the object from the world object map, if it exists.
+     *
+     *@return   the world object removed
+     *
+     *@param cellPos    the cell position
+     */
+    std::shared_ptr<Object> removeWorldObject(Vec2 cellPos);
+
+    /**
      * Checks whether we can place the object in the cell position.
      *
      * @return false if there exists an object
@@ -169,7 +182,6 @@ public:
      * @param obj    the object
      */
     void deleteObject(std::shared_ptr<Object> obj);
-
 };
 
 #endif /* __SSB_GRID_MANAGER_H__ */

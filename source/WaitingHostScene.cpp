@@ -71,6 +71,14 @@ bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _waitAnimateSprite = AnimateSprite::alloc(forward);
     _waitAction = _waitAnimateSprite->attach<scene2::SpriteNode>(_waitSpriteNode);
     
+    _tips.push_back(_assets->get<scene2::SceneNode>("waiting-host.tip1"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("waiting-host.tip2"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("waiting-host.tip3"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("waiting-host.tip4"));
+    for (int i = 0; i < _tips.size(); ++i) {
+        _tips[i]->setVisible(i == 0);
+    }
+    
     addChild(scene);
     setActive(false);
     return true;
@@ -136,4 +144,11 @@ void WaitingHostScene::doStrip(std::string key, cugl::ActionFunction action, flo
 void WaitingHostScene::update(float dt){
     doStrip(ACT_KEY, _waitAction, DURATION);
     _timeline->update(dt);
+    _tipSwitchTimer += dt;
+    if (_tipSwitchTimer >= _tipInterval) {
+        _tipSwitchTimer = 0.0f;
+        _tips[_currentTipIndex]->setVisible(false);
+        _currentTipIndex = (_currentTipIndex + 1) % _tips.size();
+        _tips[_currentTipIndex]->setVisible(true);
+    }
 }

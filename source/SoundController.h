@@ -28,10 +28,32 @@ protected:
 	/** The audio queue, used for storing music */
 	std::shared_ptr<cugl::audio::AudioQueue>   _musicQueue;
 
+	/** The global music volume, ranging from 0.0 (silent) to 1.0 (maximum) */
+	float _musicVolume;
+
+	/** The global SFX volume, ranging from 0.0 (silent) to 1.0 (maximum) */
+	float _sfxVolume;
+
 	/** The map linking each string key to its corresponding sound */
 	std::map<std::string, std::shared_ptr<cugl::audio::Sound>> _soundMap;
 
-	std::shared_ptr<Sound> _jumpSound;
+	/** The map linking each string key to its corresponding music
+	*	These are only stored in separate maps because it helps 
+	*   with separating settings menu logic for music vs SFX.
+	*/ 
+	std::map<std::string, std::shared_ptr<cugl::audio::Sound>> _musicMap;
+
+
+
+	/** The map linking each sound (represented by its string key) to its original volume.
+	* Useful for settings menu calculations.
+	*/
+	std::map<std::string, float> _soundOriginalVolumeMap;
+
+	/** The map linking each music track (represented by its string key) to its original volume.
+	* Useful for settings menu calculations.
+	*/
+	std::map<std::string, float> _musicOriginalVolumeMap;
 
 
 public:
@@ -89,7 +111,7 @@ public:
 	* Plays the music track with the specified key.
 	*
 	* @param key The key identifying the music track */
-	void playMusic(std::string key, bool loop=false);
+	void playMusic(std::string key, bool loop=false, bool useCrossFade=true);
 
 	/** Adds the music track to the end of the queue.
 	 * This will play automatically when all music tracks earlier in the queue are finished playing. 
@@ -109,6 +131,44 @@ public:
 	*
 	* @param key The key identifying the music track */
 	void stopMusic(std::string key);
+
+	/** Gets the global music volume. 
+	* The volumes of all music tracks are multiplied by this value.
+	* 
+	* @return the global music volume
+	*/
+	float getMusicVolume() {
+		return _musicVolume;
+	}
+
+	/** Gets the global SFX volume.
+	* The volumes of all SFX are multiplied by this value.
+	* 
+	* @return the global SFX volume
+	*/
+	float getSFXVolume() {
+		return _sfxVolume;
+	}
+
+	/** Sets the global music volume. 
+	* @param vol the global music volume to be set
+	* @param savePreferences whether or not the new music volume should be saved to a new JSON file.
+	* This should be true when working with audio settings, and false when adjusting in-game volume for other reasons that don't need to be saved as preferences.
+	*/
+	void setMusicVolume(float vol, bool savePreferences=true);
+
+	/** Sets the global SFX volume.
+	* @param vol the global SFX volume to be set
+	* @param savePreferences whether or not the new SFX volume should be saved to a new JSON file.
+	* This should be true when working with audio settings, and false when adjusting in-game volume for other reasons that don't need to be saved as preferences.
+	*/
+	void setSFXVolume(float vol, bool savePreferences=true);
+
+	/** Saves the audio preferences to a JSON file called "preferences.json" in the save directory. */
+	void saveAudioPreferences();
+
+	/** Loads the audio preferences and also sets the volume of music and SFX to match the user's preferences. */
+	void loadAudioPreferences();
 
 };
 

@@ -4,6 +4,8 @@
 #include <cugl/cugl.h>
 #include "Object.h"
 
+#define ACT_KEY "defaultArtAnimation"
+
 using namespace cugl;
 using namespace std;
 
@@ -27,8 +29,27 @@ protected:
     /** The angle for the sprite */
     float _angle;
 
+    /** Whether or not the art object is animated */
+    bool _isAnimated = false;
+
+    /** Whether or not the art object should undergo parallax scrolling */
+    bool _isParallax = false;
+
+    /** The parallax scroll rate for the object */
+    float _scrollRate = 0.0f;
+
     /** The scene graph node for the ArtObject. */
     std::shared_ptr<scene2::SceneNode> _node;
+
+#pragma mark Animation Variables
+    /** Manager to process the animation actions */
+    std::shared_ptr<cugl::ActionTimeline> _timeline;
+
+    /** Animation variables */
+    std::shared_ptr<AnimateSprite> _animateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _animateSpriteNode;
+    cugl::ActionFunction _animationAction;
+    float _animationDuration;
 
 public:
     ArtObject() : Object(), _layer(0), _angle(0), _drawScale(0) {}
@@ -44,6 +65,12 @@ public:
 
     void dispose() override;
 
+    void setAnimated(bool isAnimated);
+
+    void setAnimationDuration(float dur);
+
+    void setAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
+
     void setPositionInit(const cugl::Vec2& position) override;
 
     void setLayer(int layer);
@@ -51,6 +78,9 @@ public:
     int getLayer() {
         return _node->getPriority();
     }
+
+    /** Increments an animation film strip */
+    void doStrip(cugl::ActionFunction action, float duration);
 
     /** This method allocates a BoxObstacle.
     * It is important to call this method to properly set up the ArtObject.
@@ -86,6 +116,17 @@ public:
 
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
 
+    void setParallax(bool value);
+
+    bool isParallax() {
+        return _isParallax;
+    }
+
+    void setParallaxScrollRate(float scrollRate);
+
+    float getParallaxScrollRate() {
+        return _scrollRate;
+    }
 
     std::map<std::string, std::any> getMap() override;
 };

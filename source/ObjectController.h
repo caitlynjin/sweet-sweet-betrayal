@@ -20,6 +20,7 @@
 #include "Object.h"
 #include "Spike.h"
 #include "Tile.h"
+#include "Bomb.h"
 #include <cugl/cugl.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>
@@ -108,6 +109,7 @@ public:
      * @param speed The speed at which the platform moves.
      */
     std::shared_ptr<Object> createMovingPlatform(Vec2 pos, Size size, Vec2 end, float speed);
+    std::shared_ptr<Object> createMovingPlatform(shared_ptr<Platform> plat);
     /** Creates a spike.
     * @param pos The position of the bottom left corner of the spike in Box2D coordinates.
     * @param size The size of the spike in Box2D coordinates.
@@ -128,7 +130,31 @@ public:
    std::shared_ptr<Object> createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, std::string jsonType, bool isLevelEditorMode=false);
 
    std::shared_ptr<Object> createWindObstacle(std::shared_ptr<WindObstacle> wind, bool isLevelEditorMode=false);
-    
+
+    /**
+    * Creates a new mushroom.
+    *
+    * @return the mushroom
+    *
+    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+    * @param size The dimensions (width, height) of the platform.
+    */
+    std::shared_ptr<Object> createMushroom(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode);
+
+    std::shared_ptr<Object> createMushroom(std::shared_ptr<Mushroom> mush, bool isLevelEditorMode);
+
+    /**
+    * Creates a new bomb.
+    *
+    * @return the bomb
+    *
+    * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
+    * @param size The dimensions (width, height) of the platform.
+    */
+   std::shared_ptr<Object> createBomb(Vec2 pos, Size size, float scale, std::string jsonType, bool isLevelEditorMode=false);
+
+   std::shared_ptr<Object> createBomb(std::shared_ptr<Bomb> bomb, bool isLevelEditorMode=false);
+
     
     /** Creates a treasure
     * @param pos The position of the bottom left corner of the treasure in Box2D coordinates.
@@ -142,8 +168,11 @@ public:
     std::shared_ptr<Object> createArtObject(std::shared_ptr<ArtObject> art);
     std::shared_ptr<Object> createArtObject(Vec2 pos, Size size, float scale, float angle, string jsonType);
 
+    /** Creates a parallax art object */
+    std::shared_ptr<Object> createParallaxArtObject(Vec2 pos, Size size, float scale, float angle, int layer, float scrollRate, string jsonType);
+    std::shared_ptr<Object> createParallaxArtObject(std::shared_ptr<ArtObject> art);
     /**creates teh goal door**/
-    std::shared_ptr<physics2::BoxObstacle> createGoalDoor(Vec2 goalPos);
+    std::shared_ptr<Object> createGoalDoor(Vec2 goalPos);
     /**
      * Adds the physics object to the physics world and loosely couples it to the scene graph
      *

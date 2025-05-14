@@ -66,6 +66,8 @@ protected:
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
     /** The list of objects */
     std::vector<std::shared_ptr<Object>> _objects;
+    /** The list of parallax objects */
+    std::vector<std::shared_ptr<Object>> _parallaxObjects;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -173,6 +175,9 @@ public:
     /** To be called after level select */
     bool finishInit();
 
+    /** Creates all the parallax art objects. */
+
+    void createParallaxObjects();
 #pragma mark -
 #pragma mark Gameplay Handling
     /**

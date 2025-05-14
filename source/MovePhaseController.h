@@ -81,6 +81,17 @@ protected:
     bool _debug;
     /** Whether we have failed at this world (and need a reset) */
     bool _failed;
+    /** Whether we have reached the goal or not */
+    bool _reachedGoal = false;
+    /** Whether or not it is time to animate the goal */
+    bool _animateGoal = false;
+
+    cugl::ActionFunction _goalDoorAction;
+    /** Manager to process the animation actions */
+    std::shared_ptr<AnimateSprite> _spinAnimateSprite;
+    std::shared_ptr<cugl::scene2::SpriteNode> _spinSpriteNode;
+    std::shared_ptr<cugl::ActionTimeline> _goalDoorTimeline;
+
 
 
 public:
@@ -182,6 +193,8 @@ public:
      * @param player information of player position and treasure status
      */
     void updateProgressBar(std::shared_ptr<PlayerModel> player);
+
+    void setGoalDoorAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
     
 
 #pragma mark -

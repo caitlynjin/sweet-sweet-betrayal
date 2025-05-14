@@ -33,9 +33,9 @@ using namespace Constants;
 #pragma mark -
 #pragma mark Constants
 /** List of all inventory items that are placeable */
-std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM };
+std::vector<Item> allInventoryItems = { PLATFORM, MOVING_PLATFORM, WIND, THORN, MUSHROOM, BOMB };
 /** List of all corresponding textures to items that are placeable */
-std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON };
+std::vector<std::string> allAssetNames = { LOG_ICON, GLIDING_LOG_ICON, WIND_ICON, THORN_TILE_ICON, MUSHROOM_ICON, BOMB_ICON };
 
 
 #pragma mark -
@@ -118,7 +118,7 @@ void BuildPhaseController::preUpdate(float dt) {
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
     
-    CULog("Number players: %d", _network->getNumPlayers());
+//    CULog("Number players: %d", _network->getNumPlayers());
 
     _uiScene.preUpdate(dt);
 
@@ -172,7 +172,7 @@ void BuildPhaseController::preUpdate(float dt) {
             }
             _buildPhaseScene.getCamera()->update();
         }
-        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= 4* _objectController->getGoalPos().x * 64){
             Uint64 currentTime = Application::get()->getEllapsedMicros();
             Uint64 elapsedTime = currentTime - _accelerationStart;
             if (elapsedTime < 500000){
@@ -225,6 +225,7 @@ void BuildPhaseController::preUpdate(float dt) {
 
         if (trashBounds.contains(touchPos)) {
             CULog("Deleted object");
+            _sound->playSound("discardItem");
             _uiScene.getTrashButton()->setDown(false);
 
             if (_selectedObject) {
@@ -268,11 +269,14 @@ void BuildPhaseController::preUpdate(float dt) {
                 _selectedObject = nullptr;
             } else {
                 // Place new object on grid
-                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);;
+                Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
-                    std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
-                    _gridManager->addMoveableObject(gridPos, obj);
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
+                        std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
+
+                    if (_selectedItem != BOMB) {
+                        _gridManager->addMoveableObject(gridPos, obj);
+                    }
 
                     _itemsPlaced += 1;
 
@@ -309,7 +313,7 @@ void BuildPhaseController::preUpdate(float dt) {
     }
 
     // TODO: Segment out to another method, uiSceneUpdate()
-    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
+    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= 4 * _objectController->getGoalPos().x * 64){
         Uint64 currentTime = Application::get()->getEllapsedMicros();
         Uint64 elapsedTime = currentTime - _accelerationStart;
         if (elapsedTime < 500000){
@@ -341,11 +345,11 @@ void BuildPhaseController::preUpdate(float dt) {
     if (_uiScene.getIsReady() && !_readyMessageSent){
 //        CULog("send out event");
         _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::BUILD_READY));
+        _network->pushOutEvent(ReadyEvent::allocReadyEvent(_network->getShortUID(), _player->getColor(), true));
         _readyMessageSent = true;
     }
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
-        _player->setReady(false);
     }
 }
 
@@ -372,6 +376,9 @@ void BuildPhaseController::processModeChange(bool value) {
 
     _uiScene.setVisible(value);
     _itemsPlaced = 0;
+    _selectedItem = Item::NONE;
+    _selectedObject = nullptr;
+    _input->setInventoryStatus(PlatformInput::InventoryStatus::WAITING);
 
     if (value){
         randomizeItems();
@@ -436,6 +443,7 @@ void BuildPhaseController::addInvButtonListeners() {
  */
 std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item) {
     shared_ptr<Object> obj;
+    _sound->playSound("placeItem");
     switch (item) {
         case (PLATFORM):
             return _networkController->createPlatformNetworked(gridPos, itemToSize(item), "log", _buildPhaseScene.getScale() / getSystemScale());
@@ -452,6 +460,8 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return _networkController->createThornNetworked(gridPos, itemToSize(item));
         case (MUSHROOM):
             return _networkController->createMushroomNetworked(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale());
+        case (BOMB):
+            return _networkController->createBombNetworked(gridPos, itemToSize(item));
         case (TREASURE):
             // For now, assuming that players won't be able to place treasure.
             // No need to make it networked here since this code should only run in the level editor.

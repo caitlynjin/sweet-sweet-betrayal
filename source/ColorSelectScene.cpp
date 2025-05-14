@@ -103,11 +103,13 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _backbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
+            _sound->playSound("button_click");
 
         }
     });
     _readybutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
+            _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
 //            _networkController->flushConnection();
             _networkController->setLocalColor(_myColor);
@@ -121,7 +123,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::RED;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
-            _sound->playSound("button_click");
+            _sound->playSound("redSelect");
         }
     });
     _bluebutton->addListener([this](const std::string& name, bool down) {
@@ -129,7 +131,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::BLUE;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
-            _sound->playSound("button_click");
+            _sound->playSound("blueSelect");
         }
     });
     _yellowbutton->addListener([this](const std::string& name, bool down) {
@@ -137,7 +139,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::YELLOW;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
-            _sound->playSound("button_click");
+            _sound->playSound("yellowSelect");
         }
     });
     _greenbutton->addListener([this](const std::string& name, bool down) {
@@ -145,9 +147,16 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
             _myColor = ColorType::GREEN;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
             _updateSelectedColor(_myColor);
-            _sound->playSound("button_click");
+            _sound->playSound("greenSelect");
         }
     });
+    
+    _redBasePos    = _redbutton->getPosition();
+    _blueBasePos   = _bluebutton->getPosition();
+    _yellowBasePos = _yellowbutton->getPosition();
+    _greenBasePos  = _greenbutton->getPosition();
+
+    _bounceTimer = 0.0f;
     addChild(scene);
     setActive(false);
     return true;
@@ -209,8 +218,37 @@ void ColorSelectScene::setActive(bool value) {
             _bluebutton->setDown(false);
             _yellowbutton->setDown(false);
             _greenbutton->setDown(false);
+            _bounceTimer    = 0.0f;
+            _prevTakenIndex = -1;
+            _redbutton  ->setPosition(_redBasePos);
+            _bluebutton ->setPosition(_blueBasePos);
+            _yellowbutton->setPosition(_yellowBasePos);
+            _greenbutton->setPosition(_greenBasePos);
         }
     };
+}
+
+void ColorSelectScene::update(float dt) {
+    _bounceTimer += dt;
+    const float iconAmplitude = 5.0f;
+    const float iconSpeed     = 4.0f;
+    float raw  = iconAmplitude * std::sin(_bounceTimer * iconSpeed);
+    float dy   = -raw;
+
+    auto applyButtonDiff = [&](std::shared_ptr<cugl::scene2::Button> btn, const cugl::Vec2& basePos, int idx){
+        if (idx == _prevTakenIndex) {
+            btn->setPosition(basePos.x, basePos.y + dy);
+        } else {
+            btn->setPosition(basePos.x, basePos.y);
+        }
+    };
+
+    applyButtonDiff(_redbutton,    _redBasePos,    (int)ColorType::RED);
+    applyButtonDiff(_bluebutton,   _blueBasePos,   (int)ColorType::BLUE);
+    applyButtonDiff(_yellowbutton, _yellowBasePos, (int)ColorType::YELLOW);
+    applyButtonDiff(_greenbutton,  _greenBasePos,  (int)ColorType::GREEN);
+
+    Scene2::update(dt);
 }
 
 /** Visually and logically disable a color button */

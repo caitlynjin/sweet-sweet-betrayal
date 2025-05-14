@@ -1,114 +1,79 @@
 {
     "textures": {
         "earth": {
-            "file": "textures/earthtile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/earthtile.png"
         },
         "tile": {
-            "file": "textures/1x1-tile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/1x1-tile.png"
         },
         "tile-inner": {
-            "file": "textures/tile-inner.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/tile-inner.png"
         },
         "tile-left-edge": {
-            "file": "textures/tile-left-edge.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/tile-left-edge.png"
         },
         "tile-right-edge": {
-            "file": "textures/tile-right-edge.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/tile-right-edge.png"
         },
         "tile-top-edge": {
-            "file": "textures/top-edge.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/top-edge.png"
         },
         "tile-topleft-corner": {
-            "file": "textures/topleft-corner.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/topleft-corner.png"
         },
         "tile-topright-corner": {
-            "file": "textures/topright-corner.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/topright-corner.png"
         },
         "tile-bottom-edge": {
-            "file": "textures/tile-bottom-edge.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/tile-bottom-edge.png"
+        },
+        "tile-inside-right": {
+            "file": "textures/1x1-inside-right.png"
+        },
+        "tile-inside-left": {
+            "file": "textures/1x1-inside-left.png"
+        },
+        "tile-inside-filled": {
+            "file": "textures/1x1-inside-filled.png"
         },
         "decoration-crack-1": {
-            "file": "textures/decorations/decoration-crack-1.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-1.png"
         },
         "decoration-crack-2": {
-            "file": "textures/decorations/decoration-crack-2.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-2.png"
         },
         "decoration-crack-3": {
-            "file": "textures/decorations/decoration-crack-3.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-3.png"
         },
         "decoration-crack-4": {
-            "file": "textures/decorations/decoration-crack-4.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-4.png"
         },
         "decoration-crack-5": {
-            "file": "textures/decorations/decoration-crack-5.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-5.png"
         },
         "decoration-crack-large-1": {
-            "file": "textures/decorations/decoration-crack-large-1.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-crack-large-1.png"
         },
         "decoration-moss-1": {
-            "file": "textures/decorations/decoration-moss-1.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-moss-1.png"
         },
         "decoration-moss-2": {
-            "file": "textures/decorations/decoration-moss-2.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-moss-2.png"
         },
         "decoration-rocky-1": {
-            "file": "textures/decorations/decoration-rocky-texture-1.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-rocky-texture-1.png"
         },
         "decoration-rocky-2": {
-            "file": "textures/decorations/decoration-rocky-texture-2.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/decorations/decoration-rocky-texture-2.png"
         },
         "log_obstacle": {
-            "file": "textures/3x0.5-log-obstacle.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/3x0.5-log-obstacle.png"
         },
         "gliding_log_obstacle": {
-            "file": "textures/3x0.5-gliding-log-obstacle.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/3x0.5-gliding-log-obstacle.png"
         },
         "platform_tile": {
-            "file": "textures/3x0.5-platform-tile.png",
-            "wrapS": "repeat",
-            "wrapT": "repeat"
+            "file": "textures/3x0.5-platform-tile.png"
         },
         "spike_tile": {
             "file": "textures/1x1-up-spike.png"
@@ -127,6 +92,12 @@
         },
         "thorns_obstacle": {
             "file": "textures/thorns-obstacle.png"
+        },
+        "bomb_obstacle": {
+            "file": "textures/bomb-obstacle.png"
+        },
+        "mango-explosion-spritesheet": {
+            "file": "textures/mango-explosion-spritesheet.png"
         },
         "gemEmpty": {
             "file": "textures/strawberryTransparent.png"
@@ -173,8 +144,17 @@
         "wind_unobstructed_spritesheet": {
             "file": "textures/wind-unobstructed-spritesheet.png"
         },
+        "goal-spritesheet": {
+            "file": "textures/goal.png"
+        },
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
+        },
+        "gliding-log-spritesheet": {
+            "file": "textures/gliding-log-spritesheet.png"
+        },
+        "mushroom_bounce_spritesheet": {
+            "file": "textures/bounce-spritesheet.png"
         },
         "dpad": {
             "file": "textures/dpad.png",
@@ -353,6 +333,9 @@
         },
         "icon-wind": {
             "file": "textures/icon-wind.png"
+        },
+        "icon-mango": {
+            "file": "textures/icon-mango.png"
         },
         "settingsbutton": {
             "file": "textures/buttons/settingsbutton.png"
@@ -549,6 +532,15 @@
         "tip1": {
             "file": "textures/text/tip1.png"
         },
+        "tip2": {
+            "file": "textures/text/tip2.png"
+        },
+        "tip3": {
+            "file": "textures/text/tip3.png"
+        },
+        "tip4": {
+            "file": "textures/text/tip4.png"
+        },
         "quit": {
             "file": "textures/buttons/quit.png"
         },
@@ -611,48 +603,32 @@
         },
         "hosttext": {
             "file": "textures/level-select/hosttext.png"
+        },
+        "parallax-0": {
+            "file": "textures/parallax/0.png"
+        },
+        "parallax-1": {
+            "file": "textures/parallax/1.png"
+        },
+        "parallax-2": {
+            "file": "textures/parallax/2.png"
+        },
+        "parallax-3": {
+            "file": "textures/parallax/3.png"
         }
     },
     "jsons": {
         "server": "json/server.json"
     },
     "sounds": {
-        "game": {
-            "type": "sample",
-            "file": "sounds/DD_Main.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
-        "win": {
-            "type": "sample",
-            "file": "sounds/DD_Victory.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
-        "lose": {
-            "type": "sample",
-            "file": "sounds/DD_Failure.ogg",
-            "stream": true,
-            "volume": 0.5
-        },
         "jump": {
             "type": "sample",
             "file": "sounds/sfx_jump.wav",
             "volume": 0.5
         },
-        "pew": {
-            "type": "sample",
-            "file": "sounds/pew.wav",
-            "volume": 0.5
-        },
-        "pop": {
-            "type": "sample",
-            "file": "sounds/plop.wav",
-            "volume": 0.5
-        },
         "glide": {
             "type": "sample",
-            "file": "sounds/sfx_glide.wav",
+            "file": "sounds/sfx_glidenew.wav",
             "volume": 0.5
         },
         "button_click": {
@@ -664,9 +640,91 @@
             "type": "sample",
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
-            "volume":  0.5
+            "volume": 0.2
 
+        },
+        "main_menu": {
+            "type": "sample",
+            "file": "sounds/music_main_menu_5_11.ogg",
+            "stream": true,
+            "volume": 0.2
+        },
+        "mushroom_boing": {
+            "type": "sample",
+            "file": "sounds/mushroom_boing.wav",
+            "volume": 0.5
+        },
+        "yay": {
+            "type": "sample",
+            "file": "sounds/sfx_yay.wav",
+            "volume": 0.5
+        },
+        "ow": {
+            "type": "sample",
+            "file": "sounds/sfx_ow.wav",
+            "volume": 0.5
+        },
+        "aw": {
+            "type": "sample",
+            "file": "sounds/sfx_aw.wav",
+            "volume": 0.5
+        },
+        "heeheehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heeheehee.wav",
+            "volume": 0.5
+        },
+        "heehee": {
+            "type": "sample",
+            "file": "sounds/sfx_heehee.wav",
+            "volume": 0.5
+        },
+        "takethat": {
+            "type": "sample",
+            "file": "sounds/sfx_takethat.wav",
+            "volume": 0.5
+        },
+        "placeItem": {
+            "type": "sample",
+            "file": "sounds/sfx_placeItem.wav",
+            "volume": 0.5
+        },
+        "bomb": {
+            "type": "sample",
+            "file": "sounds/sfx_bomb.wav",
+            "volume": 0.5
+        },
+        "redSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_red_select.wav",
+            "volume": 0.5
+        },
+        "blueSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_blue_select.wav",
+            "volume": 0.5
+        },
+        "yellowSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_yellow_select.wav",
+            "volume": 0.5
+        },
+        "greenSelect": {
+            "type": "sample",
+            "file": "sounds/sfx_green_select.wav",
+            "volume": 0.5
+        },
+        "timer": {
+            "type": "sample",
+            "file": "sounds/sfx_timer_tick.wav",
+            "volume": 0.5
+        },
+        "discardItem": {
+            "type": "sample",
+            "file": "sounds/discardItem.wav",
+            "volume":  0.5
         }
+
     },
     "fonts": {
         "retro": {
