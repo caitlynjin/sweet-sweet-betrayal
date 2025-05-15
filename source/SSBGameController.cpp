@@ -233,11 +233,16 @@ void SSBGameController::dispose()
     if (_gridManager) {
         _gridManager->getGridNode() = nullptr;
     }
-
-    _input->dispose();
+    if (_input != nullptr) {
+        _input->dispose();
+    }
     _backgroundScene.dispose();
-    _buildPhaseController->dispose();
-    _movePhaseController->dispose();
+    if (_buildPhaseController != nullptr) {
+        _buildPhaseController->dispose();
+    }
+    if (_movePhaseController != nullptr) {
+        _movePhaseController->dispose();
+    }
     Scene2::dispose();
 }
 
