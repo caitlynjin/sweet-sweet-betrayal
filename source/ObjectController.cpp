@@ -399,7 +399,9 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     // Disable ArtObject collision physics
     art->setSensor(true);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
+    if (isAnimated) {
+        art->setAnimation(sprite);
+    }
     _gameObjects->push_back(art);
 
     return art;
@@ -447,7 +449,9 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     // Disable ArtObject collision physics
     art->setSensor(true);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
+    if (isAnimated) {
+        art->setAnimation(sprite);
+    }
     _gameObjects->push_back(art);
 
     return art;
