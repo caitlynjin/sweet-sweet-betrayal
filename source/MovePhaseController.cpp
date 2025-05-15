@@ -646,7 +646,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
         }
 
 
-        if (bomb && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure") {
+        if (bomb && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure" && other->getName() != "parallaxObject") {
             CULog("Trigger bomb explosion");
             _sound->playSound("bomb");
             other->markRemoved(true);
