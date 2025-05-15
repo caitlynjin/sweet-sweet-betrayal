@@ -85,6 +85,10 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
 
 bool MovePhaseController::finishInit(){
     // Initialize move phase scene
+//    if(_network->getPhysController() == nullptr){
+//        _network->enablePhysics(_world);
+//    }
+    
     _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();

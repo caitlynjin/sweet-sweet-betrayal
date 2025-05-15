@@ -252,7 +252,9 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // Reset score controller
+    flushConnection();
     _network->getPhysController()->reset();
+//    _network->disablePhysics();
     
     _scoreController->reset();
     
