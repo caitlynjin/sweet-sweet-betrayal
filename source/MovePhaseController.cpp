@@ -223,6 +223,9 @@ void MovePhaseController::preUpdate(float dt) {
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
+    if (_uiScene.getDidGiveUp()) {
+        killPlayer();
+    }
 
 
     if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
@@ -244,6 +247,7 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setGlideButtonActive();
         _uiScene.setDidJump(false);
     }
+    _uiScene.setGiveUpButtonActive(true);
 
     updateProgressBar(_movePhaseScene.getLocalPlayer());
 
