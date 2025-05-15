@@ -10,7 +10,7 @@ constexpr int RAYS = 3;
 #define OFFSET 0.1f
 #define FAN_ANIM_CYCLE 0.8f
 #define GUST_ANIM_CYCLE 3.0f
-#define PRIORITY -900
+#define PRIORITY 0
 #define GUST_DISTANCE 0.5f
 #define OFFSET 0.1f
 #define NAME "wind"

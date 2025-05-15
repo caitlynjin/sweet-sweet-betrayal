@@ -77,7 +77,7 @@ void LevelEditorUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager) {
+bool LevelEditorUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<LevelGridManager> gridManager) {
     if (assets == nullptr)
     {
         return false;
