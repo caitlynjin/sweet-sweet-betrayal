@@ -23,7 +23,7 @@ using namespace cugl::physics2::distrib;
 #pragma mark -
 #pragma mark Level Layout
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 /**
@@ -64,7 +64,7 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
            return false;
    }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
     Size dimen = getSize();
@@ -80,31 +80,39 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     
-    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.join"));
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("client.roomcode-background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+    
+    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.left.join"));
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.back"));
-    _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.center.players.field.text"));
     
     _gameID = {' ', ' ', ' ', ' ', ' '};
     _gameIDLength = 0;
     
-    _gameid1 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_1.field.text"));
-    _gameid2 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_2.field.text"));
-    _gameid3 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_3.field.text"));
-    _gameid4 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_4.field.text"));
-    _gameid5 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.code-entry.num_5.field.text"));
+    _gameid1 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.left.code-entry.num_1.text"));
+    _gameid2 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.left.code-entry.num_2.text"));
+    _gameid3 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.left.code-entry.num_3.text"));
+    _gameid4 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.left.code-entry.num_4.text"));
+    _gameid5 = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("client.left.code-entry.num_5.text"));
     
-    _button0 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button0"));
-    _button1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button1"));
-    _button2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button2"));
-    _button3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button3"));
-    _button4 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button4"));
-    _button5 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button5"));
-    _button6 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button6"));
-    _button7 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button7"));
-    _button8 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button8"));
-    _button9 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button9"));
+    _button0 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button0"));
+    _button1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button1"));
+    _button2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button2"));
+    _button3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button3"));
+    _button4 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button4"));
+    _button5 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button5"));
+    _button6 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button6"));
+    _button7 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button7"));
+    _button8 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button8"));
+    _button9 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button9"));
     
-    _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.button-del"));
+    _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button_del"));
     
     _backout->addListener([this](const std::string& name, bool down) {
         if (!down) {
@@ -181,7 +189,6 @@ void ClientScene::setActive(bool value) {
 #pragma mark BEGIN SOLUTION
         if (value) {
             _backout->activate();
-            _player->setText("1");
             
             _button0->activate();
             _button1->activate();
@@ -259,8 +266,6 @@ void ClientScene::update(float timestep) {
     configureStartButton();
     setGameIDLabels(_gameID);
     if(_network->getStatus() == NetEventController::Status::CONNECTED || _network->getStatus() == NetEventController::Status::HANDSHAKE){
-        
-        _player->setText(std::to_string(_network->getNumPlayers()));
     }
 }
 

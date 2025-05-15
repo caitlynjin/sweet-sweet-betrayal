@@ -57,6 +57,14 @@ bool DisconnectedScene::init(const std::shared_ptr<cugl::AssetManager>& assets, 
         _background->setScale(scale, scale);
         _background->setPosition(dimen.width/2, dimen.height/2);
     }
+    _blackBackground = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("waiting-host.black-background"));
+    if (_blackBackground) {
+        _blackBackground->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _blackBackground->getContentSize();
+        float scale = dimen.height / tex.height;
+        _blackBackground->setScale(scale, scale);
+        _blackBackground->setPosition(dimen.width/2, dimen.height/2);
+    }
     
     _quitbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("disconnected.quit"));
     _quitbutton->addListener([this](const std::string& name, bool down) {

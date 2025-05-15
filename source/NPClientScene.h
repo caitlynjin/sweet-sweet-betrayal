@@ -36,13 +36,13 @@ protected:
     /** The asset manager for this scene. */
     std::shared_ptr<cugl::AssetManager> _assets;
    
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
 
     /** The menu button for starting a game */
     std::shared_ptr<cugl::scene2::Button> _startgame;
     /** The back button for the menu scene */
     std::shared_ptr<cugl::scene2::Button> _backout;
-    /** The players label (for updating) */
-    std::shared_ptr<cugl::scene2::Label> _player;
     
     /** The game id entered in by the user represented by an array*/
     std::array<char, 5> _gameID;

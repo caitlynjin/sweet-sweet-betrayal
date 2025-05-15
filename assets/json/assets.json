@@ -367,9 +367,6 @@
         "num": {
             "file": "textures/buttons/num.png"
         },
-        "num-enter": {
-            "file": "textures/buttons/num-enter.png"
-        },
         "button_clearall": {
             "file": "textures/buttons/button_clearall.png"
         },
