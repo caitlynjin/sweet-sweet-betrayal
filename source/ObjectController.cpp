@@ -395,6 +395,7 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);
     art->setDebugColor(DEBUG_COLOR);
+    art->setItemType(Item::ART_OBJECT);
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
