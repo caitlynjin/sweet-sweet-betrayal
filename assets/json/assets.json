@@ -639,6 +639,12 @@
         },
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
+        },
+        "help": {
+            "file": "textures/setting/help.png"
+        },
+        "credits": {
+            "file": "textures/setting/credits.png"
         }
     },
     "jsons": {
@@ -747,33 +753,6 @@
             "type": "sample",
             "file": "sounds/discardItem.wav",
             "volume":  0.5
-        },
-        "black-background": {
-            "file": "textures/setting/black-background.png"
-        },
-        "modal": {
-            "file": "textures/setting/modal.png"
-        },
-        "help": {
-            "file": "textures/setting/help.png"
-        },
-        "credits": {
-            "file": "textures/setting/credits.png"
-        },
-        "slider": {
-            "file": "textures/setting/slider.png"
-        },
-        "knob": {
-            "file": "textures/setting/knob.png"
-        },
-        "music": {
-            "file": "textures/setting/music.png"
-        },
-        "sfx": {
-            "file": "textures/setting/sfx.png"
-        },
-        "modal-exit": {
-            "file": "textures/setting/modal-exit.png"
         }
     },
     "fonts": {
