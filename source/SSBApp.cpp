@@ -243,6 +243,9 @@ void SSBApp::preUpdate(float dt)
         case START:
             updateStartScene(dt);
             break;
+        case SETTING:
+            updateSettingScene(dt);
+            break;
         case MENU:
             updateMenuScene(dt);
             break;
@@ -504,11 +507,21 @@ void SSBApp::updateStartScene(float timestep)
            _levelEditorController.setSpriteBatch(_batch);
            _status = LEVEL_EDITOR;
           _network->markReady();
-            break;
+           break;
+    case StartScene::Choice::SETTING:
+        _startscreen.setActive(false);
+        _startscreen.setActive(false);
+        _settingscreen.setActive(true);
+        _status = SETTING;
+        break;
     case StartScene::Choice::NONE:
         // DO NOTHING
         break;
     }
+}
+
+void SSBApp::updateSettingScene(float timestep){
+    _settingscreen.update(timestep);
 }
 
 /**
@@ -838,6 +851,9 @@ void SSBApp::draw()
         break;
     case START:
         _startscreen.render();
+        break;
+    case SETTING:
+        _settingscreen.render();
         break;
     case MENU:
         _mainmenu.render();
