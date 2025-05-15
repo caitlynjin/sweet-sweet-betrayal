@@ -208,6 +208,9 @@
         "glide-button": {
             "file": "textures/glide-button.png"
         },
+        "giveup-button": {
+            "file": "textures/giveup.png"
+        },
         "background": {
             "file": "textures/backgrounds/background2.png"
         },

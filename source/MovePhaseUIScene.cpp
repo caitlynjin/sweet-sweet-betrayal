@@ -155,7 +155,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_jumpbutton);
 
-    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
+    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GIVEUP_BUTTON));
     glideNode->setScale(0.75f);
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
