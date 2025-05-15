@@ -114,6 +114,8 @@ void BuildPhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseController::preUpdate(float dt) {
+    _gridManager->update(dt);
+
     // TODO: All of this logic should be moved to another method, such as gridManagerUpdate()
     /** The offset of finger placement to object indicator */
     Vec2 dragOffset = _input->getSystemDragOffset();
@@ -145,18 +147,21 @@ void BuildPhaseController::preUpdate(float dt) {
 
         // Show placing object indicator when dragging object
         if (_selectedItem != NONE) {
-            
             if (_selectedObject) {
-                // Move the existing object to new position
-                _selectedObject->setPositionInit(gridPosWithOffset);
-                
-                // Trigger obstacle update listener
-                if (_selectedObject->getListener()) {
-                    _selectedObject->getListener()(_selectedObject.get());
-                }
-            } else {
-                _gridManager->setObject(gridPosWithOffset, _selectedItem);
+                _selectedObject->setGhost(_selectedObject->getSceneNode(), true);
             }
+            // TODO: Remove if want object moving to be just the sprite
+//            if (_selectedObject) {
+//                // Move the existing object to new position
+//                _selectedObject->setPositionInit(gridPosWithOffset);
+//                
+//                // Trigger obstacle update listener
+//                if (_selectedObject->getListener()) {
+//                    _selectedObject->getListener()(_selectedObject.get());
+//                }
+//            } else {
+            _gridManager->setObject(gridPosWithOffset, _selectedItem);
+//            }
         }
         if (screenPos.x <= 200 && _buildPhaseScene.getCamera()->getPosition().x >= 600){
             Uint64 currentTime = Application::get()->getEllapsedMicros();
@@ -240,7 +245,10 @@ void BuildPhaseController::preUpdate(float dt) {
             }
         } else {
             if (_selectedObject) {
-                if (!_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem)) {
+                _selectedObject->setGhost(_selectedObject->getSceneNode(), false);
+
+                if (!_gridManager->canPlaceExisting(gridPos, _selectedObject)) {
+                    CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                     // Move the object back to its original position
                     _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
@@ -248,6 +256,7 @@ void BuildPhaseController::preUpdate(float dt) {
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
+                    
                     _selectedObject->setPositionInit(gridPos);
                     if (_selectedObject->getItemType()== Item::MOVING_PLATFORM) {
                         CULog("is platform");
@@ -285,6 +294,8 @@ void BuildPhaseController::preUpdate(float dt) {
                     {
                         _uiScene.activateInventory(false);
                     }
+                } else {
+                    CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                 }
             }
 
@@ -351,6 +362,10 @@ void BuildPhaseController::preUpdate(float dt) {
     else if (!_uiScene.getIsReady()) {
         _readyMessageSent = false;
     }
+
+    if (_isPaused != _uiScene.getIsPaused()) {
+        _isPaused = _uiScene.getIsPaused();
+    }
 }
 
 void BuildPhaseController::setSpriteBatch(const shared_ptr<SpriteBatch> &batch) {
@@ -371,6 +386,8 @@ void BuildPhaseController::render() {
  * @param value whether the level is in building mode.
  */
 void BuildPhaseController::processModeChange(bool value) {
+    _gridManager->clearRound();
+
     _buildPhaseScene.setVisible(value);
     _buildPhaseScene.resetCameraPos();
 

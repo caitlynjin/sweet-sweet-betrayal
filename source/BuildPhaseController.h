@@ -66,6 +66,9 @@ protected:
     /** Starting time for acceleration timer */
     Uint64 _accelerationStart;
 
+    /** Whether the game is paused */
+    bool _isPaused;
+
 
 public:
 #pragma mark -
@@ -107,6 +110,16 @@ public:
 
     void render();
 
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
+
 #pragma mark -
 #pragma mark Helpers
     /**
@@ -125,6 +138,14 @@ public:
      * Triggers a change in building mode.
      */
     void setBuildingMode(bool value);
+    
+    BuildPhaseScene getBuildPhaseScene(){
+        return _buildPhaseScene;
+    }
+    
+    BuildPhaseUIScene getBuildPhaseUI(){
+        return _uiScene;
+    }
 
     /**
      * Randomizes the items in the inventory and selects only a `count` of these items.

@@ -80,8 +80,10 @@ protected:
     bool _buildingMode;
     
     /** Whether a player has won the level */
-    bool _hasVictory = false;;
-    
+    bool _hasVictory = false;
+    /** Whether the game is paused */
+    bool _isPaused = false;
+
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
     
@@ -171,6 +173,9 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
         const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    
+    /** To be called after level select */
+    bool finishInit();
 
     /** Creates all the parallax art objects. */
 
@@ -270,6 +275,8 @@ public:
 
     void render() override;
 
+    /** Sets the scene and associated scenes as active */
+//    virtual void setActive(bool value) override;
     /**
      * Sets whether mode is in building or play mode.
      *
@@ -284,10 +291,28 @@ public:
      */
     void setHasVictory(bool value);
     
+    void setLevelNum(int level){
+        _movePhaseController->setLevelNum(level);
+    }
+    
+    int getLevelNum(){
+        return _movePhaseController->getLevelNum();
+    }
+    
     /**
      Returns whether a player has won the current level.
      */
     bool getHasVictory() {return _hasVictory;};
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
 
 #pragma mark -
 #pragma mark Helpers

@@ -15,6 +15,7 @@
 #include "Constants.h"
 #include "MessageEvent.h"
 #include "ColorEvent.h"
+#include "LevelEvent.h"
 #include "MushroomBounceEvent.h"
 #include "ReadyEvent.h"
 #include "ScoreEvent.h"
@@ -442,6 +443,12 @@ protected:
     /** Whether the level should reset */
     bool _resetLevel = false;
     
+    /** The level selected by the host, 0 if none has been selected yet */
+    int _levelSelected = 0;
+    
+    /** The data the host sends out from level select */
+    tuple<int, bool, bool> _levelSelectData;
+    
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
     Uint32 _platFactId;
@@ -611,6 +618,17 @@ public:
         return _playerColorAdded;
     }
     
+    /**
+     Returns the level selected by host, 0 if none selected yet.
+     */
+    int getLevelSelected(){
+        return _levelSelected;
+    }
+    
+    tuple<int, bool, bool> getLevelSelectData(){
+        return _levelSelectData;
+    }
+    
     
     /**
      Resets the treasure to its spawn location and removes any possession
@@ -768,6 +786,11 @@ public:
      * This method takes a ColorEvent and processes it.
      */
     void processColorEvent(const std::shared_ptr<ColorEvent>& event);
+    
+    /**
+     * This method takes a ColorEvent and processes it.
+     */
+    void processLevelEvent(const std::shared_ptr<LevelEvent>& event);
 
     /**
      * This method takes a ReadyEvent and processes it.
