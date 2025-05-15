@@ -68,6 +68,10 @@ bool Thorn::init(const Vec2 pos, const Size size, string jsonType) {
     return false;
 }
 
+void Thorn::update(float timestep) {
+    PolygonObstacle::update(timestep);
+}
+
 std::map<std::string, std::any> Thorn::getMap() {
     std::map<std::string, std::any> m = {
         {"x", double(_position.x)},
