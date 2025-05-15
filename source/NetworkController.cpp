@@ -278,6 +278,7 @@ void NetworkController::reset(){
     _tSpawnPoints.clear();
     _usedSpawns.clear();
     
+    _playerList.clear();
 }
 
 

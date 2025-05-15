@@ -297,20 +297,25 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     }
     if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
         // TODO: Finish player ready logic
+        CULog("SET UP PLAYER READY LOGIC");
         for (auto& player : _networkController->getPlayerList()){
             if (player->getName() == "playerRed"){
+                CULog("Player icon red set");
                 _iconList.push_back(_redIcon);
                 addChild(_redIcon);
             }
             if (player->getName() == "playerBlue"){
+                CULog("Player icon blue set");
                 _iconList.push_back(_blueIcon);
                 addChild(_blueIcon);
             }
             if (player->getName() == "playerGreen"){
+                CULog("Player icon green set");
                 _iconList.push_back(_greenIcon);
                 addChild(_greenIcon);
             }
             if (player->getName() == "playerYellow"){
+                CULog("Player icon yellow set");
                 _iconList.push_back(_yellowIcon);
                 addChild(_yellowIcon);
             }
