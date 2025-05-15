@@ -48,14 +48,21 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
-    _musicSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.musicslider"));
-    _sfxSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.sfxslider"));
+    _musicSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.modal.musicslider"));
+    _sfxSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.modal.sfxslider"));
+    _exitButton = std::dynamic_pointer_cast<scene2::Button>(assets->get<scene2::SceneNode>("setting.modal.exit"));
 
     _musicSlider->addListener([this](const std::string& name, float value) {
-        _sound->setMusicVolume(value, true);
+        _sound->setMusicVolume(value / 100, true);
     });
     _sfxSlider->addListener([this](const std::string& name, float value){
-        _sound->setSFXVolume(value, true);
+        _sound->setSFXVolume(value / 100, true);
+    });
+    _exitButton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _choice = Choice::EXIT;
+            _sound->playSound("button_click");
+        }
     });
 
     addChild(scene);
@@ -95,9 +102,12 @@ void SettingScene::setActive(bool value) {
             _choice = NONE;
             _musicSlider->activate();
             _sfxSlider->activate();
+            _exitButton->activate();
         } else {
             _musicSlider->deactivate();
             _sfxSlider->deactivate();
+            _exitButton->deactivate();
+            _exitButton->setDown(false);
         }
     }
 }

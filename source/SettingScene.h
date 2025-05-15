@@ -25,6 +25,8 @@ public:
     enum Choice {
         /** User has not yet made a choice */
         NONE,
+        /** User has pressed the exit button */
+        EXIT
     };
 
     /** The player start screen choice */
@@ -42,6 +44,7 @@ protected:
 
     std::shared_ptr<cugl::scene2::Slider> _musicSlider;
     std::shared_ptr<cugl::scene2::Slider> _sfxSlider;
+    std::shared_ptr<cugl::scene2::Button> _exitButton;
 
 
 public:
