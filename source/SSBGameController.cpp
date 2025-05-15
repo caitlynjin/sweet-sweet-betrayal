@@ -144,8 +144,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     // Start in building mode
     _buildingMode = true;
     
-    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH, _scale, _offset, _assets);
-    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, offset, assets, _world);
+
     // Start up the input handler
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
@@ -173,7 +173,6 @@ bool SSBGameController::finishInit(){
     _background->setPosition(Vec2(0,0));
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
-
     _buildPhaseController = std::make_shared<BuildPhaseController>();
 
     // Initialize movement phase controller
@@ -234,11 +233,16 @@ void SSBGameController::dispose()
     if (_gridManager) {
         _gridManager->getGridNode() = nullptr;
     }
-
-    _input->dispose();
+    if (_input != nullptr) {
+        _input->dispose();
+    }
     _backgroundScene.dispose();
-    _buildPhaseController->dispose();
-    _movePhaseController->dispose();
+    if (_buildPhaseController != nullptr) {
+        _buildPhaseController->dispose();
+    }
+    if (_movePhaseController != nullptr) {
+        _movePhaseController->dispose();
+    }
     Scene2::dispose();
 }
 
@@ -285,6 +289,7 @@ void SSBGameController::reset()
  */
 void SSBGameController::update(float timestep)
 {
+    _networkController->getObjects();
 }
 
 /**
@@ -401,7 +406,6 @@ void SSBGameController::preUpdate(float dt)
         auto artObj = (dynamic_pointer_cast<ArtObject>((*it)));
         artObj->setPositionInit(Vec2((_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
             artObj->getPositionInit().y));
-        CULog("%d", _initialCameraPos - artObj->getParallaxScrollRate() * (_initialCameraPos - _camera->getPosition()));
     }
 
     if (_isPaused != _buildPhaseController->getIsPaused()) {

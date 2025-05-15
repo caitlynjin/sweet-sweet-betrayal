@@ -15,7 +15,7 @@
 #include "Constants.h"
 #include "SSBInput.h"
 #include "PlayerModel.h"
-#include "SSBGridManager.h"
+#include "LevelGridManager.h"
 #include "Platform.h"
 #include "WindObstacle.h"
 #include "Treasure.h"
@@ -35,7 +35,7 @@ protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
     /** The grid manager */
-    std::shared_ptr<GridManager> _gridManager;
+    std::shared_ptr<LevelGridManager> _gridManager;
 
     /** Reference to the background of the inventory */
     std::shared_ptr<scene2::PolygonNode> _inventoryBackground;
@@ -116,7 +116,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<LevelGridManager> gridManager);
 
     /**
      * Initializes the grid layout on the screen for build mode.
