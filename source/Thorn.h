@@ -54,6 +54,10 @@ public:
     bool init(const Vec2 pos, const Size size);
     bool init(const Vec2 pos, const Size size, string jsonType);
 
+    void update(float timestep) override;
+
+    std::shared_ptr<scene2::SceneNode>& getSceneNode() { return _sceneNode; }
+
     std::map<std::string, std::any> getMap() override;
 };
 

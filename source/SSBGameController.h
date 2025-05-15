@@ -80,8 +80,10 @@ protected:
     bool _buildingMode;
     
     /** Whether a player has won the level */
-    bool _hasVictory = false;;
-    
+    bool _hasVictory = false;
+    /** Whether the game is paused */
+    bool _isPaused = false;
+
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
     
@@ -301,6 +303,16 @@ public:
      Returns whether a player has won the current level.
      */
     bool getHasVictory() {return _hasVictory;};
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
 
 #pragma mark -
 #pragma mark Helpers

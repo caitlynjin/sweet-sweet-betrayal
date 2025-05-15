@@ -169,6 +169,8 @@
 #define TRASH_CLOSED "trash-closed"
 /** The image for the trash can open icon */
 #define TRASH_OPEN "trash-open"
+/** The image for the pause button */
+#define PAUSE "pause-button"
 /** The image for the top frame */
 #define TOP_FRAME "top-frame"
 /** The image for the left frame */

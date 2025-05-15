@@ -11,6 +11,7 @@
 #include "NPHostScene.h"
 #include "NetworkController.h"
 #include "VictoryScene.h"
+#include "PauseScene.h"
 #include "SoundController.h"
 #include "LevelEditorController.h"
 #include "ColorSelectScene.h"
@@ -28,7 +29,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED
+        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -46,7 +47,9 @@ protected:
     HostScene _hostgame;
     
     VictoryScene _victory;
-    
+
+    PauseScene _pause;
+
 
     TransitionScene _transition;
     

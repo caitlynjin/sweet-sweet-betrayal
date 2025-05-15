@@ -65,6 +65,7 @@ void BuildPhaseUIScene::dispose() {
         _rightButton = nullptr;
         _leftButton = nullptr;
         _trashButton = nullptr;
+        _pauseButton = nullptr;
         _timer = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
@@ -146,6 +147,19 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
     _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.2f);
 
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    pauseNode->setScale(1.0f);
+    _pauseButton = scene2::Button::alloc(pauseNode);
+    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    _pauseButton->activate();
+    _pauseButton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _isPaused = true;
+            _sound->playSound("button_click");
+        }
+    });
+
     _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(TIMER_FONT));
     _timer->setAnchor(Vec2::ANCHOR_CENTER);
     _timer->setPosition(_size.width * 0.505f, _size.height * 0.9f);
@@ -195,6 +209,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     addChild(_readyButton);
     addChild(_leftButton);
     addChild(_trashButton);
+    addChild(_pauseButton);
     addChild(_timerFrame);
     addChild(_timer);
     addChild(_topFrame);
@@ -363,6 +378,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
+    _pauseButton->setVisible(value);
     _timer->setVisible(value);
     _redIcon->setVisible(value);
     _blueIcon->setVisible(value);
