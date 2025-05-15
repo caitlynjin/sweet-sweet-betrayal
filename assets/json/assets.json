@@ -639,6 +639,9 @@
         },
         "code-not-found": {
             "file": "textures/text/code-not-found.png"
+        },
+        "overlay": {
+            "file": "textures/overlay.png"
         }
     },
     "jsons": {
@@ -806,7 +809,8 @@
         "disconnected": "widgets/disconnected.json",
         "pause": "widgets/pause.json",
         "level" : "widgets/level.json",
-        "levelmodal" : "widgets/levelmodal.json"
+        "levelmodal" : "widgets/levelmodal.json",
+        "buildmode" : "widgets/buildmode.json"
     },
     "scene2s": {
         "start": {
@@ -909,6 +913,15 @@
             },
             "data": {
                 "key": "pause"
+            }
+        },
+        "buildmode": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "buildmode"
             }
         },
         "game": {
