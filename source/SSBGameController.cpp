@@ -395,6 +395,12 @@ void SSBGameController::preUpdate(float dt)
                 platform->updateMovingPlatform(dt);
             }
         }
+        else if (obj && obj->getName() == "projectile") {
+            auto proj = std::dynamic_pointer_cast<Projectile>(obj);
+            if (proj && proj->getOwnerId() == _networkController->getNetwork()->getShortUID()) {
+                proj->hostUpdate(dt);
+            }
+        }
     }
     // Update parallax objects
     for (auto it = _parallaxObjects.begin(); it != _parallaxObjects.end(); ++it) {

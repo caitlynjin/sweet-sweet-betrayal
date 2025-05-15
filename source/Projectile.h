@@ -14,10 +14,11 @@
 #define DURATION 8.0f
 #define ACT_KEY  "current"
 #define DENSITY 12.0f
-#define INIT_IMPULSE 20.0f
-#define UP_FORCE 3.0f
+#define INIT_IMPULSE 6.0f
+#define UP_FORCE 23.0f
 #define RADIUS 0.25f
-
+#define EXPLOSION_TIME 0.1
+#define DAMPING 2.25f
 
 using namespace cugl;
 using namespace std;
@@ -29,6 +30,12 @@ private:
     /**owned by a player**/
 
     bool _justInit;
+
+    //Keeps track of whether the projectile is still active, counting down towards its explosion animation if not
+    bool _exploding = false;
+    float _explosionCountdown = 0;
+
+    std::function<void()> _delFunction;
 
 
 protected:
@@ -115,11 +122,21 @@ public:
     //Set the texture for this projectile
     void setTextureNode(std::shared_ptr<cugl::scene2::SpriteNode> tex);
 
+    //Updating motion only for host, so we don't add in too much velocity
+    void hostUpdate(float timestep);
+
     std::map<std::string, std::any> getMap() override;
     /**
      * Sets the taken status of the Projectile.
      * @param taken Whether the Projectile has been taken by a player.
      */
+
+    //Detonate the projectile-Cause it to being counting down and change its animation, before deleting itself
+    void detonate();
+
+    bool isExplode() {
+        return (_explosionCountdown > EXPLOSION_TIME);
+    };
 
 
     void reset();

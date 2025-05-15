@@ -30,12 +30,13 @@ bool Projectile::init(const Vec2 pos, const Size size, float scale, string jsonT
     Poly2 circle = factory.makeCircle(Vec2(0,0), RADIUS);
     
     if (PolygonObstacle::init(circle)) {
-        setName("Projectile");
+        setName("projectile");
         setDebugColor(Color4::YELLOW);
         setDensity(DENSITY);
         setPosition(pos);
         setBodyType(b2_dynamicBody);
         setFixedRotation(true);
+        setLinearDamping(DAMPING);
         _node = scene2::SpriteNode::alloc();
         
         return true;
@@ -57,17 +58,32 @@ std::map<std::string, std::any> Projectile::getMap() {
 }
 
 void Projectile::update(float timestep) {
-    PolygonObstacle::update(timestep);
-
-    b2Vec2 force(0.0f, UP_FORCE);
-    _body->ApplyForceToCenter(force, true);
-
     if (_justInit) {
         _body->ApplyLinearImpulseToCenter(b2Vec2(INIT_IMPULSE, 1.0f), true);
         _justInit = false;
     }
-    //_node->setAngle(_node->getAngle() + (timestep*5/2*M_PI));
-    _projectileSprite->setAngle(_projectileSprite->getAngle() + (timestep * 5 / 2 * M_PI));
+    
+    if (_exploding) {
+        _explosionCountdown += timestep;
+    }
+    //Run if the projectile isn't being frozen due to it exploding.
+    else {
+        PolygonObstacle::update(timestep);
+        b2Vec2 force(12.5f, UP_FORCE);
+        _body->ApplyForceToCenter(force, true);
+        _projectileSprite->setAngle(_projectileSprite->getAngle() + (timestep * 5 / 2 * M_PI));
+    }
+}
+
+void Projectile::hostUpdate(float timestep) {
+
+    /*if (_justInit) {
+        _body->ApplyLinearImpulseToCenter(b2Vec2(INIT_IMPULSE, 1.0f), true);
+        _justInit = false;
+    }
+    b2Vec2 force(12.5f, UP_FORCE);
+    _body->ApplyForceToCenter(force, true);
+    _projectileSprite->setAngle(_projectileSprite->getAngle() + (timestep * 5 / 2 * M_PI));*/
 }
 
 void Projectile::setPositionInit(const cugl::Vec2& position) {
@@ -94,6 +110,13 @@ void Projectile::setTextureNode(std::shared_ptr<cugl::scene2::SpriteNode> sprite
     _node->addChild(sprite);
 
     _projectileSprite = sprite;
+    
+}
+
+void Projectile::detonate() {
+    _exploding = true;
+    
+    setSensor(true);
     
 }
 

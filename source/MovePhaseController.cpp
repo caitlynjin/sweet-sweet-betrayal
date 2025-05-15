@@ -233,6 +233,12 @@ void MovePhaseController::preUpdate(float dt) {
         if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
             windUpdate(wind_cast, dt);
         }
+        else if (auto proj_cast = std::dynamic_pointer_cast<Projectile>(*it)) {
+            if (proj_cast->isExplode()) {
+                proj_cast->markRemoved(true);
+                proj_cast->dispose();
+            }
+        }
     }
 
     // TODO: Segment into uiUpdate method
@@ -647,6 +653,29 @@ void MovePhaseController::beginContact(b2Contact *contact)
             other->markRemoved(true);
             other->dispose();
             
+        }
+    }
+
+    //Handle collision of the bomb object-
+    if (obj1->getName() == "projectile" || obj2->getName() == "projectile") {
+        Projectile* proj = nullptr;
+        Object* other = nullptr;
+
+        if (obj1->getName() == "bomb") {
+            proj = dynamic_cast<Projectile*>(obj1);
+            other = obj2;
+        }
+        else {
+            proj = dynamic_cast<Projectile*>(obj2);
+            other = obj1;
+        }
+
+
+        if (proj && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure"
+            && other->getName() != "wind" && other->getName() != "fan") {
+
+            proj->detonate();
+
         }
     }
 
