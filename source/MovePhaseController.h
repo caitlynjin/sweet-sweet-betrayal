@@ -111,6 +111,10 @@ public:
      */
     bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
 
+    
+    /** Gets called after level select scene */
+    bool finishInit();
+    
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */
@@ -155,6 +159,10 @@ public:
      * Kills the player for the round.
      */
     void killPlayer();
+    
+    MovePhaseScene getMovePhaseScene(){
+        return _movePhaseScene;
+    }
     
     /**
      *  Called when player reaches the goal
@@ -226,6 +234,14 @@ public:
      * Gets local player
      */
     shared_ptr<PlayerModel> getLocalPlayer() { return _movePhaseScene.getLocalPlayer(); };
+    
+    void setLevelNum(int level){
+        _movePhaseScene.setLevelNum(level);
+    }
+    
+    int getLevelNum(){
+        return _movePhaseScene.getLevelNum();
+    }
 
 #pragma mark -
 #pragma mark State Access

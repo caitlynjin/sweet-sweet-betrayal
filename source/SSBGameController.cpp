@@ -116,6 +116,14 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _network = networkController->getNetwork();
     _sound = sound;
     _sound->playMusic("move_phase", true);
+    
+    // IMPORTANT: SCALING MUST BE UNIFORM
+    // This means that we cannot change the aspect ratio of the physics world
+    // Shift to center if a bad fit
+    _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
+    _scale *= getSystemScale();
+    Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
+    _offset = offset;
 
     // Networked physics world
     _world = physics2::distrib::NetWorld::alloc(rect * 2,gravity);
@@ -135,18 +143,28 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
 
     // Start in building mode
     _buildingMode = true;
+    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, offset, assets, _world);
 
     // Start up the input handler
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
+    
+    _movePhaseController = std::make_shared<MovePhaseController>();
+    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
+    
+    setActive(false);
+    
+    return true;
+    
+    // RETURN AFTER THIS, MAKE PART 2
+    // Call part 2 for movePhaseController
+}
 
-    // IMPORTANT: SCALING MUST BE UNIFORM
-    // This means that we cannot change the aspect ratio of the physics world
-    // Shift to center if a bad fit
-    _scale = _size.width == SCENE_WIDTH ? _size.width / rect.size.width : _size.height / rect.size.height;
-    _scale *= getSystemScale();
-    Vec2 offset = Vec2((_size.width - SCENE_WIDTH) / 2.0f, (_size.height - SCENE_HEIGHT) / 2.0f);
-    _offset = offset;
+bool SSBGameController::finishInit(){
+    
+    _movePhaseController->finishInit();
+
 
     // Initialize background
     _backgroundScene.init();
@@ -155,21 +173,17 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _background->setPosition(Vec2(0,0));
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
-
-    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, offset, assets);
-
-    _movePhaseController = std::make_shared<MovePhaseController>();
     _buildPhaseController = std::make_shared<BuildPhaseController>();
 
     // Initialize movement phase controller
-    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
+//    _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     _camera = _movePhaseController->getCamera();
     _objectController = _movePhaseController->getObjectController();
     
     _objects = _movePhaseController->getObjects();
 
     // Initialize build phase controller
-    _buildPhaseController->init(assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
+    _buildPhaseController->init(_assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
 
     //_sound->playMusic("move_phase");
 
@@ -232,6 +246,16 @@ void SSBGameController::dispose()
     Scene2::dispose();
 }
 
+//void SSBGameController::setActive(bool value){
+//    if (isActive() != value) {
+//        Scene2::setActive(value);
+//        
+//        _active = value;
+//        _buildPhaseController->getBuildPhaseScene().setActive(value);
+//        _buildPhaseController->getBuildPhaseUI().setActive(value);
+//    }
+//}
+
 #pragma mark -
 #pragma mark Level Layout
 
@@ -265,6 +289,7 @@ void SSBGameController::reset()
  */
 void SSBGameController::update(float timestep)
 {
+    _networkController->getObjects();
 }
 
 /**
@@ -381,9 +406,11 @@ void SSBGameController::preUpdate(float dt)
         auto artObj = (dynamic_pointer_cast<ArtObject>((*it)));
         artObj->setPositionInit(Vec2((_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
             artObj->getPositionInit().y));
-        CULog("%d", _initialCameraPos - artObj->getParallaxScrollRate() * (_initialCameraPos - _camera->getPosition()));
     }
-    
+
+    if (_isPaused != _buildPhaseController->getIsPaused()) {
+        _isPaused = _buildPhaseController->getIsPaused();
+    }
 }
 
 /**
