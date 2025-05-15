@@ -213,6 +213,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     PolyFactory factory;
     Poly2 rect = factory.makeRect(Vec2(0.5f,0.5f), size);
     
+    
 
     if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
         setPosition(pos + size/2);

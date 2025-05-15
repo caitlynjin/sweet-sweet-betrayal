@@ -470,7 +470,7 @@ std::shared_ptr<Object> BuildPhaseController::placeItem(Vec2 gridPos, Item item)
             return platform;
         }
         case (WIND):
-            return _networkController->createWindNetworked(gridPos, itemToSize(item), 1.0f, Vec2(0, 4.0), Vec2(0, 3.0));
+            return _networkController->createWindNetworked(gridPos, itemToSize(item), 1.0f, Vec2(0, 4.0), Vec2(0, 3.0), M_PI*0.5f);
         case (SPIKE):
             return _objectController->createSpike(gridPos, itemToSize(item), _buildPhaseScene.getScale() / getSystemScale(), 0, "default");
         case (THORN):
