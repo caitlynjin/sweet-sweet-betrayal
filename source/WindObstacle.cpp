@@ -239,8 +239,11 @@ std::map<std::string, std::any> WindObstacle::getMap() {
         {"width", double(_size.getIWidth())},
         {"height", double(_size.getIHeight())},
         {"scale", double(_drawScale)},
-        {"gustDirX", double(_windForce.x)},
-        {"gustDirY", double(_windForce.y)},
+        {"gustDirX", double(_windDirection.x)},
+        {"gustDirY", double(_windDirection.y)},
+        {"gustForceX", double(_windForce.x)},
+        {"gustForceY", double(_windForce.y)},
+        {"angle", double(_angle)},
          {"type", std::string(_jsonType)}
     };
     return m;
