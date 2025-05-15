@@ -605,7 +605,6 @@ std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, 
  If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
  */
 Vec2 NetworkController::pickRandSpawn(){
-    CULog("REACHED");
     int maxIndex = static_cast<int>(_tSpawnPoints.size()) - 1;
     Vec2 spawnPoint;
     

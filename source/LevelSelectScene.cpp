@@ -240,7 +240,6 @@ void LevelSelectScene::reset(){
 // Update level event to store whether to display the modal
 
 void LevelSelectScene::update(float dt){
-    
     // Host handles level selection
     if (_network->isHost()){
         // If a level has been selected, show the pop-up modal
@@ -316,14 +315,15 @@ void LevelSelectScene::update(float dt){
 void LevelSelectScene::setActive(bool value) {
     if (isActive() != value) {
         Scene2::setActive(value);
+        _levelView = 0;
         if (value) {
             _choice = NONE;
             if (_networkController->getIsHost()){
                 _level1->activate();
                 _level2->activate();
                 _level3->activate();
-                _closeButton->activate();
-                _playButton->activate();
+//                _closeButton->activate();
+//                _playButton->activate();
             }
     
 //            _backbutton->activate();
