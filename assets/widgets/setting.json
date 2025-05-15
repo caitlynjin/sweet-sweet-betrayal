@@ -118,7 +118,7 @@
                                 332
                             ],
                             "visible": true,
-                            "bounds": [56,46,466,0],
+                            "bounds": [40,46,425,0],
                             "value": 75,
                             "knob" : "knob",
                             "path" : "slider"
@@ -207,7 +207,7 @@
                                 203
                             ],
                             "visible": true,
-                            "bounds": [56,46,466,0],
+                            "bounds": [40,46,425,0],
                             "value": 75,
                             "knob" : "knob",
                             "path" : "slider"

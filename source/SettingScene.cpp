@@ -21,7 +21,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
@@ -32,7 +32,7 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
         return false;
     }
 
-    if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+    if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
         return false;
     }
 
@@ -48,9 +48,22 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
+
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("setting.black-background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+
     _musicSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.modal.musicslider"));
     _sfxSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.modal.sfxslider"));
-    _exitButton = std::dynamic_pointer_cast<scene2::Button>(assets->get<scene2::SceneNode>("setting.modal.exit"));
+    _exitButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("setting.modal.exit"));
+
+    _musicSlider->setBounds(Rect(40, _musicSlider->getBounds().getMinY(), _musicSlider->getBounds().getMaxX() - 40, 0));
+    _sfxSlider->setBounds(Rect(40, _sfxSlider->getBounds().getMinY(), _sfxSlider->getBounds().getMaxX() - 40, 0));
 
     _musicSlider->addListener([this](const std::string& name, float value) {
         _sound->setMusicVolume(value / 100, true);
