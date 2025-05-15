@@ -252,6 +252,8 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // Reset score controller
+    _network->getPhysController()->reset();
+    
     _scoreController->reset();
     
     // Reset network in-game variables
@@ -270,6 +272,10 @@ void NetworkController::reset(){
     
     _levelSelected = 0;
     _levelSelectData = make_tuple(0, false, false);
+    
+    _tSpawnPoints.clear();
+    _usedSpawns.clear();
+    
 }
 
 
@@ -599,6 +605,7 @@ std::shared_ptr<PlayerModel> NetworkController::createPlayerNetworked(Vec2 pos, 
  If a spawn point has been used already, it should be chosen again until all other spawn points have been used.
  */
 Vec2 NetworkController::pickRandSpawn(){
+    CULog("REACHED");
     int maxIndex = static_cast<int>(_tSpawnPoints.size()) - 1;
     Vec2 spawnPoint;
     

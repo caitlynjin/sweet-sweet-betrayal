@@ -242,6 +242,39 @@ void SSBGameController::dispose()
     Scene2::dispose();
 }
 
+/**
+ * Disposes of all resource necessary for playing a level again.
+ */
+void SSBGameController::disposeLevel(){
+    reset();
+    
+    if (_gridManager) {
+        _gridManager->getGridNode() = nullptr;
+    }
+    
+//    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    
+    // Set-up for GameController re-init
+    _world->update(FIXED_TIMESTEP_S);
+
+    // Start in building mode
+    _buildingMode = true;
+    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, _offset, _assets, _world);
+
+    // Start up the input handler
+//    _input = std::make_shared<PlatformInput>();
+//    _input->init(getBounds());
+    
+    // Set-up for MovePhaseController re-init
+    _movePhaseController->disposeLevel();
+    _movePhaseController->setGridManger(_gridManager);
+    _movePhaseController->setInput(_input);
+    Scene2::dispose();
+}
+
 //void SSBGameController::setActive(bool value){
 //    if (isActive() != value) {
 //        Scene2::setActive(value);
@@ -274,13 +307,11 @@ void SSBGameController::reset()
     _hasVictory = false;
     
     // Reset all controllers
-    _networkController->reset();
+//    _networkController->reset();
     _buildPhaseController->reset();
+    _gridManager->clear();
+    
     _movePhaseController->reset();
-    
-    _gridManager;
-        
-    
 }
 
 #pragma mark -

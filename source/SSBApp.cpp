@@ -307,9 +307,15 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
-                        _gameController.reset();
-                        _gameController.setActive(true);
-                        _status = GAME;
+                        resetLevel();
+                        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
+                        _colorselect.setActive(true);
+                        _status = COLOR_SELECT;
+                        
+                        
+//                        _gameController.reset();
+//                        _gameController.setActive(true);
+//                        _status = GAME;
                     }
                 }
             //TODO: Check for quit to main menu
@@ -317,7 +323,7 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
-                        resetGame();
+                        resetApplication();
                         _status = START;
                     }
                 }
@@ -584,6 +590,15 @@ void SSBApp::updateLevelSelectScene(float timestep){
         setTransition(true);
         if (_transition.getFadingOutDone()){
             _gameController.setLevelNum(levelChoice);
+            
+            // Check if we are playing another game, or we are starting from very beginning
+//            if (_networkController->getPlayAgain()){
+//                _gameController.reset();
+//            }
+//            else{
+//                _gameController.finishInit();
+//                _gameController.setSpriteBatch(_batch);
+//            }
             _gameController.finishInit();
             _gameController.setSpriteBatch(_batch);
             _levelSelect.setActive(false);
@@ -888,7 +903,7 @@ void SSBApp::populateMaps() {
 /**
  Resets the entire state of the application. Disposes of all scenes and the network and re-initializes them.
  */
-void SSBApp::resetGame(){
+void SSBApp::resetApplication(){
     // Dispose of all necessary scenes
     _startscreen.dispose();
     _mainmenu.dispose();
@@ -905,6 +920,7 @@ void SSBApp::resetGame(){
     _gameController.dispose();
     
     // Clear network variables
+    _networkController->setPlayAgain(false);
     _networkController->resetNetwork();
     _networkController = nullptr;
     _network = nullptr;
@@ -940,4 +956,16 @@ void SSBApp::resetGame(){
     _disconnectedscreen.setSpriteBatch(_batch);
     
     _sound->playMusic("main_menu", true);
+}
+
+/**
+ Resets the entire state of the level controllers. Used when a party is still connected and wants to play another game.
+ */
+void SSBApp::resetLevel(){
+    _networkController->reset();
+    _colorselect.reset();
+    _levelSelect.reset();
+    
+    _networkController->setPlayAgain(true);
+    _gameController.disposeLevel();
 }

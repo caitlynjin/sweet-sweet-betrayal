@@ -73,6 +73,7 @@ bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std
 
     // Initalize UI Scene
     _uiScene.init(assets, _gridManager, _networkController, _sound);
+    CULog("BEFORE RANDOMIZE ITEMS");
     randomizeItems();
     _uiScene.initInventory(inventoryItems, assetNames);
     addInvButtonListeners();

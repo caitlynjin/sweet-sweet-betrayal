@@ -113,9 +113,17 @@ bool MovePhaseController::finishInit(){
 void MovePhaseController::dispose() {
     _complete = false;
     _debug = false;
-
+    _objects.clear();
     _movePhaseScene.dispose();
     _uiScene.dispose();
+}
+
+void MovePhaseController::disposeLevel(){
+    dispose();
+    
+    _world->clear();
+    _networkController->setObjects(&_objects);
+    _networkController->setWorld(_world);
 }
 
 #pragma mark -
@@ -145,8 +153,8 @@ void MovePhaseController::reset() {
     _reachedGoal = false;
     _animateGoal = false;
 
-    _movePhaseScene.reset();
     _uiScene.reset();
+    _movePhaseScene.reset();
 }
 
 /**

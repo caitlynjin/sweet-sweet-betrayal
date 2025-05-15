@@ -449,6 +449,9 @@ protected:
     /** The data the host sends out from level select */
     tuple<int, bool, bool> _levelSelectData;
     
+    /** Whether the party is playing another game */
+    bool _playAgain = false;
+    
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
     Uint32 _platFactId;
@@ -745,6 +748,15 @@ public:
         CULog("Set local color: %d", _color);
     }
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
+    
+    
+    bool getPlayAgain(){
+        return _playAgain;
+    }
+    
+    void setPlayAgain(bool value){
+        _playAgain = value;
+    }
 
 #pragma mark -
 #pragma mark Treasure Handling

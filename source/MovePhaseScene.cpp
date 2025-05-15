@@ -214,8 +214,8 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         // Create Spawn Point for the treasure
-        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
+        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
         _treasure = std::dynamic_pointer_cast<Treasure>(
             _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
