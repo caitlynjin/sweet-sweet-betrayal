@@ -636,6 +636,9 @@
         },
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
+        },
+        "code-not-found": {
+            "file": "textures/text/code-not-found.png"
         }
     },
     "jsons": {

@@ -111,8 +111,10 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
     _button7 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button7"));
     _button8 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button8"));
     _button9 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button9"));
-    
     _deleteButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("client.numpad.numbers.button_del"));
+    
+    _codeNotFound = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("client.left.code-not-found"));
+    _codeNotFound->setVisible(false);
     
     _backout->addListener([this](const std::string& name, bool down) {
         if (!down) {
@@ -127,6 +129,8 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
 
     _startgame->addListener([=,this](const std::string& name, bool down) {
         if (!down) {
+            _isJoining = true;
+            _codeNotFound->setVisible(false);
             _network->connectAsClient(dec2hex(std::string(_gameID.begin(), _gameID.end())));
             _sound->playSound("button_click");
         }
@@ -168,6 +172,7 @@ void ClientScene::reset() {
     _gameID = {' ', ' ', ' ', ' ', ' '};
     _gameIDLength = 0;
     setGameIDLabels(_gameID);
+    _codeNotFound->setVisible(false);
 }
 
 /**
@@ -233,7 +238,7 @@ void ClientScene::setActive(bool value) {
             _gameID = {' ', ' ', ' ', ' ', ' '};
             _gameIDLength = 0;
             setGameIDLabels(_gameID);
-            
+            _codeNotFound->setVisible(false);
         }
 #pragma mark END SOLUTION
     }
@@ -262,6 +267,22 @@ void ClientScene::updateText(const std::shared_ptr<scene2::Button>& button, cons
  * @param timestep  The amount of time (in seconds) since the last frame
  */
 void ClientScene::update(float timestep) {
+    if (_isJoining) {
+        switch (_network->getStatus()) {
+          case NetEventController::Status::CONNECTED:
+            _isJoining = false;
+            _showTransition = true;
+            break;
+          case NetEventController::Status::NETERROR:
+            _isJoining = false;
+            _codeNotFound->setVisible(true);
+            _showTransition = false;
+            break;
+          default:
+            break;
+        }
+      }
+    
     // Do this last for button safety
     configureStartButton();
     setGameIDLabels(_gameID);

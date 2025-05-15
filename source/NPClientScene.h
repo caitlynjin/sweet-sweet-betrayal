@@ -38,6 +38,7 @@ protected:
    
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
+    std::shared_ptr<scene2::PolygonNode> _codeNotFound;
 
     /** The menu button for starting a game */
     std::shared_ptr<cugl::scene2::Button> _startgame;
@@ -99,6 +100,12 @@ protected:
     
     /** Whether the back button had been clicked. */
     bool _backClicked = false;
+    
+    /** Whether we are in the middle of trying to join or not */
+    bool _isJoining;
+    
+    /** Whether the screen transition should be shown or not – if the room code is invalid, don't show the transition */
+    bool _showTransition;
 
     
 public:
@@ -170,6 +177,11 @@ public:
      Resets the scene properties.
      */
     void reset() override;
+    
+    /**
+     * Returns whether the screen transition should be shown or not
+     */
+    bool getShowTransition() { return _showTransition; }
 
 private:
     /**
