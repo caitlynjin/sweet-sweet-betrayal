@@ -136,13 +136,14 @@ void MovePhaseController::resetRound() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::reset() {
-    // TODO: Need to properly reset
     _currRound = 1;
     _mushroomCooldown = 0;
     
     
     setFailure(false);
     setComplete(false);
+    _reachedGoal = false;
+    _animateGoal = false;
 
     _movePhaseScene.reset();
     _uiScene.reset();

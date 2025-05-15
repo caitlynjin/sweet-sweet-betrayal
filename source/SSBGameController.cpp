@@ -266,12 +266,22 @@ void SSBGameController::reset()
     // Clear the world
     _world->clear();
     
+    // Reset all variables
+    _buildingMode = true;
+    _scoreCountdown = -1;
+    _beforeScoreBoard = 15;
+    _nextInRoundDelay = 30;
+    _nextInRoundIndex = 0;
+    _hasVictory = false;
+    
     // Reset all controllers
     _networkController->reset();
     _buildPhaseController->reset();
     _movePhaseController->reset();
+    
+    _gridManager;
         
-    _hasVictory = false;
+    
 }
 
 #pragma mark -

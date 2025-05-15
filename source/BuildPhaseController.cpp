@@ -97,7 +97,7 @@ void BuildPhaseController::dispose() {
 void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
     randomizeItems();
-    addInvButtonListeners();
+//    addInvButtonListeners();
     _uiScene.reset();
     
     // Reset controller variables
@@ -106,6 +106,7 @@ void BuildPhaseController::reset() {
     _selectedObject = nullptr;
     _prevPos = Vec2(0, 0);
     _readyMessageSent = false;
+    _accelerationStarted = false;
 }
 
 /**

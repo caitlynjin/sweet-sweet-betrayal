@@ -66,8 +66,7 @@ protected:
     int const TOTAL_GEMS = 3;
     /** The current round the player is on */
     int _currRound = 1;
-    /** How many gems the player collected and won */
-    int _currGems = 0;
+
     /** Countdown active for winning or losing */
     int _countdown;
     /** Level width */

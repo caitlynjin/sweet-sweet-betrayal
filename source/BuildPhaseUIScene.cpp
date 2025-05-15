@@ -241,9 +241,23 @@ void BuildPhaseUIScene::reset() {
     activateInventory(true);
     
     // Reset UI variables
+    _previousElapsedTime = BUILD_TIME;
+    
     _isReady = false;
     _rightpressed = false;
     _leftpressed = false;
+    
+    _playersCounted = false;
+    _redReady = false;
+    _blueReady = false;
+    _greenReady = false;
+    _yellowReady = false;
+    
+    _iconList.clear();
+    _checkmarkList.clear();
+    _checkmarkMap.clear();
+
+    
 }
 
 /**
