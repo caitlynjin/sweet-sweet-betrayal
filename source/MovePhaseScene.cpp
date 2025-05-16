@@ -194,7 +194,7 @@ void MovePhaseScene::populate() {
         pos += Vec2(3, 0);
     }
     if (_networkController->getLocalID() == 4) {
-        pos += Vec2(3, 3);
+        pos += Vec2(3, 3.5);
     }
         
     ColorType playerColor = _networkController->getLocalColor();
