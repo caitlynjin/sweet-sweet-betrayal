@@ -409,6 +409,9 @@
         "score-treasure": {
             "file": "textures/score-treasure.png"
         },
+        "score-gemdot": {
+            "file": "textures/gem-dot.png"
+        },
         "scoreboard-background": {
             "file": "textures/scoreboard-background.png"
         },
