@@ -67,6 +67,13 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _greenIcon;
     /** Reference to the yellow icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _yellowIcon;
+    
+    /** Reference to the checkmarks */
+    std::shared_ptr<cugl::scene2::PolygonNode> _redCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _blueCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _greenCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _yellowCheck;
+    
     /** Reference to the top frame */
     std::shared_ptr<cugl::scene2::PolygonNode> _topFrame;
     /** Reference to the left frame */

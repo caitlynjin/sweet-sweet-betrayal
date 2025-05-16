@@ -10,7 +10,7 @@ constexpr int RAYS = 3;
 #define OFFSET 0.1f
 #define FAN_ANIM_CYCLE 0.8f
 #define GUST_ANIM_CYCLE 3.0f
-#define PRIORITY -900
+#define PRIORITY 0
 
 class WindObstacle : public Object {
 
@@ -23,6 +23,16 @@ private:
 
 	/**How many of the rays we have hit the player with.*/
 	int _playerHits;
+	//How far the player is along the ray
+	float _currentPlayerDist;
+	//The closest detected raycast collision
+	float _minRayDist;
+	float _prevRayDist;
+	float _angle;
+
+	Vec2 _anchorOffset = Vec2();
+	Vec2 _fanOffset = Vec2();
+	Vec2 _animationOffest = Vec2(0.0f, 0.0f);
 
 	/**The points where we are raycasting from. */
 
@@ -65,20 +75,20 @@ public:
 	* It is important to call this method to properly set up the WindObstacle and link it to a physics object.
 	*/
 	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
-		const Vec2 windStrength) {
+		const Vec2 windStrength, const float angle) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size,scale, windDirection, windStrength) ? result : nullptr);
+		return (result->init(position, size,scale, windDirection, windStrength, angle) ? result : nullptr);
 	}
 
 	static std::shared_ptr<WindObstacle> alloc(const Vec2 position, const Size size, float scale, const Vec2 windDirection,
-		const Vec2 windStrength, string jsonType) {
+		const Vec2 windStrength,const float angle, string jsonType) {
 		std::shared_ptr<WindObstacle> result = std::make_shared<WindObstacle>();
-		return (result->init(position, size, scale, windDirection, windStrength, jsonType) ? result : nullptr);
+		return (result->init(position, size, scale, windDirection, windStrength, angle,jsonType) ? result : nullptr);
 	}
 	/*Intialize according to position and size. Need to change later*/
-	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, const float angle);
 
-	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, string jsonType);
+	bool init(const Vec2 pos, const Size size, float scale, const Vec2 gustDir, const Vec2 windStrength, const float angle,string jsonType);
 
 	string ReportFixture(b2Fixture* contact, const Vec2& point, const Vec2& normal, float fraction);
 
@@ -87,8 +97,14 @@ public:
 	std::shared_ptr<cugl::scene2::SpriteNode> _gustNode;
 	cugl::ActionFunction _windAction;
 
+	//Regenerate and set ray origins
+	void setRayOrigins();
+
 	/*How hard and what direction the wind is blowing the player in*/
 	const Vec2 getWindForce() { return _windForce; };
+
+	//Get the distnace of the last ray cast to the player
+	const float getPlayerToWindDist() { return _currentPlayerDist; }
 
 	/**Returns the list of wind origins*/
 
@@ -112,7 +128,6 @@ public:
 	/*Animation methods*/
 	void setFanAnimation(std::shared_ptr<scene2::SpriteNode> sprite, int nFrames);
 	void updateAnimation(float timestep);
-	void doStrip(cugl::ActionFunction action, float duration);
 
 	//Animation variables
 	std::shared_ptr<cugl::ActionTimeline> _fanTimeline;

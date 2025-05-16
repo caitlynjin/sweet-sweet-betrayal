@@ -59,7 +59,7 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
 
@@ -74,18 +74,33 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("pause");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
+
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.black-background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+
     _choice = Choice::NONE;
-    _modal = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.modal"));
-    _musicLabel = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.music"));
-    _musicSlider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.musicslider.slider"));
-    _musicKnob = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.musicslider.knob"));
-    _sfxLabel = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfx"));
-    _sfxSlider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfxslider.slider"));
-    _sfxKnob = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("pause.sfxslider.knob"));
-    _disconnectButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.disconnect"));
-    _resumeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.resume"));
+    _musicSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("pause.modal.musicslider"));
+    _sfxSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("pause.modal.sfxslider"));
+    _disconnectButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.modal.disconnect"));
+    _resumeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.modal.resume"));
 
     // Program the buttons
+    _musicSlider->setBounds(Rect(35, _musicSlider->getBounds().getMinY(), _musicSlider->getBounds().getMaxX() - 35, 0));
+    _sfxSlider->setBounds(Rect(35, _sfxSlider->getBounds().getMinY(), _sfxSlider->getBounds().getMaxX() - 35, 0));
+
+    _musicSlider->addListener([this](const std::string& name, float value) {
+        _sound->setMusicVolume(value / 100, true);
+    });
+    _sfxSlider->addListener([this](const std::string& name, float value){
+        _sound->setSFXVolume(value / 100, true);
+    });
+
     _disconnectButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::DISCONNECT;
@@ -113,15 +128,6 @@ void PauseScene::dispose() {
     if (_active) {
         removeAllChildren();
         _background = nullptr;
-        _modal = nullptr;
-        _musicLabel = nullptr;
-        _musicSlider = nullptr;
-        _musicKnob = nullptr;
-        _sfxLabel = nullptr;
-        _sfxSlider = nullptr;
-        _sfxKnob = nullptr;
-        _disconnectButton = nullptr;
-        _resumeButton = nullptr;
         _active = false;
         Scene2::dispose();
     }
@@ -148,9 +154,13 @@ void PauseScene::setActive(bool value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
+            _musicSlider->activate();
+            _sfxSlider->activate();
             _disconnectButton->activate();
             _resumeButton->activate();
         } else {
+            _musicSlider->deactivate();
+            _sfxSlider->deactivate();
             _disconnectButton->deactivate();
             _resumeButton->deactivate();
             // If any were pressed, reset them

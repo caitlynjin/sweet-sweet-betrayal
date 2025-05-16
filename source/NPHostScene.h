@@ -46,6 +46,8 @@ protected:
     std::shared_ptr<cugl::scene2::Label> _gameid;
     /** The players label (for updating) */
     std::shared_ptr<cugl::scene2::Label> _player;
+    /** Reference to the background */
+    std::shared_ptr<scene2::PolygonNode> _background;
     
     std::vector<std::shared_ptr<cugl::scene2::SceneNode>> _tips;
     int _currentTipIndex = 0;
