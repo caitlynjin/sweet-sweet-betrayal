@@ -959,9 +959,6 @@ void SSBApp::draw()
         _transition.render();
     }
 }
-std::map<std::string, std::string> Constants::jsonTypeToAsset = {};
-std::map<std::string, Item> Constants::jsonTypeToItemType = {};
-std::map<Item, std::string> Constants::itemToAssetNameMap = {};
 
 void SSBApp::populateMaps() {
     ArtAssetMapHelper::populateConstantsMaps();

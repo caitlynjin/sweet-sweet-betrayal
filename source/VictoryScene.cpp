@@ -32,7 +32,7 @@ using namespace std;
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
 
-bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound, const std::shared_ptr<NetworkController> networkController) {
+bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound, const std::shared_ptr<NetworkController> networkController) {
     if (assets == nullptr) {
        return false;
    }

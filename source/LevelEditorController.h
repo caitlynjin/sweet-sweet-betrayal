@@ -86,10 +86,10 @@ public:
     LevelEditorController();
 
 
-    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing);
+    bool init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound, bool levelEditing);
     
     bool init(const std::shared_ptr<AssetManager>& assets,
-        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing);
+        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound, bool levelEditing);
     /**
      * Initializes the build-related controller contents.
      *

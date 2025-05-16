@@ -30,7 +30,8 @@ using namespace std;
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
 
-bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
+bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound
+) {
     if (assets == nullptr) {
        return false;
    }

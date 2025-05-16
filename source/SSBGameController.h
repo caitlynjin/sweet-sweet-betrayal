@@ -133,7 +133,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -172,7 +172,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
     
     /** To be called after level select */
     bool finishInit();

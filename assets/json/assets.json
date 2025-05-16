@@ -619,8 +619,23 @@
         "parallax-3": {
             "file": "textures/parallax/3.png"
         },
-        "modal": {
-            "file": "textures/modal.png"
+        "parallax-ww-1": {
+            "file": "textures/parallax/ww-1.png"
+        },
+        "parallax-ww-2": {
+            "file": "textures/parallax/ww-2.png"
+        },
+        "parallax-ww-3": {
+            "file": "textures/parallax/ww-3.png"
+        },
+        "parallax-ww-4": {
+            "file": "textures/parallax/ww-4.png"
+        },
+        "parallax-ww-5": {
+            "file": "textures/parallax/ww-5.png"
+        },
+        "parallax-ww-6": {
+            "file": "textures/parallax/ww-6.png"
         },
         "resume": {
             "file": "textures/buttons/resume.png"

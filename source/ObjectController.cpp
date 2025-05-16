@@ -385,11 +385,14 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
         // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
         art->setAnimationDuration(1.0f);
     }
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::SpriteNode::allocWithTexture(image);
+    art->setPosition(art->getPosition() - art->getSize() / 2);
     art->setSceneNode(sprite);
     art->setAnimated(isAnimated);
     art->setBodyType(b2_staticBody);
     art->setDensity(BASIC_DENSITY);
+    sprite->setAnchor(0.1, 0.55);
+    sprite->setPosition(sprite->getPosition() + art->getPosition());
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);
     art->setDebugColor(DEBUG_COLOR);
@@ -397,8 +400,14 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
     _gameObjects->push_back(art);
 
     return art;
@@ -445,8 +454,17 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
+    if (isAnimated) {
+        art->setAnimation(sprite);
+    }
     _gameObjects->push_back(art);
 
     return art;
