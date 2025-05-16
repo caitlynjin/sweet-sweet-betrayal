@@ -331,7 +331,8 @@ void SSBApp::preUpdate(float dt)
                 }
             break;
         case PAUSED:
-            _pause.update(dt);
+            updatePauseScene(dt);
+            break;
         case DISCONNECTED:
             updateDisconnectedScene(dt);
             break;
@@ -800,6 +801,39 @@ void SSBApp::updateWaitingHostScene(float timestep){
     }
 }
 
+void SSBApp::updatePauseScene(float timestep){
+    _pause.update(timestep);
+    switch (_pause.getChoice())
+    {
+        case PauseScene::Choice::DISCONNECT:
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _expectedPlayers = 0;
+                _pause.reset();
+                _pause.setActive(false);
+
+                _startscreen.reset();
+                _startscreen.setActive(true);
+                _status = START;
+
+                _gameController.setIsPaused(false);
+            }
+            break;
+        case PauseScene::Choice::RESUME:
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _pause.reset();
+                _pause.setActive(false);
+                _status = GAME;
+
+                _gameController.setIsPaused(false);
+            }
+            break;
+        case PauseScene::Choice::NONE:
+            break;
+    }
+}
+
 void SSBApp::updateDisconnectedScene(float timestep){
     _disconnectedscreen.update(timestep);
     switch (_disconnectedscreen.getChoice())
@@ -884,6 +918,7 @@ void SSBApp::draw()
         break;
     case GAME:
         _gameController.render();
+        break;
     case LEVEL_EDITOR:
         _levelEditorController.render();
         break;

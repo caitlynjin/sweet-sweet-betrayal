@@ -295,7 +295,9 @@ public:
     void updateColorSelectScene(float timestep);
     
     void updateWaitingHostScene(float timestep);
-    
+
+    void updatePauseScene(float timestep);
+
     void updateDisconnectedScene(float timestep);
     
     void updateLevelSelectScene(float timestep);
