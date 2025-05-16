@@ -88,10 +88,6 @@ bool MovePhaseController::finishInit(){
     _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
-
-    // Initalize UI Scene
-//    _uiScene.setTotalRounds(TOTAL_ROUNDS);
-
     _uiScene.init(_assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
@@ -154,7 +150,6 @@ void MovePhaseController::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void MovePhaseController::preUpdate(float dt) {
-
     // Process the toggled key commands
     // TODO: segment into updateInput method
     if (_input->didDebug())
@@ -201,6 +196,7 @@ void MovePhaseController::preUpdate(float dt) {
     //Check if we have held down the right side of the screen. If we have
     if (_input->getRightTapped()) {
         _input->setRightTapped(false);
+        CULog("RIGHT TAPPED");
         _movePhaseScene.getLocalPlayer()->setJumpHold(true);
 
         /*if (!_movePhaseScene.getLocalPlayer()->isGrounded())
@@ -225,9 +221,6 @@ void MovePhaseController::preUpdate(float dt) {
         //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
     }
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-
-    //CALLED HERE
-    //_movePhaseScene.getLocalPlayer()->applyForce();
 
 
     //if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
@@ -486,49 +479,6 @@ void MovePhaseController::setFailure(bool value) {
 *
 */
 void MovePhaseController::nextRound(bool reachedGoal) {
-    // Check if player won before going to next round
-//    if (reachedGoal){
-//        if(_movePhaseScene.getLocalPlayer()->hasTreasure){
-//            _movePhaseScene.getLocalPlayer()->removeTreasure();
-//            // Increment total treasure collected
-//            _currGems += 1;
-//            // Update score image
-//            _uiScene.setScoreImageFull(_currGems - 1);
-//
-//            // Check if player won
-//            if (_currGems == TOTAL_GEMS){
-//                setComplete(true);
-//                return;
-//            }
-//            else{
-//                // Set up next treasure if collected in prev round
-//                _movePhaseScene.setNextTreasure(_currGems);
-//            }
-//
-//        }
-//    }
-//
-//    // Check if player lost
-//    if (_currRound == TOTAL_ROUNDS && _currGems != TOTAL_GEMS){
-//        setFailure(true);
-//        return;
-//    }
-//
-//    // Increment round
-//    _currRound += 1;
-//    // Update text
-//    _uiScene.updateRound(_currRound, TOTAL_ROUNDS);
-//
-//    setFailure(false);
-//
-//    // Reset player properties
-//    _movePhaseScene.resetPlayerProperties();
-//    _died = false;
-//    _reachedGoal = false;
-//
-//    // Reset growing wall
-////    _growingWallWidth = 0.1f;
-////    _growingWallNode->setVisible(false);
 
 }
 

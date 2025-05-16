@@ -113,6 +113,8 @@ private:
     std::shared_ptr<Treasure> _treasure;
 protected:
     /*Stores our current state*/
+    bool _isLocal;
+
     enum class State {
         GLIDING, GROUNDED, MIDDAIR
     };
@@ -162,6 +164,8 @@ protected:
     /** Whether the player hasn't died (hasn't initiated the death animation) */
     bool _canDie = true;
 
+    
+
     /** Whether is immobile */
     bool _immobile = true;
 
@@ -180,6 +184,8 @@ protected:
     float _glideBoostTimer;
     float _glideBoostDelay = 0.9f;
     float _glideBoostImpulse = 0.5f;
+
+
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
     Vec2 _windvel;
@@ -515,6 +521,8 @@ public:
         _isDead = value;
     }
     
+    void setLocal() { _isLocal = true; }
+
     /**
      * Returns whether the player is dead
      */
@@ -717,6 +725,9 @@ public:
      * @param delta Number of seconds since last animation frame
      */
     void update(float dt) override;
+
+    //Local update-ran by local player
+    void localUpdate(float dt);
     
     /**
      * Applies the force to the body of this dude

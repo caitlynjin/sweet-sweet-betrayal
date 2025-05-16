@@ -120,6 +120,8 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
     _height = (nsize.height * PLAYER_VSHRINK) * 0.5;
     _drawScale = scale;
 
+    _isLocal = false;
+
     MovingPlat = nullptr;
 
     if (CapsuleObstacle::init(pos, nsize*0.5, cugl::poly2::Capsule::FULL))
@@ -681,40 +683,42 @@ void PlayerModel::update(float dt)
     }
     
     if (!_isDead && !_immobile){
-        handlePlayerState();        
-        //Updates timers appropriately based on state
-        switch (_state) {
-        case State::GROUNDED:
-            _glideBoostTimer = 0.0f;
-            _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
-            break;
-        case State::GLIDING:
-            _bufferTimer += dt;
-            _jumpCooldown = JUMP_COOLDOWN;
-            break;
-        case State::MIDDAIR:
-            _jumpCooldown = JUMP_COOLDOWN;
-            _bufferTimer += dt;
-            _coyoteTimer += dt;
-            _glideBoostTimer += dt;
-            if (_holdingJump and _isDampEnabled) {
-                b2Vec2 vel = _body->GetLinearVelocity();
-                if (vel.y <= 0) {
-                    _enterAutoGlide = true;
-                    CULog("autogliding");
+        if (_isLocal) {
+            handlePlayerState();
+            //Updates timers appropriately based on state
+            switch (_state) {
+            case State::GROUNDED:
+                _glideBoostTimer = 0.0f;
+                _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
+                break;
+            case State::GLIDING:
+                _bufferTimer += dt;
+                _jumpCooldown = JUMP_COOLDOWN;
+                break;
+            case State::MIDDAIR:
+                _jumpCooldown = JUMP_COOLDOWN;
+                _bufferTimer += dt;
+                _coyoteTimer += dt;
+                _glideBoostTimer += dt;
+                if (_holdingJump and _isDampEnabled) {
+                    b2Vec2 vel = _body->GetLinearVelocity();
+                    if (vel.y <= 0) {
+                        _enterAutoGlide = true;
+                        CULog("autogliding");
+                    }
                 }
+
+                break;
+            default:
+                CULog("Unknown player state");
+                break;
             }
+            _jumpTimer -= dt;
 
-            break;
-        default:
-            CULog("Unknown player state");
-            break;
+            windUpdate(dt);
+            glideUpdate(dt);
+            applyForce();
         }
-        _jumpTimer -= dt;
-
-        windUpdate(dt);
-        glideUpdate(dt);
-        applyForce();
         CapsuleObstacle::update(dt);
         
         if (_node != nullptr)
