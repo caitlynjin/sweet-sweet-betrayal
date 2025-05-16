@@ -18,7 +18,7 @@ using namespace cugl::scene2;
 using namespace cugl::graphics;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 #define DURATION 1.0f
 #define ACT_KEY  "current"
@@ -37,7 +37,7 @@ bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
     Size dimen = getSize();
@@ -50,6 +50,23 @@ bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
+    
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("waiting-host.background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+    _blackBackground = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("waiting-host.black-background"));
+    if (_blackBackground) {
+        _blackBackground->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _blackBackground->getContentSize();
+        float scale = dimen.height / tex.height;
+        _blackBackground->setScale(scale, scale);
+        _blackBackground->setPosition(dimen.width/2, dimen.height/2);
+    }
     
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("waiting-host.back"));
     _backbutton->addListener([this](const std::string& name, bool down) {
