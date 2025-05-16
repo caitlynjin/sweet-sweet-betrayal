@@ -299,6 +299,7 @@
 
 #define CATEGORY_DEFAULT    0x0001  // Every object has this automatically as default
 #define CATEGORY_PLAYER     0x0002
+#define CATEGORY_ARTOBJECT  0x0004
 
 
 
@@ -419,44 +420,23 @@ namespace Constants {
      */
     std::string itemToAssetName(Item item);
 
-    static std::vector<std::string> xOffsetArtObjects{
-        "crackLarge1"
-    };
+    extern std::vector<std::string> xOffsetArtObjects;
 
-        static std::vector<std::string> yOffsetArtObjects{
-            "crack1",
-            "crack2",
-            "crack3",
-            "crack4",
-            "crack5",
-            "crackLarge1",
-            "moss1",
-            "moss2"
-    };
+    extern std::vector<std::string> yOffsetArtObjects;
 
-static std::map<std::string, int> jsonTypeToLayer {
-    {"default", 1},
-    {"crack1", 1},
-    {"crack2", 1},
-    {"crack3", 1},
-    {"crack4", 1},
-    {"crack5", 1},
-    {"crackLarge1", 1},
-    {"moss1", 1},
-    {"moss2", 1},
-    {"rocky1", 1},
-    {"rocky2",1}
-};
+extern std::map<std::string, int> jsonTypeToLayer;
+
+/** A list of art objects that should be split into multiple sub-objects for bomb purposes. */
+extern std::map<std::string, std::vector<std::string>> splitArtObjects;
 
 /** 
+* To update this, see ArtAssetMapHelper.cpp.
 * Maps each animated ArtObject (represented by its jsonType string) 
 * to the rows and cols of its animation spritesheet.
 * Important for getting the dimensions of art object animations
 * as well as for whether or not a particular art object shoudl be animated in the first place.
 */
-static std::map<std::string, std::pair<int, int>> animatedArtObjects{
-    {"torchRight", std::make_pair<int, int>(1, 8)}
-};
+extern std::map<std::string, std::pair<int, int>> animatedArtObjects;
 
 /** These are updated externally to make it easier to add new assets.
 * Check out ArtAssetMapHelper to populate these.
@@ -467,8 +447,10 @@ static std::map<std::string, std::pair<int, int>> animatedArtObjects{
 */
 extern std::map<std::string, std::string> jsonTypeToAsset;
 
+/** To update this, see ArtAssetMapHelper.cpp. */
 extern std::map<std::string, Item> jsonTypeToItemType;
 
+/** To update this, see ArtAssetMapHelper.cpp. */
 extern std::map<Item, std::string> itemToAssetNameMap;
 
 /**

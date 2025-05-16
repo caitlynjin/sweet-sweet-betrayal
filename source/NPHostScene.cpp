@@ -73,7 +73,7 @@ static std::string hex2dec(const std::string hex) {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
+bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound) {
     // Initialize the scene to a locked height
     if (assets == nullptr) {
            return false;
