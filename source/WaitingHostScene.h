@@ -46,6 +46,7 @@ protected:
     
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
+    std::shared_ptr<scene2::PolygonNode> _blackBackground;
     /** The menu button for cancelling */
     std::shared_ptr<cugl::scene2::Button> _backbutton;
     /** The animation variables for the waiting animation */

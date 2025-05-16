@@ -367,9 +367,6 @@
         "num": {
             "file": "textures/buttons/num.png"
         },
-        "num-enter": {
-            "file": "textures/buttons/num-enter.png"
-        },
         "button_clearall": {
             "file": "textures/buttons/button_clearall.png"
         },
@@ -472,41 +469,41 @@
         "timer": {
             "file": "textures/timer.png"
         },
-        "select-green": {
-            "file": "textures/buttons/select-green.png"
+        "green-selected": {
+            "file": "textures/buttons/green-selected.png"
         },
-        "select-yellow": {
-            "file": "textures/buttons/select-yellow.png"
+        "yellow-selected": {
+            "file": "textures/buttons/yellow-selected.png"
         },
-        "select-blue": {
-            "file": "textures/buttons/select-blue.png"
+        "blue-selected": {
+            "file": "textures/buttons/blue-selected.png"
         },
-        "select-red": {
-            "file": "textures/buttons/select-red.png"
+        "red-selected": {
+            "file": "textures/buttons/red-selected.png"
         },
-        "color-green": {
-            "file": "textures/buttons/color-green.png"
+        "green-button": {
+            "file": "textures/buttons/green-button.png"
         },
-        "color-yellow": {
-            "file": "textures/buttons/color-yellow.png"
+        "yellow-button": {
+            "file": "textures/buttons/yellow-button.png"
         },
-        "color-blue": {
-            "file": "textures/buttons/color-blue.png"
+        "blue-button": {
+            "file": "textures/buttons/blue-button.png"
         },
-        "color-red": {
-            "file": "textures/buttons/color-red.png"
+        "red-button": {
+            "file": "textures/buttons/red-button.png"
         },
-        "taken-green": {
-            "file": "textures/buttons/taken-green.png"
+        "green-taken": {
+            "file": "textures/buttons/green-taken.png"
         },
-        "taken-yellow": {
-            "file": "textures/buttons/taken-yellow.png"
+        "yellow-taken": {
+            "file": "textures/buttons/yellow-taken.png"
         },
-        "taken-blue": {
-            "file": "textures/buttons/taken-blue.png"
+        "blue-taken": {
+            "file": "textures/buttons/blue-taken.png"
         },
-        "taken-red": {
-            "file": "textures/buttons/taken-red.png"
+        "red-taken": {
+            "file": "textures/buttons/red-taken.png"
         },
         "colorselect-title": {
             "file": "textures/text/colorselect-title.png"
@@ -645,6 +642,12 @@
         },
         "credits": {
             "file": "textures/setting/credits.png"
+        },
+        "code-not-found": {
+            "file": "textures/text/code-not-found.png"
+        },
+        "overlay": {
+            "file": "textures/overlay.png"
         }
     },
     "jsons": {
@@ -671,7 +674,6 @@
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
             "volume": 0.2
-
         },
         "main_menu": {
             "type": "sample",
@@ -752,7 +754,7 @@
         "discardItem": {
             "type": "sample",
             "file": "sounds/discardItem.wav",
-            "volume":  0.5
+            "volume": 0.5
         }
     },
     "fonts": {
@@ -794,25 +796,26 @@
         }
     },
     "widgets": {
-        "colorbutton" : "widgets/colorbutton.json",
-        "textbutton" : "widgets/textbutton.json",
-        "textfield" : "widgets/textfield.json",
-        "labelbox" : "widgets/labelbox.json",
-        "menu" : "widgets/menu.json",
-        "textbutton2" : "widgets/textbutton2.json",
-        "start" : "widgets/start.json",
-        "startbutton" : "widgets/textbutton.json",
-        "end" : "widgets/end.json",
-        "join" : "widgets/join.json",
+        "colorbutton": "widgets/colorbutton.json",
+        "textbutton": "widgets/textbutton.json",
+        "textfield": "widgets/textfield.json",
+        "labelbox": "widgets/labelbox.json",
+        "menu": "widgets/menu.json",
+        "textbutton2": "widgets/textbutton2.json",
+        "start": "widgets/start.json",
+        "startbutton": "widgets/textbutton.json",
+        "end": "widgets/end.json",
+        "join": "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
-        "host" : "widgets/host.json",
-        "colorselect" : "widgets/colorselect.json",
+        "host": "widgets/host.json",
+        "colorselect": "widgets/colorselect.json",
         "waiting-host": "widgets/waiting-host.json",
         "disconnected": "widgets/disconnected.json",
         "pause": "widgets/pause.json",
-        "level" : "widgets/level.json",
-        "levelmodal" : "widgets/levelmodal.json",
-        "setting" : "widgets/setting.json"
+        "level": "widgets/level.json",
+        "levelmodal": "widgets/levelmodal.json",
+        "setting": "widgets/setting.json",
+        "buildmode": "widgets/buildmode.json"
     },
     "scene2s": {
         "start": {
@@ -833,14 +836,14 @@
                 "key": "menu"
             }
         },
-        "end" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the end/congradulation screen",
-            "format"    : {
-                "type" : "Anchored"
+        "end": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the end/congradulation screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "end"
+            "data": {
+                "key": "end"
             }
         },
         "host": {
@@ -879,24 +882,24 @@
                 "key": "colorselect"
             }
         },
-        "level-select" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen",
-            "format"    : {
-                "type" : "Anchored"
+        "level-select": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "level"
+            "data": {
+                "key": "level"
             }
         },
-        "levelmodal" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen's modal",
-            "format"    : {
-                "type" : "Anchored"
+        "levelmodal": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen's modal",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "levelmodal"
+            "data": {
+                "key": "levelmodal"
             }
         },
         "disconnected": {
@@ -917,14 +920,23 @@
                 "key": "pause"
             }
         },
-        "setting" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the setting screen",
-            "format"    : {
-                "type" : "Anchored"
+        "setting": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the setting screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "setting"
+            "data": {
+                "key": "setting"
+            }
+        },
+        "buildmode": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "buildmode"
             }
         },
         "game": {

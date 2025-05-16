@@ -672,12 +672,8 @@ void SSBApp::updateClientScene(float timestep)
     else if (_network->getStatus() == NetEventController::Status::NETERROR)
     {
         _network->disconnect();
-        setTransition(true);
-        if (_transition.getFadingOutDone()){
-            _joingame.setActive(false);
-            _mainmenu.setActive(true);
-            _gameController.dispose();
-            _status = MENU;
+        if(_joingame.getShowTransition()){
+            setTransition(true);
         }
     }
 #pragma mark END SOLUTION

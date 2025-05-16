@@ -24,7 +24,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 /** The key for the background texture in the asset manager */
@@ -38,11 +38,9 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(SCENE_WIDTH, 0)) {
        return false;
    }
-
-    Size dimen = getSize();
         
     // Start up the input handler
     _assets = assets;
@@ -50,12 +48,21 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _sound = sound;
     
     // Acquire the scene built by the asset loader and resize it the scene
+    Size dimen = getSize();
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("start");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("start.background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
     _choice = Choice::NONE;
-    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.start"));
-    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.settings"));
+    _startbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.center.start"));
+    _leveleditorbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("start.center.settings"));
     _leftglider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("start.leftgliders"));
     _rightglider = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("start.rightgliders"));
     _leftBasePos = _leftglider->getPosition();
