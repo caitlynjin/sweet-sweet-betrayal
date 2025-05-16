@@ -660,6 +660,30 @@
         },
         "credits-logos": {
             "file": "textures/credits/credits-logos.png"
+        },
+        "help-background": {
+            "file": "textures/help/help-background.png"
+        },
+        "left-scroll-arrow": {
+            "file": "textures/help/left-scroll-arrow.png"
+        },
+        "right-scroll-arrow": {
+            "file": "textures/help/right-scroll-arrow.png"
+        },
+        "obstacles-placeholder": {
+            "file": "textures/help/obstacles-placeholder.png"
+        },
+        "building-placeholder": {
+            "file": "textures/help/building-placeholder.png"
+        },
+        "racing-placeholder": {
+            "file": "textures/help/racing-placeholder.png"
+        },
+        "scoring-placeholder": {
+            "file": "textures/help/scoring-placeholder.png"
+        },
+        "stealing-placeholder": {
+            "file": "textures/help/stealing-placeholder.png"
         }
     },
     "jsons": {
@@ -828,7 +852,8 @@
         "levelmodal": "widgets/levelmodal.json",
         "buildmode": "widgets/buildmode.json",
         "credits": "widgets/credits.json",
-        "setting": "widgets/setting.json"
+        "setting": "widgets/setting.json",
+        "help": "widgets/help.json"
     },
     "scene2s": {
         "start": {
@@ -960,6 +985,16 @@
             },
             "data": {
                 "key": "credits"
+            }
+        },
+        "help": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the help screen",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "help"
             }
         },
         "game": {
