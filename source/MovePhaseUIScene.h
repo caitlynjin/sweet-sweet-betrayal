@@ -55,6 +55,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _jumpbutton;
     /** Reference to the glide button */
     std::shared_ptr<cugl::scene2::Button> _glidebutton;
+    /** Reference to the give up button*/
+    std::shared_ptr<cugl::scene2::Button> _giveupbutton;
     /** Reference to the progress bar */
     std::shared_ptr<cugl::scene2::PolygonNode> _progressBar;
     /** Reference to the red icon */
@@ -96,7 +98,11 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     
     bool scoreBoardInitialized = false;
+    
+    bool _giveUp = false;
 
+     /** Countdown for give up button */
+    int _giveUpCountDown = 500;
     
     
 
@@ -187,6 +193,22 @@ public:
      * Sets whether the player is jumping
      */
     void setDidJump(bool value) { _didjump = value; };
+    
+    /**
+     * Get whether the player is giving up
+     */
+    bool getDidGiveUp() { return _giveUp; };
+
+    /**
+     * Sets whether the player is giving up
+     */
+    void setDidGiveUp(bool value) { _giveUp = value; };
+    
+    /**set visible or not visible give up button**/
+    void setGiveUpButtonActive(bool value) {
+        _giveupbutton->activate();
+        _giveupbutton->setVisible(value);
+    }
 
 
 #pragma mark -
@@ -301,6 +323,11 @@ public:
      * @param total     The total number of rounds
      */
     void updateRound(int cur, int total);
+
+    /** Setters and Getters for Give Up Countdown */
+    int getGiveUpCountdown() {return _giveUpCountDown;}
+
+    void setGiveUpCountdown(int val) {_giveUpCountDown = val;}
 
 };
 

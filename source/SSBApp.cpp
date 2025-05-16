@@ -886,6 +886,7 @@ void SSBApp::resetScenes(){
     _colorselect.reset();
     _levelSelect.reset();
     _waitinghost.reset();
+    _pause.reset();
     _disconnectedscreen.reset();
     _expectedPlayers = 0;
 }
@@ -943,6 +944,9 @@ void SSBApp::draw()
         break;
     case VICTORY:
         _victory.render();
+        break;
+    case PAUSED:
+        _pause.render();
         break;
     case DISCONNECTED:
         _disconnectedscreen.render();
