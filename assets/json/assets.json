@@ -637,6 +637,12 @@
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
         },
+        "help": {
+            "file": "textures/setting/help.png"
+        },
+        "credits": {
+            "file": "textures/setting/credits.png"
+        },
         "code-not-found": {
             "file": "textures/text/code-not-found.png"
         },
@@ -644,16 +650,16 @@
             "file": "textures/overlay.png"
         },
         "credits-background": {
-          "file": "textures/credits-background.png"
+            "file": "textures/credits-background.png"
         },
         "credits-content": {
-          "file": "textures/credits-content.png"
+            "file": "textures/credits-content.png"
         },
         "button_back": {
-          "file": "textures/back.png"
+            "file": "textures/back.png"
         },
         "credits-logos": {
-          "file": "textures/credits-logos.png"
+            "file": "textures/credits-logos.png"
         }
     },
     "jsons": {
@@ -680,7 +686,6 @@
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
             "volume": 0.2
-
         },
         "main_menu": {
             "type": "sample",
@@ -761,9 +766,8 @@
         "discardItem": {
             "type": "sample",
             "file": "sounds/discardItem.wav",
-            "volume":  0.5
+            "volume": 0.5
         }
-
     },
     "fonts": {
         "retro": {
@@ -804,26 +808,27 @@
         }
     },
     "widgets": {
-        "colorbutton" : "widgets/colorbutton.json",
-        "textbutton" : "widgets/textbutton.json",
-        "textfield" : "widgets/textfield.json",
-        "labelbox" : "widgets/labelbox.json",
-        "menu" : "widgets/menu.json",
-        "textbutton2" : "widgets/textbutton2.json",
-        "start" : "widgets/start.json",
-        "startbutton" : "widgets/textbutton.json",
-        "end" : "widgets/end.json",
-        "join" : "widgets/join.json",
+        "colorbutton": "widgets/colorbutton.json",
+        "textbutton": "widgets/textbutton.json",
+        "textfield": "widgets/textfield.json",
+        "labelbox": "widgets/labelbox.json",
+        "menu": "widgets/menu.json",
+        "textbutton2": "widgets/textbutton2.json",
+        "start": "widgets/start.json",
+        "startbutton": "widgets/textbutton.json",
+        "end": "widgets/end.json",
+        "join": "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
-        "host" : "widgets/host.json",
-        "colorselect" : "widgets/colorselect.json",
+        "host": "widgets/host.json",
+        "colorselect": "widgets/colorselect.json",
         "waiting-host": "widgets/waiting-host.json",
         "disconnected": "widgets/disconnected.json",
         "pause": "widgets/pause.json",
-        "level" : "widgets/level.json",
-        "levelmodal" : "widgets/levelmodal.json",
-        "buildmode" : "widgets/buildmode.json",
-        "credits" : "widgets/credits.json"
+        "level": "widgets/level.json",
+        "levelmodal": "widgets/levelmodal.json",
+        "buildmode": "widgets/buildmode.json",
+        "credits": "widgets/credits.json",
+        "setting": "widgets/setting.json"
     },
     "scene2s": {
         "start": {
@@ -844,14 +849,14 @@
                 "key": "menu"
             }
         },
-        "end" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the end/congradulation screen",
-            "format"    : {
-                "type" : "Anchored"
+        "end": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the end/congradulation screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "end"
+            "data": {
+                "key": "end"
             }
         },
         "host": {
@@ -890,24 +895,24 @@
                 "key": "colorselect"
             }
         },
-        "level-select" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen",
-            "format"    : {
-                "type" : "Anchored"
+        "level-select": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "level"
+            "data": {
+                "key": "level"
             }
         },
-        "levelmodal" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen's modal",
-            "format"    : {
-                "type" : "Anchored"
+        "levelmodal": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen's modal",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "levelmodal"
+            "data": {
+                "key": "levelmodal"
             }
         },
         "disconnected": {
@@ -928,6 +933,16 @@
                 "key": "pause"
             }
         },
+        "setting": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the setting screen",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "setting"
+            }
+        },
         "buildmode": {
             "type": "Widget",
             "format": {
@@ -937,14 +952,14 @@
                 "key": "buildmode"
             }
         },
-        "credits" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the credits screen",
-            "format"    : {
-                "type" : "Anchored"
+        "credits": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the credits screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "credits"
+            "data": {
+                "key": "credits"
             }
         },
         "game": {
