@@ -152,7 +152,9 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
-    
+
+    _pauseScene.init(_assets, _sound);
+
     setActive(false);
     
     return true;
