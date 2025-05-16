@@ -26,7 +26,7 @@ using namespace std;
     /**
      * Creates a new  Disconnected with the default values.
      */
-bool DisconnectedScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound){
+bool DisconnectedScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound){
     
     if (assets == nullptr) {
        return false;

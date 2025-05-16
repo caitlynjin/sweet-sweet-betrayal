@@ -398,6 +398,13 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
     if (isAnimated) {
         art->setAnimation(sprite);
@@ -448,6 +455,13 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
     if (isAnimated) {
         art->setAnimation(sprite);

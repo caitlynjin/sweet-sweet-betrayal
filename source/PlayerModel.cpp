@@ -861,7 +861,7 @@ void PlayerModel::setFilterData() {
     
     // Set what this object collides with (everything EXCEPT other players)
 //    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_DEFAULT;
-    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER;
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
     
     // Apply the filter to all fixtures
     while (fixture != nullptr) {

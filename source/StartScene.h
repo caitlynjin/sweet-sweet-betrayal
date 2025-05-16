@@ -76,7 +76,8 @@ public:
      */
     void dispose() override;
     
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound
+    );
     
     void update(float timestep) override;
     

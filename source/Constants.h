@@ -297,6 +297,7 @@
 
 #define CATEGORY_DEFAULT    0x0001  // Every object has this automatically as default
 #define CATEGORY_PLAYER     0x0002
+#define CATEGORY_ARTOBJECT  0x0004
 
 
 
@@ -422,6 +423,9 @@ namespace Constants {
     extern std::vector<std::string> yOffsetArtObjects;
 
 extern std::map<std::string, int> jsonTypeToLayer;
+
+/** A list of art objects that should be split into multiple sub-objects for bomb purposes. */
+extern std::map<std::string, std::vector<std::string>> splitArtObjects;
 
 /** 
 * To update this, see ArtAssetMapHelper.cpp.

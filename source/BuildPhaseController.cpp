@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> &sound) {
     if (assets == nullptr)
     {
         return false;

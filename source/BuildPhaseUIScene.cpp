@@ -89,7 +89,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController) {
+bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &soundController) {
     _networkController = networkController;
     if (assets == nullptr)
     {

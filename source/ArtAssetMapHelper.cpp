@@ -97,6 +97,12 @@ void ArtAssetMapHelper::populateConstantsMaps()
         {std::string("parallax1"), std::string("parallax-1")},
         {std::string("parallax2"), std::string("parallax-2")},
         {std::string("parallax3"), std::string("parallax-3")},
+        {std::string("parallax-ww-1"), std::string("parallax-ww-1")},
+        {std::string("parallax-ww-2"), std::string("parallax-ww-2")},
+        {std::string("parallax-ww-3"), std::string("parallax-ww-3")},
+        {std::string("parallax-ww-4"), std::string("parallax-ww-4")},
+        {std::string("parallax-ww-5"), std::string("parallax-ww-5")},
+        {std::string("parallax-ww-6"), std::string("parallax-ww-6")},
     };
     std::vector<std::any> tempVec;
     for (auto it = vec.begin(); it != vec.end(); ++it) {
