@@ -188,8 +188,15 @@ void MovePhaseScene::populate() {
     Vec2 pos = DUDE_POS;
     // CLIENT STARTS ON RIGHT
     if (_networkController->getLocalID() == 2) {
+        pos += Vec2(0, 3);
+    }
+    if (_networkController->getLocalID() == 3) {
         pos += Vec2(3, 0);
     }
+    if (_networkController->getLocalID() == 4) {
+        pos += Vec2(3, 3);
+    }
+        
     ColorType playerColor = _networkController->getLocalColor();
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
     _networkController->setLocalPlayer(_localPlayer);

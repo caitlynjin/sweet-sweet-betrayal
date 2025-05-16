@@ -150,6 +150,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
     
+    CULog("INPUT INITIALIZED");
+    
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     
@@ -356,11 +358,14 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    //
+    
+    
     // Check for reset
     if (_networkController->getResetLevel()){
         reset();
     }
-    
+
     // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);

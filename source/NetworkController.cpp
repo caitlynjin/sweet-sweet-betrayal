@@ -706,6 +706,7 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
+    CULog("Num players: %d", numPlayers);
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
         
