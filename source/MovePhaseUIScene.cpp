@@ -222,6 +222,19 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _yellowIcon->setVisible(false);
     addChild(_yellowIcon);
 
+    if (local == "playerRed"){
+        _redIcon->setPriority(1);
+    }
+    else if (local == "playerBlue"){
+        _blueIcon->setPriority(1);
+    }
+    else if (local == "playerGreen"){
+        _greenIcon->setPriority(1);
+    }
+    else if (local == "playerYellow"){
+        _yellowIcon->setPriority(1);
+    }
+
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _treasureIcon->setScale(0.025f);
