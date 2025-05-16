@@ -216,9 +216,23 @@ void BuildPhaseUIScene::reset() {
     activateInventory(true);
     
     // Reset UI variables
+    _previousElapsedTime = BUILD_TIME;
+    
     _isReady = false;
     _rightpressed = false;
     _leftpressed = false;
+    
+    _playersCounted = false;
+    _redReady = false;
+    _blueReady = false;
+    _greenReady = false;
+    _yellowReady = false;
+    
+    _iconList.clear();
+    _checkmarkList.clear();
+    _checkmarkMap.clear();
+
+    
 }
 
 /**
@@ -227,7 +241,7 @@ void BuildPhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseUIScene::preUpdate(float dt) {
-
+    
     Uint64 currentTime = Application::get()->getEllapsedMicros();
     Uint64 elapsedTime = currentTime - _startTime;
     auto numSeconds = BUILD_TIME - elapsedTime / 1000000;
@@ -240,31 +254,60 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     if (elapsedTime >= BUILD_TIME * 1000000){
         _isReady = true;
     }
-    _redIcon->setVisible(false);   _redCheck->setVisible(false);
-    _blueIcon->setVisible(false);  _blueCheck->setVisible(false);
-    _greenIcon->setVisible(false); _greenCheck->setVisible(false);
-    _yellowIcon->setVisible(false);_yellowCheck->setVisible(false);
-
-    for (auto& player : _networkController->getPlayerList()) {
-        bool ready = player->getReady();
-        std::string name = player->getName();
-        if (name=="playerRed") {
-            _redIcon->setVisible(true);
-            _redCheck->setVisible(ready);
+    
+    if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
+        // TODO: Finish player ready logic
+        CULog("SET UP PLAYER READY LOGIC");
+        for (auto& player : _networkController->getPlayerList()){
+            if (player->getName() == "playerRed"){
+                CULog("Player icon red set");
+                _iconList.push_back(_redIcon);
+//                addChild(_redIcon);
+            }
+            if (player->getName() == "playerBlue"){
+                CULog("Player icon blue set");
+                _iconList.push_back(_blueIcon);
+//                addChild(_blueIcon);
+            }
+            if (player->getName() == "playerGreen"){
+                CULog("Player icon green set");
+                _iconList.push_back(_greenIcon);
+//                addChild(_greenIcon);
+            }
+            if (player->getName() == "playerYellow"){
+                CULog("Player icon yellow set");
+                _iconList.push_back(_yellowIcon);
+//                addChild(_yellowIcon);
+            }
         }
-        if (name=="playerBlue") {
-            _blueIcon->setVisible(true);
-            _blueCheck->setVisible(ready);
+        
+        _redIcon->setVisible(false);   _redCheck->setVisible(false);
+        _blueIcon->setVisible(false);  _blueCheck->setVisible(false);
+        _greenIcon->setVisible(false); _greenCheck->setVisible(false);
+        _yellowIcon->setVisible(false);_yellowCheck->setVisible(false);
+        
+        for (auto& player : _networkController->getPlayerList()) {
+            bool ready = player->getReady();
+            std::string name = player->getName();
+            if (name=="playerRed") {
+                _redIcon->setVisible(true);
+                _redCheck->setVisible(ready);
+            }
+            if (name=="playerBlue") {
+                _blueIcon->setVisible(true);
+                _blueCheck->setVisible(ready);
+            }
+            if (name=="playerGreen") {
+                _greenIcon->setVisible(true);
+                _greenCheck->setVisible(ready);
+            }
+            if (name=="playerYellow") {
+                _yellowIcon->setVisible(true);
+                _yellowCheck->setVisible(ready);
+            }
         }
-        if (name=="playerGreen") {
-            _greenIcon->setVisible(true);
-            _greenCheck->setVisible(ready);
-        }
-        if (name=="playerYellow") {
-            _yellowIcon->setVisible(true);
-            _yellowCheck->setVisible(ready);
-        }
-    }}
+    }
+}
 
 #pragma mark -
 #pragma mark Attribute Functions

@@ -76,6 +76,8 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
     
+    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+    
     
     // SEPARATE INTO PART 2 FOR WHEN LEVEL NUMBER IS LOADED IN
     // OR DON'T CALL UPDATE UNTIL LEVEL NUMBER IS LOADED IN
@@ -85,7 +87,12 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
 
 bool MovePhaseController::finishInit(){
     // Initialize move phase scene
-    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+//    if(_network->getPhysController() == nullptr){
+//        _network->enablePhysics(_world);
+//    }
+    
+//    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+    _movePhaseScene.populate();
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
 
@@ -113,9 +120,17 @@ bool MovePhaseController::finishInit(){
 void MovePhaseController::dispose() {
     _complete = false;
     _debug = false;
-
+    _objects.clear();
     _movePhaseScene.dispose();
     _uiScene.dispose();
+}
+
+void MovePhaseController::disposeLevel(){
+    dispose();
+    
+    _world->clear();
+    _networkController->setObjects(&_objects);
+    _networkController->setWorld(_world);
 }
 
 #pragma mark -
@@ -136,16 +151,17 @@ void MovePhaseController::resetRound() {
  * Resets the status of the game so that we can play again.
  */
 void MovePhaseController::reset() {
-    // TODO: Need to properly reset
     _currRound = 1;
     _mushroomCooldown = 0;
     
     
     setFailure(false);
     setComplete(false);
+    _reachedGoal = false;
+    _animateGoal = false;
 
-    _movePhaseScene.reset();
     _uiScene.reset();
+    _movePhaseScene.reset();
 }
 
 /**
@@ -654,7 +670,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
         }
 
 
-        if (bomb && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure") {
+        if (bomb && other && !other->isRemoved() && other->getName() != "goalDoor" && other->getName() != "treasure" && other->getName() != "parallaxObject") {
             CULog("Trigger bomb explosion");
             _sound->playSound("bomb");
             other->markRemoved(true);

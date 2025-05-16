@@ -105,12 +105,28 @@ bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void WaitingHostScene::dispose(){
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    
+    _assets = nullptr;
+    _sound = nullptr;
+    _input.dispose();
+    _backbutton->clearListeners();
+    _backbutton = nullptr;
+    _timeline = nullptr;
+    _waitAnimateSprite = nullptr;
+    _waitSpriteNode = nullptr;
+    _waitAction = nullptr;
+    
+    for (auto node : _tips){
+        node = nullptr;
     }
+    _tips.clear();
+    
+    Scene2::dispose();
+    
 }
 
 /**
@@ -118,6 +134,10 @@ void WaitingHostScene::dispose(){
  */
 void WaitingHostScene::reset(){
     _choice = Choice::NONE;
+    
+    _currentTipIndex = 0;
+    _tipSwitchTimer = 0.0f;
+    _tipInterval = 3.0f;
 }
 
 /**

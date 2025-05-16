@@ -150,6 +150,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
     
+    CULog("INPUT INITIALIZED");
+    
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     
@@ -231,6 +233,7 @@ void SSBGameController::createParallaxObjects() {
  */
 void SSBGameController::dispose()
 {
+    reset();
     _world = nullptr;
 
     if (_gridManager) {
@@ -246,6 +249,39 @@ void SSBGameController::dispose()
     if (_movePhaseController != nullptr) {
         _movePhaseController->dispose();
     }
+    Scene2::dispose();
+}
+
+/**
+ * Disposes of all resource necessary for playing a level again.
+ */
+void SSBGameController::disposeLevel(){
+    reset();
+    
+    if (_gridManager) {
+        _gridManager->getGridNode() = nullptr;
+    }
+    
+//    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    
+    // Set-up for GameController re-init
+    _world->update(FIXED_TIMESTEP_S);
+
+    // Start in building mode
+    _buildingMode = true;
+    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, _offset, _assets, _world);
+
+    // Start up the input handler
+//    _input = std::make_shared<PlatformInput>();
+//    _input->init(getBounds());
+    
+    // Set-up for MovePhaseController re-init
+    _movePhaseController->disposeLevel();
+    _movePhaseController->setGridManger(_gridManager);
+    _movePhaseController->setInput(_input);
     Scene2::dispose();
 }
 
@@ -272,12 +308,20 @@ void SSBGameController::reset()
     // Clear the world
     _world->clear();
     
-    // Reset all controllers
-    _networkController->reset();
-    _buildPhaseController->reset();
-    _movePhaseController->reset();
-        
+    // Reset all variables
+    _buildingMode = true;
+    _scoreCountdown = -1;
+    _beforeScoreBoard = 15;
+    _nextInRoundDelay = 30;
+    _nextInRoundIndex = 0;
     _hasVictory = false;
+    
+    // Reset all controllers
+//    _networkController->reset();
+    _buildPhaseController->reset();
+    _gridManager->clear();
+    
+    _movePhaseController->reset();
 }
 
 #pragma mark -
@@ -317,11 +361,14 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    //
+    
+    
     // Check for reset
     if (_networkController->getResetLevel()){
         reset();
     }
-    
+
     // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);

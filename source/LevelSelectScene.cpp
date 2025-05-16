@@ -181,12 +181,42 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void LevelSelectScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    
+    _background = nullptr;
+    _active = false;
+    _networkController = nullptr;
+    _network = nullptr;
+    
+    _assets = nullptr;
+    
+    _level1->clearListeners();
+    _level2->clearListeners();
+    _level3->clearListeners();
+    _backbutton->clearListeners();
+    
+    _playButton->clearListeners();
+    _closeButton->clearListeners();
+
+   _sound = nullptr;
+    _input.dispose();
+   _background = nullptr;
+   _level1 = nullptr;
+   _level2 = nullptr;
+   _level3 = nullptr;
+   _backbutton = nullptr;
+   _hostText = nullptr;
+   
+   _modalDarkener = nullptr;
+   _modalFrame = nullptr;
+   _levelImage = nullptr;
+   _levelName = nullptr;
+   _playButton = nullptr;
+   _closeButton = nullptr;
+    
+    Scene2::dispose();
+    
 }
 
 /**
@@ -195,12 +225,22 @@ void LevelSelectScene::dispose() {
 void LevelSelectScene::reset(){
     _choice = Choice::NONE;
     _levelView = 0;
+    
+    _playPressed = false;
+    _decreaseAlpha = true;
+    _levelPressed = false;
+    _closePressed = false;
+    _showModal = false;
+    setModalVisible(false);
+    
+    if (_network->isHost()){
+        setModalActive(false);
+    }
 }
 
 // Update level event to store whether to display the modal
 
 void LevelSelectScene::update(float dt){
-    
     // Host handles level selection
     if (_network->isHost()){
         // If a level has been selected, show the pop-up modal
@@ -246,11 +286,19 @@ void LevelSelectScene::update(float dt){
         bool showModal = get<1>(levelData);
         bool hostPressedPlay = get<2>(levelData);
         
+        CULog("Level View: %d", _levelView);
+        CULog("Show modal %d", showModal);
+        CULog("Host pressed play: %d", hostPressedPlay);
+        
         // Update visibility state of the modal
-        if (_showModal != showModal){
-            _showModal = showModal;
-            setModalVisible(showModal);
+        if (_levelView != 0){
+            selectLevel(_levelView);
         }
+        
+        if (!showModal){
+            setModalVisible(false);
+        }
+
         
         // Check if host pressed play
         if (showModal && hostPressedPlay){
@@ -261,7 +309,7 @@ void LevelSelectScene::update(float dt){
     
     
     // Update buttons
-    animateButtons();
+//    animateButtons();
 }
 
 /**
@@ -276,15 +324,19 @@ void LevelSelectScene::update(float dt){
 void LevelSelectScene::setActive(bool value) {
     if (isActive() != value) {
         Scene2::setActive(value);
+        _levelView = 0;
         if (value) {
+            reset();
             _choice = NONE;
             if (_networkController->getIsHost()){
                 _level1->activate();
                 _level2->activate();
                 _level3->activate();
-                _closeButton->activate();
-                _playButton->activate();
+//                _closeButton->activate();
+//                _playButton->activate();
             }
+            setModalVisible(false);
+            setModalActive(false);
     
 //            _backbutton->activate();
 
@@ -293,8 +345,10 @@ void LevelSelectScene::setActive(bool value) {
             _level2->deactivate();
             _level3->deactivate();
 //            _backbutton->deactivate();
+            setModalVisible(false);
             _closeButton->deactivate();
             _playButton->deactivate();
+//            setModalActive(false);
             // If any were pressed, reset them
             _level1->setDown(false);
             _level2->setDown(false);
