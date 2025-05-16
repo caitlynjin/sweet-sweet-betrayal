@@ -119,7 +119,7 @@
                             ],
                             "visible": true,
                             "bounds": [40,46,425,0],
-                            "value": 75,
+                            "value": 60,
                             "knob" : "knob",
                             "path" : "slider"
                         },
@@ -208,7 +208,7 @@
                             ],
                             "visible": true,
                             "bounds": [40,46,425,0],
-                            "value": 75,
+                            "value": 60,
                             "knob" : "knob",
                             "path" : "slider"
                         },
