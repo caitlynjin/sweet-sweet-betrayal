@@ -4,6 +4,7 @@
 #include "SSBGameController.h"
 #include "SSBLoadingScene.h"
 #include "StartScene.h"
+#include "SettingScene.h"
 #include "MenuScene.h"
 #include "TransitionScene.h"
 #include "SSBInput.h"
@@ -29,7 +30,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED
+        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED, SETTING
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -38,6 +39,8 @@ protected:
     std::shared_ptr<cugl::AssetManager> _assets;
     
     StartScene _startscreen;
+
+    SettingScene _settingscreen;
     
     /**neworking scenes*/
     MenuScene _mainmenu;
@@ -267,6 +270,8 @@ public:
     void updateMenuScene(float timestep);
     
     void updateStartScene(float timestep);
+
+    void updateSettingScene(float timestep);
     
     /**
      * Inidividualized update method for the host scene.

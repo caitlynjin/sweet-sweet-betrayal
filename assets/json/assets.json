@@ -208,6 +208,9 @@
         "glide-button": {
             "file": "textures/glide-button.png"
         },
+        "giveup-button": {
+            "file": "textures/giveup.png"
+        },
         "background": {
             "file": "textures/backgrounds/background2.png"
         },
@@ -640,6 +643,12 @@
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
         },
+        "help": {
+            "file": "textures/setting/help.png"
+        },
+        "credits": {
+            "file": "textures/setting/credits.png"
+        },
         "code-not-found": {
             "file": "textures/text/code-not-found.png"
         },
@@ -671,7 +680,6 @@
             "file": "sounds/music_move_phase.ogg",
             "stream": true,
             "volume": 0.2
-
         },
         "main_menu": {
             "type": "sample",
@@ -752,9 +760,8 @@
         "discardItem": {
             "type": "sample",
             "file": "sounds/discardItem.wav",
-            "volume":  0.5
+            "volume": 0.5
         }
-
     },
     "fonts": {
         "retro": {
@@ -795,25 +802,26 @@
         }
     },
     "widgets": {
-        "colorbutton" : "widgets/colorbutton.json",
-        "textbutton" : "widgets/textbutton.json",
-        "textfield" : "widgets/textfield.json",
-        "labelbox" : "widgets/labelbox.json",
-        "menu" : "widgets/menu.json",
-        "textbutton2" : "widgets/textbutton2.json",
-        "start" : "widgets/start.json",
-        "startbutton" : "widgets/textbutton.json",
-        "end" : "widgets/end.json",
-        "join" : "widgets/join.json",
+        "colorbutton": "widgets/colorbutton.json",
+        "textbutton": "widgets/textbutton.json",
+        "textfield": "widgets/textfield.json",
+        "labelbox": "widgets/labelbox.json",
+        "menu": "widgets/menu.json",
+        "textbutton2": "widgets/textbutton2.json",
+        "start": "widgets/start.json",
+        "startbutton": "widgets/textbutton.json",
+        "end": "widgets/end.json",
+        "join": "widgets/join.json",
         "numlabel": "widgets/numlabel.json",
-        "host" : "widgets/host.json",
-        "colorselect" : "widgets/colorselect.json",
+        "host": "widgets/host.json",
+        "colorselect": "widgets/colorselect.json",
         "waiting-host": "widgets/waiting-host.json",
         "disconnected": "widgets/disconnected.json",
         "pause": "widgets/pause.json",
-        "level" : "widgets/level.json",
-        "levelmodal" : "widgets/levelmodal.json",
-        "buildmode" : "widgets/buildmode.json"
+        "level": "widgets/level.json",
+        "levelmodal": "widgets/levelmodal.json",
+        "setting": "widgets/setting.json",
+        "buildmode": "widgets/buildmode.json"
     },
     "scene2s": {
         "start": {
@@ -834,14 +842,14 @@
                 "key": "menu"
             }
         },
-        "end" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the end/congradulation screen",
-            "format"    : {
-                "type" : "Anchored"
+        "end": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the end/congradulation screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "end"
+            "data": {
+                "key": "end"
             }
         },
         "host": {
@@ -880,24 +888,24 @@
                 "key": "colorselect"
             }
         },
-        "level-select" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen",
-            "format"    : {
-                "type" : "Anchored"
+        "level-select": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "level"
+            "data": {
+                "key": "level"
             }
         },
-        "levelmodal" : {
-            "type"      : "Widget",
-            "comment"   : "This is the root node of the scene for the level select screen's modal",
-            "format"    : {
-                "type" : "Anchored"
+        "levelmodal": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the level select screen's modal",
+            "format": {
+                "type": "Anchored"
             },
-            "data" : {
-                "key" : "levelmodal"
+            "data": {
+                "key": "levelmodal"
             }
         },
         "disconnected": {
@@ -916,6 +924,16 @@
             },
             "data": {
                 "key": "pause"
+            }
+        },
+        "setting": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the setting screen",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "setting"
             }
         },
         "buildmode": {

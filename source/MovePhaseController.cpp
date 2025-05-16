@@ -221,6 +221,11 @@ void MovePhaseController::preUpdate(float dt) {
         //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
     }
     _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    //_movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
+    //_movePhaseScene.getLocalPlayer()->applyForce();
+    if (_uiScene.getDidGiveUp()) {
+        killPlayer();
+    }
 
 
     //if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
@@ -242,6 +247,13 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setGlideButtonActive();
         _uiScene.setDidJump(false);
     }
+    if (_uiScene.getGiveUpCountdown() == 0) {
+        _uiScene.setGiveUpButtonActive(true);
+    } else {
+        _uiScene.setGiveUpCountdown(_uiScene.getGiveUpCountdown()-1);
+    }
+
+    
 
     updateProgressBar(_movePhaseScene.getLocalPlayer());
 
@@ -273,6 +285,10 @@ void MovePhaseController::preUpdate(float dt) {
 }
 
 void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float dt) {
+    if (wind->getPlayerHits() > 0) {
+        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce(), wind->getPlayerToWindDist());
+    }
+
     int i = 0;
     std::vector<cugl::Vec2> lst = wind->getRayOrigins();
 
@@ -286,14 +302,15 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
             physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
 
             // Set grounded for all non-local players
-            //string fixtureName = wind->ReportFixture(f, point, normal, fraction);
-            if (tagContainsPlayer("player") && bd == _movePhaseScene.getLocalPlayer().get()) {
+            string fixtureName = wind->ReportFixture(f, point, normal, fraction);
+            if ( bd == _movePhaseScene.getLocalPlayer().get()) {
                 wind->setPlayerDist(i, fraction);
                 return wind->getRayDist(i);
             }
-            else if (bd->getName() != "wind") {
+            if (bd->getName() != "fan" && bd->getName() != "wind") {
                 wind->setRayDist(i, fraction);
             }
+            
             return fraction;
             };
         /**Generates the appropriate raycasts to handle collision for this wind object*/
@@ -302,10 +319,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
         ++i;
 
     }
-    wind->update(dt);
-    if (wind->getPlayerHits() > 0) {
-        _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce());
-    }
+    //wind->update(dt);
 }
 
 /**
