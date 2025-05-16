@@ -26,7 +26,7 @@ using namespace std;
 #pragma mark -
 #pragma mark Level Layout
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 
@@ -79,7 +79,7 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
            return false;
     }
 
-    if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+    if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
     }
     Size dimen = getSize();
@@ -96,15 +96,24 @@ bool HostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::sha
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("host");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
+    
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("host.background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
 
-    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.start"));
+    _startgame = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.bottom.start"));
     _backout = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("host.back"));
     _gameid = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.room-code"));
     _player = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("host.info.codes.players-no"));
-    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip1"));
-    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip2"));
-    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip3"));
-    _tips.push_back(_assets->get<scene2::SceneNode>("host.tip4"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.bottom.tip1"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.bottom.tip2"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.bottom.tip3"));
+    _tips.push_back(_assets->get<scene2::SceneNode>("host.bottom.tip4"));
     
     for (int i = 0; i < _tips.size(); ++i) {
         _tips[i]->setVisible(i == 0);

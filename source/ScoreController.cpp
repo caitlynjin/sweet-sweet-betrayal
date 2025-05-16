@@ -87,7 +87,7 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     
     std::string iconTextureKey;
     if (type == ScoreEvent::ScoreType::END_TREASURE) {
-        iconTextureKey = "score-treasure";        
+        iconTextureKey = "score-gemdot";
     }
     else if (type == ScoreEvent::ScoreType::END) {
         iconTextureKey = "score-finish";
@@ -100,6 +100,14 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
         auto dotIt = _scoreIcons.find(dotKey);
         if (dotIt != _scoreIcons.end()) {
             _dotsToRemove.push_back(dotKey);
+        }
+        if (type == ScoreEvent::ScoreType::END_TREASURE) {
+            if (i == (newTotal - 1)) {
+                iconTextureKey = "score-treasure";
+                CULog("  [Treasure Scoring] Using treasure for i = %d (newTotal = %d)\n", i, newTotal);
+            } else {
+                CULog("  [Treasure Scoring] Using gemball for i = %d (newTotal = %d)\n", i, newTotal);
+            }
         }
         
         //add new nodes to in round node

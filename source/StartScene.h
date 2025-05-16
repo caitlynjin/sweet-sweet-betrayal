@@ -31,7 +31,8 @@ public:
         NONE,
         /** User wants to start a game */
         START,
-        LEVEL_EDITOR
+        LEVEL_EDITOR,
+        SETTING
     };
 
 protected:
