@@ -22,7 +22,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
@@ -44,7 +44,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
 
@@ -64,11 +64,21 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
+    
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("colorselect.background"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+    
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.back"));
     _readybutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.ready"));
     _isReady = false;
     
-    _redbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.red"));
+    _redbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.center.color-buttons.red"));
     _redNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_redbutton->getChildByName("red-button"));
     _redSelected = std::dynamic_pointer_cast<scene2::PolygonNode>(_redbutton->getChildByName("red-selected"));
     _redTaken = std::dynamic_pointer_cast<scene2::PolygonNode>(_redbutton->getChildByName("red-taken"));
@@ -76,7 +86,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _redSelected->setVisible(false);
     _redTaken->setVisible(false);
     
-    _bluebutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.blue"));
+    _bluebutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.center.color-buttons.blue"));
     _blueNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_bluebutton->getChildByName("blue-button"));
     _blueSelected = std::dynamic_pointer_cast<scene2::PolygonNode>(_bluebutton->getChildByName("blue-selected"));
     _blueTaken = std::dynamic_pointer_cast<scene2::PolygonNode>(_bluebutton->getChildByName("blue-taken"));
@@ -84,7 +94,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _blueSelected->setVisible(false);
     _blueTaken->setVisible(false);
     
-    _yellowbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.yellow"));
+    _yellowbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.center.color-buttons.yellow"));
     _yellowNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_yellowbutton->getChildByName("yellow-button"));
     _yellowSelected = std::dynamic_pointer_cast<scene2::PolygonNode>(_yellowbutton->getChildByName("yellow-selected"));
     _yellowTaken = std::dynamic_pointer_cast<scene2::PolygonNode>(_yellowbutton->getChildByName("yellow-taken"));
@@ -92,7 +102,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _yellowSelected->setVisible(false);
     _yellowTaken->setVisible(false);
     
-    _greenbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.color-buttons.green"));
+    _greenbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("colorselect.center.color-buttons.green"));
     _greenNormal   = std::dynamic_pointer_cast<scene2::PolygonNode>(_greenbutton->getChildByName("green-button"));
     _greenSelected = std::dynamic_pointer_cast<scene2::PolygonNode>(_greenbutton->getChildByName("green-selected"));
     _greenTaken = std::dynamic_pointer_cast<scene2::PolygonNode>(_greenbutton->getChildByName("green-taken"));
@@ -109,8 +119,9 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     });
     _readybutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
+            _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
-            _networkController->flushConnection();
+//            _networkController->flushConnection();
             _networkController->setLocalColor(_myColor);
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
             _isReady = true;

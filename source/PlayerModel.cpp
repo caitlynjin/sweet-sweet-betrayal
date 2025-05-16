@@ -160,7 +160,9 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         _glideDelay = 0.2;
         _glideTimer = 0;
         _windvel = Vec2();
-        
+
+        setVisible(false);
+
         return true;
     }
 
@@ -331,7 +333,8 @@ void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate
     if (animation == AnimationType::DEATH) {
         CULog("playing dead animation");
         _timeline->add(DEATH_ACTION_KEY, _deathAction, 0.3f);   
-        setDead(true);         
+        setDead(true);
+        setGhost(_node, true);
     }
     else if (animation == AnimationType::GLIDE) {
         if (!_glideSpriteNode->isVisible()) {
@@ -521,11 +524,11 @@ void PlayerModel::applyForce()
     //Apply a small linear velocity burst when we turn around on the ground, for gamefeel
     if (_justFlipped && isGrounded()) {
         if (_faceRight) {
-            CULog("FLIPBOOST");
+//            CULog("FLIPBOOST");
             vel.x += STARTING_VELOCITY;
         }
         else if (!_faceRight) {
-            CULog("FLIPBOOST");
+//            CULog("FLIPBOOST");
             vel.x -= STARTING_VELOCITY;
         }
     }
@@ -899,4 +902,31 @@ ColorType PlayerModel::getColor() {
     }
     // DEFAULT
     return ColorType::RED;
+}
+
+#pragma mark -
+#pragma mark Helpers
+
+/**
+ * Sets whether the player is transparent.
+ *
+ * @param node      the player scene node
+ * @param value     whether to set the player to transparent or not
+ */
+void PlayerModel::setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value) {
+    if (value) {
+        // Set transparent
+        Color4 color = node->getColor();
+        color.a = 150;
+        node->setColor(color);
+    } else {
+        // Restore color
+        Color4 color = node->getColor();
+        color.a = 255;
+        node->setColor(color);
+    }
+
+    for (const auto& child : node->getChildren()) {
+        setGhost(child, value);
+    }
 }

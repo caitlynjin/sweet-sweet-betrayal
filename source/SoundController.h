@@ -111,7 +111,7 @@ public:
 	* Plays the music track with the specified key.
 	*
 	* @param key The key identifying the music track */
-	void playMusic(std::string key, bool loop=false);
+	void playMusic(std::string key, bool loop=false, bool useCrossFade=true);
 
 	/** Adds the music track to the end of the queue.
 	 * This will play automatically when all music tracks earlier in the queue are finished playing. 
@@ -151,14 +151,24 @@ public:
 	}
 
 	/** Sets the global music volume. 
-	* @param the global music volume to be set
+	* @param vol the global music volume to be set
+	* @param savePreferences whether or not the new music volume should be saved to a new JSON file.
+	* This should be true when working with audio settings, and false when adjusting in-game volume for other reasons that don't need to be saved as preferences.
 	*/
-	void setMusicVolume(float vol);
+	void setMusicVolume(float vol, bool savePreferences=true);
 
 	/** Sets the global SFX volume.
-	* @param the global SFX volume to be set
+	* @param vol the global SFX volume to be set
+	* @param savePreferences whether or not the new SFX volume should be saved to a new JSON file.
+	* This should be true when working with audio settings, and false when adjusting in-game volume for other reasons that don't need to be saved as preferences.
 	*/
-	void setSFXVolume(float vol);
+	void setSFXVolume(float vol, bool savePreferences=true);
+
+	/** Saves the audio preferences to a JSON file called "preferences.json" in the save directory. */
+	void saveAudioPreferences();
+
+	/** Loads the audio preferences and also sets the volume of music and SFX to match the user's preferences. */
+	void loadAudioPreferences();
 
 };
 

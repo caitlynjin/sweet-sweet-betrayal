@@ -97,7 +97,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     _sound = sound;
 
     // Networked physics world
-    _world = physics2::distrib::NetWorld::alloc(rect, gravity);
+    _world = physics2::distrib::NetWorld::alloc(rect * 2, gravity);
     _world->activateCollisionCallbacks(true);
 
     _world->update(FIXED_TIMESTEP_S);
@@ -128,7 +128,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
     _background->setScale(2.1f);
     _backgroundScene.addChild(_background);
 
-    _gridManager = GridManager::alloc(true, DEFAULT_WIDTH, _scale * 2, offset, assets);
+    _gridManager = LevelGridManager::alloc(true, DEFAULT_WIDTH * 2, _scale * 2, offset, assets);
 
     shared_ptr<scene2::OrderedNode> worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
     worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -186,8 +186,8 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
-    
+bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<LevelGridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera) {
+
     if (assets == nullptr)
     {
         return false;
@@ -409,7 +409,7 @@ void LevelEditorController::preUpdate(float dt) {
 
     //CULog("%f", _buildPhaseScene.getCamera()->getPosition().x);
 
-    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 6720) {
+    if (_uiScene.getRightPressed() && _levelEditorScene.getCamera()->getPosition().x <= 26720) {
         _levelEditorScene.getCamera()->translate(10, 0);
         _levelEditorScene.getCamera()->update();
     }

@@ -32,6 +32,12 @@ protected:
     /** Whether or not the art object is animated */
     bool _isAnimated = false;
 
+    /** Whether or not the art object should undergo parallax scrolling */
+    bool _isParallax = false;
+
+    /** The parallax scroll rate for the object */
+    float _scrollRate = 0.0f;
+
     /** The scene graph node for the ArtObject. */
     std::shared_ptr<scene2::SceneNode> _node;
 
@@ -110,6 +116,17 @@ public:
 
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
 
+    void setParallax(bool value);
+
+    bool isParallax() {
+        return _isParallax;
+    }
+
+    void setParallaxScrollRate(float scrollRate);
+
+    float getParallaxScrollRate() {
+        return _scrollRate;
+    }
 
     std::map<std::string, std::any> getMap() override;
 };

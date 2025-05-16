@@ -33,7 +33,7 @@ using namespace Constants;
 #pragma mark Scene Constants
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 /** The image for the ready button */
@@ -65,6 +65,7 @@ void BuildPhaseUIScene::dispose() {
         _rightButton = nullptr;
         _leftButton = nullptr;
         _trashButton = nullptr;
+        _pauseButton = nullptr;
         _timer = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
@@ -94,43 +95,37 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     {
         return false;
     }
-    else if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT)))
+    else if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0)))
     {
         return false;
     }
+    
+    Size dimen = getSize();
 
     _assets = assets;
     _gridManager = gridManager;
     _sound = soundController;
-
     _startTime = Application::get()->getEllapsedMicros();
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("buildmode");
+    scene->setContentSize(dimen);
+    scene->doLayout();
 
-    std::shared_ptr<scene2::PolygonNode> rightNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RIGHT_BUTTON));
-    _rightButton = scene2::Button::alloc(rightNode);
-    _rightButton->setScale(0.2f);
-    _rightButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _rightButton->setPosition(_size.width * 0.65f, _size.height * 0.15f);
+    _rightButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.right_button"));
+    _rightButton->setVisible(true);
     _rightButton->activate();
     _rightButton->addListener([this](const std::string &name, bool down) {
         _rightpressed = down;
     });
 
-    std::shared_ptr<scene2::PolygonNode> leftNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_BUTTON));
-    _leftButton = scene2::Button::alloc(leftNode);
-    _leftButton->setScale(0.2f);
-    _leftButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _leftButton->setPosition(_size.width * 0.36f, _size.height * 0.15f);
+    _leftButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.left_button"));
+    _leftButton->setVisible(true);
     _leftButton->activate();
     _leftButton->addListener([this](const std::string &name, bool down) {
         _leftpressed = down;
     });
 
-    std::shared_ptr<scene2::PolygonNode> readyNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(READY_BUTTON));
-    _readyButton = scene2::Button::alloc(readyNode);
-    _readyButton->setScale(0.8f);
-    _readyButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _readyButton->setPosition(_size.width * 0.5f, _size.height * 0.15f);
-    
+    _readyButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.ready_button"));
+    _leftButton->setVisible(true);
     _readyButton->activate();
     _readyButton->addListener([this](const std::string &name, bool down) {
         if (down && !_isReady) {
@@ -140,67 +135,56 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         }
     });
 
-    std::shared_ptr<scene2::PolygonNode> trashNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TRASH_CLOSED));
-    trashNode->setScale(0.8f);
-    _trashButton = scene2::Button::alloc(trashNode);
-    _trashButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _trashButton->setPosition(_size.width * 0.1f, _size.height * 0.2f);
+    _trashButton =std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.trash"));
+    _trashButton->setVisible(true);
 
-    _timer = scene2::Label::allocWithText(std::to_string(BUILD_TIME), _assets->get<Font>(TIMER_FONT));
-    _timer->setAnchor(Vec2::ANCHOR_CENTER);
-    _timer->setPosition(_size.width * 0.505f, _size.height * 0.9f);
-    _timer->setForeground(Color4 (255,62,62));
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    pauseNode->setScale(1.0f);
+    _pauseButton = scene2::Button::alloc(pauseNode);
+    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    _pauseButton->activate();
+    _pauseButton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _isPaused = true;
+            _sound->playSound("button_click");
+        }
+    });
+    
+    _timerFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.timer.timer"));
+    _timerFrame->setVisible(true);
+    _timer = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("buildmode.top.timer.text.text"));
+    _timer->setVisible(true);
 
-    _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
-    _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _redIcon->setScale(0.04f);
-    _redIcon->setPosition(_size.width * 0.64f, _size.height * 0.9f);
+    _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player1.red-icon"));
+    _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player2.blue-icon"));
+    _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player3.green-icon"));
+    _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player4.yellow-icon"));
+    
+    _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+      _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+    _blueCheck  = std::dynamic_pointer_cast<scene2::PolygonNode>(
+      _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+    _greenCheck = std::dynamic_pointer_cast<scene2::PolygonNode>(
+      _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+    _yellowCheck= std::dynamic_pointer_cast<scene2::PolygonNode>(
+      _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
+    _redCheck->setVisible(false);
+    _blueCheck->setVisible(false);
+    _greenCheck->setVisible(false);
+    _yellowCheck->setVisible(false);
+    
+    _topFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.top-frame"));
+    _topFrame->setVisible(true);
 
-    _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
-    _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _blueIcon->setScale(0.04f);
-    _blueIcon->setPosition(_size.width * 0.7f, _size.height * 0.9f);
+    _leftFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.left-frame"));
+    _leftFrame->setVisible(true);
 
-    _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
-    _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _greenIcon->setScale(0.04f);
-    _greenIcon->setPosition(_size.width * 0.76f, _size.height * 0.9f);
+    _bottomFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.bottom.bottom-frame"));
+    _bottomFrame->setVisible(true);
 
-    _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
-    _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
-    _yellowIcon->setScale(0.04f);
-    _yellowIcon->setPosition(_size.width * 0.82f, _size.height * 0.9f);
-
-    _topFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TOP_FRAME));
-    _topFrame->setScale(0.45f, 0.4f);
-    _topFrame->setAnchor(Vec2::ANCHOR_CENTER);
-    _topFrame->setPosition(_size.width * 0.51f, _size.height * 0.96f);
-
-    _leftFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(LEFT_FRAME));
-    _leftFrame->setScale(0.36f);
-    _leftFrame->setAnchor(Vec2::ANCHOR_MIDDLE_LEFT);
-    _leftFrame->setPosition(0, _size.height * 0.5f);
-
-    _bottomFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BOTTOM_FRAME));
-    _bottomFrame->setScale(0.45f, 0.4f);
-    _bottomFrame->setAnchor(Vec2::ANCHOR_CENTER);
-    _bottomFrame->setPosition(_size.width * 0.51f, _size.height * 0.04f);
-
-    _timerFrame = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TIMER));
-    _timerFrame->setScale(0.5f ,0.45f);
-    _timerFrame->setAnchor(Vec2::ANCHOR_CENTER);
-    _timerFrame->setPosition(_size.width * 0.5f, _size.height * 0.86f);
-
-    addChild(_rightButton);
-    addChild(_readyButton);
-    addChild(_leftButton);
-    addChild(_trashButton);
-    addChild(_timerFrame);
-    addChild(_timer);
-    addChild(_topFrame);
-    addChild(_leftFrame);
-    addChild(_bottomFrame);
-
+    addChild(scene);
+    addChild(_pauseButton);
     return true;
 }
 
@@ -210,23 +194,14 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
 void BuildPhaseUIScene::initInventory(std::vector<Item> inventoryItems, std::vector<std::string> assetNames)
 {
     // Set the background
-    _inventoryBackground = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(INVENTORY));
-    _inventoryBackground->setScale(0.9f);
-    _inventoryBackground->setAnchor(Vec2::ANCHOR_CENTER);
-    _inventoryBackground->setPosition(Vec2(_size.width * 0.92, _size.height*0.5));
-    //_inventoryBackground->setColor(Color4(131,111,108));
+    _inventoryBackground = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.right.inventory"));
     _inventoryBackground->setVisible(true);
-    addChild(_inventoryBackground);
 
     setInventoryButtons(inventoryItems, assetNames);
 
     // Set the darkened overlay
-    _inventoryOverlay = scene2::PolygonNode::alloc();
-    _inventoryOverlay->setPosition(Vec2(_size.width * 0.88, _size.height * 0.1));
-    _inventoryOverlay->setContentSize(Size(_size.width * 0.18, _size.height * 0.8));
-    _inventoryOverlay->setColor(Color4(0, 0, 0, 128));
+    _inventoryOverlay = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.right.overlay"));
     _inventoryOverlay->setVisible(false);
-    addChild(_inventoryOverlay);
 }
 
 #pragma mark -
@@ -265,60 +240,31 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     if (elapsedTime >= BUILD_TIME * 1000000){
         _isReady = true;
     }
-    else if (BUILD_TIME - elapsedTime / 1000000 < 10){
-        _timer->setPosition(_size.width * 0.52f, _size.height * 0.9f);
-    }
-    else if (BUILD_TIME - elapsedTime / 1000000 < 20){
-        _timer->setPosition(_size.width * 0.51f, _size.height * 0.9f);
-    }
-    if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
-        // TODO: Finish player ready logic
-        for (auto& player : _networkController->getPlayerList()){
-            if (player->getName() == "playerRed"){
-                _iconList.push_back(_redIcon);
-                addChild(_redIcon);
-            }
-            if (player->getName() == "playerBlue"){
-                _iconList.push_back(_blueIcon);
-                addChild(_blueIcon);
-            }
-            if (player->getName() == "playerGreen"){
-                _iconList.push_back(_greenIcon);
-                addChild(_greenIcon);
-            }
-            if (player->getName() == "playerYellow"){
-                _iconList.push_back(_yellowIcon);
-                addChild(_yellowIcon);
-            }
-        }
+    _redIcon->setVisible(false);   _redCheck->setVisible(false);
+    _blueIcon->setVisible(false);  _blueCheck->setVisible(false);
+    _greenIcon->setVisible(false); _greenCheck->setVisible(false);
+    _yellowIcon->setVisible(false);_yellowCheck->setVisible(false);
 
-        for (std::shared_ptr<cugl::scene2::PolygonNode> icon : _iconList){
-            std::shared_ptr<cugl::scene2::PolygonNode> checkmark = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(CHECKMARK));
-            checkmark->setAnchor(Vec2::ANCHOR_CENTER);
-            checkmark->setScale(0.04f);
-            checkmark->setPosition(icon->getPositionX() + 25, icon->getPositionY() - 15);
-            _checkmarkMap[icon] = checkmark;
-            _checkmarkList.push_back(checkmark);
-            checkmark->setVisible(false);
-            addChild(checkmark);
+    for (auto& player : _networkController->getPlayerList()) {
+        bool ready = player->getReady();
+        std::string name = player->getName();
+        if (name=="playerRed") {
+            _redIcon->setVisible(true);
+            _redCheck->setVisible(ready);
         }
-        _playersCounted = true;
-    }
-    for (auto& player : _networkController->getPlayerList()){
-        if (player->getName() == "playerRed" && player->getReady()){
-            _checkmarkMap[_redIcon]->setVisible(true);
+        if (name=="playerBlue") {
+            _blueIcon->setVisible(true);
+            _blueCheck->setVisible(ready);
         }
-        if (player->getName() == "playerBlue" && player->getReady()){
-            _checkmarkMap[_blueIcon]->setVisible(true);
+        if (name=="playerGreen") {
+            _greenIcon->setVisible(true);
+            _greenCheck->setVisible(ready);
         }
-        if (player->getName() == "playerGreen" && player->getReady()){
-            _checkmarkMap[_greenIcon]->setVisible(true);
+        if (name=="playerYellow") {
+            _yellowIcon->setVisible(true);
+            _yellowCheck->setVisible(ready);
         }
-        if (player->getName() == "playerYellow" && player->getReady()){
-            _checkmarkMap[_yellowIcon]->setVisible(true);
-        }
-    }
-}
+    }}
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -354,6 +300,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
+    _pauseButton->setVisible(value);
     _timer->setVisible(value);
     _redIcon->setVisible(value);
     _blueIcon->setVisible(value);
@@ -365,16 +312,16 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _timerFrame->setVisible(value);
     for (auto& player : _networkController->getPlayerList()){
         if (player->getName() == "playerRed"){
-            _checkmarkMap[_redIcon]->setVisible(false);
+            _redCheck->setVisible(false);
         }
         if (player->getName() == "playerBlue"){
-            _checkmarkMap[_blueIcon]->setVisible(false);
+            _blueCheck->setVisible(false);
         }
         if (player->getName() == "playerGreen"){
-            _checkmarkMap[_greenIcon]->setVisible(false);
+            _greenCheck->setVisible(false);
         }
         if (player->getName() == "playerYellow"){
-            _checkmarkMap[_yellowIcon]->setVisible(false);
+            _yellowCheck->setVisible(false);
         }
     }
 
@@ -408,25 +355,35 @@ void BuildPhaseUIScene::activateInventory(bool value) {
  */
 void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
     // Reset buttons
-    for (auto it = _inventoryButtons.begin(); it != _inventoryButtons.end(); ) {
-        std::shared_ptr<scene2::Button> btn = *it;
-        btn->dispose();
-        it = _inventoryButtons.erase(it);
-    }
+    for (auto btn : _inventoryButtons) { btn->dispose(); }
+    _inventoryButtons.clear();
+    auto scene = _assets->get<scene2::SceneNode>("buildmode");
+    scene->setContentSize(getSize());
+    scene->doLayout();
+    auto rightPanel = std::dynamic_pointer_cast<scene2::SceneNode>(_assets->get<scene2::SceneNode>("buildmode.right"));
 
-    float yOffset = 0;
-    for (size_t itemNo = 0; itemNo < inventoryItems.size(); itemNo++)
-    {
-        std::shared_ptr<scene2::PolygonNode> itemNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[itemNo]));
-        std::shared_ptr<scene2::Button> itemButton = scene2::Button::alloc(itemNode);
-        itemButton->setAnchor(Vec2::ANCHOR_CENTER);
-        itemButton->setScale(0.2f);
-        itemButton->setPosition(_size.width - 75, _size.height - 120 - yOffset);
-        itemButton->setName(itemToString(inventoryItems[itemNo]));
-        itemButton->setVisible(true);
-        itemButton->activate();
-        _inventoryButtons.push_back(itemButton);
-        addChild(itemButton);
-        yOffset += 115;
+    for (size_t i = 0; i < inventoryItems.size() && i < 4; ++i) {
+        std::string slotName = "item" + std::to_string(i+1);
+        auto slotNode = std::dynamic_pointer_cast<scene2::SceneNode>(
+                             rightPanel->getChildByName(slotName));
+        if (!slotNode) continue;
+        
+        auto imgNode = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                           slotNode->getChildByName(slotName));
+        if (!imgNode) continue;
+        
+        Size slotSize = imgNode->getContentSize();
+        Vec2  slotAnchor = imgNode->getAnchor();
+        auto icon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(assetNames[i]));
+        icon->setContentSize(slotSize);
+        icon->setAnchor(Vec2::ANCHOR_CENTER);
+        icon->setPosition(slotSize * 0.5f);
+
+        auto button = scene2::Button::alloc(icon);
+        button->setName(itemToString(inventoryItems[i]));
+        button->activate();
+        slotNode->addChild(button);
+
+        _inventoryButtons.push_back(button);
     }
 }

@@ -127,7 +127,7 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     // Initialize object controller
     _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, _objects);
 
-    addChild(gridManager->getGridNode());
+    addChild(_gridManager->getGridNode());
 
     _active = true;
     populate();
@@ -154,7 +154,24 @@ void MovePhaseScene::populate() {
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
     level->setScale(_scale);
     std::string key;
-    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson("json/playground.json");
+    
+    // Pick the level based on levelNum
+    string levelName;
+    
+    if (_levelNum == 1){
+        levelName = LEVEL_1;
+    }
+    else if (_levelNum == 2){
+        levelName = LEVEL_2;
+    }
+    else if (_levelNum == 3){
+        levelName = LEVEL_3;
+    }
+    else{
+        CULog("NO LEVEL SET");
+    }
+    
+    vector<shared_ptr<Object>> levelObjs = level->createLevelFromJson(levelName);
     _gridManager->clear();
     _objectController->setNetworkController(_networkController);
     for (auto& obj : levelObjs) {
@@ -226,6 +243,8 @@ void MovePhaseScene::reset() {
     _goalDoor = nullptr;
     _treasure = nullptr;
     _objects = nullptr;
+    
+    _levelNum = 0;
 
     _worldnode->removeAllChildren();
     _debugnode->removeAllChildren();
@@ -323,6 +342,10 @@ Vec2 MovePhaseScene::convertScreenToBox2d(const Vec2 &screenPos)
     int yGrid = yBox2D;
 
     return Vec2(xGrid, yGrid);
+}
+
+/**
+ * This method links a scene node to the obstacle.
 }
 
 /**
