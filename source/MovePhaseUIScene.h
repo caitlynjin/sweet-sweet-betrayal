@@ -101,6 +101,8 @@ protected:
     
     bool _giveUp = false;
 
+     /** Countdown for give up button */
+    int _giveUpCountDown = 500;
     
     
 
@@ -321,6 +323,11 @@ public:
      * @param total     The total number of rounds
      */
     void updateRound(int cur, int total);
+
+    /** Setters and Getters for Give Up Countdown */
+    int getGiveUpCountdown() {return _giveUpCountDown;}
+
+    void setGiveUpCountdown(int val) {_giveUpCountDown = val;}
 
 };
 

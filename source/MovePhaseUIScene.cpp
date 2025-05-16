@@ -155,7 +155,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_jumpbutton);
 
-    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GIVEUP_BUTTON));
+    std::shared_ptr<scene2::PolygonNode> glideNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GLIDE_BUTTON));
     glideNode->setScale(0.75f);
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
@@ -171,11 +171,11 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_glidebutton);
     
-    std::shared_ptr<scene2::PolygonNode> giveupNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(JUMP_BUTTON));
-    giveupNode->setScale(0.75f);
+    std::shared_ptr<scene2::PolygonNode> giveupNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GIVEUP_BUTTON));
+    giveupNode->setScale(1.0f);
     _giveupbutton = scene2::Button::alloc(giveupNode);
     _giveupbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _giveupbutton->setPosition(_size.width * 0.85f, _size.height * 0.85f);
+    _giveupbutton->setPosition(_size.width * 0.90f, _size.height * 0.85f);
     _giveupbutton->setVisible(false);
     _giveupbutton->addListener([this](const std::string &name, bool down) {
         if (down) {
@@ -315,16 +315,15 @@ void MovePhaseUIScene::disableUI(bool value) {
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _giveupbutton->deactivate();
+        _giveupbutton->setVisible(!value);
+        _giveUpCountDown = 500;
     }
     else{
         _jumpbutton->activate();
         _glidebutton->activate();
-        _giveupbutton->activate();
     }
     _jumpbutton->setVisible(!value);
     _glidebutton->setVisible(!value);
-    _giveupbutton->setVisible(!value);
-    
 }
 
 #pragma mark -

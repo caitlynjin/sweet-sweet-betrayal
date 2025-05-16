@@ -247,7 +247,13 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setGlideButtonActive();
         _uiScene.setDidJump(false);
     }
-    _uiScene.setGiveUpButtonActive(true);
+    if (_uiScene.getGiveUpCountdown() == 0) {
+        _uiScene.setGiveUpButtonActive(true);
+    } else {
+        _uiScene.setGiveUpCountdown(_uiScene.getGiveUpCountdown()-1);
+    }
+
+    
 
     updateProgressBar(_movePhaseScene.getLocalPlayer());
 
