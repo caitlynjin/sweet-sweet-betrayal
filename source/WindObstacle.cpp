@@ -216,7 +216,7 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     
 
     if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
-        setPosition(pos + size/2);
+        setPosition(pos);
         
         setDensity(0.0f);
         setFriction(0.0f);
