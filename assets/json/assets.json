@@ -669,6 +669,42 @@
         },
         "overlay": {
             "file": "textures/overlay.png"
+        },
+        "credits-background": {
+            "file": "textures/credits/credits-background.png"
+        },
+        "credits-content": {
+            "file": "textures/credits/credits-content.png"
+        },
+        "button_back": {
+            "file": "textures/credits/back.png"
+        },
+        "credits-logos": {
+            "file": "textures/credits/credits-logos.png"
+        },
+        "help-background": {
+            "file": "textures/help/help-background.png"
+        },
+        "left-scroll-arrow": {
+            "file": "textures/help/left-scroll-arrow.png"
+        },
+        "right-scroll-arrow": {
+            "file": "textures/help/right-scroll-arrow.png"
+        },
+        "help-obstacles": {
+            "file": "textures/help/help-obstacles.png"
+        },
+        "help-building": {
+            "file": "textures/help/help-building.png"
+        },
+        "help-racing": {
+            "file": "textures/help/help-racing.png"
+        },
+        "help-scoring": {
+            "file": "textures/help/help-scoring.png"
+        },
+        "help-stealing": {
+            "file": "textures/help/help-stealing.png"
         }
     },
     "jsons": {
@@ -835,8 +871,10 @@
         "pause": "widgets/pause.json",
         "level": "widgets/level.json",
         "levelmodal": "widgets/levelmodal.json",
+        "buildmode": "widgets/buildmode.json",
+        "credits": "widgets/credits.json",
         "setting": "widgets/setting.json",
-        "buildmode": "widgets/buildmode.json"
+        "help": "widgets/help.json"
     },
     "scene2s": {
         "start": {
@@ -958,6 +996,26 @@
             },
             "data": {
                 "key": "buildmode"
+            }
+        },
+        "credits": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the credits screen",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "credits"
+            }
+        },
+        "help": {
+            "type": "Widget",
+            "comment": "This is the root node of the scene for the help screen",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "help"
             }
         },
         "game": {
