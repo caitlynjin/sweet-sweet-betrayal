@@ -55,6 +55,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _leftButton;
     /** Reference to the trash button */
     std::shared_ptr<cugl::scene2::Button> _trashButton;
+    /** Reference to the pause button */
+    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     /** Reference to the timer */
     std::shared_ptr<cugl::scene2::Label> _timer;
     /** Reference to the red icon */
@@ -65,6 +67,13 @@ protected:
     std::shared_ptr<cugl::scene2::PolygonNode> _greenIcon;
     /** Reference to the yellow icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _yellowIcon;
+    
+    /** Reference to the checkmarks */
+    std::shared_ptr<cugl::scene2::PolygonNode> _redCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _blueCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _greenCheck;
+    std::shared_ptr<cugl::scene2::PolygonNode> _yellowCheck;
+    
     /** Reference to the top frame */
     std::shared_ptr<cugl::scene2::PolygonNode> _topFrame;
     /** Reference to the left frame */
@@ -79,6 +88,8 @@ protected:
     */
     Uint64 _previousElapsedTime = BUILD_TIME;
 
+    /** Whether the game is paused */
+    bool _isPaused = false;
     /** Whether the player is ready to proceed to movement phase */
     bool _isReady = false;
     /** Whether right camera button is being pressed */
@@ -187,11 +198,20 @@ public:
         return _isReady;
     }
 
-
     /**
      * Sets whether the player has pressed the ready button to indicate they are done with build phase.
      */
     void setIsReady(bool isDone);
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
 
     /**
      * Gets the inventory buttons.

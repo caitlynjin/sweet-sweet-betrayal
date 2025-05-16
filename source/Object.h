@@ -98,6 +98,11 @@ public:
 	void setTexture(const std::shared_ptr<graphics::Texture>& texture);
 
     /**
+     * Gets the scene node
+     */
+    std::shared_ptr<scene2::SceneNode> getSceneNode() { return _sceneNode; };
+
+    /**
      * Sets the scene node
      */
     void setSceneNode(const std::shared_ptr<scene2::SceneNode>& node);
@@ -151,6 +156,14 @@ public:
 	virtual std::map<std::string, std::any> getMap();
 
 	friend bool operator==(Object self, Object other);
+
+    /**
+     * Sets whether the object is transparent.
+     *
+     * @param node      the object scene node
+     * @param value     whether to set the object to transparent or not
+     */
+    void setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value);
 };
 
 

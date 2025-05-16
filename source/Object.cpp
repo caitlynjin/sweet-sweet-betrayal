@@ -98,3 +98,29 @@ std::map<std::string, std::any> Object::getMap() {
 bool operator==(Object self, Object other) {
 	return self.getPositionInit() == other.getPositionInit() && self.getSize() == other.getSize();
 }
+
+/**
+ * Sets whether the object is transparent.
+ *
+ * @param node      the object scene node
+ * @param value     whether to set the object to transparent or not
+ */
+void Object::setGhost(const std::shared_ptr<cugl::scene2::SceneNode>& node, bool value) {
+    if (node) {
+        if (value) {
+            // Set transparent
+            Color4 color = node->getColor();
+            color.a = 150;
+            node->setColor(color);
+        } else {
+            // Restore color
+            Color4 color = node->getColor();
+            color.a = 255;
+            node->setColor(color);
+        }
+        
+        for (const auto& child : node->getChildren()) {
+            setGhost(child, value);
+        }
+    }
+}

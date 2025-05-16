@@ -22,23 +22,25 @@ using namespace cugl::graphics;
 class GridManager {
 public:
     /** Maps grid positions to all world objects */
-    std::map<std::pair<int, int>, std::shared_ptr<Object>> posToWorldObjMap;
+    std::map<std::pair<float, float>, std::shared_ptr<Object>> posToWorldObjMap;
     /** Maps grid positions to moveable world objects */
-    std::map<std::pair<int, int>, std::shared_ptr<Object>> posToObjMap;
+    std::map<std::pair<float, float>, std::shared_ptr<Object>> posToObjMap;
     /** Maps grid positions to moveable art objects */
-    std::map<std::pair<int, int>, std::vector<std::shared_ptr<Object>>> posToArtObjMap;
+    std::map<std::pair<float, float>, std::vector<std::shared_ptr<Object>>> posToArtObjMap;
     /** Maps grid positions to whether there exists an object (moveable or non-moveable) that contains the grid box */
-    std::map<std::pair<int, int>, bool> hasObjMap;
+    std::map<std::pair<float, float>, bool> hasObjMap;
     /** Maps all world objects to bottom left position of objects */
-    std::map<std::shared_ptr<Object>, std::pair<int, int>> worldObjToPosMap;
+    std::map<std::shared_ptr<Object>, std::pair<float, float>> worldObjToPosMap;
     /** Maps moveable world objects to bottom left position of objects */
-    std::map<std::shared_ptr<Object>, std::pair<int, int>> objToPosMap;
+    std::map<std::shared_ptr<Object>, std::pair<float, float>> objToPosMap;
 
 private:
     /** Reference to building mode grid */
     std::shared_ptr<scene2::SceneNode> _grid;
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    /** The Box2D world */
+    std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
 
     /** The scale between the physics world and the screen (MUST BE UNIFORM) */
     float _scale;
@@ -64,9 +66,10 @@ public:
      *
      * @return  A newly allocated GridManager
      */
-    static std::shared_ptr<GridManager> alloc(bool isLevelEditor, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets) {
+    static std::shared_ptr<GridManager> alloc(bool isLevelEditor, int columns, float scale, Vec2 offset, const std::shared_ptr<AssetManager>& assets, std::shared_ptr<cugl::physics2::distrib::NetWorld> world) {
         auto manager = std::make_shared<GridManager>();
 
+        manager->_world = world;
         manager->_assets = assets;
         manager->_scale = scale;
         manager->_offset = offset;
@@ -91,6 +94,16 @@ public:
 
     /** Clears the object maps */
     void clear();
+
+    /** Clears this rounds' object maps */
+    void clearRound();
+
+    /**
+     * The method called to update the grid.
+     *
+     * @param timestep  The amount of time (in seconds) since the last frame
+     */
+    void update(float timestep);
 
 #pragma mark -
 #pragma mark Attribute Properties
@@ -157,13 +170,13 @@ public:
     std::shared_ptr<Object> moveObject(Vec2 cellPos);
 
     /**
-     * Removes the object from the world object map, if it exists.
+     * Removes the world object from the object map, if it exists.
      *
      *@return   the world object removed
      *
-     *@param cellPos    the cell position
+     *@param obj    the world object
      */
-    std::shared_ptr<Object> removeWorldObject(Vec2 cellPos);
+    std::shared_ptr<Object> moveWorldObject(std::shared_ptr<Object> obj);
 
     /**
      * Checks whether we can place the object in the cell position.
@@ -175,6 +188,15 @@ public:
      * @param item      the item type
      */
     bool canPlace(Vec2 cellPos, Size size, Item item);
+
+    /**
+     * Checks whether we can place an existing object in the cell position.
+     *
+     * @return false if there exists an object
+     *
+     * @param cellPos    the cell position
+     */
+    bool canPlaceExisting(Vec2 cellPos, std::shared_ptr<Object> obj);
 
     /**
      * Deletes the object at this cell position from the world.

@@ -150,6 +150,13 @@ void ArtObject::setSceneNode(const std::shared_ptr<scene2::SceneNode>& node) {
     _node->setAngle(0);
 }
 
+void ArtObject::setParallax(bool value) {
+    _isParallax = value;
+}
+
+void ArtObject::setParallaxScrollRate(float scrollRate) {
+    _scrollRate = scrollRate;
+}
 
 std::map<std::string, std::any> ArtObject::getMap() {
     std::map<std::string, std::any> m = {
