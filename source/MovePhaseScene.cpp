@@ -130,7 +130,8 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     addChild(_gridManager->getGridNode());
 
     _active = true;
-    populate();
+    
+//    populate();
 
     return true;
 }
@@ -357,8 +358,11 @@ void MovePhaseScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& o
     const std::shared_ptr<scene2::SceneNode>& node) {
 
     node->setPosition(obj->getPosition() * _scale);
-    _worldnode->addChild(node);
+    if (!_worldnode){
+        return;
+    }
 
+    _worldnode->addChild(node);
     // Dynamic objects need constant updating
     if (obj->getBodyType() == b2_dynamicBody) {
         scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback

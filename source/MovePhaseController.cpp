@@ -76,6 +76,8 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
     
+    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+    
     
     // SEPARATE INTO PART 2 FOR WHEN LEVEL NUMBER IS LOADED IN
     // OR DON'T CALL UPDATE UNTIL LEVEL NUMBER IS LOADED IN
@@ -89,7 +91,8 @@ bool MovePhaseController::finishInit(){
 //        _network->enablePhysics(_world);
 //    }
     
-    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+//    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+    _movePhaseScene.populate();
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
 
