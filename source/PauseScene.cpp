@@ -91,6 +91,9 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     _resumeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("pause.modal.resume"));
 
     // Program the buttons
+    _musicSlider->setBounds(Rect(35, _musicSlider->getBounds().getMinY(), _musicSlider->getBounds().getMaxX() - 35, 0));
+    _sfxSlider->setBounds(Rect(35, _sfxSlider->getBounds().getMinY(), _sfxSlider->getBounds().getMaxX() - 35, 0));
+
     _musicSlider->addListener([this](const std::string& name, float value) {
         _sound->setMusicVolume(value / 100, true);
     });
