@@ -617,6 +617,7 @@ void PlayerModel::handleFriction() {
  */
 void PlayerModel::update(float dt)
 {
+    
     _prevPos = getPosition();
     // ANIMATION
     // TODO: Move to method updateAnimation
@@ -682,8 +683,11 @@ void PlayerModel::update(float dt)
         setLinearVelocity(Vec2(0,0));
     }
     
+
     if (!_isDead && !_immobile){
+        CULog("updated");
         if (_isLocal) {
+            CULog("plyrupdate");
             handlePlayerState();
             //Updates timers appropriately based on state
             switch (_state) {
@@ -862,11 +866,11 @@ void PlayerModel::windUpdate(float dt)
         break;
     }
 
-    if (_windDist < WIND_DIST_THRESHOLD || _isGliding) {
+    if (_windDist < WIND_DIST_THRESHOLD || _state == State::GLIDING) {
         b2Vec2 vel = _body->GetLinearVelocity();
         vel.x += _windVel.x * mult;
         vel.y += _windVel.y * mult;
-        if (vel.y <= 0 && _windVel.y>0 && !_isGliding) {
+        if (vel.y <= 0 && _windVel.y>0 && !(_state == State::GLIDING)) {
             vel.y += 3*_windVel.y * mult;
         }
         

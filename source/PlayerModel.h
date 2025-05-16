@@ -613,14 +613,14 @@ public:
      *
      * @return true if the dude is actively jumping.
      */
-    bool isJumping() const { return _isJumping && _jumpCooldown <= 0; }
+    //bool isJumping() const { return _isJumping && _jumpCooldown <= 0; }
     
     /**
      * Sets whether the dude is actively jumping.
      *
      * @param value whether the dude is actively jumping.
      */
-    void setJumping(bool value) { _isJumping = value; }
+    //void setJumping(bool value) { _isJumping = value; }
 
     /*Buffers a jump input. If we become grounded before the buffer duration is over, intiatie a jump**/
 
