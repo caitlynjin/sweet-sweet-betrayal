@@ -642,6 +642,18 @@
         },
         "overlay": {
             "file": "textures/overlay.png"
+        },
+        "credits-background": {
+          "file": "textures/credits-background.png"
+        },
+        "credits-content": {
+          "file": "textures/credits-content.png"
+        },
+        "button_back": {
+          "file": "textures/back.png"
+        },
+        "credits-logos": {
+          "file": "textures/credits-logos.png"
         }
     },
     "jsons": {
@@ -810,7 +822,8 @@
         "pause": "widgets/pause.json",
         "level" : "widgets/level.json",
         "levelmodal" : "widgets/levelmodal.json",
-        "buildmode" : "widgets/buildmode.json"
+        "buildmode" : "widgets/buildmode.json",
+        "credits" : "widgets/credits.json"
     },
     "scene2s": {
         "start": {
@@ -922,6 +935,16 @@
             },
             "data": {
                 "key": "buildmode"
+            }
+        },
+        "credits" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the credits screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "credits"
             }
         },
         "game": {
