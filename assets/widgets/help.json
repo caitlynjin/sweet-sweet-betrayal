@@ -49,10 +49,10 @@
                     "y_offset": 0
                 }
             },
-            "obstacles-placeholder": {
+            "help-obstacles": {
                 "type": "Image",
                 "data": {
-                    "texture": "obstacles-placeholder",
+                    "texture": "help-obstacles",
                     "anchor": [
                         0.5,
                         0.5
@@ -76,10 +76,10 @@
                     "y_offset": 0.08
                 }
             },
-            "building-placeholder": {
+            "help-building": {
                 "type": "Image",
                 "data": {
-                    "texture": "building-placeholder",
+                    "texture": "help-building",
                     "anchor": [
                         0.5,
                         0.5
@@ -103,10 +103,10 @@
                     "y_offset": 0.08
                 }
             },
-            "racing-placeholder": {
+            "help-racing": {
                 "type": "Image",
                 "data": {
-                    "texture": "racing-placeholder",
+                    "texture": "help-racing",
                     "anchor": [
                         0.5,
                         0.5
@@ -130,10 +130,10 @@
                     "y_offset": 0.08
                 }
             },
-            "scoring-placeholder": {
+            "help-scoring": {
                 "type": "Image",
                 "data": {
-                    "texture": "scoring-placeholder",
+                    "texture": "help-scoring",
                     "anchor": [
                         0.5,
                         0.5
@@ -157,10 +157,10 @@
                     "y_offset": 0.08
                 }
             },
-            "stealing-placeholder": {
+            "help-stealing": {
                 "type": "Image",
                 "data": {
-                    "texture": "stealing-placeholder",
+                    "texture": "help-stealing",
                     "anchor": [
                         0.5,
                         0.5

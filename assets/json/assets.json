@@ -676,20 +676,20 @@
         "right-scroll-arrow": {
             "file": "textures/help/right-scroll-arrow.png"
         },
-        "obstacles-placeholder": {
-            "file": "textures/help/obstacles-placeholder.png"
+        "help-obstacles": {
+            "file": "textures/help/help-obstacles.png"
         },
-        "building-placeholder": {
-            "file": "textures/help/building-placeholder.png"
+        "help-building": {
+            "file": "textures/help/help-building.png"
         },
-        "racing-placeholder": {
-            "file": "textures/help/racing-placeholder.png"
+        "help-racing": {
+            "file": "textures/help/help-racing.png"
         },
-        "scoring-placeholder": {
-            "file": "textures/help/scoring-placeholder.png"
+        "help-scoring": {
+            "file": "textures/help/help-scoring.png"
         },
-        "stealing-placeholder": {
-            "file": "textures/help/stealing-placeholder.png"
+        "help-stealing": {
+            "file": "textures/help/help-stealing.png"
         }
     },
     "jsons": {

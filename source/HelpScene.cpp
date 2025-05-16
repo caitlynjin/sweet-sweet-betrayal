@@ -58,11 +58,11 @@ bool HelpScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     }
     _choice = Choice::NONE;
 
-    _obstacles = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.obstacles-placeholder"));
-    _building = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.building-placeholder"));
-    _racing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.racing-placeholder"));
-    _scoring = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.scoring-placeholder"));
-    _stealing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.stealing-placeholder"));
+    _obstacles = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-obstacles"));
+    _building = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-building"));
+    _racing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-racing"));
+    _scoring = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-scoring"));
+    _stealing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-stealing"));
 
     _tutorials = {_obstacles, _building, _racing, _stealing, _scoring};
 
