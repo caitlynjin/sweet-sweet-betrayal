@@ -685,6 +685,21 @@ void NetworkController::trySetFilters(){
     }
 }
 
+void NetworkController::nextPlayer(bool next) {
+    if (_alivePlayerList.size() > 1 && next){
+        std::rotate(_alivePlayerList.begin(),
+                    _alivePlayerList.begin() + 1,
+                    _alivePlayerList.end());
+    }
+    else {
+        if (_alivePlayerList.size() > 1 && !next){
+            std::rotate(_alivePlayerList.begin(),
+                        _alivePlayerList.begin() + _alivePlayerList.size() - 1,
+                        _alivePlayerList.end());
+        }
+    }
+}
+
 #pragma mark -
 #pragma mark Factories
 

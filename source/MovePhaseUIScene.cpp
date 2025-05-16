@@ -154,11 +154,6 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _rightButton->setVisible(false);
     _rightButton->addListener([this](const std::string &name, bool down) {
         _rightpressed = down;
-        if (_networkController->getAlivePlayers().size() > 1){
-            std::rotate(_networkController->getAlivePlayers().begin(),
-                        _networkController->getAlivePlayers().begin() + 1,
-                        _networkController->getAlivePlayers().end());
-        }
     });
     addChild(_rightButton);
 
@@ -171,11 +166,6 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _leftButton->setVisible(false);
     _leftButton->addListener([this](const std::string &name, bool down) {
         _leftpressed = down;
-        if (_networkController->getAlivePlayers().size() > 1){
-            std::rotate(_networkController->getAlivePlayers().begin(),
-                        _networkController->getAlivePlayers().begin() + _networkController->getAlivePlayers().size() - 1,
-                        _networkController->getAlivePlayers().end());
-        }
     });
     addChild(_leftButton);
 
@@ -314,6 +304,14 @@ void MovePhaseUIScene::preUpdate(float dt) {
         _leftButton->activate();
         _rightButton->setVisible(true);
         _leftButton->setVisible(true);
+    }
+    if (_rightpressed){
+        _networkController->nextPlayer(true);
+        _rightpressed = false;
+    }
+    else if (_leftpressed){
+        _networkController->nextPlayer(false);
+        _leftpressed = false;
     }
 }
 

@@ -654,6 +654,14 @@ public:
     std::vector<std::shared_ptr<PlayerModel>> getAlivePlayers(){
         return _alivePlayerList;
     }
+
+    /**
+     * Goes to next player to spectate.
+     *
+     * @param next whether player is going to next or previous player.
+     */
+    void nextPlayer(bool next);
+
     /**
      * Returns the color of the player by their shortUID
      */
