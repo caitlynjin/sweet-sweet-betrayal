@@ -100,7 +100,7 @@ bool ArtObject::init(const Vec2 pos, const Size size, float scale, float angle, 
     _itemType = jsonTypeToItemType[jsonType];
     
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(-0.5f, -1.0f), size);
+    Poly2 rect = factory.makeRect(size / -2.0f, size);
     
     if (PolygonObstacle::init(rect)){
 
