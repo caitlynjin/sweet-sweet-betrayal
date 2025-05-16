@@ -125,7 +125,7 @@ void SoundController::setMusicVolume(float vol, bool savePreferences) {
 	if (savePreferences) {
 		saveAudioPreferences();
 	}
-	
+    _musicQueue->setVolume(vol);
 }
 
 void SoundController::setSFXVolume(float vol, bool savePreferences) {
