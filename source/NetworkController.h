@@ -333,9 +333,9 @@ class WindFactory : public ObstacleFactory {
             _assets = assets;
         }
 
-        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength, float angle);
 
-        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength, float angle);
 
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
@@ -866,7 +866,7 @@ public:
      *
      * @return the thorn being created
      */
-    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str);
+    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str, float angle);
 
     /**
      * Creates a networked bomb.

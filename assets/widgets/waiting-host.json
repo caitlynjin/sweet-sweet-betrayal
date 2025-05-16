@@ -11,7 +11,7 @@
                 0
             ],
             "size": [
-                1318,
+                1306,
                 576
             ],
             "angle": 0,
@@ -36,14 +36,14 @@
                     ],
                     "angle": 0,
                     "position": [
-                        0.18,
+                        0,
                         0
                     ],
                     "visible": true
                 },
                 "layout": {
                     "x_anchor": "center",
-                    "y_anchor": "fill",
+                    "y_anchor": "bottom",
                     "absolute": false,
                     "x_offset": 0,
                     "y_offset": 0
@@ -58,7 +58,7 @@
                         0.5
                     ],
                     "size": [
-                        1308,
+                        1306,
                         576
                     ],
                     "angle": 0,
@@ -250,8 +250,8 @@
                 "data": {
                     "texture": "tip1",
                     "anchor": [
-                        0.5,
-                        0
+                        0,
+                        1
                     ],
                     "size": [
                         614,
@@ -265,11 +265,11 @@
                     "visible": true
                 },
                 "layout": {
-                    "x_anchor": "center",
-                    "y_anchor": "bottom",
+                    "x_anchor": "left",
+                    "y_anchor": "top",
                     "absolute": false,
-                    "x_offset": 0.01,
-                    "y_offset": 0.03
+                    "x_offset": 0.27,
+                    "y_offset": -0.8
                 }
             },
             "waiting-host-title": {
