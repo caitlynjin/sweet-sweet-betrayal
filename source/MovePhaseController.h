@@ -86,6 +86,8 @@ protected:
     /** Whether or not it is time to animate the goal */
     bool _animateGoal = false;
 
+    bool _controlEnabled = true;
+
     cugl::ActionFunction _goalDoorAction;
     /** Manager to process the animation actions */
     std::shared_ptr<AnimateSprite> _spinAnimateSprite;

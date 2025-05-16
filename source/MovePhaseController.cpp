@@ -57,7 +57,7 @@ bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, cons
     {
         return false;
     }
-
+    _controlEnabled =true;
     _assets = assets;
     _world = world;
     _input = input;
@@ -191,38 +191,39 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setJoystickHidden();
     }
 
-    //THE GLIDE BULLSHIT SECTION+
+    if (_controlEnabled) {
+        //Check if we have held down the right side of the screen. If we have
+        if (_input->getRightTapped()) {
+            _input->setRightTapped(false);
+            _movePhaseScene.getLocalPlayer()->setJumpHold(true);
 
-    //Check if we have held down the right side of the screen. If we have
-    if (_input->getRightTapped()) {
-        _input->setRightTapped(false);
-        CULog("RIGHT TAPPED");
-        _movePhaseScene.getLocalPlayer()->setJumpHold(true);
+            /*if (!_movePhaseScene.getLocalPlayer()->isGrounded())
+            {
 
-        /*if (!_movePhaseScene.getLocalPlayer()->isGrounded())
-        {
-            
-            _sound->playSound("glide");
-            _movePhaseScene.getLocalPlayer()->bufferJump();
-            _network->pushOutEvent(
-                AnimationEvent::allocAnimationEvent(
-                    _network->getShortUID(),           
-                    AnimationType::GLIDE,              
-                    true                               
-                )
-            );
-        }*/
-    }
-    //If the player has released the right side of the screen
-    else if (!_input->isRightDown()) {
-        if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
-            _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+                _sound->playSound("glide");
+                _movePhaseScene.getLocalPlayer()->bufferJump();
+                _network->pushOutEvent(
+                    AnimationEvent::allocAnimationEvent(
+                        _network->getShortUID(),
+                        AnimationType::GLIDE,
+                        true
+                    )
+                );
+            }*/
         }
-        //_movePhaseScene.getLocalPlayer()->setJumpHold(false);
+        //If the player has released the right side of the screen
+        else if (!_input->isRightDown()) {
+            if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
+                _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+            }
+        }
+        _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
     }
-    _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    else {
+        _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+        _movePhaseScene.getLocalPlayer()->setMovement(0);
+    }
     //_movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
-    //_movePhaseScene.getLocalPlayer()->applyForce();
     if (_uiScene.getDidGiveUp()) {
         killPlayer();
     }
@@ -233,8 +234,11 @@ void MovePhaseController::preUpdate(float dt) {
     //    _sound->playSound("jump");
     //}
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
-        if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
-            windUpdate(wind_cast, dt);
+        if ((*it)->getName() == "fan") {
+
+            if (auto wind_cast = std::dynamic_pointer_cast<WindObstacle>(*it)) {
+                windUpdate(wind_cast, dt);
+            }
         }
     }
 
@@ -300,7 +304,6 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
         auto callback = [this, wind, i](b2Fixture* f, Vec2 point, Vec2 normal, float fraction) {
             b2Body* body = f->GetBody();
             physics2::Obstacle* bd = reinterpret_cast<physics2::Obstacle*>(body->GetUserData().pointer);
-
             // Set grounded for all non-local players
             string fixtureName = wind->ReportFixture(f, point, normal, fraction);
             if ( bd == _movePhaseScene.getLocalPlayer().get()) {
