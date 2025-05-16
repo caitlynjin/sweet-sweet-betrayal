@@ -174,7 +174,7 @@ void ClientScene::dispose() {
     _backout->clearListeners();
     _startgame = nullptr;
     _backout = nullptr;
-    _player = nullptr;
+//    _player = nullptr;
     
     _gameid1 = nullptr;
     _gameid2 = nullptr;
