@@ -54,7 +54,8 @@ using namespace std;
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, const std::shared_ptr<SoundController> sound) {
+bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, const std::shared_ptr<SoundController> &sound 
+) {
     if (assets == nullptr) {
        return false;
    }

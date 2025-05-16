@@ -56,7 +56,7 @@ float GOAL_POSITION[] = { 47.0f, 4.0f };
  */
 LevelEditorController::LevelEditorController() : Scene2(), _world(nullptr){}
 
-bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
+bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound, bool levelEditing)
 {
     return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound, levelEditing);
 }
@@ -80,7 +80,7 @@ bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets, st
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool LevelEditorController::init(const std::shared_ptr<AssetManager>& assets,
-    const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound, bool levelEditing)
+    const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound, bool levelEditing)
 {
     if (assets == nullptr)
     {

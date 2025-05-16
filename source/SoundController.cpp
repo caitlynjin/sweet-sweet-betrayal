@@ -122,6 +122,7 @@ void SoundController::setMusicVolume(float vol, bool savePreferences) {
 	for (auto it = _musicMap.begin(); it != _musicMap.end(); ++it) {
 		it->second->setVolume(_musicOriginalVolumeMap[it->first] * vol);
 	}
+	_musicQueue->setVolume(vol);
 	if (savePreferences) {
 		saveAudioPreferences();
 	}

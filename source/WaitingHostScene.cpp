@@ -28,7 +28,7 @@ using namespace std;
     /**
      * Creates a new  waiting host scene with the default values.
      */
-bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound){
+bool WaitingHostScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound){
     
     if (assets == nullptr) {
        return false;

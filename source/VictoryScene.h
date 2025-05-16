@@ -76,7 +76,7 @@ public:
      */
     void dispose() override;
     
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound, const std::shared_ptr<NetworkController> networkController);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound, const std::shared_ptr<NetworkController> networkController);
     
     virtual void setActive(bool value) override;
     
