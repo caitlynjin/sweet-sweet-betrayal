@@ -45,10 +45,10 @@ bool HelpScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
 
     // Acquire the scene built by the asset loader and resize it the scene
     Size dimen = getSize();
-    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("credits");
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("help");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
-    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("credits.credits-background"));
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.help-background"));
     if (_background) {
         _background->setAnchor(Vec2::ANCHOR_CENTER);
         Size tex = _background->getContentSize();
@@ -58,8 +58,44 @@ bool HelpScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const st
     }
     _choice = Choice::NONE;
 
+    _obstacles = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.obstacles-placeholder"));
+    _building = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.building-placeholder"));
+    _racing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.racing-placeholder"));
+    _scoring = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.scoring-placeholder"));
+    _stealing = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("help.stealing-placeholder"));
+
+    _tutorials = {_obstacles, _building, _racing, _stealing, _scoring};
+
+    _leftButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("help.left-scroll-arrow"));
+    _rightButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("help.right-scroll-arrow"));
     _backButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("help.back"));
 
+    _leftButton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _tutorials[_curTutorial]->setVisible(false);
+            if (_curTutorial == 0){
+                _curTutorial = _tutorials.size() - 1;
+            }
+            else {
+                _curTutorial--;
+            }
+            _tutorials[_curTutorial]->setVisible(true);
+            _sound->playSound("button_click");
+        }
+    });
+    _rightButton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _tutorials[_curTutorial]->setVisible(false);
+            if (_curTutorial == _tutorials.size() - 1){
+                _curTutorial = 0;
+            }
+            else {
+                _curTutorial++;
+            }
+            _tutorials[_curTutorial]->setVisible(true);
+            _sound->playSound("button_click");
+        }
+    });
     _backButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::BACK;
@@ -101,9 +137,15 @@ void HelpScene::setActive(bool value) {
         if (value) {
             _choice = NONE;
             _backButton->activate();
+            _leftButton->activate();
+            _rightButton->activate();
         } else {
             _backButton->deactivate();
+            _leftButton->deactivate();
+            _rightButton->deactivate();
             _backButton->setDown(false);
+            _leftButton->setDown(false);
+            _rightButton->setDown(false);
         }
     }
 }

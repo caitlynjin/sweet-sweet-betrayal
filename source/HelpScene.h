@@ -42,6 +42,17 @@ protected:
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
 
+    std::shared_ptr<scene2::PolygonNode> _obstacles;
+    std::shared_ptr<scene2::PolygonNode> _building;
+    std::shared_ptr<scene2::PolygonNode> _racing;
+    std::shared_ptr<scene2::PolygonNode> _scoring;
+    std::shared_ptr<scene2::PolygonNode> _stealing;
+
+    std::vector<std::shared_ptr<scene2::PolygonNode>> _tutorials;
+    int _curTutorial = 0;
+
+    std::shared_ptr<scene2::Button> _leftButton;
+    std::shared_ptr<scene2::Button> _rightButton;
     std::shared_ptr<scene2::Button> _backButton;
 
     Choice _choice;
