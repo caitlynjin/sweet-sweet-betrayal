@@ -650,16 +650,16 @@
             "file": "textures/overlay.png"
         },
         "credits-background": {
-            "file": "textures/credits-background.png"
+            "file": "textures/credits/credits-background.png"
         },
         "credits-content": {
-            "file": "textures/credits-content.png"
+            "file": "textures/credits/credits-content.png"
         },
         "button_back": {
-            "file": "textures/back.png"
+            "file": "textures/credits/back.png"
         },
         "credits-logos": {
-            "file": "textures/credits-logos.png"
+            "file": "textures/credits/credits-logos.png"
         }
     },
     "jsons": {

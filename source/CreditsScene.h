@@ -5,8 +5,6 @@
 #ifndef SWEETSWEETBETRAYAL_CREDITSSCENE_H
 #define SWEETSWEETBETRAYAL_CREDITSSCENE_H
 
-#ifndef __START_SCENE_H__
-#define __START_SCENE_H__
 #include <cugl/cugl.h>
 #include <unordered_set>
 #include <vector>
@@ -30,7 +28,7 @@ public:
         /** User has not yet made a choice */
         NONE,
         /** User wants to start a game */
-        BACK,
+        BACK
     };
 
 protected:
@@ -43,6 +41,8 @@ protected:
     PlatformInput _input;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
+
+    std::shared_ptr<scene2::Button> _backButton;
 
     Choice _choice;
 

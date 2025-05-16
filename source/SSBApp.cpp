@@ -77,6 +77,7 @@ void SSBApp::onShutdown()
     _gameController.dispose();
     _startscreen.dispose();
     _settingscreen.dispose();
+    _creditsscreen.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _levelSelect.dispose();
@@ -209,6 +210,8 @@ void SSBApp::preUpdate(float dt)
         _startscreen.setSpriteBatch(_batch);
         _settingscreen.init(_assets, _sound);
         _settingscreen.setSpriteBatch(_batch);
+        _creditsscreen.init(_assets, _sound);
+        _creditsscreen.setSpriteBatch(_batch);
         _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets, _networkController, _sound);
@@ -248,6 +251,9 @@ void SSBApp::preUpdate(float dt)
             break;
         case SETTING:
             updateSettingScene(dt);
+            break;
+        case CREDITS:
+            updateCreditsScene(dt);
             break;
         case MENU:
             updateMenuScene(dt);
@@ -530,7 +536,24 @@ void SSBApp::updateSettingScene(float timestep){
             _startscreen.setActive(true);
             _status = START;
             break;
+        case SettingScene::Choice::CREDITS:
+            _settingscreen.setActive(false);
+            _creditsscreen.setActive(true);
+            _status = CREDITS;
         case SettingScene::Choice::NONE:
+            break;
+    }
+}
+
+void SSBApp::updateCreditsScene(float timestep){
+    _creditsscreen.update(timestep);
+    switch (_creditsscreen.getChoice()){
+        case CreditsScene::Choice::BACK:
+            _creditsscreen.setActive(false);
+            _settingscreen.setActive(true);
+            _status = SETTING;
+            break;
+        case CreditsScene::Choice::NONE:
             break;
     }
 }
@@ -831,6 +854,7 @@ void SSBApp::resetScenes(){
     
     _startscreen.reset();
     _settingscreen.reset();
+    _creditsscreen.reset();
     _mainmenu.reset();
     _hostgame.reset();
     _joingame.reset();
@@ -862,6 +886,9 @@ void SSBApp::draw()
         break;
     case SETTING:
         _settingscreen.render();
+        break;
+    case CREDITS:
+        _creditsscreen.render();
         break;
     case MENU:
         _mainmenu.render();

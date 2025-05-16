@@ -62,6 +62,8 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     _sfxSlider = std::dynamic_pointer_cast<scene2::Slider>(_assets->get<scene2::SceneNode>("setting.modal.sfxslider"));
     _exitButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("setting.modal.exit"));
 
+    _creditsButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("setting.modal.credits"));
+
     _musicSlider->setBounds(Rect(40, _musicSlider->getBounds().getMinY(), _musicSlider->getBounds().getMaxX() - 40, 0));
     _sfxSlider->setBounds(Rect(40, _sfxSlider->getBounds().getMinY(), _sfxSlider->getBounds().getMaxX() - 40, 0));
 
@@ -74,6 +76,12 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     _exitButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::EXIT;
+            _sound->playSound("button_click");
+        }
+    });
+    _creditsButton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _choice = Choice::CREDITS;
             _sound->playSound("button_click");
         }
     });
@@ -116,11 +124,14 @@ void SettingScene::setActive(bool value) {
             _musicSlider->activate();
             _sfxSlider->activate();
             _exitButton->activate();
+            _creditsButton->activate();
         } else {
             _musicSlider->deactivate();
             _sfxSlider->deactivate();
             _exitButton->deactivate();
+            _creditsButton->deactivate();
             _exitButton->setDown(false);
+            _creditsButton->setDown(false);
         }
     }
 }

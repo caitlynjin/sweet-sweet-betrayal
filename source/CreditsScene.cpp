@@ -45,7 +45,7 @@ bool CreditsScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
 
     // Acquire the scene built by the asset loader and resize it the scene
     Size dimen = getSize();
-    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("start");
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("credits");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("credits.credits-background"));
@@ -57,6 +57,15 @@ bool CreditsScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
         _background->setPosition(dimen.width/2, dimen.height/2);
     }
     _choice = Choice::NONE;
+
+    _backButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("credits.back"));
+
+    _backButton->addListener([this](const std::string& name, bool down) {
+        if (!down) {
+            _choice = Choice::BACK;
+            _sound->playSound("button_click");
+        }
+    });
 
     addChild(scene);
     setActive(false);
@@ -91,7 +100,10 @@ void CreditsScene::setActive(bool value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
+            _backButton->activate();
         } else {
+            _backButton->deactivate();
+            _backButton->setDown(false);
         }
     }
 }
