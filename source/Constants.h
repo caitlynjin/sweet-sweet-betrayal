@@ -364,6 +364,8 @@ namespace Constants {
         TILE_RIGHT,
         TILE_TOPLEFT,
         TILE_TOPRIGHT,
+        TILE_BOTTOMLEFT,
+        TILE_BOTTOMRIGHT,
         TILE_INSIDEFILLED,
         TILE_INSIDELEFT,
         TILE_INSIDERIGHT,
@@ -381,7 +383,10 @@ namespace Constants {
         SPIKE_DOWN,
         SPIKE_LEFT,
         SPIKE_RIGHT,
-        TORCH,
+        TORCH_RIGHT,
+        TORCH_LEFT,
+        TILE_TOPRIGHT_INNER,
+        TILE_TOPLEFT_INNER,
 
         /** No type */
         NONE

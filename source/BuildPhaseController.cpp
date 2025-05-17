@@ -281,7 +281,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) ||
+                    (_selectedItem == Item::BOMB && _gridManager->canPlaceBomb(gridPos))) {
                         std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
 
                     if (_selectedItem != BOMB) {
@@ -430,7 +431,6 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
-        CULog("%s", pairedItems[i].second.c_str());
     }
 
     _uiScene.setInventoryButtons(inventoryItems, assetNames);

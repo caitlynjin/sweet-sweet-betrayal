@@ -143,8 +143,9 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     jumpNode->setScale(0.75f);
     _jumpbutton = scene2::Button::alloc(jumpNode);
     _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _jumpbutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _jumpbutton->setVisible(false);
+    _jumpbutton->setColor(Color4 (_jumpbutton->getColor().r, _jumpbutton->getColor().g, _jumpbutton->getColor().b, 184));
     _jumpbutton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _didjump = true;
@@ -159,8 +160,9 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     glideNode->setScale(0.75f);
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _glidebutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _glidebutton->setVisible(false);
+    _glidebutton->setColor(Color4 (_glidebutton->getColor().r, _glidebutton->getColor().g, _glidebutton->getColor().b, 184));
     _glidebutton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _didglide = true;
@@ -199,28 +201,49 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _redIcon->setScale(0.05f);
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
-    addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _blueIcon->setScale(0.05f);
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
-    addChild(_blueIcon);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _greenIcon->setScale(0.05f);
     _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _greenIcon->setVisible(false);
-    addChild(_greenIcon);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _yellowIcon->setScale(0.05f);
     _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _yellowIcon->setVisible(false);
-    addChild(_yellowIcon);
+
+    if (local == "playerRed"){
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_redIcon);
+    }
+    else if (local == "playerBlue"){
+        addChild(_redIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_blueIcon);
+    }
+    else if (local == "playerGreen"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_yellowIcon);
+        addChild(_greenIcon);
+    }
+    else if (local == "playerYellow"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+    }
 
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
