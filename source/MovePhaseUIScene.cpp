@@ -143,7 +143,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     jumpNode->setScale(0.75f);
     _jumpbutton = scene2::Button::alloc(jumpNode);
     _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _jumpbutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _jumpbutton->setVisible(false);
     _jumpbutton->addListener([this](const std::string &name, bool down) {
         if (down) {
