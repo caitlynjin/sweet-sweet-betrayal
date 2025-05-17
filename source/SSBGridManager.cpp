@@ -25,6 +25,11 @@ using namespace Constants;
  */
 void GridManager::initGrid(bool isLevelEditor) {
     _grid->removeAllChildren();
+    _illegal_background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>("safezone"));
+    _illegal_background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _illegal_background->setPosition(Vec2(0, 2));
+    _illegal_background->setScale(0.0314f);
+    _grid->addChild(_illegal_background);
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
     gridLayout->setGridSize(_columns, MAX_ROWS);
@@ -126,6 +131,7 @@ void GridManager::update(float timestep) {
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
     if (_spriteNode) {
+        
         auto image = _assets->get<Texture>(itemToAssetNameMap[item]);
         if (image == nullptr) {
             CULog("You likely forgot to add this item to itemToAssetNameMap");
@@ -312,6 +318,10 @@ std::shared_ptr<Object> GridManager::moveWorldObject(std::shared_ptr<Object> obj
  * @param item      the item type
  */
 bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
+    if (cellPos.x < 8 * CELL_SIZE) {
+        CULog("Cannot place object in the first 8 columns.");
+        return false;
+    }
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // Find object in object map
