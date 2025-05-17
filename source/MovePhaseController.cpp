@@ -92,7 +92,7 @@ bool MovePhaseController::finishInit(){
     // Initalize UI Scene
 //    _uiScene.setTotalRounds(TOTAL_ROUNDS);
 
-    _uiScene.init(_assets, _networkController->getScoreController(),_networkController, _movePhaseScene.getLocalPlayer()->getName());
+    _uiScene.init(_assets, _networkController->getScoreController(),_networkController, _sound, _movePhaseScene.getLocalPlayer()->getName());
     _playerStart = _movePhaseScene.getLocalPlayer()->getPosition().x;
     _levelWidth = _movePhaseScene.getGoalDoor()->getPosition().x - _movePhaseScene.getLocalPlayer()->getPosition().x;
 
@@ -175,7 +175,7 @@ void MovePhaseController::preUpdate(float dt) {
 
     // Process the movement
     // TODO: Segment into updateMovement method
-    if (_input->withJoystick())
+    if (_input->withJoystick() && _isActive)
     {
         if (_input->getHorizontal() > 0)
         {
@@ -220,7 +220,9 @@ void MovePhaseController::preUpdate(float dt) {
         _movePhaseScene.getLocalPlayer()->setGlide(false);
     }
     //_movePhaseScene.getLocalPlayer()->setGlide(_uiScene.getDidGlide());
-    _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    if (_isActive) {
+        _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
+    }
     _movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
     _movePhaseScene.getLocalPlayer()->applyForce();
     if (_uiScene.getDidGiveUp()) {
@@ -288,6 +290,11 @@ void MovePhaseController::preUpdate(float dt) {
     // TODO: This code should be handled in Mushroom class, why is it here?
     if (_mushroomCooldown > 0) {
         _mushroomCooldown--;
+    }
+
+    // Update whether the game is paused
+    if (_isPaused != _uiScene.getIsPaused()) {
+        _isPaused = _uiScene.getIsPaused();
     }
 }
 
@@ -443,6 +450,11 @@ void MovePhaseController::processModeChange(bool value) {
     _uiScene.disableUI(value);
 
 
+}
+
+void MovePhaseController::setActive(bool value) {
+    _isActive = value;
+    _uiScene.setActive(value);
 }
 
 #pragma mark -

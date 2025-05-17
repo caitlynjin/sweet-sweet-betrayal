@@ -254,9 +254,8 @@ void SSBGameController::setElementsActive(bool value){
 //        Scene2::setActive(value);
         
     _active = value;
-//        _buildPhaseController->getBuildPhaseScene().setActive(value);
     _buildPhaseController->setActive(value);
-//    }
+    _movePhaseController->setActive(value);
 }
 
 #pragma mark -
@@ -412,8 +411,11 @@ void SSBGameController::preUpdate(float dt)
             _camera->getPosition().y / 64));
     }
 
-    if (_isPaused != _buildPhaseController->getIsPaused()) {
-        _isPaused = _buildPhaseController->getIsPaused();
+    // Update whether the game is paused
+    if (_isPaused != _buildPhaseController->getIsPaused()
+        || _isPaused != _movePhaseController->getIsPaused()) {
+        _isPaused = _buildPhaseController->getIsPaused() || _movePhaseController->getIsPaused();
+        setIsPaused(_isPaused);
     }
 }
 

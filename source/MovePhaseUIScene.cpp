@@ -68,6 +68,7 @@ void MovePhaseUIScene::dispose() {
         _greenIcon = nullptr;
         _yellowIcon = nullptr;
         _treasureIcon = nullptr;
+        _pauseButton = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
 //        }
@@ -82,7 +83,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, string local) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController, string local) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -94,6 +95,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     }
 
     _assets = assets;
+    _sound = soundController;
 
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -146,7 +148,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
     _jumpbutton->setVisible(false);
     _jumpbutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (down && _isActive) {
             _didjump = true;
         }
         else{
@@ -186,6 +188,20 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
         }
     });
     addChild(_giveupbutton);
+
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    pauseNode->setScale(1.0f);
+    _pauseButton = scene2::Button::alloc(pauseNode);
+    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    _pauseButton->activate();
+    _pauseButton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _isPaused = true;
+            _sound->playSound("button_click");
+        }
+    });
+    addChild(_pauseButton);
 
     _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
     _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
@@ -312,6 +328,10 @@ void MovePhaseUIScene::disableUI(bool value) {
     }
 
     if (value){
+        if (!_isActive) {
+            return;
+        }
+
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _giveupbutton->deactivate();
@@ -319,11 +339,31 @@ void MovePhaseUIScene::disableUI(bool value) {
         _giveUpCountDown = 500;
     }
     else{
+        if (!_isActive) {
+            return;
+        }
+
         _jumpbutton->activate();
         _glidebutton->activate();
     }
     _jumpbutton->setVisible(!value);
     _glidebutton->setVisible(!value);
+}
+
+void MovePhaseUIScene::setActive(bool value) {
+    _isActive = value;
+
+    if (value) {
+        _jumpbutton->activate();
+        _glidebutton->activate();
+        _giveupbutton->activate();
+        _pauseButton->activate();
+    } else {
+        _jumpbutton->deactivate();
+        _glidebutton->deactivate();
+        _giveupbutton->deactivate();
+        _pauseButton->deactivate();
+    }
 }
 
 #pragma mark -
@@ -403,6 +443,10 @@ bool MovePhaseUIScene::isJumpDown() {
  * Set the glide button active.
  */
 void MovePhaseUIScene::setGlideButtonActive() {
+    if (!_isActive) {
+        return;
+    }
+
     _jumpbutton->deactivate();
     _jumpbutton->setVisible(false);
     _glidebutton->activate();
@@ -413,6 +457,10 @@ void MovePhaseUIScene::setGlideButtonActive() {
  * Set the jump button active.
  */
 void MovePhaseUIScene::setJumpButtonActive() {
+    if (!_isActive) {
+        return;
+    }
+
     _jumpbutton->activate();
     _jumpbutton->setVisible(true);
     _glidebutton->deactivate();
