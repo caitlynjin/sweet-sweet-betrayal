@@ -719,6 +719,10 @@ public:
 
     bool getJumpHold() { return _holdingJump; }
 
+    bool getJustJumped() { return _jumpImpulse; }
+
+    bool getJustGlided() { return _justGlided; }
+
     /**Enable/disable jump damping*/
     void setJumpDamping(bool value) { _isDampEnabled = value; }
 
