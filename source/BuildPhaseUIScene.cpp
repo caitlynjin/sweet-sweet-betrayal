@@ -75,13 +75,13 @@ void BuildPhaseUIScene::dispose() {
         _rightButton->clearListeners();
         _leftButton->clearListeners();
         _trashButton->clearListeners();
-        _pauseButton->clearListeners();
+//        _pauseButton->clearListeners();
         
         _readyButton = nullptr;
         _rightButton = nullptr;
         _leftButton = nullptr;
         _trashButton = nullptr;
-        _pauseButton = nullptr;
+//        _pauseButton = nullptr;
         _timer = nullptr;
         _redIcon = nullptr;
         _blueIcon = nullptr;
@@ -154,22 +154,22 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton =std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.trash"));
     _trashButton->setVisible(true);
 
-    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
-    pauseNode->setScale(1.0f);
-    _pauseButton = scene2::Button::alloc(pauseNode);
-    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-    if (_networkController->getNetwork()->getNumPlayers() == 1) {
-        _pauseButton->activate();
-    } else {
-        _pauseButton->setVisible(false);
-    }
-    _pauseButton->addListener([this](const std::string &name, bool down) {
-        if (!down) {
-            _isPaused = true;
-            _sound->playSound("button_click");
-        }
-    });
+//    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
+//    pauseNode->setScale(1.0f);
+//    _pauseButton = scene2::Button::alloc(pauseNode);
+//    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+//    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+//    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+//        _pauseButton->activate();
+//    } else {
+//        _pauseButton->setVisible(false);
+//    }
+//    _pauseButton->addListener([this](const std::string &name, bool down) {
+//        if (!down) {
+//            _isPaused = true;
+//            _sound->playSound("button_click");
+//        }
+//    });
 
     _timerFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.timer.timer"));
     _timerFrame->setVisible(true);
@@ -204,7 +204,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _bottomFrame->setVisible(true);
 
     addChild(scene);
-    addChild(_pauseButton);
+//    addChild(_pauseButton);
     return true;
 }
 
@@ -339,14 +339,14 @@ void BuildPhaseUIScene::setActive(bool value) {
         _leftButton->activate();
         _trashButton->activate();
         if (_networkController->getNetwork()->getNumPlayers() == 1) {
-            _pauseButton->activate();
+//            _pauseButton->activate();
         }
     } else {
         _readyButton->deactivate();
         _rightButton->deactivate();
         _leftButton->deactivate();
         _trashButton->deactivate();
-        _pauseButton->deactivate();
+//        _pauseButton->deactivate();
     }
 }
 
@@ -385,7 +385,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
     if (_networkController->getNetwork()->getNumPlayers() == 1) {
-        _pauseButton->setVisible(value);
+//        _pauseButton->setVisible(value);
     }
     _timer->setVisible(value);
     _redIcon->setVisible(value);
