@@ -438,7 +438,6 @@ void LevelSelectScene::setModalVisible(bool visible){
     
     if (!visible){
         _choice = Choice::NONE;
-        _sound->playSound("button_click");
         _lvl1Name->setVisible(false);
         _lvl2Name->setVisible(false);
         _lvl3Name->setVisible(false);
