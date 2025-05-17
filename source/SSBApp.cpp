@@ -1050,6 +1050,7 @@ void SSBApp::resetLevel(){
     _networkController->reset();
     _colorselect.reset();
     _levelSelect.reset();
+    _victory.reset();
     
     _networkController->setPlayAgain(true);
     _gameController.disposeLevel();

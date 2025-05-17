@@ -80,8 +80,12 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     _winTextYellow = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.yellow-wins"));
     
     _winText = _winTextBlue;
-    
     _textBasePos = _winText->getPosition();
+    
+    _winTextYellow->setVisible(false);
+    _winTextRed->setVisible(false);
+    _winTextBlue->setVisible(false);
+    _winTextGreen->setVisible(false);
 
     _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.pause"));
     
@@ -120,6 +124,11 @@ void VictoryScene::dispose() {
     _sound = nullptr;
     _networkController = nullptr;
     _network = nullptr;
+    _winTextYellow = nullptr;
+    _winTextRed = nullptr;
+    _winTextBlue = nullptr;
+    _winTextGreen = nullptr;
+    
     _input.dispose();
 
     
@@ -157,6 +166,10 @@ void VictoryScene::reset(){
     _choice = Choice::NONE;
     _textFloatTimer = 0.0f;
     _decreaseScale = true;
+    _winTextYellow->setVisible(false);
+    _winTextRed->setVisible(false);
+    _winTextBlue->setVisible(false);
+    _winTextGreen->setVisible(false);
 }
 
 void VictoryScene::setWinColor(int winColorInt){
@@ -165,19 +178,27 @@ void VictoryScene::setWinColor(int winColorInt){
     switch (_winColor){
         case(ColorType::RED):
             _background->setTexture(_assets->get<Texture>("red-victory"));
-            _winText->setTexture(_assets->get<Texture>("red-wins"));
+            _winTextRed->setVisible(true);
+            _winText = _winTextRed;
+//            _winText->setTexture(_assets->get<Texture>("red-wins"));
             break;
         case(ColorType::BLUE):
             _background->setTexture(_assets->get<Texture>("blue-victory"));
-            _winText->setTexture(_assets->get<Texture>("blue-wins"));
+            _winTextBlue->setVisible(true);
+            _winText = _winTextBlue;
+//            _winText->setTexture(_assets->get<Texture>("blue-wins"));
             break;
         case(ColorType::GREEN):
             _background->setTexture(_assets->get<Texture>("green-victory"));
-            _winText->setTexture(_assets->get<Texture>("green-wins"));
+            _winTextGreen->setVisible(true);
+            _winText = _winTextGreen;
+//            _winText->setTexture(_assets->get<Texture>("green-wins"));
             break;
         case(ColorType::YELLOW):
             _background->setTexture(_assets->get<Texture>("yellow-victory"));
-            _winText->setTexture(_assets->get<Texture>("yellow-wins"));
+            _winTextYellow->setVisible(true);
+            _winText = _winTextYellow;
+//            _winText->setTexture(_assets->get<Texture>("yellow-wins"));
             break;
     }
 }
