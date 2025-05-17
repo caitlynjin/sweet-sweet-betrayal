@@ -97,31 +97,31 @@
     },
     "parallax-pp-2": {
         "layer": -6,
-        "scrollRate": 0.20,
+        "scrollRate": 0.15,
         "x": 0,
         "y": 0
     },
     "parallax-pp-3": {
         "layer": -5,
-        "scrollRate": 0.25,
+        "scrollRate": 0.18,
         "x": 0,
         "y": 0
     },
     "parallax-pp-4": {
         "layer": -4,
-        "scrollRate": 0.3,
+        "scrollRate": 0.2,
         "x": 0,
         "y": 0
     },
     "parallax-pp-5": {
         "layer": -3,
-        "scrollRate": 0.4,
+        "scrollRate": 0.25,
         "x": 0,
         "y": 0
     },
     "parallax-pp-6": {
         "layer": -2,
-        "scrollRate": 0.5,
+        "scrollRate": 0.3,
         "x": 0,
         "y": 0
     }

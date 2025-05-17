@@ -204,7 +204,7 @@ bool LevelEditorController::initBuildingLogic(const std::shared_ptr<AssetManager
     std::vector<Item> inventoryItems;
     std::vector<std::string> assetNames;
         
-    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT, TILE_INSIDEFILLED, TILE_INSIDELEFT, TILE_INSIDERIGHT,
+    inventoryItems = { PLATFORM, WIND, SPIKE, TREASURE, TILE_LEFT, TILE_RIGHT, TILE_INNER, TILE_TOP, TILE_BOTTOM, TILE_TOPLEFT, TILE_TOPRIGHT, TILE_BOTTOMLEFT, TILE_BOTTOMRIGHT, TILE_INSIDEFILLED, TILE_INSIDELEFT, TILE_INSIDERIGHT, TILE_TOPLEFT_INNER, TILE_TOPRIGHT_INNER,
                        SPIKE_LEFT, SPIKE_RIGHT, SPIKE_DOWN, TORCH_RIGHT, TORCH_LEFT,
                        CRACK_1, CRACK_2, CRACK_3, CRACK_4, CRACK_5, CRACK_LARGE_1, MOSS_1, MOSS_2, ROCKY_1, ROCKY_2
     };
@@ -605,16 +605,32 @@ std::shared_ptr<Object> LevelEditorController::placeItem(Vec2 gridPos, Item item
         obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRight", scale);
         obj->setItemType(TILE_TOPRIGHT);
         return obj;
+    case (TILE_BOTTOMLEFT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottomLeft", scale);
+        obj->setItemType(TILE_BOTTOMLEFT);
+        return obj;
+    case (TILE_BOTTOMRIGHT):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileBottomRight", scale);
+        obj->setItemType(TILE_BOTTOMRIGHT);
+        return obj;
     case (TILE_INSIDEFILLED):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInsideFilled", scale);
+        obj = _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "tileInsideFilled");
         obj->setItemType(TILE_INSIDEFILLED);
         return obj;
+    case (TILE_TOPRIGHT_INNER):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopRightInnerCorner", scale);
+        obj->setItemType(TILE_TOPRIGHT_INNER);
+        return obj;
+    case (TILE_TOPLEFT_INNER):
+        obj = _objectController->createTile(gridPos, itemToSize(item), "tileTopLeftInnerCorner", scale);
+        obj->setItemType(TILE_TOPLEFT_INNER);
+        return obj;
     case (TILE_INSIDELEFT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInsideLeft", scale);
+        obj = _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "tileInsideLeft");
         obj->setItemType(TILE_INSIDELEFT);
         return obj;
     case (TILE_INSIDERIGHT):
-        obj = _objectController->createTile(gridPos, itemToSize(item), "tileInsideRight", scale);
+        obj = _objectController->createArtObject(gridPos, itemToSize(item), _levelEditorScene.getScale() / getSystemScale(), 0, "tileInsideRight");
         obj->setItemType(TILE_INSIDERIGHT);
         return obj;
     case (SPIKE_UP):
