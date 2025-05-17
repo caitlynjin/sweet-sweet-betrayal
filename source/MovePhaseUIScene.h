@@ -24,6 +24,7 @@
 #include "ObjectController.h"
 #include "ScoreController.h"
 #include "NetworkController.h"
+#include "SoundController.h"
 
 using namespace cugl;
 using namespace Constants;
@@ -36,6 +37,8 @@ class MovePhaseUIScene : public scene2::Scene2 {
 protected:
     /** The asset manager for this game mode. */
     std::shared_ptr<AssetManager> _assets;
+    /** The sound controller */
+    std::shared_ptr<SoundController> _sound;
 
     /** Reference to the label for counting rounds */
 //    std::shared_ptr<cugl::scene2::Label> _roundsLabel;
@@ -55,6 +58,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _jumpbutton;
     /** Reference to the glide button */
     std::shared_ptr<cugl::scene2::Button> _glidebutton;
+    /** Reference to the pause button */
+    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     /** Reference to the give up button*/
     std::shared_ptr<cugl::scene2::Button> _giveupbutton;
     /** Reference to the progress bar */
@@ -98,8 +103,10 @@ protected:
     std::shared_ptr<NetworkController> _networkController;
     
     bool scoreBoardInitialized = false;
-    
+    bool _isPaused = false;
     bool _giveUp = false;
+
+    bool _isActive = true;
 
      /** Countdown for give up button */
     int _giveUpCountDown = 500;
@@ -141,6 +148,7 @@ public:
     bool init(const std::shared_ptr<cugl::AssetManager>& assets,
               const std::shared_ptr<ScoreController>& scoreController,
               std::shared_ptr<NetworkController> networkController,
+              std::shared_ptr<SoundController> soundController,
               string local);
 
 
@@ -166,6 +174,9 @@ public:
      * @param value whether to disable UI
      */
     void disableUI(bool value);
+
+    /** Sets whether the scene is active */
+    void setActive(bool value);
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -206,6 +217,9 @@ public:
     
     /**set visible or not visible give up button**/
     void setGiveUpButtonActive(bool value) {
+        if (!_isActive) {
+            return;
+        }
         _giveupbutton->activate();
         _giveupbutton->setVisible(value);
     }
@@ -285,6 +299,16 @@ public:
      * Set the jump button active.
      */
     void setJumpButtonActive();
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; }
 
     /**
      * Set the score image at this gem index to full.

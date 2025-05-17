@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> &sound) {
     if (assets == nullptr)
     {
         return false;
@@ -106,6 +106,7 @@ void BuildPhaseController::reset() {
     _selectedObject = nullptr;
     _prevPos = Vec2(0, 0);
     _readyMessageSent = false;
+    _accelerationStarted = false;
 }
 
 /**
@@ -177,7 +178,7 @@ void BuildPhaseController::preUpdate(float dt) {
             }
             _buildPhaseScene.getCamera()->update();
         }
-        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= 4* _objectController->getGoalPos().x * 64){
+        if (screenPos.x >= (_buildPhaseScene.getBounds().getMaxX() * 2) - 200 && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
             Uint64 currentTime = Application::get()->getEllapsedMicros();
             Uint64 elapsedTime = currentTime - _accelerationStart;
             if (elapsedTime < 500000){
@@ -253,6 +254,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
+                    _sound->playSound("failed_placement");
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
@@ -280,7 +282,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) ||
+                    (_selectedItem == Item::BOMB && _gridManager->canPlaceBomb(gridPos))) {
                         std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
 
                     if (_selectedItem != BOMB) {
@@ -295,6 +298,7 @@ void BuildPhaseController::preUpdate(float dt) {
                         _uiScene.activateInventory(false);
                     }
                 } else {
+                    _sound->playSound("failed_placement");
                     CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                 }
             }
@@ -324,7 +328,7 @@ void BuildPhaseController::preUpdate(float dt) {
     }
 
     // TODO: Segment out to another method, uiSceneUpdate()
-    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= 4 * _objectController->getGoalPos().x * 64){
+    if (_uiScene.getRightPressed() && _buildPhaseScene.getCamera()->getPosition().x <= _objectController->getGoalPos().x * 64){
         Uint64 currentTime = Application::get()->getEllapsedMicros();
         Uint64 elapsedTime = currentTime - _accelerationStart;
         if (elapsedTime < 500000){
@@ -363,7 +367,7 @@ void BuildPhaseController::preUpdate(float dt) {
         _readyMessageSent = false;
     }
 
-    if (_isPaused != _uiScene.getIsPaused()) {
+    if (_isPaused == false) {
         _isPaused = _uiScene.getIsPaused();
     }
 }
@@ -429,7 +433,6 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
-        CULog("%s", pairedItems[i].second.c_str());
     }
 
     _uiScene.setInventoryButtons(inventoryItems, assetNames);

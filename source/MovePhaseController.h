@@ -66,8 +66,7 @@ protected:
     int const TOTAL_GEMS = 3;
     /** The current round the player is on */
     int _currRound = 1;
-    /** How many gems the player collected and won */
-    int _currGems = 0;
+
     /** Countdown active for winning or losing */
     int _countdown;
     /** Level width */
@@ -85,6 +84,12 @@ protected:
     bool _reachedGoal = false;
     /** Whether or not it is time to animate the goal */
     bool _animateGoal = false;
+
+    /** Whether the game is paused */
+    bool _isPaused = false;
+    /** Whether the controls and scene elements are active */
+    bool _isActive = true;
+    bool _controlEnabled = true;
 
     cugl::ActionFunction _goalDoorAction;
     /** Manager to process the animation actions */
@@ -109,7 +114,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
 
     
     /** Gets called after level select scene */
@@ -119,6 +124,11 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose();
+    
+    /**
+     Disposes for purpose of re-entering a level after already completing one.
+     */
+    void disposeLevel();
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -152,6 +162,15 @@ public:
     void windUpdate(std::shared_ptr <WindObstacle> wind, float dt);
 
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
+    
+    void setGridManger(const shared_ptr<GridManager> gridManager){
+        _gridManager = gridManager;
+        _movePhaseScene.setGridManager(gridManager);
+    }
+    
+    void setInput(const shared_ptr<PlatformInput> input){
+        _input = input;
+    }
 
     void render();
     
@@ -160,10 +179,13 @@ public:
      */
     void killPlayer();
     
-    MovePhaseScene getMovePhaseScene(){
+    MovePhaseScene& getMovePhaseScene(){
         return _movePhaseScene;
     }
     
+    void rebuildMovePhase(){
+        _movePhaseScene.rebuildLevel(&_objects);
+    }
     /**
      *  Called when player reaches the goal
      */
@@ -199,7 +221,10 @@ public:
     void updateProgressBar(std::shared_ptr<PlayerModel> player);
 
     void setGoalDoorAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
+
+    /** Sets whether the scenes are active*/
+    void setActive(bool value);
+
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -307,6 +332,16 @@ public:
      @param reachedGoal whether the player has reached the goal.
     */
     void nextRound(bool reachedGoal = false);
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; _uiScene.setIsPaused(value); }
 
 #pragma mark -
 #pragma mark Collision Handling

@@ -68,6 +68,7 @@ void MovePhaseUIScene::dispose() {
         _greenIcon = nullptr;
         _yellowIcon = nullptr;
         _treasureIcon = nullptr;
+        _pauseButton = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
 //        }
@@ -82,7 +83,7 @@ void MovePhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, string local) {
+bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<ScoreController>& scoreController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController, string local) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -94,6 +95,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     }
 
     _assets = assets;
+    _sound = soundController;
 
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -143,10 +145,11 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     jumpNode->setScale(0.75f);
     _jumpbutton = scene2::Button::alloc(jumpNode);
     _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _jumpbutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _jumpbutton->setVisible(false);
+    _jumpbutton->setColor(Color4 (_jumpbutton->getColor().r, _jumpbutton->getColor().g, _jumpbutton->getColor().b, 184));
     _jumpbutton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (down && _isActive) {
             _didjump = true;
         }
         else{
@@ -159,8 +162,9 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     glideNode->setScale(0.75f);
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _glidebutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _glidebutton->setVisible(false);
+    _glidebutton->setColor(Color4 (_glidebutton->getColor().r, _glidebutton->getColor().g, _glidebutton->getColor().b, 184));
     _glidebutton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _didglide = true;
@@ -187,6 +191,24 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_giveupbutton);
 
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
+    pauseNode->setScale(1.0f);
+    _pauseButton = scene2::Button::alloc(pauseNode);
+    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->activate();
+    } else {
+        _pauseButton->setVisible(false);
+    }
+    _pauseButton->addListener([this](const std::string &name, bool down) {
+        if (!down) {
+            _isPaused = true;
+            _sound->playSound("button_click");
+        }
+    });
+    addChild(_pauseButton);
+
     _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
     _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
     _progressBar->setScale(0.4f);
@@ -199,28 +221,49 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _redIcon->setScale(0.05f);
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
-    addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _blueIcon->setScale(0.05f);
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
-    addChild(_blueIcon);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _greenIcon->setScale(0.05f);
     _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _greenIcon->setVisible(false);
-    addChild(_greenIcon);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _yellowIcon->setScale(0.05f);
     _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _yellowIcon->setVisible(false);
-    addChild(_yellowIcon);
+
+    if (local == "playerRed"){
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_redIcon);
+    }
+    else if (local == "playerBlue"){
+        addChild(_redIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_blueIcon);
+    }
+    else if (local == "playerGreen"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_yellowIcon);
+        addChild(_greenIcon);
+    }
+    else if (local == "playerYellow"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+    }
 
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
@@ -271,6 +314,8 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
  */
 void MovePhaseUIScene::reset() {
     scoreBoardInitialized = false;
+    _didjump = false;
+    _didglide = false;
 }
 
 /**
@@ -312,6 +357,10 @@ void MovePhaseUIScene::disableUI(bool value) {
     }
 
     if (value){
+        if (!_isActive) {
+            return;
+        }
+
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _giveupbutton->deactivate();
@@ -319,11 +368,33 @@ void MovePhaseUIScene::disableUI(bool value) {
         _giveUpCountDown = 2000;
     }
     else{
+        if (!_isActive) {
+            return;
+        }
+
         _jumpbutton->activate();
         _glidebutton->activate();
     }
     _jumpbutton->setVisible(!value);
     _glidebutton->setVisible(!value);
+}
+
+void MovePhaseUIScene::setActive(bool value) {
+    _isActive = value;
+
+    if (value) {
+        _jumpbutton->activate();
+        _glidebutton->activate();
+        _giveupbutton->activate();
+        if (_networkController->getNetwork()->getNumPlayers() == 1) {
+            _pauseButton->activate();
+        }
+    } else {
+        _jumpbutton->deactivate();
+        _glidebutton->deactivate();
+        _giveupbutton->deactivate();
+        _pauseButton->deactivate();
+    }
 }
 
 #pragma mark -
@@ -403,6 +474,10 @@ bool MovePhaseUIScene::isJumpDown() {
  * Set the glide button active.
  */
 void MovePhaseUIScene::setGlideButtonActive() {
+    if (!_isActive) {
+        return;
+    }
+
     _jumpbutton->deactivate();
     _jumpbutton->setVisible(false);
     _glidebutton->activate();
@@ -413,6 +488,10 @@ void MovePhaseUIScene::setGlideButtonActive() {
  * Set the jump button active.
  */
 void MovePhaseUIScene::setJumpButtonActive() {
+    if (!_isActive) {
+        return;
+    }
+
     _jumpbutton->activate();
     _jumpbutton->setVisible(true);
     _glidebutton->deactivate();

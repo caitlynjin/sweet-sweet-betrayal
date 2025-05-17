@@ -41,7 +41,7 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** Create ObjectController that handles the creation of all objects, including platform, spike, windobstacle, moving platform...**/
 
 ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
-                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
+                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld> world,
                                    float scale,
                                    const std::shared_ptr<scene2::SceneNode> world_node,
                                    const std::shared_ptr<scene2::SceneNode> debug_node,
@@ -252,6 +252,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
 
         wind->setGustAnimation(gusts, 14);
         wind->setPositionInit(wind->getPosition());
+        wind->setName("fan");
     }
     else {
         staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
@@ -385,20 +386,29 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
         // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
         art->setAnimationDuration(1.0f);
     }
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::SpriteNode::allocWithTexture(image);
+    art->setPosition(art->getPosition() - art->getSize() / 2);
     art->setSceneNode(sprite);
     art->setAnimated(isAnimated);
     art->setBodyType(b2_staticBody);
     art->setDensity(BASIC_DENSITY);
+    sprite->setAnchor(0.15, 0.55);
+    sprite->setPosition(sprite->getPosition() + art->getPosition());
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);
     art->setDebugColor(DEBUG_COLOR);
     art->setItemType(Item::ART_OBJECT);
-    art->setName("artObject");
+    art->setName("parallaxObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
     _gameObjects->push_back(art);
 
     return art;
@@ -445,8 +455,17 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
+    if (isAnimated) {
+        art->setAnimation(sprite);
+    }
     _gameObjects->push_back(art);
 
     return art;

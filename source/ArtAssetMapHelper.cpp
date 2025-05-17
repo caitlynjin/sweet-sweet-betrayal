@@ -6,6 +6,44 @@ using namespace cugl;
 using namespace Constants;
 
 //ArtAssetMapHelper::ArtAssetMapHelper() {};
+
+std::map<std::string, std::string> Constants::jsonTypeToAsset = {};
+std::map<std::string, Item> Constants::jsonTypeToItemType = {};
+std::map<Item, std::string> Constants::itemToAssetNameMap = {};
+std::map<std::string, std::pair<int, int>> Constants::animatedArtObjects = {
+    { "torchRight", std::make_pair<int, int>(1, 8) },
+    { "torchLeft", std::make_pair<int, int>(1, 8) }
+};
+
+std::vector<std::string> Constants::xOffsetArtObjects = {
+    //"crackLarge1"
+};
+
+std::vector<std::string> Constants::yOffsetArtObjects = {
+     //"crack1",
+     //"crack2",
+     //"crack3",
+     //"crack4",
+     //"crack5",
+     //"crackLarge1",
+     //"moss1",
+     //"moss2"
+};
+
+std::map<std::string, int> Constants::jsonTypeToLayer = {
+            { "default", 1 },
+            { "crack1", 1 },
+            { "crack2", 1 },
+            { "crack3", 1 },
+            { "crack4", 1 },
+            { "crack5", 1 },
+            { "crackLarge1", 1 },
+            { "moss1", 1 },
+            { "moss2", 1 },
+            { "rocky1", 1 },
+            { "rocky2",1 }
+};
+
 void ArtAssetMapHelper::populateConstantsMaps()
 {
     /* For each row,
@@ -17,28 +55,30 @@ void ArtAssetMapHelper::populateConstantsMaps()
         * Elements 3 and 4 don't do anything. I was just too lazy to remove them.
         */
     std::vector <std::vector<std::any>> vec = {
-    {std::string("default"), std::string(EARTH_TEXTURE), Item::ART_OBJECT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTop"), std::string(TOP_TILE_TEXTURE), Item::TILE_TOP, cugl::Size(1, 1), cugl::Size(1, 1) },
-    {std::string("tileBottom"), std::string(BOTTOM_TILE_TEXTURE), Item::TILE_BOTTOM, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileInner"), std::string(INNER_TILE_TEXTURE), Item::TILE_INNER, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileLeft"), std::string(LEFT_TILE_TEXTURE), Item::TILE_LEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileRight"), std::string(RIGHT_TILE_TEXTURE), Item::TILE_RIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTopLeft"), std::string(TOPLEFT_TILE_TEXTURE), Item::TILE_TOPLEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("tileTopRight"), std::string(TOPRIGHT_TILE_TEXTURE), Item::TILE_TOPRIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("crack1"), std::string(CRACK1_TEXTURE), Item::CRACK_1, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack2"), std::string(CRACK2_TEXTURE), Item::CRACK_2, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack3"), std::string(CRACK3_TEXTURE), Item::CRACK_3, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack4"), std::string(CRACK4_TEXTURE), Item::CRACK_4, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crack5"), std::string(CRACK5_TEXTURE), Item::CRACK_5, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("crackLarge1"), std::string(CRACKLARGE1_TEXTURE), Item::CRACK_LARGE_1, cugl::Size(2, 2), cugl::Size(2, 2)},
-    {std::string("moss1"), std::string(MOSS1_TEXTURE), Item::MOSS_1, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("moss2"), std::string(MOSS2_TEXTURE), Item::MOSS_2, cugl::Size(1, 2), cugl::Size(1, 2)},
-    {std::string("rocky1"), std::string(ROCKY1_TEXTURE), Item::ROCKY_1, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("rocky2"), std::string(ROCKY2_TEXTURE), Item::ROCKY_2, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeUp"), std::string(SPIKE_UP_TEXTURE), Item::SPIKE_UP, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeDown"), std::string(SPIKE_DOWN_TEXTURE), Item::SPIKE_DOWN, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeLeft"), std::string(SPIKE_LEFT_TEXTURE), Item::SPIKE_LEFT, cugl::Size(1, 1), cugl::Size(1, 1)},
-    {std::string("spikeRight"), std::string(SPIKE_RIGHT_TEXTURE), Item::SPIKE_RIGHT, cugl::Size(1, 1), cugl::Size(1, 1)},
+    {std::string("default"), std::string(EARTH_TEXTURE), Item::ART_OBJECT},
+    {std::string("tileTop"), std::string(TOP_TILE_TEXTURE), Item::TILE_TOP},
+    {std::string("tileBottom"), std::string(BOTTOM_TILE_TEXTURE), Item::TILE_BOTTOM},
+    {std::string("tileInner"), std::string(INNER_TILE_TEXTURE), Item::TILE_INNER},
+    {std::string("tileLeft"), std::string(LEFT_TILE_TEXTURE), Item::TILE_LEFT},
+    {std::string("tileRight"), std::string(RIGHT_TILE_TEXTURE), Item::TILE_RIGHT},
+    {std::string("tileTopLeft"), std::string(TOPLEFT_TILE_TEXTURE), Item::TILE_TOPLEFT},
+    {std::string("tileTopRight"), std::string(TOPRIGHT_TILE_TEXTURE), Item::TILE_TOPRIGHT},
+    {std::string("tileBottomLeft"), std::string("tile-bottomleft-corner"), Item::TILE_BOTTOMLEFT},
+    {std::string("tileBottomRight"), std::string("tile-bottomright-corner"), Item::TILE_BOTTOMRIGHT},
+    {std::string("crack1"), std::string(CRACK1_TEXTURE), Item::CRACK_1},
+    {std::string("crack2"), std::string(CRACK2_TEXTURE), Item::CRACK_2},
+    {std::string("crack3"), std::string(CRACK3_TEXTURE), Item::CRACK_3},
+    {std::string("crack4"), std::string(CRACK4_TEXTURE), Item::CRACK_4},
+    {std::string("crack5"), std::string(CRACK5_TEXTURE), Item::CRACK_5},
+    {std::string("crackLarge1"), std::string(CRACKLARGE1_TEXTURE), Item::CRACK_LARGE_1},
+    {std::string("moss1"), std::string(MOSS1_TEXTURE), Item::MOSS_1},
+    {std::string("moss2"), std::string(MOSS2_TEXTURE), Item::MOSS_2},
+    {std::string("rocky1"), std::string(ROCKY1_TEXTURE), Item::ROCKY_1},
+    {std::string("rocky2"), std::string(ROCKY2_TEXTURE), Item::ROCKY_2},
+    {std::string("spikeUp"), std::string(SPIKE_UP_TEXTURE), Item::SPIKE_UP},
+    {std::string("spikeDown"), std::string(SPIKE_DOWN_TEXTURE), Item::SPIKE_DOWN},
+    {std::string("spikeLeft"), std::string(SPIKE_LEFT_TEXTURE), Item::SPIKE_LEFT},
+    {std::string("spikeRight"), std::string(SPIKE_RIGHT_TEXTURE), Item::SPIKE_RIGHT},
     // Note that from here on out, these items likely won't ever be saved in a JSON file.
         // I am putting them here to consolidate all of this logic into one place.
         {std::string("thorn"), std::string(THORN_TEXTURE), Item::THORN},
@@ -52,7 +92,10 @@ void ArtAssetMapHelper::populateConstantsMaps()
         {std::string("mushroom"), std::string(MUSHROOM_TEXTURE), Item::MUSHROOM},
         {std::string("bomb"), std::string(BOMB_TEXTURE), Item::BOMB},
         {std::string("none"), std::string(EARTH_TEXTURE), Item::NONE},
-    { std::string("torchRight"), std::string("torch-right"), Item::TORCH },
+    { std::string("torchRight"), std::string("torch-right"), Item::TORCH_RIGHT },
+    { std::string("torchLeft"), std::string("torch-left"), Item::TORCH_LEFT },
+    { std::string("tileTopRightInnerCorner"), std::string("tile-topright-inner"), Item::TILE_TOPRIGHT_INNER},
+    { std::string("tileTopLeftInnerCorner"), std::string("tile-topleft-inner"), Item::TILE_TOPLEFT_INNER},
     { std::string("tileInsideFilled"), std::string("tile-inside-filled"), Item::TILE_INSIDEFILLED},
     { std::string("tileInsideLeft"), std::string("tile-inside-left"), Item::TILE_INSIDELEFT},
     { std::string("tileInsideRight"), std::string("tile-inside-right"), Item::TILE_INSIDERIGHT},
@@ -60,6 +103,23 @@ void ArtAssetMapHelper::populateConstantsMaps()
         {std::string("parallax1"), std::string("parallax-1")},
         {std::string("parallax2"), std::string("parallax-2")},
         {std::string("parallax3"), std::string("parallax-3")},
+        {std::string("parallax-ww-1"), std::string("parallax-ww-1")},
+        {std::string("parallax-ww-2"), std::string("parallax-ww-2")},
+        {std::string("parallax-ww-3"), std::string("parallax-ww-3")},
+        {std::string("parallax-ww-4"), std::string("parallax-ww-4")},
+        {std::string("parallax-ww-5"), std::string("parallax-ww-5")},
+        {std::string("parallax-ww-6"), std::string("parallax-ww-6")},
+        {std::string("parallax-gg-1"), std::string("parallax-gg-1")},
+        {std::string("parallax-gg-2"), std::string("parallax-gg-2")},
+        {std::string("parallax-gg-3"), std::string("parallax-gg-3")},
+        {std::string("parallax-gg-4"), std::string("parallax-gg-4")},
+        {std::string("parallax-gg-5"), std::string("parallax-gg-5")},
+        {std::string("parallax-pp-1"), std::string("parallax-pp-1")},
+        {std::string("parallax-pp-2"), std::string("parallax-pp-2")},
+        {std::string("parallax-pp-3"), std::string("parallax-pp-3")},
+        {std::string("parallax-pp-4"), std::string("parallax-pp-4")},
+        {std::string("parallax-pp-5"), std::string("parallax-pp-5")},
+        {std::string("parallax-pp-6"), std::string("parallax-pp-6")},
     };
     std::vector<std::any> tempVec;
     for (auto it = vec.begin(); it != vec.end(); ++it) {
@@ -70,22 +130,7 @@ void ArtAssetMapHelper::populateConstantsMaps()
             Constants::jsonTypeToItemType[std::any_cast<std::string>(tempVec[0])] = std::any_cast<Item>(tempVec[2]);
             Constants::itemToAssetNameMap[std::any_cast<Item>(tempVec[2])] = std::any_cast<std::string>(tempVec[1]);
         }
+
         
-
-    }
-
-    std::vector<std::vector<std::any>> parallaxData = {
-        {std::string("parallax-0"), -5, 0.1f},
-        {std::string("parallax-1"), -4, 0.2f},
-        {std::string("parallax-2"), -3, 0.3f},
-        {std::string("parallax-3"), -2, 0.4f},
-
-    };
-    for (auto it = parallaxData.begin(); it != parallaxData.end(); ++it) {
-        tempVec = *it;
-        //Constants::parallaxTextureToLayerMap[std::any_cast<std::string>(tempVec[0])] = std::any_cast<int>(tempVec[1]);
-        //Constants::parallaxTextureToScrollRateMap[std::any_cast<std::string>(tempVec[0])] = std::any_cast<float>(tempVec[2]);
-    }
-    
-        
+    }     
 }

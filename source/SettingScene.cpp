@@ -24,7 +24,7 @@ using namespace std;
 #define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
-bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
+bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound) {
     if (assets == nullptr) {
         return false;
     }
@@ -72,6 +72,7 @@ bool SettingScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     });
     _sfxSlider->addListener([this](const std::string& name, float value){
         _sound->setSFXVolume(value / 100, true);
+        _sound->playSound("button_click");
     });
     _exitButton->addListener([this](const std::string& name, bool down) {
         if (!down) {

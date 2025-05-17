@@ -28,7 +28,9 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 
 	std::vector<std::string> musicTracks = {
 		"move_phase",
-		"main_menu"
+		"main_menu",
+		"waiting_scene",
+		"victory"
 	};
 	std::vector<std::string> soundNames = {
 		"glide", 
@@ -49,7 +51,18 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		"yellowSelect",
 		"greenSelect",
 		"timer",
-		"discardItem"
+		"discardItem",
+		"numpad_1",
+		"numpad_2",
+		"numpad_3",
+		"numpad_4",
+		"numpad_5",
+		"numpad_6",
+		"numpad_7",
+		"numpad_8",
+		"numpad_9",
+		"numpad_0",
+		"failed_placement"
 	};
 	std::string name;
 	std::shared_ptr<Sound> sound;
@@ -122,6 +135,7 @@ void SoundController::setMusicVolume(float vol, bool savePreferences) {
 	for (auto it = _musicMap.begin(); it != _musicMap.end(); ++it) {
 		it->second->setVolume(_musicOriginalVolumeMap[it->first] * vol);
 	}
+	_musicQueue->setVolume(vol);
 	if (savePreferences) {
 		saveAudioPreferences();
 	}
@@ -155,9 +169,24 @@ void SoundController::loadAudioPreferences() {
 	}
 	std::shared_ptr<JsonValue> json = jsonReader->readJson();
 
-	float musicVol = json->get("musicVolume")->asFloat();
-	float sfxVol = json->get("sfxVolume")->asFloat();
-
+	auto mv = json->get("musicVolume");
+	auto sv = json->get("sfxVolume");
+	float musicVol;
+	if (mv == nullptr) {
+		musicVol = 0.8;
+	}
+	else {
+		musicVol = json->get("musicVolume")->asFloat();
+	}
+	float sfxVol; 
+	if (sv == nullptr) {
+		sfxVol = 0.8;
+	}
+	else {
+		sfxVol = json->get("sfxVolume")->asFloat();
+	}
+	
+	jsonReader->close();
 	setMusicVolume(musicVol, false);
 	setSFXVolume(sfxVol, true);
 

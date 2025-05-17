@@ -51,7 +51,7 @@ using namespace std;
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound) {
+bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound) {
     if (assets == nullptr) {
        return false;
    }
@@ -99,13 +99,13 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     });
     _sfxSlider->addListener([this](const std::string& name, float value){
         _sound->setSFXVolume(value / 100, true);
+        _sound->playSound("button_click");
     });
 
     _disconnectButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::DISCONNECT;
             _sound->playSound("button_click");
-            CULog("Pressed disconnect");
         }
     });
     _resumeButton->addListener([this](const std::string& name, bool down) {

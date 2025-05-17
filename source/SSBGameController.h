@@ -26,6 +26,7 @@
 #include "NetworkController.h"
 #include "SoundController.h"
 #include "ObjectController.h"
+#include "PauseScene.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -84,6 +85,9 @@ protected:
     /** Whether the game is paused */
     bool _isPaused = false;
 
+    /** the level num */
+    int _levelNum = 0;
+
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
     
@@ -118,6 +122,8 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose() override;
+    
+    void disposeLevel();
 
     /**
      * Initializes the controller contents, and starts the game
@@ -133,7 +139,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound);
 
     /**
      * Initializes the controller contents, and starts the game
@@ -172,7 +178,7 @@ public:
      * @return  true if the controller is initialized properly, false otherwise.
      */
     bool init(const std::shared_ptr<AssetManager>& assets,
-        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+        const Rect& rect, const Vec2& gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
     
     /** To be called after level select */
     bool finishInit();
@@ -276,7 +282,7 @@ public:
     void render() override;
 
     /** Sets the scene and associated scenes as active */
-//    virtual void setActive(bool value) override;
+    void setElementsActive(bool value);
     /**
      * Sets whether mode is in building or play mode.
      *
@@ -293,6 +299,7 @@ public:
     
     void setLevelNum(int level){
         _movePhaseController->setLevelNum(level);
+        _levelNum = level;
     }
     
     int getLevelNum(){
@@ -312,7 +319,11 @@ public:
     /**
      * Sets whether the game is paused.
      */
-    void setIsPaused(bool value) { _isPaused = value; }
+    void setIsPaused(bool value) {
+        _isPaused = value;
+        _buildPhaseController->setIsPaused(value);
+        _movePhaseController->setIsPaused(value);
+    }
 
 #pragma mark -
 #pragma mark Helpers

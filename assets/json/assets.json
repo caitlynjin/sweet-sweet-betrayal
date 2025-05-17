@@ -24,6 +24,18 @@
         "tile-topright-corner": {
             "file": "textures/topright-corner.png"
         },
+        "tile-topright-inner": {
+            "file": "textures/1x1-topright-inner-corner.png"
+        },
+        "tile-bottomleft-corner": {
+            "file": "textures/bottomleft-corner.png"
+        },
+        "tile-bottomright-corner": {
+            "file": "textures/bottomright-corner.png"
+        },
+        "tile-topleft-inner": {
+            "file": "textures/1x1-topleft-inner-corner.png"
+        },
         "tile-bottom-edge": {
             "file": "textures/tile-bottom-edge.png"
         },
@@ -149,6 +161,9 @@
         },
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
+        },
+        "torch-left": {
+            "file": "textures/left-torch-spritesheet.png"
         },
         "gliding-log-spritesheet": {
             "file": "textures/gliding-log-spritesheet.png"
@@ -290,7 +305,7 @@
             "file": "textures/yellow-death-character-spritesheet.png"
         },
         "progress-bar": {
-            "file": "textures/progress-bar.png"
+            "file": "textures/progress.png"
         },
         "red-icon": {
             "file": "textures/red.png"
@@ -423,6 +438,9 @@
         },
         "yellowglider": {
             "file": "textures/yellowglider.png"
+        },
+        "safezone": {
+            "file": "textures/safezone.png"
         },
         "button_1": {
             "file": "textures/buttons/button_1.png"
@@ -619,8 +637,56 @@
         "parallax-3": {
             "file": "textures/parallax/3.png"
         },
-        "modal": {
-            "file": "textures/modal.png"
+        "parallax-ww-1": {
+            "file": "textures/parallax/ww-1.png"
+        },
+        "parallax-ww-2": {
+            "file": "textures/parallax/ww-2.png"
+        },
+        "parallax-ww-3": {
+            "file": "textures/parallax/ww-3.png"
+        },
+        "parallax-ww-4": {
+            "file": "textures/parallax/ww-4.png"
+        },
+        "parallax-ww-5": {
+            "file": "textures/parallax/ww-5.png"
+        },
+        "parallax-ww-6": {
+            "file": "textures/parallax/ww-6.png"
+        },
+        "parallax-gg-1": {
+            "file": "textures/parallax/gg-1.png"
+        },
+        "parallax-gg-2": {
+            "file": "textures/parallax/gg-2.png"
+        },
+        "parallax-gg-3": {
+            "file": "textures/parallax/gg-3.png"
+        },
+        "parallax-gg-4": {
+            "file": "textures/parallax/gg-4.png"
+        },
+        "parallax-gg-5": {
+            "file": "textures/parallax/gg-5.png"
+        },
+        "parallax-pp-1": {
+            "file": "textures/parallax/pp-1.png"
+        },
+        "parallax-pp-2": {
+            "file": "textures/parallax/pp-2.png"
+        },
+        "parallax-pp-3": {
+            "file": "textures/parallax/pp-3.png"
+        },
+        "parallax-pp-4": {
+            "file": "textures/parallax/pp-4.png"
+        },
+        "parallax-pp-5": {
+            "file": "textures/parallax/pp-5.png"
+        },
+        "parallax-pp-6": {
+            "file": "textures/parallax/pp-6.png"
         },
         "resume": {
             "file": "textures/buttons/resume.png"
@@ -642,6 +708,9 @@
         },
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
+        },
+        "home-button": {
+            "file": "textures/buttons/home-button.png"
         },
         "help": {
             "file": "textures/setting/help.png"
@@ -690,6 +759,36 @@
         },
         "help-stealing": {
             "file": "textures/help/help-stealing.png"
+        },
+        "blue-victory": {
+            "file": "textures/blue-victory.png"
+        },
+        "red-victory": {
+            "file": "textures/red-victory.png"
+        },
+        "green-victory": {
+            "file": "textures/green-victory.png"
+        },
+        "yellow-victory": {
+            "file": "textures/yellow-victory.png"
+        },
+        "back": {
+            "file": "textures/back.png"
+        },
+        "pause": {
+            "file": "textures/pause.png"
+        },
+        "blue-wins": {
+            "file": "textures/blue-wins.png"
+        },
+        "red-wins": {
+            "file": "textures/red-wins.png"
+        },
+        "green-wins": {
+            "file": "textures/green-wins.png"
+        },
+        "yellow-wins": {
+            "file": "textures/yellow-wins.png"
         }
     },
     "jsons": {
@@ -720,6 +819,18 @@
         "main_menu": {
             "type": "sample",
             "file": "sounds/music_main_menu_5_11.ogg",
+            "stream": true,
+            "volume": 0.2
+        },
+        "victory": {
+            "type": "sample",
+            "file": "sounds/music_victory.ogg",
+            "stream": true,
+            "volume": 0.2
+        },
+        "waiting_scene": {
+            "type": "sample",
+            "file": "sounds/music_waiting_scene.ogg",
             "stream": true,
             "volume": 0.2
         },
@@ -797,6 +908,61 @@
             "type": "sample",
             "file": "sounds/discardItem.wav",
             "volume": 0.5
+        },
+        "numpad_0": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_0.wav",
+            "volume": 0.5
+        },
+        "numpad_1": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_1.wav",
+            "volume": 0.5
+        },
+        "numpad_2": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_2.wav",
+            "volume": 0.5
+        },
+        "numpad_3": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_3.wav",
+            "volume": 0.5
+        },
+        "numpad_4": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_4.wav",
+            "volume": 0.5
+        },
+        "numpad_5": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_5.wav",
+            "volume": 0.5
+        },
+        "numpad_6": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_6.wav",
+            "volume": 0.5
+        },
+        "numpad_7": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_7.wav",
+            "volume": 0.5
+        },
+        "numpad_8": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_8.wav",
+            "volume": 0.5
+        },
+        "numpad_9": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_9.wav",
+            "volume": 0.5
+        },
+        "failed_placement": {
+            "type": "sample",
+            "file": "sounds/sfx_failed_placement.wav",
+            "volume": 0.5
         }
     },
     "fonts": {
@@ -859,7 +1025,8 @@
         "buildmode": "widgets/buildmode.json",
         "credits": "widgets/credits.json",
         "setting": "widgets/setting.json",
-        "help": "widgets/help.json"
+        "help": "widgets/help.json",
+        "victory" : "widgets/victory.json"
     },
     "scene2s": {
         "start": {
@@ -878,16 +1045,6 @@
             },
             "data": {
                 "key": "menu"
-            }
-        },
-        "end": {
-            "type": "Widget",
-            "comment": "This is the root node of the scene for the end/congradulation screen",
-            "format": {
-                "type": "Anchored"
-            },
-            "data": {
-                "key": "end"
             }
         },
         "host": {
@@ -1001,6 +1158,16 @@
             },
             "data": {
                 "key": "help"
+            }
+        },
+        "end" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the victory screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "victory"
             }
         },
         "game": {

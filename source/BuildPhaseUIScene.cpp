@@ -61,6 +61,22 @@ BuildPhaseUIScene::BuildPhaseUIScene() : Scene2() {}
 void BuildPhaseUIScene::dispose() {
     if (_active)
     {
+        removeAllChildren();
+        
+        for (auto btn : _inventoryButtons) {
+            btn->clearListeners();
+            btn->dispose();
+            btn = nullptr;
+        }
+        
+        _inventoryButtons.clear();
+        
+        _readyButton->clearListeners();
+        _rightButton->clearListeners();
+        _leftButton->clearListeners();
+        _trashButton->clearListeners();
+        _pauseButton->clearListeners();
+        
         _readyButton = nullptr;
         _rightButton = nullptr;
         _leftButton = nullptr;
@@ -89,7 +105,7 @@ void BuildPhaseUIScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> soundController) {
+bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &soundController) {
     _networkController = networkController;
     if (assets == nullptr)
     {
@@ -138,19 +154,23 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton =std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.trash"));
     _trashButton->setVisible(true);
 
-    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
     pauseNode->setScale(1.0f);
     _pauseButton = scene2::Button::alloc(pauseNode);
     _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
     _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-    _pauseButton->activate();
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->activate();
+    } else {
+        _pauseButton->setVisible(false);
+    }
     _pauseButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (!down) {
             _isPaused = true;
             _sound->playSound("button_click");
         }
     });
-    
+
     _timerFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.timer.timer"));
     _timerFrame->setVisible(true);
     _timer = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("buildmode.top.timer.text.text"));
@@ -216,9 +236,23 @@ void BuildPhaseUIScene::reset() {
     activateInventory(true);
     
     // Reset UI variables
+    _previousElapsedTime = BUILD_TIME;
+    
     _isReady = false;
     _rightpressed = false;
     _leftpressed = false;
+    
+    _playersCounted = false;
+    _redReady = false;
+    _blueReady = false;
+    _greenReady = false;
+    _yellowReady = false;
+    
+    _iconList.clear();
+    _checkmarkList.clear();
+    _checkmarkMap.clear();
+
+    
 }
 
 /**
@@ -227,7 +261,7 @@ void BuildPhaseUIScene::reset() {
  * @param dt    The amount of time (in seconds) since the last frame
  */
 void BuildPhaseUIScene::preUpdate(float dt) {
-
+    
     Uint64 currentTime = Application::get()->getEllapsedMicros();
     Uint64 elapsedTime = currentTime - _startTime;
     auto numSeconds = BUILD_TIME - elapsedTime / 1000000;
@@ -240,31 +274,81 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     if (elapsedTime >= BUILD_TIME * 1000000){
         _isReady = true;
     }
-    _redIcon->setVisible(false);   _redCheck->setVisible(false);
-    _blueIcon->setVisible(false);  _blueCheck->setVisible(false);
-    _greenIcon->setVisible(false); _greenCheck->setVisible(false);
-    _yellowIcon->setVisible(false);_yellowCheck->setVisible(false);
+    
+    if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
+        // TODO: Finish player ready logic
+        CULog("SET UP PLAYER READY LOGIC");
+        for (auto& player : _networkController->getPlayerList()){
+            if (player->getName() == "playerRed"){
+                CULog("Player icon red set");
+                _iconList.push_back(_redIcon);
+//                addChild(_redIcon);
+            }
+            if (player->getName() == "playerBlue"){
+                CULog("Player icon blue set");
+                _iconList.push_back(_blueIcon);
+//                addChild(_blueIcon);
+            }
+            if (player->getName() == "playerGreen"){
+                CULog("Player icon green set");
+                _iconList.push_back(_greenIcon);
+//                addChild(_greenIcon);
+            }
+            if (player->getName() == "playerYellow"){
+                CULog("Player icon yellow set");
+                _iconList.push_back(_yellowIcon);
+//                addChild(_yellowIcon);
+            }
+        }
+        
+        _redIcon->setVisible(false);   _redCheck->setVisible(false);
+        _blueIcon->setVisible(false);  _blueCheck->setVisible(false);
+        _greenIcon->setVisible(false); _greenCheck->setVisible(false);
+        _yellowIcon->setVisible(false);_yellowCheck->setVisible(false);
+        
+        for (auto& player : _networkController->getPlayerList()) {
+            bool ready = player->getReady();
+            std::string name = player->getName();
+            if (name=="playerRed") {
+                _redIcon->setVisible(true);
+                _redCheck->setVisible(ready);
+            }
+            if (name=="playerBlue") {
+                _blueIcon->setVisible(true);
+                _blueCheck->setVisible(ready);
+            }
+            if (name=="playerGreen") {
+                _greenIcon->setVisible(true);
+                _greenCheck->setVisible(ready);
+            }
+            if (name=="playerYellow") {
+                _yellowIcon->setVisible(true);
+                _yellowCheck->setVisible(ready);
+            }
+        }
+    }
+}
 
-    for (auto& player : _networkController->getPlayerList()) {
-        bool ready = player->getReady();
-        std::string name = player->getName();
-        if (name=="playerRed") {
-            _redIcon->setVisible(true);
-            _redCheck->setVisible(ready);
+void BuildPhaseUIScene::setActive(bool value) {
+    _isActive = value;
+    activateInventory(value);
+
+    if (value) {
+        _readyButton->activate();
+        _rightButton->activate();
+        _leftButton->activate();
+        _trashButton->activate();
+        if (_networkController->getNetwork()->getNumPlayers() == 1) {
+            _pauseButton->activate();
         }
-        if (name=="playerBlue") {
-            _blueIcon->setVisible(true);
-            _blueCheck->setVisible(ready);
-        }
-        if (name=="playerGreen") {
-            _greenIcon->setVisible(true);
-            _greenCheck->setVisible(ready);
-        }
-        if (name=="playerYellow") {
-            _yellowIcon->setVisible(true);
-            _yellowCheck->setVisible(ready);
-        }
-    }}
+    } else {
+        _readyButton->deactivate();
+        _rightButton->deactivate();
+        _leftButton->deactivate();
+        _trashButton->deactivate();
+        _pauseButton->deactivate();
+    }
+}
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -300,7 +384,9 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
-    _pauseButton->setVisible(value);
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->setVisible(value);
+    }
     _timer->setVisible(value);
     _redIcon->setVisible(value);
     _blueIcon->setVisible(value);
@@ -341,7 +427,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
 void BuildPhaseUIScene::activateInventory(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
-        if (value) {
+        if (value && _isActive) {
             _inventoryButtons[i]->activate();
         } else {
             _inventoryButtons[i]->deactivate();
@@ -355,7 +441,11 @@ void BuildPhaseUIScene::activateInventory(bool value) {
  */
 void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
     // Reset buttons
-    for (auto btn : _inventoryButtons) { btn->dispose(); }
+    for (auto btn : _inventoryButtons) { 
+        btn->clearListeners();
+        btn->dispose();
+        btn = nullptr;
+    }
     _inventoryButtons.clear();
     auto scene = _assets->get<scene2::SceneNode>("buildmode");
     scene->setContentSize(getSize());

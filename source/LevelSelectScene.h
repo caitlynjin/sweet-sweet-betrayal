@@ -70,8 +70,12 @@ protected:
     
     std::shared_ptr<scene2::PolygonNode> _modalDarkener;
     std::shared_ptr<scene2::PolygonNode> _modalFrame;
-    std::shared_ptr<scene2::PolygonNode> _levelImage;
-    std::shared_ptr<scene2::PolygonNode> _levelName;
+    std::shared_ptr<scene2::PolygonNode> _lvl1Img;
+    std::shared_ptr<scene2::PolygonNode> _lvl2Img;
+    std::shared_ptr<scene2::PolygonNode> _lvl3Img;
+    std::shared_ptr<scene2::PolygonNode> _lvl1Name;
+    std::shared_ptr<scene2::PolygonNode> _lvl2Name;
+    std::shared_ptr<scene2::PolygonNode> _lvl3Name;
     std::shared_ptr<cugl::scene2::Button> _playButton;
     std::shared_ptr<cugl::scene2::Button> _closeButton;
     
@@ -110,7 +114,7 @@ public:
      */
     void dispose() override;
     
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, const std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<NetworkController> networkController, const std::shared_ptr<SoundController> &sound);
     
     
     virtual void update(float timestep) override;
