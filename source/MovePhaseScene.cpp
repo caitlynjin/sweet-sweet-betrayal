@@ -149,7 +149,17 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
  */
 void MovePhaseScene::populate() {
 #pragma mark : Goal door
-    _goalDoor = _objectController->createGoalDoor(Vec2(GOAL_POS[0], GOAL_POS[1]));
+    Vec2 goalDoorPos;
+    if (_levelNum == 1) {
+        _goalDoor = _objectController->createGoalDoor(Vec2(47, 4));
+    }
+    else if (_levelNum == 2) {
+        _goalDoor = _objectController->createGoalDoor(Vec2(58, 4));
+    }
+    else if (_levelNum == 3) {
+        _goalDoor = _objectController->createGoalDoor(Vec2(47, 4));
+    }
+    
 
 #pragma mark : Level
     shared_ptr<LevelModel> level = make_shared<LevelModel>();
