@@ -71,7 +71,9 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _modalDarkener;
     std::shared_ptr<scene2::PolygonNode> _modalFrame;
     std::shared_ptr<scene2::PolygonNode> _levelImage;
-    std::shared_ptr<scene2::PolygonNode> _levelName;
+    std::shared_ptr<scene2::PolygonNode> _lvl1Name;
+    std::shared_ptr<scene2::PolygonNode> _lvl2Name;
+    std::shared_ptr<scene2::PolygonNode> _lvl3Name;
     std::shared_ptr<cugl::scene2::Button> _playButton;
     std::shared_ptr<cugl::scene2::Button> _closeButton;
     

@@ -32,7 +32,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 /** The key for the background texture in the asset manager */
 #define BACKGROUND_TEXTURE    "background"
@@ -63,7 +63,7 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
 
@@ -90,9 +90,9 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _choice = Choice::NONE;
     
     // General level layout
-    _level1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x1"));
-    _level2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x2"));
-    _level3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.x3"));
+    _level1 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.map.x1"));
+    _level2 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.map.x2"));
+    _level3 = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.map.x3"));
     _hostText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.hosttext"));
     _backbutton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("menu.back"));
     
@@ -132,17 +132,34 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     
     
     _modalDarkener = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.black-background"));
-    _modalFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal"));
-    _levelImage = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.placeholder-1"));
-    _levelName = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.playground-text"));
-    _closeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.exit"));
-    _playButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.play"));
+    if (_modalDarkener) {
+        _modalDarkener->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _modalDarkener->getContentSize();
+        float scale = dimen.height / tex.height;
+        _modalDarkener->setScale(scale, scale);
+        _modalDarkener->setPosition(dimen.width/2, dimen.height/2);
+    }
+    
+    _modalFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.modal"));
+    _levelImage = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.placeholder-1"));
+    _lvl1Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.playground-text"));
+    _lvl2Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.gorges-text"));
+    _lvl3Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.winds-text"));
+    
+    _lvl1Name->setVisible(false);
+    _lvl2Name->setVisible(false);
+    _lvl3Name->setVisible(false);
+    
+    _closeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.modal.exit"));
+    _playButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.modal.play"));
     
     _closeButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::NONE;
             _sound->playSound("button_click");
-
+            _lvl1Name->setVisible(false);
+            _lvl2Name->setVisible(false);
+            _lvl3Name->setVisible(false);
             _levelView = 0;
             _closePressed = true;
         }
@@ -211,7 +228,9 @@ void LevelSelectScene::dispose() {
    _modalDarkener = nullptr;
    _modalFrame = nullptr;
    _levelImage = nullptr;
-   _levelName = nullptr;
+    _lvl1Name = nullptr;
+    _lvl2Name = nullptr;
+    _lvl3Name = nullptr;
    _playButton = nullptr;
    _closeButton = nullptr;
     
@@ -366,17 +385,23 @@ void LevelSelectScene::setActive(bool value) {
 void LevelSelectScene::selectLevel(int levelNum){
     if (levelNum == 1){
         _levelImage->setTexture(_assets->get<Texture>("placeholder-1"));
-        _levelName->setTexture(_assets->get<Texture>("playground-text"));
+        _lvl2Name->setVisible(false);
+        _lvl3Name->setVisible(false);
+        _lvl1Name->setVisible(true);
     }
     
     if (levelNum == 2){
         _levelImage->setTexture(_assets->get<Texture>("gorges-img"));
-        _levelName->setTexture(_assets->get<Texture>("gorges-text"));
+        _lvl1Name->setVisible(false);
+        _lvl3Name->setVisible(false);
+        _lvl2Name->setVisible(true);
     }
     
     if (levelNum == 3){
         _levelImage->setTexture(_assets->get<Texture>("winds-img"));
-        _levelName->setTexture(_assets->get<Texture>("winds-text"));
+        _lvl1Name->setVisible(false);
+        _lvl2Name->setVisible(false);
+        _lvl3Name->setVisible(true);
     }
     
     setModalVisible(true);
@@ -393,7 +418,6 @@ void LevelSelectScene::setModalVisible(bool visible){
     _modalDarkener->setVisible(visible);
     _modalFrame->setVisible(visible);
     _levelImage->setVisible(visible);
-    _levelName->setVisible(visible);
     _closeButton->setVisible(visible);
     _playButton->setVisible(visible);
 }
