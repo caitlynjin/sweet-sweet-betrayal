@@ -80,7 +80,7 @@ bool StartScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     
     _leveleditorbutton->addListener([this](const std::string& name, bool down) {
         if (!down) {
-            _choice = Choice::SETTING;
+            _choice = Choice::LEVEL_EDITOR;
             _sound->playSound("button_click");
         }
     });
