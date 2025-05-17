@@ -194,6 +194,7 @@ bool Treasure::init(const Vec2 pos, const Size size, float scale, string jsonTyp
 void Treasure::reset(){
     _taken = false;
     _isStealable = true;
+    _atGoal = false;
 }
 
 std::map<std::string, std::any> Treasure::getMap() {

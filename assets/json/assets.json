@@ -709,6 +709,9 @@
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
         },
+        "home-button": {
+            "file": "textures/buttons/home-button.png"
+        },
         "help": {
             "file": "textures/setting/help.png"
         },
@@ -756,6 +759,36 @@
         },
         "help-stealing": {
             "file": "textures/help/help-stealing.png"
+        },
+        "blue-victory": {
+            "file": "textures/blue-victory.png"
+        },
+        "red-victory": {
+            "file": "textures/red-victory.png"
+        },
+        "green-victory": {
+            "file": "textures/green-victory.png"
+        },
+        "yellow-victory": {
+            "file": "textures/yellow-victory.png"
+        },
+        "back": {
+            "file": "textures/back.png"
+        },
+        "pause": {
+            "file": "textures/pause.png"
+        },
+        "blue-wins": {
+            "file": "textures/blue-wins.png"
+        },
+        "red-wins": {
+            "file": "textures/red-wins.png"
+        },
+        "green-wins": {
+            "file": "textures/green-wins.png"
+        },
+        "yellow-wins": {
+            "file": "textures/yellow-wins.png"
         }
     },
     "jsons": {
@@ -998,7 +1031,8 @@
         "buildmode": "widgets/buildmode.json",
         "credits": "widgets/credits.json",
         "setting": "widgets/setting.json",
-        "help": "widgets/help.json"
+        "help": "widgets/help.json",
+        "victory" : "widgets/victory.json"
     },
     "scene2s": {
         "start": {
@@ -1017,16 +1051,6 @@
             },
             "data": {
                 "key": "menu"
-            }
-        },
-        "end": {
-            "type": "Widget",
-            "comment": "This is the root node of the scene for the end/congradulation screen",
-            "format": {
-                "type": "Anchored"
-            },
-            "data": {
-                "key": "end"
             }
         },
         "host": {
@@ -1140,6 +1164,16 @@
             },
             "data": {
                 "key": "help"
+            }
+        },
+        "end" : {
+            "type"      : "Widget",
+            "comment"   : "This is the root node of the scene for the victory screen",
+            "format"    : {
+                "type" : "Anchored"
+            },
+            "data" : {
+                "key" : "victory"
             }
         },
         "game": {

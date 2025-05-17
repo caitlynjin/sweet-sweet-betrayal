@@ -236,7 +236,7 @@
                                 382
                             ],
                             "visible": true,
-                            "bounds": [56,46,466,0],
+                            "bounds": [30,46,440,0],
                             "value": 75,
                             "knob" : "knob",
                             "path" : "slider"
@@ -289,8 +289,8 @@
                                     "visible": true
                                 },
                                 "layout": {
-                                    "x_anchor": "center",
-                                    "y_anchor": "middle",
+                                    "x_anchor": "left",
+                                    "y_anchor": "top",
                                     "absolute": false,
                                     "x_offset": 0.19,
                                     "y_offset": 0
@@ -325,7 +325,7 @@
                                 272
                             ],
                             "visible": true,
-                            "bounds": [56,46,466,0],
+                            "bounds": [30,46,440,0],
                             "value": 75,
                             "knob" : "knob",
                             "path" : "slider"

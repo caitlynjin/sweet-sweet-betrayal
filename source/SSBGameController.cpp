@@ -154,7 +154,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
-    
+
     setActive(false);
     
     return true;
@@ -291,17 +291,17 @@ void SSBGameController::disposeLevel(){
     _movePhaseController->setGridManger(_gridManager);
     _movePhaseController->setInput(_input);
     Scene2::dispose();
+    _movePhaseController->rebuildMovePhase();
 }
 
-//void SSBGameController::setActive(bool value){
+void SSBGameController::setElementsActive(bool value){
 //    if (isActive() != value) {
 //        Scene2::setActive(value);
-//        
-//        _active = value;
-//        _buildPhaseController->getBuildPhaseScene().setActive(value);
-//        _buildPhaseController->getBuildPhaseUI().setActive(value);
-//    }
-//}
+        
+    _active = value;
+    _buildPhaseController->setActive(value);
+    _movePhaseController->setActive(value);
+}
 
 #pragma mark -
 #pragma mark Level Layout
@@ -372,7 +372,10 @@ void SSBGameController::update(float timestep)
 void SSBGameController::preUpdate(float dt)
 {
     //
-    
+    for (auto player : _networkController->getPlayerList()) {
+        CULog("%s is player's name", player->getName().c_str());
+        CULog("len %d", _networkController->getPlayerList().size());
+    }
     
     // Check for reset
     if (_networkController->getResetLevel()){
@@ -469,8 +472,14 @@ void SSBGameController::preUpdate(float dt)
             _camera->getPosition().y / 64));
     }
 
-    if (_isPaused != _buildPhaseController->getIsPaused()) {
-        _isPaused = _buildPhaseController->getIsPaused();
+    // Update whether the game is paused
+    if (_isPaused == false) {
+        if (_buildingMode) {
+            _isPaused = _buildPhaseController->getIsPaused();
+        } else {
+            _isPaused = _movePhaseController->getIsPaused();
+        }
+//        setIsPaused(_isPaused);
     }
 }
 

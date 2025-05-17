@@ -300,17 +300,24 @@ void SSBApp::preUpdate(float dt)
                         _gameController.setActive(false);
                         //                    _gameController.reset();
                         _victory.setActive(true);
+                        int winColorInt = _networkController->getWinColorInt();
+                        if (winColorInt == -1){
+                            CULog("NO WIN COLOR SET");
+                        }
+                        _victory.setWinColor(winColorInt);
                         _status = VICTORY;
                     }
                 }
             // Check for pressing pause button
                 if (_gameController.getIsPaused()) {
-                    setTransition(true);
-                    if (_transition.getFadingOutDone()){
+//                    setTransition(true);
+//                    if (_transition.getFadingOutDone()){
                         _gameController.setActive(false);
+                        // TODO: Need to disable ready button
+                        _gameController.setElementsActive(false);
                         _pause.setActive(true);
                         _status = PAUSED;
-                    }
+//                    }
                 }
             break;
         case LEVEL_EDITOR:
@@ -347,7 +354,9 @@ void SSBApp::preUpdate(float dt)
                 }
             break;
         case PAUSED:
-            _pause.update(dt);
+            updatePauseScene(dt);
+            _gameController.preUpdate(dt);
+            break;
         case DISCONNECTED:
             updateDisconnectedScene(dt);
             break;
@@ -382,7 +391,7 @@ void SSBApp::fixedUpdate()
 {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep() / 1000000.0f;
-    if (_status == GAME)
+    if (_status == GAME || _status == PAUSED)
     {
         _gameController.fixedUpdate(time);
     }
@@ -426,7 +435,7 @@ void SSBApp::postUpdate(float dt)
 {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder() / 1000000.0f;
-    if (_status == GAME)
+    if (_status == GAME || _status == PAUSED)
     {
         _gameController.postUpdate(time);
     }
@@ -863,6 +872,41 @@ void SSBApp::updateWaitingHostScene(float timestep){
     }
 }
 
+void SSBApp::updatePauseScene(float timestep){
+    _pause.update(timestep);
+    switch (_pause.getChoice())
+    {
+        case PauseScene::Choice::DISCONNECT:
+            setTransition(true);
+            if (_transition.getFadingOutDone()){
+                _expectedPlayers = 0;
+                _pause.reset();
+                _pause.setActive(false);
+
+                _startscreen.reset();
+                _startscreen.setActive(true);
+                _status = START;
+
+                _gameController.setIsPaused(false);
+            }
+            break;
+        case PauseScene::Choice::RESUME:
+//            setTransition(true);
+//            if (_transition.getFadingOutDone()){
+                _pause.reset();
+                _pause.setActive(false);
+                _status = GAME;
+
+                _gameController.setIsPaused(false);
+                _gameController.setActive(true);
+                _gameController.setElementsActive(true);
+//            }
+            break;
+        case PauseScene::Choice::NONE:
+            break;
+    }
+}
+
 void SSBApp::updateDisconnectedScene(float timestep){
     _disconnectedscreen.update(timestep);
     switch (_disconnectedscreen.getChoice())
@@ -955,6 +999,7 @@ void SSBApp::draw()
         break;
     case GAME:
         _gameController.render();
+        break;
     case LEVEL_EDITOR:
         _levelEditorController.render();
         break;
@@ -962,6 +1007,7 @@ void SSBApp::draw()
         _victory.render();
         break;
     case PAUSED:
+        _gameController.render();
         _pause.render();
         break;
     case DISCONNECTED:
@@ -1045,6 +1091,7 @@ void SSBApp::resetLevel(){
     _networkController->reset();
     _colorselect.reset();
     _levelSelect.reset();
+    _victory.reset();
     
     _networkController->setPlayAgain(true);
     _gameController.disposeLevel();

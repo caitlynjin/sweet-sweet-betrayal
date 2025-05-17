@@ -64,6 +64,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
+
     
     _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("colorselect.background"));
     if (_background) {
@@ -343,10 +344,25 @@ void ColorSelectScene::updateSelectedColor(ColorType c) {
         _taken[_prevTakenIndex] = false;
     }
     _taken[int(c)] = true;
-    _redNormal->setVisible(true); _redSelected->setVisible(false);
-    _blueNormal->  setVisible(true); _blueSelected->  setVisible(false);
-    _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
-    _greenNormal-> setVisible(true); _greenSelected-> setVisible(false);
+    
+    if (!_taken[int(ColorType::RED)]){
+        _redNormal->setVisible(true); _redSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::BLUE)]){
+        _blueNormal->setVisible(true); _blueSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::GREEN)]){
+        _greenNormal->setVisible(true); _greenSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::YELLOW)]){
+        _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
+    }
+    
+//    _redNormal->setVisible(true); _redSelected->setVisible(false);
+//    _blueNormal->  setVisible(true); _blueSelected->  setVisible(false);
+//    _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
+//    _greenNormal-> setVisible(true); _greenSelected-> setVisible(false);
+    
     switch(c) {
         case ColorType::RED:
             _redSelected->setVisible(true);

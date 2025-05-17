@@ -47,7 +47,7 @@ protected:
     std::shared_ptr<scene2::SceneNode> _node;
     
     /** The length of the treasur's steal cooldown */
-    int const STEAL_COOLDOWN = 30;
+    int const STEAL_COOLDOWN = 10;
     
     /** The current progress of the steal cooldown */
     float _stealCooldown = 0.0f;
@@ -57,6 +57,8 @@ protected:
     
     /** Whether the host is currently updating the treasure */
     bool _isHost;
+    
+    bool _atGoal = false;
     
     
 #pragma mark Animation Variables
@@ -152,17 +154,26 @@ public:
         }
     }
     
+    void setAtGoal(bool value){
+        _atGoal = value;
+    }
+    
     
     /**
      * Returns whether the treasure can be stolen  by a player.
      * @return True if stealable, false otherwise
      */
     bool isStealable() {
-        if (_stealCooldown > 0){
-            _isStealable = false;
+        if (!_atGoal){
+            if (_stealCooldown > 0){
+                _isStealable = false;
+            }
+            else{
+                _isStealable = true;
+            }
         }
         else{
-            _isStealable = true;
+            return false;
         }
         return _isStealable;
     }
@@ -170,7 +181,6 @@ public:
     void setStealable(bool value){
         _isStealable = value;
     }
-
     /**
      * Returns whether the treasure has been taken by a player.
      * @return True if taken, false otherwise.

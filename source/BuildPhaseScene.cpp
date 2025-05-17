@@ -61,7 +61,7 @@ BuildPhaseScene::BuildPhaseScene() : Scene2() {}
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void BuildPhaseScene::dispose() {
-
+    removeAllChildren();
 };
 
 /**

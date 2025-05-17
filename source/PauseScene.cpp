@@ -106,7 +106,6 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
         if (!down) {
             _choice = Choice::DISCONNECT;
             _sound->playSound("button_click");
-            CULog("Pressed disconnect");
         }
     });
     _resumeButton->addListener([this](const std::string& name, bool down) {
