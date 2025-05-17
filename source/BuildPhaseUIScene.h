@@ -88,6 +88,19 @@ protected:
     */
     Uint64 _previousElapsedTime = BUILD_TIME;
 
+    int _icons = 4;
+    int _redPos = 1;
+    int _bluePos = 2;
+    int _greenPos = 3;
+    int _yellowPos = 4;
+
+    string _red = "buildmode.top.icons.player1.red-icon";
+    string _blue = "buildmode.top.icons.player2.blue-icon";
+    string _green = "buildmode.top.icons.player3.green-icon";
+    string _yellow = "buildmode.top.icons.player4.yellow-icon";
+
+    string _local;
+
     /** Whether the game is paused */
     bool _isPaused = false;
     /** Whether the player is ready to proceed to movement phase */

@@ -156,177 +156,40 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _timer = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("buildmode.top.timer.text.text"));
     _timer->setVisible(true);
 
-    int icons = 4;
-
-    string red = "buildmode.top.icons.player1.red-icon";
-    int redPos = 1;
-    string blue = "buildmode.top.icons.player2.blue-icon";
-    int bluePos = 2;
-    string green = "buildmode.top.icons.player3.green-icon";
-    int greenPos = 3;
-    string yellow = "buildmode.top.icons.player4.yellow-icon";
-    int yellowPos = 4;
+    _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player1.red-icon"));
+    _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player2.blue-icon"));
+    _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player3.green-icon"));
+    _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player1.yellow-icon"));
 
     if (local == "playerRed"){
-        red = "buildmode.top.icons.player1.red-icon";
-        redPos = 1;
+        _red = "buildmode.top.icons.player1.red-icon";
+        _redPos = 1;
     }
     else if (local == "playerBlue"){
-        blue = "buildmode.top.icons.player1.blue-icon";
-        bluePos = 1;
+        _blue = "buildmode.top.icons.player1.blue-icon";
+        _bluePos = 1;
     }
     else if (local == "playerGreen"){
-        green = "buildmode.top.icons.player1.green-icon";
-        greenPos = 1;
+        _green = "buildmode.top.icons.player1.green-icon";
+        _greenPos = 1;
     }
     else if (local == "playerYellow"){
-        yellow = "buildmode.top.icons.player1.yellow-icon";
-        yellowPos = 1;
+        _yellow = "buildmode.top.icons.player1.yellow-icon";
+        _yellowPos = 1;
     }
-    icons--;
-    CULog("%d", icons);
+    _icons--;
 
-    for (auto& player : _networkController->getPlayerList()){
-        if (player->getName() != local && player->getName() == "playerRed"){
-            if (icons == 3){
-                red = "buildmode.top.icons.player2.red-icon";
-                redPos = 2;
-            }
-            else if (icons == 2){
-                red = "buildmode.top.icons.player3.red-icon";
-                redPos = 3;
-            }
-            else if (icons == 1){
-                red = "buildmode.top.icons.player4.red-icon";
-                redPos = 4;
-            }
-            icons--;
-        }
-        else if (player->getName() != local && player->getName() == "playerBlue"){
-            if (icons == 3){
-                blue = "buildmode.top.icons.player2.blue-icon";
-                bluePos = 2;
-            }
-            else if (icons == 2){
-                blue = "buildmode.top.icons.player3.blue-icon";
-                bluePos = 3;
-            }
-            else if (icons == 1){
-                blue = "buildmode.top.icons.player4.blue-icon";
-                bluePos = 4;
-            }
-            icons--;
-        }
-        else if (player->getName() != local && player->getName() == "playerGreen"){
-            if (icons == 3){
-                green = "buildmode.top.icons.player2.green-icon";
-                greenPos = 2;
-                CULog("%s", player->getName().c_str());
-            }
-            else if (icons == 2){
-                green = "buildmode.top.icons.player3.green-icon";
-                greenPos = 3;
-            }
-            else if (icons == 1){
-                green = "buildmode.top.icons.player4.green-icon";
-                greenPos = 4;
-            }
-            icons--;
-        }
-        else if (player->getName() != local && player->getName() == "playerYellow"){
-            if (icons == 3){
-                yellow = "buildmode.top.icons.player2.yellow-icon";
-                yellowPos = 2;
-            }
-            else if (icons == 2){
-                yellow = "buildmode.top.icons.player3.yellow-icon";
-                yellowPos = 3;
-            }
-            else if (icons == 1){
-                yellow = "buildmode.top.icons.player4.yellow-icon";
-                yellowPos = 4;
-            }
-            icons--;
-        }
-    }
+    _local = local;
 
-    _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(red));
-    _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(blue));
-    _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(green));
-    _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(yellow));
+    _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+            _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+    _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+            _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+    _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+            _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+    _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+            _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
 
-    switch (redPos){
-        case 1:
-            _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
-            break;
-        case 2:
-            _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
-            break;
-        case 3:
-            _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
-            break;
-        case 4:
-            _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
-            break;
-    }
-    switch (bluePos){
-        case 1:
-            _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
-            break;
-        case 2:
-            _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
-            break;
-        case 3:
-            _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
-            break;
-        case 4:
-            _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
-            break;
-    }
-    switch (greenPos){
-        case 1:
-            _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
-            break;
-        case 2:
-            _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
-            break;
-        case 3:
-            _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
-            break;
-        case 4:
-            _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
-            break;
-    }
-    switch (yellowPos){
-        case 1:
-            _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
-            break;
-        case 2:
-            _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
-            break;
-        case 3:
-            _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
-            break;
-        case 4:
-            _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
-                    _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
-            break;
-    }
     _redCheck->setVisible(false);
     _blueCheck->setVisible(false);
     _greenCheck->setVisible(false);
@@ -422,7 +285,155 @@ void BuildPhaseUIScene::preUpdate(float dt) {
             _yellowIcon->setVisible(true);
             _yellowCheck->setVisible(ready);
         }
-    }}
+    }
+
+    if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
+        _playersCounted = true;
+        for (auto& player : _networkController->getPlayerList()){
+            if (player->getName() != _local && player->getName() == "playerRed"){
+                if (_icons == 3){
+                    _red = "buildmode.top.icons.player2.red-icon";
+                    _redPos = 2;
+                }
+                else if (_icons == 2){
+                    _red = "buildmode.top.icons.player3.red-icon";
+                    _redPos = 3;
+                }
+                else if (_icons == 1){
+                    _red = "buildmode.top.icons.player4.red-icon";
+                    _redPos = 4;
+                }
+                _icons--;
+            }
+            else if (player->getName() != _local && player->getName() == "playerBlue"){
+                if (_icons == 3){
+                    _blue = "buildmode.top.icons.player2.blue-icon";
+                    _bluePos = 2;
+                }
+                else if (_icons == 2){
+                    _blue = "buildmode.top.icons.player3.blue-icon";
+                    _bluePos = 3;
+                }
+                else if (_icons == 1){
+                    _blue = "buildmode.top.icons.player4.blue-icon";
+                    _bluePos = 4;
+                }
+                _icons--;
+            }
+            else if (player->getName() != _local && player->getName() == "playerGreen"){
+                if (_icons == 3){
+                    _green = "buildmode.top.icons.player2.green-icon";
+                    _greenPos = 2;
+                }
+                else if (_icons == 2){
+                    _green = "buildmode.top.icons.player3.green-icon";
+                    _greenPos = 3;
+                }
+                else if (_icons == 1){
+                    _green = "buildmode.top.icons.player4.green-icon";
+                    _greenPos = 4;
+                }
+                _icons--;
+            }
+            else if (player->getName() != _local && player->getName() == "playerYellow"){
+                if (_icons == 3){
+                    _yellow = "buildmode.top.icons.player2.yellow-icon";
+                    _yellowPos = 2;
+                }
+                else if (_icons == 2){
+                    _yellow = "buildmode.top.icons.player3.yellow-icon";
+                    _yellowPos = 3;
+                }
+                else if (_icons == 1){
+                    _yellow = "buildmode.top.icons.player4.yellow-icon";
+                    _yellowPos = 4;
+                }
+                _icons--;
+            }
+        }
+        _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_red));
+        _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_blue));
+        _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_green));
+        _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_yellow));
+
+        switch (_redPos){
+            case 1:
+                _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+                break;
+            case 2:
+                _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+                break;
+            case 3:
+                _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+                break;
+            case 4:
+                _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
+                break;
+        }
+        switch (_bluePos){
+            case 1:
+                _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+                break;
+            case 2:
+                _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+                break;
+            case 3:
+                _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+                break;
+            case 4:
+                _blueCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
+                break;
+        }
+        switch (_greenPos){
+            case 1:
+                _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+                break;
+            case 2:
+                _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+                break;
+            case 3:
+                _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+                break;
+            case 4:
+                _greenCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
+                break;
+        }
+        switch (_yellowPos){
+            case 1:
+                _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player1.checkmark"));
+                break;
+            case 2:
+                _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player2.checkmark"));
+                break;
+            case 3:
+                _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player3.checkmark"));
+                break;
+            case 4:
+                _yellowCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
+                        _assets->get<scene2::SceneNode>("buildmode.top.icons.player4.checkmark"));
+                break;
+        }
+        _redCheck->setVisible(false);
+        _blueCheck->setVisible(false);
+        _greenCheck->setVisible(false);
+        _yellowCheck->setVisible(false);
+    }
+}
 
 #pragma mark -
 #pragma mark Attribute Functions
