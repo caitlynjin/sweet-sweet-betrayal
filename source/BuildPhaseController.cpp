@@ -254,6 +254,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
+                    _sound->playSound("failed_placement");
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
@@ -297,6 +298,7 @@ void BuildPhaseController::preUpdate(float dt) {
                         _uiScene.activateInventory(false);
                     }
                 } else {
+                    _sound->playSound("failed_placement");
                     CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                 }
             }

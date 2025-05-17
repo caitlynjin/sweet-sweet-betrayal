@@ -252,6 +252,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
 
         wind->setGustAnimation(gusts, 14);
         wind->setPositionInit(wind->getPosition());
+        wind->setName("fan");
     }
     else {
         staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
@@ -391,7 +392,7 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     art->setAnimated(isAnimated);
     art->setBodyType(b2_staticBody);
     art->setDensity(BASIC_DENSITY);
-    sprite->setAnchor(0.1, 0.55);
+    sprite->setAnchor(0.15, 0.55);
     sprite->setPosition(sprite->getPosition() + art->getPosition());
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);

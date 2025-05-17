@@ -166,7 +166,8 @@ void MovePhaseScene::populate() {
         levelName = "json/gorges.json";
     }
     else if (_levelNum == 3){
-        levelName = LEVEL_3;
+        levelName = "json/wind.json";
+        //
     }
     else{
         CULog("NO LEVEL SET");

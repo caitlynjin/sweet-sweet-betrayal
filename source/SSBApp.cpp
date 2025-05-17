@@ -242,6 +242,7 @@ void SSBApp::preUpdate(float dt)
         _transition.startFadeIn();
 
         _status = START;
+        _sound->loadAudioPreferences();
 
         _sound->playMusic("main_menu", true);
     }

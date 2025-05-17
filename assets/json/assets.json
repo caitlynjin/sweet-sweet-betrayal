@@ -789,6 +789,18 @@
             "stream": true,
             "volume": 0.2
         },
+        "victory": {
+            "type": "sample",
+            "file": "sounds/music_victory.ogg",
+            "stream": true,
+            "volume": 0.2
+        },
+        "waiting_scene": {
+            "type": "sample",
+            "file": "sounds/music_waiting_scene.ogg",
+            "stream": true,
+            "volume": 0.2
+        },
         "mushroom_boing": {
             "type": "sample",
             "file": "sounds/mushroom_boing.wav",
@@ -862,6 +874,61 @@
         "discardItem": {
             "type": "sample",
             "file": "sounds/discardItem.wav",
+            "volume": 0.5
+        },
+        "numpad_0": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_0.wav",
+            "volume": 0.5
+        },
+        "numpad_1": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_1.wav",
+            "volume": 0.5
+        },
+        "numpad_2": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_2.wav",
+            "volume": 0.5
+        },
+        "numpad_3": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_3.wav",
+            "volume": 0.5
+        },
+        "numpad_4": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_4.wav",
+            "volume": 0.5
+        },
+        "numpad_5": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_5.wav",
+            "volume": 0.5
+        },
+        "numpad_6": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_6.wav",
+            "volume": 0.5
+        },
+        "numpad_7": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_7.wav",
+            "volume": 0.5
+        },
+        "numpad_8": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_8.wav",
+            "volume": 0.5
+        },
+        "numpad_9": {
+            "type": "sample",
+            "file": "sounds/sfx_numpad_9.wav",
+            "volume": 0.5
+        },
+        "failed_placement": {
+            "type": "sample",
+            "file": "sounds/sfx_failed_placement.wav",
             "volume": 0.5
         }
     },
