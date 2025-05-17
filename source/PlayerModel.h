@@ -109,6 +109,10 @@ using namespace Constants;
 * on a platform.  The round shapes on the end caps lead to smoother movement.
 */
 class PlayerModel : public physics2::CapsuleObstacle {
+public:
+    enum class State {
+        GLIDING, GROUNDED, MIDDAIR
+    };
 private:
 	/** This macro disables the copy constructor (not allowed on physics objects) */
 	CU_DISALLOW_COPY_AND_ASSIGN(PlayerModel);
@@ -118,9 +122,7 @@ protected:
     /*Stores our current state*/
     bool _isLocal;
 
-    enum class State {
-        GLIDING, GROUNDED, MIDDAIR
-    };
+    
     State _state = State::MIDDAIR;
 
     //True if state has just changed
