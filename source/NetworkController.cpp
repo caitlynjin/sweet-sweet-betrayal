@@ -141,6 +141,11 @@ void NetworkController::preUpdate(float dt){
     
     _scoreController->preUpdate(dt);
     
+    if (_treasure){
+        CULog("Treasure is stealable: %d", _treasure->isStealable());
+    }
+   
+    
     // Check for if a player has won
     if (_scoreController->getPlayerWinID() != -1){
         _winColorInt = static_cast<int>(_playerColorsById[_scoreController->getPlayerWinID()]);
@@ -353,7 +358,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             break;
         case Message::MAKE_UNSTEALABLE:
             // Make treasure unstealable
-            _treasure->setStealable(false);
+            _treasure->setAtGoal(true);
             break;
         case Message::HOST_START:
             break;
@@ -491,6 +496,7 @@ void NetworkController::removeObject(std::shared_ptr<Object> object){
 /** Resets the treasure to remove possession and return to spawn location */
 void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
+    _treasure->setAtGoal(false);
     _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPositionInit(_treasureSpawn);
@@ -502,6 +508,7 @@ void NetworkController::resetTreasure(){
 /** Resets the treasure to remove possession and return to random spawn location */
 void NetworkController::resetTreasureRandom(){
     _treasure->setTaken(false);
+    _treasure->setAtGoal(false);
     _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPositionInit(pickRandSpawn());
