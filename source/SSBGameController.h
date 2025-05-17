@@ -62,8 +62,6 @@ protected:
     scene2::Scene2 _backgroundScene;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
-    /** Reference to the pause screen */
-    PauseScene _pauseScene;
 
     /** The Box2D world */
     std::shared_ptr<cugl::physics2::distrib::NetWorld> _world;
