@@ -412,10 +412,13 @@ void SSBGameController::preUpdate(float dt)
     }
 
     // Update whether the game is paused
-    if (_isPaused != _buildPhaseController->getIsPaused()
-        || _isPaused != _movePhaseController->getIsPaused()) {
-        _isPaused = _buildPhaseController->getIsPaused() || _movePhaseController->getIsPaused();
-        setIsPaused(_isPaused);
+    if (_isPaused == false) {
+        if (_buildingMode) {
+            _isPaused = _buildPhaseController->getIsPaused();
+        } else {
+            _isPaused = _movePhaseController->getIsPaused();
+        }
+//        setIsPaused(_isPaused);
     }
 }
 

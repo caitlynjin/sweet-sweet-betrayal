@@ -293,7 +293,7 @@ void MovePhaseController::preUpdate(float dt) {
     }
 
     // Update whether the game is paused
-    if (_isPaused != _uiScene.getIsPaused()) {
+    if (_isPaused == false) {
         _isPaused = _uiScene.getIsPaused();
     }
 }

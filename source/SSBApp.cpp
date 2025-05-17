@@ -304,14 +304,14 @@ void SSBApp::preUpdate(float dt)
                 }
             // Check for pressing pause button
                 if (_gameController.getIsPaused()) {
-                    setTransition(true);
-                    if (_transition.getFadingOutDone()){
+//                    setTransition(true);
+//                    if (_transition.getFadingOutDone()){
                         _gameController.setActive(false);
                         // TODO: Need to disable ready button
                         _gameController.setElementsActive(false);
                         _pause.setActive(true);
                         _status = PAUSED;
-                    }
+//                    }
                 }
             break;
         case LEVEL_EDITOR:
@@ -870,15 +870,16 @@ void SSBApp::updatePauseScene(float timestep){
             }
             break;
         case PauseScene::Choice::RESUME:
-            setTransition(true);
-            if (_transition.getFadingOutDone()){
+//            setTransition(true);
+//            if (_transition.getFadingOutDone()){
                 _pause.reset();
                 _pause.setActive(false);
                 _status = GAME;
 
                 _gameController.setIsPaused(false);
+                _gameController.setActive(true);
                 _gameController.setElementsActive(true);
-            }
+//            }
             break;
         case PauseScene::Choice::NONE:
             break;

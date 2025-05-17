@@ -314,6 +314,7 @@ public:
      * Sets whether the game is paused.
      */
     void setIsPaused(bool value) {
+        _isPaused = value;
         _buildPhaseController->setIsPaused(value);
         _movePhaseController->setIsPaused(value);
     }

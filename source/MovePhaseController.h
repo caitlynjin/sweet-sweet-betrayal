@@ -324,7 +324,7 @@ public:
     /**
      * Sets whether the game is paused.
      */
-    void setIsPaused(bool value) { _uiScene.setIsPaused(value); }
+    void setIsPaused(bool value) { _isPaused = value; _uiScene.setIsPaused(value); }
 
 #pragma mark -
 #pragma mark Collision Handling
