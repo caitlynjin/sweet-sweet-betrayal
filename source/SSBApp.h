@@ -32,7 +32,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED, SETTING, CREDITS, HELP
+        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, SETTING, CREDITS, HELP
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
