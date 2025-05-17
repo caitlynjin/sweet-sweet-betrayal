@@ -186,8 +186,6 @@ bool SSBGameController::finishInit(){
 
     // Initialize build phase controller
     _buildPhaseController->init(_assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
-    _sound->setMusicVolume(0.0f, true);
-    _sound->setSFXVolume(0.0f, true);
     //_sound->playMusic("move_phase");
 
     // Create parallax art assets
@@ -316,7 +314,9 @@ void SSBGameController::disposeLevel(){
 void SSBGameController::reset()
 {
     // Clear the world
-    _world->clear();
+    if (_world) {
+        _world->clear();
+    }
     
     // Reset all variables
     _buildingMode = true;

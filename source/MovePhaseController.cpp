@@ -313,7 +313,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
     if (wind->getPlayerHits() > 0) {
         _movePhaseScene.getLocalPlayer()->addWind(wind->getWindForce(), wind->getPlayerToWindDist());
     }
-
+    CULog("wind updateing");
     int i = 0;
     std::vector<cugl::Vec2> lst = wind->getRayOrigins();
 
