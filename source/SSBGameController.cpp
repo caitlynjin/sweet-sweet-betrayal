@@ -218,9 +218,6 @@ void SSBGameController::createParallaxObjects() {
             "parallax-ww-6"
         };
     }
-    else {
-        CUAssert(false, "Level should have been either 1, 2, or 3 (run this code later instead after that is initialized correctly");
-    }
     shared_ptr<JsonReader> jsonReader;
     jsonReader = JsonReader::allocWithAsset("json/parallax/parallax.json");
     shared_ptr<JsonValue> json = jsonReader->readJson();

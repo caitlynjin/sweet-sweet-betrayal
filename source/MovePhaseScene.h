@@ -33,7 +33,7 @@ class MovePhaseScene : public scene2::Scene2 {
 protected:
     // JSON LEVEL CONSTANTS
     
-    string LEVEL_1 = "json/playground.json";
+    string LEVEL_1 = "json/party.json";
     string LEVEL_2 = "json/alpha.json";
     string LEVEL_3 = "json/playground.json";
     
