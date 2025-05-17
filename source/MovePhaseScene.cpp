@@ -130,7 +130,8 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     addChild(_gridManager->getGridNode());
 
     _active = true;
-    populate();
+    
+//    populate();
 
     return true;
 }
@@ -187,10 +188,18 @@ void MovePhaseScene::populate() {
     Vec2 pos = DUDE_POS;
     // CLIENT STARTS ON RIGHT
     if (_networkController->getLocalID() == 2) {
+        pos += Vec2(0, 3);
+    }
+    if (_networkController->getLocalID() == 3) {
         pos += Vec2(3, 0);
     }
+    if (_networkController->getLocalID() == 4) {
+        pos += Vec2(3, 3.5);
+    }
+        
     ColorType playerColor = _networkController->getLocalColor();
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    
     _networkController->setLocalPlayer(_localPlayer);
 
     // This is set to false to counter race condition with collision filtering
@@ -201,6 +210,7 @@ void MovePhaseScene::populate() {
 //    _localPlayer->setEnabled(false);
 
     _localPlayer->setDebugScene(_debugnode);
+    _localPlayer->setLocal();
     _world->getOwnedObstacles().insert({ _localPlayer,0 });
     //If we are on keyboard, for debugging purposes turn off jump damping
     Mouse* mouse = Input::get<Mouse>();
@@ -214,8 +224,8 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         // Create Spawn Point for the treasure
-        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
+        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
         _treasure = std::dynamic_pointer_cast<Treasure>(
             _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
@@ -225,7 +235,7 @@ void MovePhaseScene::populate() {
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }
-
+    CULog("CHUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCCCCCCCCCK");
 }
 
 
@@ -252,7 +262,7 @@ void MovePhaseScene::reset() {
     _camera->setPosition(_initialCameraPos);
     _camera->update();
 
-    populate();
+//    populate();
 }
 
 /**
@@ -357,8 +367,11 @@ void MovePhaseScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& o
     const std::shared_ptr<scene2::SceneNode>& node) {
 
     node->setPosition(obj->getPosition() * _scale);
-    _worldnode->addChild(node);
+    if (!_worldnode){
+        return;
+    }
 
+    _worldnode->addChild(node);
     // Dynamic objects need constant updating
     if (obj->getBodyType() == b2_dynamicBody) {
         scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback

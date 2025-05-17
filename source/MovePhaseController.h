@@ -66,8 +66,7 @@ protected:
     int const TOTAL_GEMS = 3;
     /** The current round the player is on */
     int _currRound = 1;
-    /** How many gems the player collected and won */
-    int _currGems = 0;
+
     /** Countdown active for winning or losing */
     int _countdown;
     /** Level width */
@@ -85,6 +84,8 @@ protected:
     bool _reachedGoal = false;
     /** Whether or not it is time to animate the goal */
     bool _animateGoal = false;
+
+    bool _controlEnabled = true;
 
     cugl::ActionFunction _goalDoorAction;
     /** Manager to process the animation actions */
@@ -119,6 +120,11 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose();
+    
+    /**
+     Disposes for purpose of re-entering a level after already completing one.
+     */
+    void disposeLevel();
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -152,6 +158,14 @@ public:
     void windUpdate(std::shared_ptr <WindObstacle> wind, float dt);
 
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
+    
+    void setGridManger(const shared_ptr<GridManager> gridManager){
+        _gridManager = gridManager;
+    }
+    
+    void setInput(const shared_ptr<PlatformInput> input){
+        _input = input;
+    }
 
     void render();
     

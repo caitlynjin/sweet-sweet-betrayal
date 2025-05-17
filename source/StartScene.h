@@ -72,13 +72,22 @@ public:
      * static resources, like the input controller.
      */
     ~StartScene() { dispose(); }
+    
     /**
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose() override;
     
+
+    /**
+     * Resets all properties of the scene and network related properties.
+     */
+    void reset() override;
+
+
     bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController>& sound
     );
+
     
     void update(float timestep) override;
     

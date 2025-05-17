@@ -106,16 +106,38 @@ void StartScene::update(float timestep) {
     }
 }
 
+void StartScene::reset(){
+    _choice = Choice::NONE;
+    _gliderFloatTimer = 0.0f;
+}
+
 /**
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void StartScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    
+    _assets = nullptr;
+
+    _sound = nullptr;
+    _input.dispose();
+    
+    _startbutton->clearListeners();
+//    _settingsbutton->clearListeners();
+    _leveleditorbutton->clearListeners();
+    _startbutton = nullptr;
+    _settingsbutton = nullptr;
+    _leveleditorbutton = nullptr;
+    
+    
+    _leftglider = nullptr;
+    _rightglider = nullptr;
+    
+    Scene2::dispose();
+    
 }
 /**
  * Sets whether the scene is currently active

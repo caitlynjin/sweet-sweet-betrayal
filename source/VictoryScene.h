@@ -80,6 +80,11 @@ public:
     
     virtual void setActive(bool value) override;
     
+    /**
+     * Resets all properties of the scene and network related properties.
+     */
+    void reset() override;
+    
     Choice getChoice() const { return _choice; }
     
     /**
