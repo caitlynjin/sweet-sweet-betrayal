@@ -92,6 +92,7 @@ bool MovePhaseController::finishInit(){
 //    }
     
 //    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+
     _movePhaseScene.populate();
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
@@ -131,7 +132,7 @@ void MovePhaseController::disposeLevel(){
     _world->clear();
     _networkController->setObjects(&_objects);
     _networkController->setWorld(_world);
-}
+    }
 
 #pragma mark -
 #pragma mark Gameplay Handling

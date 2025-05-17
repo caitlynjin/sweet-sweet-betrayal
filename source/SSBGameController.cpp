@@ -283,6 +283,7 @@ void SSBGameController::disposeLevel(){
     _movePhaseController->setGridManger(_gridManager);
     _movePhaseController->setInput(_input);
     Scene2::dispose();
+    _movePhaseController->rebuildMovePhase();
 }
 
 //void SSBGameController::setActive(bool value){

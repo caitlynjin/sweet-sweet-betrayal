@@ -159,6 +159,7 @@ public:
     
     void setGridManger(const shared_ptr<GridManager> gridManager){
         _gridManager = gridManager;
+        _movePhaseScene.setGridManager(gridManager);
     }
     
     void setInput(const shared_ptr<PlatformInput> input){
@@ -172,10 +173,13 @@ public:
      */
     void killPlayer();
     
-    MovePhaseScene getMovePhaseScene(){
+    MovePhaseScene& getMovePhaseScene(){
         return _movePhaseScene;
     }
     
+    void rebuildMovePhase(){
+        _movePhaseScene.rebuildLevel(&_objects);
+    }
     /**
      *  Called when player reaches the goal
      */

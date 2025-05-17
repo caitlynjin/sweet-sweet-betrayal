@@ -118,6 +118,9 @@ public:
      * with your serialization loader, which would process a level file.
      */
     void populate();
+    
+    /** Rebuilding a level when a game has already been completed. */
+    bool rebuildLevel(std::vector<std::shared_ptr<Object>>* objects);
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -146,6 +149,11 @@ public:
      * Gets the offset of the grid for the world
      */
     Vec2 getOffset() { return _offset; };
+    
+    
+    void setGridManager(std::shared_ptr<GridManager> gridManager){
+        _gridManager = gridManager;
+    };
 
     /**
      * Gets the camera for the move phase scene

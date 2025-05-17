@@ -97,7 +97,7 @@ void BuildPhaseController::dispose() {
 void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
     randomizeItems();
-//    addInvButtonListeners();
+    addInvButtonListeners();
     _uiScene.reset();
     
     // Reset controller variables

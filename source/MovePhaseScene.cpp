@@ -136,6 +136,30 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     return true;
 }
 
+bool MovePhaseScene::rebuildLevel(std::vector<std::shared_ptr<Object>>* objects){
+    // Create the scene graph
+    std::shared_ptr<Texture> image;
+    _worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _worldnode->setPosition(_offset);
+    addChild(_worldnode);
+
+    _debugnode = scene2::SceneNode::alloc();
+    _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
+    _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _debugnode->setPosition(_offset);
+    addChild(_debugnode);
+
+    // Initialize object controller
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, objects);
+
+    addChild(_gridManager->getGridNode());
+
+    _active = true;
+    
+    return true;
+}
+
 /**
  * Lays out the game geography.
  *
