@@ -26,6 +26,7 @@
 #include "NetworkController.h"
 #include "SoundController.h"
 #include "ObjectController.h"
+#include "PauseScene.h"
 //#include <cmath>
 
 using namespace cugl;
@@ -281,7 +282,7 @@ public:
     void render() override;
 
     /** Sets the scene and associated scenes as active */
-//    virtual void setActive(bool value) override;
+    void setElementsActive(bool value);
     /**
      * Sets whether mode is in building or play mode.
      *
@@ -318,7 +319,11 @@ public:
     /**
      * Sets whether the game is paused.
      */
-    void setIsPaused(bool value) { _isPaused = value; }
+    void setIsPaused(bool value) {
+        _isPaused = value;
+        _buildPhaseController->setIsPaused(value);
+        _movePhaseController->setIsPaused(value);
+    }
 
 #pragma mark -
 #pragma mark Helpers
