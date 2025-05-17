@@ -47,7 +47,7 @@ protected:
     std::shared_ptr<scene2::SceneNode> _node;
     
     /** The length of the treasur's steal cooldown */
-    int const STEAL_COOLDOWN = 30;
+    int const STEAL_COOLDOWN = 10;
     
     /** The current progress of the steal cooldown */
     float _stealCooldown = 0.0f;

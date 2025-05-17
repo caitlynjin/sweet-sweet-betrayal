@@ -85,6 +85,10 @@ protected:
     /** Whether or not it is time to animate the goal */
     bool _animateGoal = false;
 
+    /** Whether the game is paused */
+    bool _isPaused = false;
+    /** Whether the controls and scene elements are active */
+    bool _isActive = true;
     bool _controlEnabled = true;
 
     cugl::ActionFunction _goalDoorAction;
@@ -217,7 +221,10 @@ public:
     void updateProgressBar(std::shared_ptr<PlayerModel> player);
 
     void setGoalDoorAnimation(std::shared_ptr<scene2::SpriteNode> sprite);
-    
+
+    /** Sets whether the scenes are active*/
+    void setActive(bool value);
+
 
 #pragma mark -
 #pragma mark Attribute Functions
@@ -325,6 +332,16 @@ public:
      @param reachedGoal whether the player has reached the goal.
     */
     void nextRound(bool reachedGoal = false);
+
+    /**
+     * @return true if the game is paused
+     */
+    bool getIsPaused() { return _isPaused; }
+
+    /**
+     * Sets whether the game is paused.
+     */
+    void setIsPaused(bool value) { _isPaused = value; _uiScene.setIsPaused(value); }
 
 #pragma mark -
 #pragma mark Collision Handling

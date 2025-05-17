@@ -154,19 +154,23 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton =std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.trash"));
     _trashButton->setVisible(true);
 
-    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
     pauseNode->setScale(1.0f);
     _pauseButton = scene2::Button::alloc(pauseNode);
     _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
     _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-    _pauseButton->activate();
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->activate();
+    } else {
+        _pauseButton->setVisible(false);
+    }
     _pauseButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (!down) {
             _isPaused = true;
             _sound->playSound("button_click");
         }
     });
-    
+
     _timerFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.timer.timer"));
     _timerFrame->setVisible(true);
     _timer = std::dynamic_pointer_cast<scene2::Label>(_assets->get<scene2::SceneNode>("buildmode.top.timer.text.text"));
@@ -325,6 +329,27 @@ void BuildPhaseUIScene::preUpdate(float dt) {
     }
 }
 
+void BuildPhaseUIScene::setActive(bool value) {
+    _isActive = value;
+    activateInventory(value);
+
+    if (value) {
+        _readyButton->activate();
+        _rightButton->activate();
+        _leftButton->activate();
+        _trashButton->activate();
+        if (_networkController->getNetwork()->getNumPlayers() == 1) {
+            _pauseButton->activate();
+        }
+    } else {
+        _readyButton->deactivate();
+        _rightButton->deactivate();
+        _leftButton->deactivate();
+        _trashButton->deactivate();
+        _pauseButton->deactivate();
+    }
+}
+
 #pragma mark -
 #pragma mark Attribute Functions
 /**
@@ -359,7 +384,9 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
-    _pauseButton->setVisible(value);
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->setVisible(value);
+    }
     _timer->setVisible(value);
     _redIcon->setVisible(value);
     _blueIcon->setVisible(value);
@@ -400,7 +427,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
 void BuildPhaseUIScene::activateInventory(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
-        if (value) {
+        if (value && _isActive) {
             _inventoryButtons[i]->activate();
         } else {
             _inventoryButtons[i]->deactivate();
