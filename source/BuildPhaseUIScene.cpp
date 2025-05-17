@@ -165,7 +165,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
         _pauseButton->setVisible(false);
     }
     _pauseButton->addListener([this](const std::string &name, bool down) {
-        if (down) {
+        if (!down) {
             _isPaused = true;
             _sound->playSound("button_click");
         }
