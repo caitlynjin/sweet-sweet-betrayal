@@ -59,7 +59,7 @@ protected:
     /** Reference to the glide button */
     std::shared_ptr<cugl::scene2::Button> _glidebutton;
     /** Reference to the pause button */
-    std::shared_ptr<cugl::scene2::Button> _pauseButton;
+//    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     /** Reference to the give up button*/
     std::shared_ptr<cugl::scene2::Button> _giveupbutton;
     /** Reference to the progress bar */

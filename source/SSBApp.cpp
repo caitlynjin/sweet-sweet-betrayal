@@ -226,8 +226,8 @@ void SSBApp::preUpdate(float dt)
         _joingame.setSpriteBatch(_batch);
         _victory.init(_assets, _sound, _networkController);
         _victory.setSpriteBatch(_batch);
-        _pause.init(_assets, _sound);
-        _pause.setSpriteBatch(_batch);
+//        _pause.init(_assets, _sound);
+//        _pause.setSpriteBatch(_batch);
         _colorselect.init(_assets, _networkController, _sound);
         _colorselect.setSpriteBatch(_batch);
         _waitinghost.init(_assets, _sound);
@@ -308,17 +308,17 @@ void SSBApp::preUpdate(float dt)
                         _status = VICTORY;
                     }
                 }
-            // Check for pressing pause button
-                if (_gameController.getIsPaused()) {
-//                    setTransition(true);
-//                    if (_transition.getFadingOutDone()){
-                        _gameController.setActive(false);
-                        // TODO: Need to disable ready button
-                        _gameController.setElementsActive(false);
-                        _pause.setActive(true);
-                        _status = PAUSED;
-//                    }
-                }
+//            // Check for pressing pause button
+//                if (_gameController.getIsPaused()) {
+////                    setTransition(true);
+////                    if (_transition.getFadingOutDone()){
+//                        _gameController.setActive(false);
+//                        // TODO: Need to disable ready button
+//                        _gameController.setElementsActive(false);
+//                        _pause.setActive(true);
+//                        _status = PAUSED;
+////                    }
+//                }
             break;
         case LEVEL_EDITOR:
             _levelEditorController.preUpdate(dt);
@@ -353,10 +353,10 @@ void SSBApp::preUpdate(float dt)
                     }
                 }
             break;
-        case PAUSED:
-            updatePauseScene(dt);
-            _gameController.preUpdate(dt);
-            break;
+//        case PAUSED:
+//            updatePauseScene(dt);
+//            _gameController.preUpdate(dt);
+//            break;
         case DISCONNECTED:
             updateDisconnectedScene(dt);
             break;
@@ -391,7 +391,7 @@ void SSBApp::fixedUpdate()
 {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep() / 1000000.0f;
-    if (_status == GAME || _status == PAUSED)
+    if (_status == GAME/* || _status == PAUSED*/)
     {
         _gameController.fixedUpdate(time);
     }
@@ -435,7 +435,7 @@ void SSBApp::postUpdate(float dt)
 {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder() / 1000000.0f;
-    if (_status == GAME || _status == PAUSED)
+    if (_status == GAME/* || _status == PAUSED*/)
     {
         _gameController.postUpdate(time);
     }
@@ -873,38 +873,38 @@ void SSBApp::updateWaitingHostScene(float timestep){
 }
 
 void SSBApp::updatePauseScene(float timestep){
-    _pause.update(timestep);
-    switch (_pause.getChoice())
-    {
-        case PauseScene::Choice::DISCONNECT:
-            setTransition(true);
-            if (_transition.getFadingOutDone()){
-                _expectedPlayers = 0;
-                _pause.reset();
-                _pause.setActive(false);
-
-                _startscreen.reset();
-                _startscreen.setActive(true);
-                _status = START;
-
-                _gameController.setIsPaused(false);
-            }
-            break;
-        case PauseScene::Choice::RESUME:
+//    _pause.update(timestep);
+//    switch (_pause.getChoice())
+//    {
+//        case PauseScene::Choice::DISCONNECT:
 //            setTransition(true);
 //            if (_transition.getFadingOutDone()){
-                _pause.reset();
-                _pause.setActive(false);
-                _status = GAME;
-
-                _gameController.setIsPaused(false);
-                _gameController.setActive(true);
-                _gameController.setElementsActive(true);
+//                _expectedPlayers = 0;
+//                _pause.reset();
+//                _pause.setActive(false);
+//
+//                _startscreen.reset();
+//                _startscreen.setActive(true);
+//                _status = START;
+//
+//                _gameController.setIsPaused(false);
 //            }
-            break;
-        case PauseScene::Choice::NONE:
-            break;
-    }
+//            break;
+//        case PauseScene::Choice::RESUME:
+////            setTransition(true);
+////            if (_transition.getFadingOutDone()){
+//                _pause.reset();
+//                _pause.setActive(false);
+//                _status = GAME;
+//
+//                _gameController.setIsPaused(false);
+//                _gameController.setActive(true);
+//                _gameController.setElementsActive(true);
+////            }
+//            break;
+//        case PauseScene::Choice::NONE:
+//            break;
+//    }
 }
 
 void SSBApp::updateDisconnectedScene(float timestep){
@@ -946,7 +946,7 @@ void SSBApp::resetScenes(){
     _colorselect.reset();
     _levelSelect.reset();
     _waitinghost.reset();
-    _pause.reset();
+//    _pause.reset();
     _disconnectedscreen.reset();
     _expectedPlayers = 0;
 }
@@ -1006,10 +1006,10 @@ void SSBApp::draw()
     case VICTORY:
         _victory.render();
         break;
-    case PAUSED:
-        _gameController.render();
-        _pause.render();
-        break;
+//    case PAUSED:
+//        _gameController.render();
+//        _pause.render();
+//        break;
     case DISCONNECTED:
         _disconnectedscreen.render();
         break;
