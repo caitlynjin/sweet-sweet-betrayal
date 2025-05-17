@@ -231,14 +231,15 @@ void MovePhaseController::preUpdate(float dt) {
             killPlayer();
         }
 
-        if (_movePhaseScene.getLocalPlayer()->hasStateChanged() || _movePhaseScene.getLocalPlayer()->justFlipped()) {
+        if (!_movePhaseScene.getLocalPlayer()->isDead()
+            //_movePhaseScene.getLocalPlayer()->hasStateChanged() || _movePhaseScene.getLocalPlayer()->justFlipped()
+            ) {
             _network->pushOutEvent(
                 AnimationStateEvent::allocAnimationStateEvent(
                     _network->getShortUID(),
                     _movePhaseScene.getLocalPlayer()->getState(),
                     _movePhaseScene.getLocalPlayer()->isFacingRight()));
         }
-
         if (_movePhaseScene.getLocalPlayer()->getJustJumped())
         {
             _sound->playSound("jump");
@@ -333,6 +334,7 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
                 return wind->getRayDist(i);
             }
             if (bd->getName() != "fan" && bd->getName() != "wind") {
+                // && bd->getName() != "player"
                 wind->setRayDist(i, fraction);
             }
             
@@ -344,7 +346,6 @@ void MovePhaseController::windUpdate(std::shared_ptr<WindObstacle> wind, float d
         ++i;
 
     }
-    //wind->update(dt);
 }
 
 /**
