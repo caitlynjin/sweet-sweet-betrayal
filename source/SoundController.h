@@ -113,6 +113,10 @@ public:
 	* @param key The key identifying the music track */
 	void playMusic(std::string key, bool loop=false, bool useCrossFade=true);
 
+	std::string getCurrentTrackPlaying() {
+		return _musicQueue->current();
+	}
+
 	/** Adds the music track to the end of the queue.
 	 * This will play automatically when all music tracks earlier in the queue are finished playing. 
 	 * @param key The key identifying the music track

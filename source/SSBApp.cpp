@@ -243,7 +243,6 @@ void SSBApp::preUpdate(float dt)
 
         _status = START;
         _sound->loadAudioPreferences();
-
         _sound->playMusic("main_menu", true);
     }
     else

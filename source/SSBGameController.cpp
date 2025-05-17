@@ -115,7 +115,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _networkController = networkController;
     _network = networkController->getNetwork();
     _sound = sound;
-    _sound->playMusic("move_phase", true);
+    //_sound->playMusic("move_phase", true);
     
     // IMPORTANT: SCALING MUST BE UNIFORM
     // This means that we cannot change the aspect ratio of the physics world

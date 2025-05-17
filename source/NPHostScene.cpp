@@ -209,6 +209,9 @@ void HostScene::reset(){
 void HostScene::setActive(bool value) {
     if (isActive() != value) {
         Scene2::setActive(value);
+        if (value) {
+            _sound->playMusic("waiting_scene", true);
+        }
         
         /**
          * If value is true, you need to activate the _backout button, and set the clicked variable to false. You need to also call the network controller to start a connection as a host. If the value is false, and reset all buttons and textfields to their original state.

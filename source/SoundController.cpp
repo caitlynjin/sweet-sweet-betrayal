@@ -30,7 +30,8 @@ bool SoundController::init(const std::shared_ptr<cugl::AssetManager>& assets) {
 		"move_phase",
 		"main_menu",
 		"waiting_scene",
-		"victory"
+		"victory",
+		"menu_intro"
 	};
 	std::vector<std::string> soundNames = {
 		"glide", 
@@ -111,7 +112,7 @@ void SoundController::playMusic(std::string key, bool loop, bool useCrossFade) {
 }
 
 void SoundController::addMusicToQueue(std::string key) {
-	_musicQueue->enqueue(_musicMap[key]);
+	_musicQueue->enqueue(_musicMap[key], true, 1.0f);
 }
 
 /**
