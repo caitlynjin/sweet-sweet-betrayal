@@ -207,62 +207,46 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setJoystickHidden();
     }
 
-    if (_controlEnabled) {
-        //Check if we have held down the right side of the screen. If we have
-        if (_input->getRightTapped()) {
-            _input->setRightTapped(false);
-            _movePhaseScene.getLocalPlayer()->setJumpHold(true);
-
-            /*if (!_movePhaseScene.getLocalPlayer()->isGrounded())
-            {
-
-                _sound->playSound("glide");
-                _movePhaseScene.getLocalPlayer()->bufferJump();
-                _network->pushOutEvent(
-                    AnimationEvent::allocAnimationEvent(
-                        _network->getShortUID(),
-                        AnimationType::GLIDE,
-                        true
-                    )
-                );
-            }*/
-        }
-        //If the player has released the right side of the screen
-        else if (!_input->isRightDown()) {
-            if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
-                _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+    if (_movePhaseScene.getLocalPlayer() != nullptr) {
+        if (_controlEnabled) {
+            //Check if we have held down the right side of the screen. If we have
+            if (_input->getRightTapped()) {
+                _input->setRightTapped(false);
+                _movePhaseScene.getLocalPlayer()->setJumpHold(true);
             }
+            //If the player has released the right side of the screen
+            else if (!_input->isRightDown()) {
+                if (_movePhaseScene.getLocalPlayer()->getJumpHold()) {
+                    _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+                }
+            }
+            _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
         }
-        _movePhaseScene.getLocalPlayer()->setMovement(_input->getHorizontal() * _movePhaseScene.getLocalPlayer()->getForce());
-    }
-    else {
-        _movePhaseScene.getLocalPlayer()->setJumpHold(false);
-        _movePhaseScene.getLocalPlayer()->setMovement(0);
-    }
-    //_movePhaseScene.getLocalPlayer()->setJumping(_uiScene.getDidJump());
-    if (_uiScene.getDidGiveUp()) {
-        killPlayer();
-    }
-    
-    if (_movePhaseScene.getLocalPlayer()->hasStateChanged() || _movePhaseScene.getLocalPlayer()->justFlipped()) {
-        _network->pushOutEvent(
-            AnimationStateEvent::allocAnimationStateEvent(
-                _network->getShortUID(),
-                _movePhaseScene.getLocalPlayer()->getState(),
-                _movePhaseScene.getLocalPlayer()->isFacingRight()
-            )
-        );
+        else {
+            _movePhaseScene.getLocalPlayer()->setJumpHold(false);
+            _movePhaseScene.getLocalPlayer()->setMovement(0);
+        }
+        if (_uiScene.getDidGiveUp()) {
+            killPlayer();
+        }
 
-        if (_movePhaseScene.getLocalPlayer()->isFacingRight()) {
-        
+        if (_movePhaseScene.getLocalPlayer()->hasStateChanged() || _movePhaseScene.getLocalPlayer()->justFlipped()) {
+            _network->pushOutEvent(
+                AnimationStateEvent::allocAnimationStateEvent(
+                    _network->getShortUID(),
+                    _movePhaseScene.getLocalPlayer()->getState(),
+                    _movePhaseScene.getLocalPlayer()->isFacingRight()));
+        }
+
+        if (_movePhaseScene.getLocalPlayer()->getJustJumped())
+        {
+            _sound->playSound("jump");
+        }
+        else if (_movePhaseScene.getLocalPlayer()->getJustGlided()) {
+            _sound->playSound("glide");
         }
     }
 
-
-    //if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())
-    //{
-    //    _sound->playSound("jump");
-    //}
     for (auto it = _world->getObstacles().begin(); it != _world->getObstacles().end(); ++it) {
         if ((*it)->getName() == "fan") {
 
@@ -657,7 +641,7 @@ void MovePhaseController::beginContact(b2Contact *contact)
     }
 
     // Set grounded for all non-local players
-    if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
+    /*if (tagContainsPlayer(bd1->getName()) && bd1 != _movePhaseScene.getLocalPlayer().get()) {
         PlayerModel* player = dynamic_cast<PlayerModel*>(bd1);
         if (player && player->getSensorName()) {
             if (fd1 && *(player->getSensorName()) == *fd1) {
@@ -685,11 +669,18 @@ void MovePhaseController::beginContact(b2Contact *contact)
                 player->setDetectedGround(true);
             }
         }
-    }
+    }*/
+
     //Handles all Player Collisions in this section
         if (bd1 == _movePhaseScene.getLocalPlayer().get() || bd2 == _movePhaseScene.getLocalPlayer().get()) {
             //MANAGE COLLISIONS FOR NON-GROUNDED OBJECTS IN THIS SECTION
             // If we hit the "win" door, we are done
+            
+            if (bd2->getName() == "tile" || bd1->getName() == "tile") {
+                CULog("CollideTile");
+
+            }
+
             if (bd2 == _movePhaseScene.getGoalDoor().get() || bd1 == _movePhaseScene.getGoalDoor().get()){
                 _animateGoal = _reachedGoal;
                 bool anim = _animateGoal;

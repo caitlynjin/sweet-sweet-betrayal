@@ -766,7 +766,7 @@ void PlayerModel::update(float dt)
     }
     //Set Justflipped and justglided to instantly deactivate
     _justFlipped = false;
-    _justGlided = false;
+    
     _justExitedGlide = false;
     _justJumped = false;
     _undetectGround = false;
@@ -776,6 +776,7 @@ void PlayerModel::update(float dt)
 void PlayerModel::handlePlayerState() {
     _jumpImpulse = false;
     _stateJustChanged = false;
+    _justGlided = false;
 
     switch (_state) {
     case State::GROUNDED:
@@ -796,7 +797,7 @@ void PlayerModel::handlePlayerState() {
             b2Vec2 force(0, PLAYER_JUMP);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
             CULog("Jump!");
-            _jumpImpulse = false;
+            //_jumpImpulse = false;
             _bufferTimer = JUMP_BUFFER_DURATION;
         }
         break;

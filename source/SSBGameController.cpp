@@ -372,7 +372,10 @@ void SSBGameController::update(float timestep)
 void SSBGameController::preUpdate(float dt)
 {
     //
-    
+    for (auto player : _networkController->getPlayerList()) {
+        CULog("%s is player's name", player->getName().c_str());
+        CULog("len %d", _networkController->getPlayerList().size());
+    }
     
     // Check for reset
     if (_networkController->getResetLevel()){
