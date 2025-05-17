@@ -89,6 +89,7 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
     _network->attachEventType<AnimationStateEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
 }
 
