@@ -27,8 +27,8 @@ void GridManager::initGrid(bool isLevelEditor) {
     _grid->removeAllChildren();
     _illegal_background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>("safezone"));
     _illegal_background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
-    _illegal_background->setPosition(Vec2(0, 0));
-    _illegal_background->setScale(0.1f);
+    _illegal_background->setPosition(Vec2(0, 2));
+    _illegal_background->setScale(0.0314f);
     _grid->addChild(_illegal_background);
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
@@ -43,11 +43,7 @@ void GridManager::initGrid(bool isLevelEditor) {
             Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
 
             std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
-            if (col < 8) {
-                cellNode->setColor(Color4::RED);
-            } else {
-                cellNode->setColor(Color4::WHITE);
-            }
+            cellNode->setColor(Color4::WHITE);
             cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
             cellNode->setPosition(cellPos);
 
