@@ -880,8 +880,9 @@ void SSBApp::updateDisconnectedScene(float timestep){
                 _disconnectedscreen.reset();
                 _disconnectedscreen.setActive(false);
                 
-                _startscreen.reset();
-                _startscreen.setActive(true);
+                resetApplication();
+//                _startscreen.reset();
+//                _startscreen.setActive(true);
                 _status = START;
             }
             break;
