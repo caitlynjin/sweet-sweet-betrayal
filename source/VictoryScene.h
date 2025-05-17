@@ -39,6 +39,13 @@ public:
     };
 
 protected:
+    // CONSTANTS
+    Vec2 const MAX_SCALE = Vec2(1.2f, 1.2f);
+    
+    Vec2 const MIN_SCALE = Vec2(1.1f, 1.1f);
+    
+    Vec2 const SCALE_RATE = Vec2(0.01f, 0.01f);
+    
     /** The asset manager for this scene. */
     std::shared_ptr<cugl::AssetManager> _assets;
 
@@ -54,10 +61,20 @@ protected:
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
     
-    std::shared_ptr<cugl::scene2::Button> _restartButton;
-    std::shared_ptr<cugl::scene2::Button> _quitButton;
+    std::shared_ptr<cugl::scene2::Button> _nextButton;
+    std::shared_ptr<cugl::scene2::Button> _pauseButton;
+    
+    std::shared_ptr<cugl::scene2::PolygonNode> _winText;
+    
     /** The player start screen choice */
     Choice _choice;
+    
+    /** The winning color to display */
+    ColorType _winColor = ColorType::BLUE;
+    
+    float _textFloatTimer = 0.0f;
+    Vec2 _textBasePos;
+    bool _decreaseScale = true;
 
 public:
 #pragma mark -
@@ -160,6 +177,11 @@ public:
      * @param remain    The amount of time (in seconds) last fixedUpdate
      */
     void postUpdate(float remain);
+    
+    
+    void setWinColor(int winColorInt);
+    
+    void animateButton();
 
 };
 

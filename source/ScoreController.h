@@ -60,6 +60,8 @@ private:
     //store newly added icons this round
     std::unordered_map<std::string, std::shared_ptr<scene2::PolygonNode>> _inRoundIcons;
     std::vector<std::string> _dotsToRemove;
+    
+    int _playerWinID = -1;
      
     
 
@@ -159,6 +161,11 @@ public:
         Iterates through all players and checks for a win.
      */
     bool checkWinCondition();
+    
+    
+    int getPlayerWinID(){
+        return _playerWinID;
+    }
     
     void initScoreboardNodes(cugl::scene2::Scene2* parent, const Vec2 &anchor, std::vector<std::shared_ptr<PlayerModel>> playerList, float size_width, float size_height);
     

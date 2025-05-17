@@ -412,6 +412,8 @@ protected:
     /** The player color */
     ColorType _color;
     
+    int _winColorInt = -1;
+    
     /** The callback function when any player picks a color */
     std::function<void(ColorType, int)> _onColorTaken = nullptr;
     
@@ -572,6 +574,11 @@ public:
      */
     void setTreasure(std::shared_ptr<Treasure> treasure){
         _treasure = treasure;
+    }
+    
+    
+    int getWinColorInt(){
+        return _winColorInt;
     }
     
     /**

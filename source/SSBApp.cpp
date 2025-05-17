@@ -300,6 +300,11 @@ void SSBApp::preUpdate(float dt)
                         _gameController.setActive(false);
                         //                    _gameController.reset();
                         _victory.setActive(true);
+                        int winColorInt = _networkController->getWinColorInt();
+                        if (winColorInt == -1){
+                            CULog("NO WIN COLOR SET");
+                        }
+                        _victory.setWinColor(winColorInt);
                         _status = VICTORY;
                     }
                 }

@@ -26,7 +26,7 @@ using namespace cugl;
 using namespace cugl::scene2;
 using namespace std;
 
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 /** The key for the background texture in the asset manager */
@@ -40,12 +40,12 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
         return false;
     }
 
-   if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT))) {
+   if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0))) {
        return false;
    }
 
     Size dimen = getSize();
-        
+
     // Start up the input handler
     _assets = assets;
 
@@ -59,23 +59,40 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("end");
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
+    
+    _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.blue-victory"));
+    if (_background) {
+        _background->setAnchor(Vec2::ANCHOR_CENTER);
+        Size tex = _background->getContentSize();
+        float scale = dimen.height / tex.height;
+        _background->setScale(scale, scale);
+        _background->setPosition(dimen.width/2, dimen.height/2);
+    }
+    
     _choice = Choice::NONE;
-    _restartButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.restart"));
-    _quitButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.quit"));
+    
+    
+    _nextButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.back"));
+    
+    _winText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.blue-wins"));
+    _textBasePos = _winText->getPosition();
+
+    _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.pause"));
     
     // Program the buttons
-    _restartButton->addListener([this](const std::string& name, bool down) {
+    _nextButton->addListener([this](const std::string& name, bool down) {
         if (!down) {
             _choice = Choice::RESTART;
             _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::RESET_LEVEL));
         }
     });
     
-    _quitButton->addListener([this](const std::string& name, bool down) {
-        if (!down) {
-            _choice = Choice::QUIT;
-        }
-    });
+//    _pauseButton->addListener([this](const std::string& name, bool down) {
+//        if (!down) {
+//            _choice = Choice::QUIT;
+//        }
+//    });
+    
     addChild(scene);
     setActive(false);
     return true;
@@ -88,10 +105,11 @@ void VictoryScene::dispose() {
     reset();
     removeAllChildren();
     _background = nullptr;
-    _restartButton->clearListeners();
-    _quitButton->clearListeners();
-    _restartButton = nullptr;
-    _quitButton = nullptr;
+    _winText = nullptr;
+    _nextButton->clearListeners();
+    _pauseButton->clearListeners();
+    _nextButton = nullptr;
+    _pauseButton = nullptr;
     _assets = nullptr;
     _sound = nullptr;
     _networkController = nullptr;
@@ -117,20 +135,45 @@ void VictoryScene::setActive(bool value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
-            _restartButton->activate();
-            _quitButton->activate();
+            _nextButton->activate();
+            _pauseButton->activate();
         } else {
-            _restartButton->deactivate();
-            _quitButton->deactivate();
+            _nextButton->deactivate();
+            _pauseButton->deactivate();
             // If any were pressed, reset them
-            _restartButton->setDown(false);
-            _quitButton->setDown(false);
+            _nextButton->setDown(false);
+            _pauseButton->setDown(false);
         }
     }
 }
 
 void VictoryScene::reset(){
     _choice = Choice::NONE;
+    _textFloatTimer = 0.0f;
+    _decreaseScale = true;
+}
+
+void VictoryScene::setWinColor(int winColorInt){
+    _winColor = static_cast<ColorType>(winColorInt);
+    
+    switch (_winColor){
+        case(ColorType::RED):
+            _background->setTexture(_assets->get<Texture>("red-victory"));
+            _winText->setTexture(_assets->get<Texture>("red-wins"));
+            break;
+        case(ColorType::BLUE):
+            _background->setTexture(_assets->get<Texture>("blue-victory"));
+            _winText->setTexture(_assets->get<Texture>("blue-wins"));
+            break;
+        case(ColorType::GREEN):
+            _background->setTexture(_assets->get<Texture>("green-victory"));
+            _winText->setTexture(_assets->get<Texture>("green-wins"));
+            break;
+        case(ColorType::YELLOW):
+            _background->setTexture(_assets->get<Texture>("yellow-victory"));
+            _winText->setTexture(_assets->get<Texture>("yellow-wins"));
+            break;
+    }
 }
 
 /**
@@ -155,6 +198,19 @@ void VictoryScene::reset(){
  */
 void VictoryScene::preUpdate(float dt){
     _networkController->preUpdate(dt);
+    
+    _textFloatTimer += dt;
+
+    float floatAmplitude = 4.0f;
+    float floatSpeed = 7.0f;
+
+    float offsetY = floatAmplitude * std::sin(floatSpeed * _textFloatTimer);
+
+    if (_winText != nullptr) {
+        _winText->setPosition(_textBasePos.x, _textBasePos.y + offsetY);
+    }
+    
+    animateButton();
 }
 
 /**
@@ -211,4 +267,27 @@ void VictoryScene::fixedUpdate(float step){
  */
 void VictoryScene::postUpdate(float remain){
     _networkController->postUpdate(remain);
+}
+
+void VictoryScene::animateButton(){
+    Vec2 currScale = _nextButton->getScale();
+
+    
+    if (_decreaseScale){
+        currScale -= SCALE_RATE*0.3;
+        currScale = currScale < MIN_SCALE ? MIN_SCALE : currScale;
+        if (currScale <= MIN_SCALE){
+            _decreaseScale = false;
+        }
+    }
+    else{
+        currScale += SCALE_RATE*0.3;
+        currScale = currScale > MAX_SCALE ? MAX_SCALE : currScale;
+        if (currScale >= MAX_SCALE){
+            _decreaseScale = true;
+        }
+    }
+    
+    _nextButton->setScale(currScale);
+
 }

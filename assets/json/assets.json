@@ -724,16 +724,16 @@
         "pause": {
             "file": "textures/pause.png"
         },
-        "blue-wins-text": {
+        "blue-wins": {
             "file": "textures/blue-wins.png"
         },
-        "red-wins-text": {
+        "red-wins": {
             "file": "textures/red-wins.png"
         },
-        "green-wins-text": {
+        "green-wins": {
             "file": "textures/green-wins.png"
         },
-        "yellow-wins-text": {
+        "yellow-wins": {
             "file": "textures/yellow-wins.png"
         }
     },
@@ -924,16 +924,6 @@
             },
             "data": {
                 "key": "menu"
-            }
-        },
-        "end": {
-            "type": "Widget",
-            "comment": "This is the root node of the scene for the end/congradulation screen",
-            "format": {
-                "type": "Anchored"
-            },
-            "data": {
-                "key": "end"
             }
         },
         "host": {

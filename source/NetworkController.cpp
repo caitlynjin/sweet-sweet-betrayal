@@ -141,6 +141,12 @@ void NetworkController::preUpdate(float dt){
     
     _scoreController->preUpdate(dt);
     
+    // Check for if a player has won
+    if (_scoreController->getPlayerWinID() != -1){
+        _winColorInt = static_cast<int>(_playerColorsById[_scoreController->getPlayerWinID()]);
+        CULog("Color int won: %d", _winColorInt);
+    }
+    
 }
 
 /**
@@ -262,6 +268,7 @@ void NetworkController::reset(){
     _numReady = 0;
     _numReset = 0;
     _numColorReady = 0;
+    _winColorInt = -1;
     
     _playerIDs.clear();
     
