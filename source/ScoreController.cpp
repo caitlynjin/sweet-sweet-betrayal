@@ -57,6 +57,8 @@ void ScoreController::reset() {
         if (entry.second) { entry.second->removeFromParent(); }
     }
     _scoreIcons.clear();
+    
+    _playerWinID = -1;
 }
 
 void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event) {
@@ -70,6 +72,11 @@ void ScoreController::processScoreEvent(const std::shared_ptr<ScoreEvent>& event
     score = std::min(score, std::max(0, 10 - prevTotal));
     _playerTotalScores[playerID] += score;
     int newTotal = _playerTotalScores[playerID];
+    
+    //Check if player reaches 10
+    if (newTotal >= WIN_SCORE && _playerWinID == -1){
+        _playerWinID = playerID;
+    }
         
     //update round score
     RoundScore rs;

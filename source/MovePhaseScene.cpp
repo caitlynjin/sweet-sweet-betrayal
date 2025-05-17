@@ -89,7 +89,7 @@ void MovePhaseScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
+bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
     if (assets == nullptr)
     {
         return false;
@@ -133,6 +133,63 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     
 //    populate();
 
+    return true;
+}
+
+void MovePhaseScene::createLocalPlayer(){
+    // HOST STARTS ON LEFT
+    Vec2 pos = DUDE_POS;
+    // CLIENT STARTS ON RIGHT
+    if (_networkController->getLocalID() == 2) {
+        pos += Vec2(0, 3);
+    }
+    if (_networkController->getLocalID() == 3) {
+        pos += Vec2(3, 0);
+    }
+    if (_networkController->getLocalID() == 4) {
+        pos += Vec2(3, 3.5);
+    }
+        
+    ColorType playerColor = _networkController->getLocalColor();
+    _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    
+    _networkController->setLocalPlayer(_localPlayer);
+    
+    _localPlayer->setDebugScene(_debugnode);
+    _localPlayer->setLocal();
+    _world->getOwnedObstacles().insert({ _localPlayer,0 });
+    //If we are on keyboard, for debugging purposes turn off jump damping
+    Mouse* mouse = Input::get<Mouse>();
+    if (mouse) {
+        _localPlayer->setJumpDamping(false);
+    }
+    if (!_networkController->getIsHost()) {
+        _network->getPhysController()->acquireObs(_localPlayer, 0);
+    }
+}
+
+
+bool MovePhaseScene::rebuildLevel(std::vector<std::shared_ptr<Object>>* objects){
+    // Create the scene graph
+    std::shared_ptr<Texture> image;
+    _worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _worldnode->setPosition(_offset);
+    addChild(_worldnode);
+
+    _debugnode = scene2::SceneNode::alloc();
+    _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
+    _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _debugnode->setPosition(_offset);
+    addChild(_debugnode);
+
+    // Initialize object controller
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, objects);
+
+    addChild(_gridManager->getGridNode());
+
+    _active = true;
+    
     return true;
 }
 
@@ -218,7 +275,7 @@ void MovePhaseScene::populate() {
     // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
     // If I do not disable the player, collision filtering works after build phase ends, not sure why
     // TODO: Find a better solution, maybe only have players getting updated during movement phase
-//    _localPlayer->setEnabled(false);
+    _localPlayer->setEnabled(false);
 
     _localPlayer->setDebugScene(_debugnode);
     _localPlayer->setLocal();

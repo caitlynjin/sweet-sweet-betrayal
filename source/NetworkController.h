@@ -413,6 +413,11 @@ protected:
     /** The player color */
     ColorType _color;
     
+    /** The previous color the player selected */
+    ColorType _prevColor;
+    
+    int _winColorInt = -1;
+    
     /** The callback function when any player picks a color */
     std::function<void(ColorType, int)> _onColorTaken = nullptr;
     
@@ -555,7 +560,7 @@ public:
      *
      * @param world the world to be used for networked physics.
      */
-    void setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world);
+    void setWorld(const std::shared_ptr<cugl::physics2::distrib::NetWorld> world);
     
     /**
      * Sets the network world.
@@ -573,6 +578,11 @@ public:
      */
     void setTreasure(std::shared_ptr<Treasure> treasure){
         _treasure = treasure;
+    }
+    
+    
+    int getWinColorInt(){
+        return _winColorInt;
     }
     
     /**
@@ -679,6 +689,10 @@ public:
      */
     ColorType getLocalColor(){
         return _color;
+    }
+    
+    ColorType getPrevColor(){
+        return _prevColor;
     }
     
     /**

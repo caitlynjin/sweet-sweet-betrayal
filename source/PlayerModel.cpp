@@ -270,11 +270,11 @@ void PlayerModel::setJumpAnimation(std::shared_ptr<scene2::SpriteNode> sprite, i
     _timeline = ActionTimeline::alloc();
     
     std::vector<int> forward;
-    for (int ii = 1; ii < nFrames; ii++) {
+    for (int ii = 0; ii < nFrames - 1; ii++) {
         forward.push_back(ii);
     }
     // Loop back to beginning
-    forward.push_back(0);
+    forward.push_back(nFrames - 1);
 
     // Create animations
     _jumpAnimateSprite = AnimateSprite::alloc(forward);
@@ -676,7 +676,7 @@ void PlayerModel::update(float dt)
             _jumpSpriteNode->setVisible(true);
             _deathSpriteNode->setVisible(false);
         }
-        doStrip(JUMP_ACTION_KEY, _jumpAction);
+        doStrip(JUMP_ACTION_KEY, _jumpAction, 0.85f);
     } else if (abs(getVX()) < 0.1f  && _idleAction) {
         if (!_idleSpriteNode->isVisible()) {
             _idleSpriteNode->setVisible(true);
@@ -766,7 +766,7 @@ void PlayerModel::update(float dt)
     }
     //Set Justflipped and justglided to instantly deactivate
     _justFlipped = false;
-    _justGlided = false;
+    
     _justExitedGlide = false;
     _justJumped = false;
     _undetectGround = false;
@@ -776,6 +776,7 @@ void PlayerModel::update(float dt)
 void PlayerModel::handlePlayerState() {
     _jumpImpulse = false;
     _stateJustChanged = false;
+    _justGlided = false;
 
     switch (_state) {
     case State::GROUNDED:
@@ -796,7 +797,7 @@ void PlayerModel::handlePlayerState() {
             b2Vec2 force(0, PLAYER_JUMP);
             _body->ApplyLinearImpulse(force, _body->GetPosition(), true);
             CULog("Jump!");
-            _jumpImpulse = false;
+            //_jumpImpulse = false;
             _bufferTimer = JUMP_BUFFER_DURATION;
         }
         break;
