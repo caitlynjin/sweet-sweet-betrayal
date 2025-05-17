@@ -102,7 +102,7 @@ protected:
     bool _giveUp = false;
 
      /** Countdown for give up button */
-    int _giveUpCountDown = 500;
+    int _giveUpCountDown = 2000;
     
     
 
