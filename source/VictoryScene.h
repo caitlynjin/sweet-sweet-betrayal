@@ -62,7 +62,7 @@ protected:
     std::shared_ptr<scene2::PolygonNode> _background;
     
     std::shared_ptr<cugl::scene2::Button> _nextButton;
-    std::shared_ptr<cugl::scene2::Button> _pauseButton;
+//    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     
     std::shared_ptr<cugl::scene2::PolygonNode> _winText;
     std::shared_ptr<cugl::scene2::PolygonNode> _winTextBlue;

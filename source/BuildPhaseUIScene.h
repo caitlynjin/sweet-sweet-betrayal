@@ -56,7 +56,7 @@ protected:
     /** Reference to the trash button */
     std::shared_ptr<cugl::scene2::Button> _trashButton;
     /** Reference to the pause button */
-    std::shared_ptr<cugl::scene2::Button> _pauseButton;
+//    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     /** Reference to the timer */
     std::shared_ptr<cugl::scene2::Label> _timer;
     /** Reference to the red icon */
