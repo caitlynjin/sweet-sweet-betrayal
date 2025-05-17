@@ -606,6 +606,8 @@ void PlayerModel::applyForce()
  */
 void PlayerModel::update(float dt)
 {
+    _justContactMovingPlat = false;
+
     _prevPos = getPosition();
     // ANIMATION
     // TODO: Move to method updateAnimation

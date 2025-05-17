@@ -143,6 +143,8 @@ protected:
 	bool _isGrounded;
     /** if standing on moving platform */
     bool _onMovingPlat;
+
+    bool _justContactMovingPlat = false;
     /** points to moving platform standing on*/
     physics2::Obstacle* MovingPlat;
     
@@ -178,6 +180,8 @@ protected:
     
     //Handles jump damping. Jumptimer starts counting down upon jumping. During this time, release jump to dampen your vertical velocity.
     float _jumpTimer = 0.0f;
+
+    
 
     bool _holdingJump;
     //False if we are on PCS
@@ -670,7 +674,13 @@ public:
     * set if on movingplatform
     * @param on set is on movingplatform
     */
-    void setOnMovingPlat(bool on) {_onMovingPlat = on;}
+    void setOnMovingPlat(bool on) {
+        
+        if (on) { _onMovingPlat = on; _justContactMovingPlat = true; }
+        else if (!_justContactMovingPlat) {
+            _onMovingPlat = on;
+        }
+    }
 
     /** 
     * set moving platform moving on
