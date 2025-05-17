@@ -11,7 +11,7 @@ using namespace cugl::graphics;
  * @param position   The position
  */
 void WindObstacle::setPositionInit(const cugl::Vec2& position) {
-    PolygonObstacle::setPosition((position)*_drawScale);
+    PolygonObstacle::setPosition(position);
     _position = position;
     
 
@@ -36,9 +36,9 @@ void WindObstacle::update(float timestep) {
         _minRayDist = min(_rayDist[it], _minRayDist);
         
     }
-    /*CULog("playerdist %f", _currentPlayerDist);
+    CULog("playerdist %f", _currentPlayerDist);
     CULog("raydist %f", _minRayDist);
-    CULog("pos %f", _position.x);*/
+    CULog("pos %f", _position.x);
 
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
@@ -102,7 +102,6 @@ void WindObstacle::setRayOrigins() {
     Vec2 posDiff = Vec2(OFFSET, OFFSET);
     Vec2 posAdjust = Vec2();
     //We need to offset the position if we have a different angle. seems a bit overkill?
-    CULog("angel %f", _angle);
     if (_angle <= 0) {
         diffVec = Vec2(rayDiff, 0);
         
@@ -207,11 +206,9 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     setRayOrigins();
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(0.5f,0.5f), size);
-    
-    
+    Poly2 rect = factory.makeRect(Vec2(-0.5f,-0.5f), size);
 
-    if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
+    if (PolygonObstacle::init(rect)){
         setPosition(pos);
         
         setDensity(0.0f);
