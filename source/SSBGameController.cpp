@@ -204,10 +204,23 @@ bool SSBGameController::finishInit(){
 
 void SSBGameController::createParallaxObjects() {
     std::shared_ptr<Object> obj;
-    //std::vector<int> layers = { -5, -4, -3, -2 };
-    //std::vector<float> scrollRates = { 0.04f, 0.1f, 0.15f, 0.3f };
-    std::vector<std::string> jsonTypes = { "parallax-ww-1", "parallax-ww-2", "parallax-ww-3", "parallax-ww-4", "parallax-ww-5",
-    "parallax-ww-6" };
+    std::vector<std::string> jsonTypes;
+    if (_levelNum == 1) {
+        jsonTypes = {"parallax-pp-1", "parallax-pp-2", "parallax-pp-3", "parallax-pp-4", "parallax-pp-5",
+        "parallax-pp-6"};
+    } 
+    else if (_levelNum == 2) {
+        jsonTypes = {"parallax-gg-1", "parallax-gg-2", "parallax-gg-3", "parallax-gg-4", "parallax-gg-5"};
+    }
+    else if (_levelNum == 3) {
+        jsonTypes = {
+        "parallax-ww-1", "parallax-ww-2", "parallax-ww-3", "parallax-ww-4", "parallax-ww-5",
+            "parallax-ww-6"
+        };
+    }
+    else {
+        CUAssert(false, "Level should have been either 1, 2, or 3 (run this code later instead after that is initialized correctly");
+    }
     shared_ptr<JsonReader> jsonReader;
     jsonReader = JsonReader::allocWithAsset("json/parallax/parallax.json");
     shared_ptr<JsonValue> json = jsonReader->readJson();
