@@ -925,7 +925,8 @@
         "buildmode": "widgets/buildmode.json",
         "credits": "widgets/credits.json",
         "setting": "widgets/setting.json",
-        "help": "widgets/help.json"
+        "help": "widgets/help.json",
+        "movephase": "widgets/movephase.json"
     },
     "scene2s": {
         "start": {
@@ -1067,6 +1068,15 @@
             },
             "data": {
                 "key": "help"
+            }
+        },
+        "movephase": {
+            "type": "Widget",
+            "format": {
+                "type": "Anchored"
+            },
+            "data": {
+                "key": "movephase"
             }
         },
         "game": {

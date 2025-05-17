@@ -59,6 +59,8 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _giveupbutton;
     /** Reference to the progress bar */
     std::shared_ptr<cugl::scene2::PolygonNode> _progressBar;
+    /** Reference to the pause button */
+    std::shared_ptr<cugl::scene2::Button> _pauseButton;
     /** Reference to the red icon */
     std::shared_ptr<cugl::scene2::PolygonNode> _redIcon;
     /** Reference to the blue icon */

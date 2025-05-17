@@ -1,0 +1,140 @@
+{
+    "variables": {},
+    "contents": {
+        "type": "Node",
+        "format": {
+            "type": "Anchored"
+        },
+        "data": {
+            "anchor": [
+                0,
+                0
+            ],
+            "size": [
+                1306,
+                576
+            ],
+            "angle": 0,
+            "position": [
+                0,
+                0
+            ],
+            "visible": true
+        },
+        "children": {
+            "progress": {
+                "type": "Image",
+                "data": {
+                    "texture": "progress-bar",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        856,
+                        107
+                    ],
+                    "angle": 0,
+                    "position": [
+                        192,
+                        469
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.15,
+                    "y_offset": 0
+                }
+            },
+            "giveup": {
+                "type": "Button",
+                "data": {
+                    "texture": "giveup-button",
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        238,
+                        80
+                    ],
+                    "angle": 0,
+                    "position": [
+                        1056,
+                        482
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.81,
+                    "y_offset": -0.02
+                }
+            },
+            "pause": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        128,
+                        125
+                    ],
+                    "angle": 0,
+                    "position": [
+                        52,
+                        441
+                    ],
+                    "visible": true,
+                    "upnode": "pause"
+                },
+                "children": {
+                    "pause": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "pause-button",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                128,
+                                125
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.04,
+                    "y_offset": -0.02
+                }
+            }
+        }
+    }
+}

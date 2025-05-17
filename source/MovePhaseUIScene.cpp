@@ -33,7 +33,7 @@ using namespace Constants;
 #pragma mark Scene Constants
 
 /** This is adjusted by screen aspect ratio to get the height */
-#define SCENE_WIDTH 1024
+#define SCENE_WIDTH 1306
 #define SCENE_HEIGHT 576
 
 /** The color of the info labels */
@@ -88,12 +88,18 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     {
         return false;
     }
-    else if (!Scene2::initWithHint(Size(SCENE_WIDTH, SCENE_HEIGHT)))
+    else if (!Scene2::initWithHint(Size(SCENE_WIDTH, 0)))
     {
         return false;
     }
 
+    Size dimen = getSize();
+
     _assets = assets;
+
+    std::shared_ptr<scene2::SceneNode> scene = _assets->get<scene2::SceneNode>("movephase");
+    scene->setContentSize(dimen);
+    scene->doLayout();
 
     _winnode = scene2::Label::allocWithText(WIN_MESSAGE, _assets->get<Font>(MESSAGE_FONT));
     _winnode->setAnchor(Vec2::ANCHOR_CENTER);
@@ -189,12 +195,13 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_giveupbutton);
 
-    _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
-    _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
-    _progressBar->setScale(0.4f);
-    _progressBar->setPosition(_size.width * 0.5f, _size.height * 0.9f);
+    _progressBar = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("movephase.progress"));
     _progressBar->setVisible(false);
-    addChild(_progressBar);
+
+    _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("movephase.pause"));
+    _pauseButton->setVisible(false);
+
+    addChild(scene);
 
     _redIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(RED_ICON));
     _redIcon->setAnchor(Vec2::ANCHOR_CENTER);
@@ -280,7 +287,6 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
 
     _playerList = _networkController->getPlayerList();
     _scoreController = scoreController;
-    
 
     return true;
 }
@@ -319,6 +325,7 @@ void MovePhaseUIScene::preUpdate(float dt) {
  */
 void MovePhaseUIScene::disableUI(bool value) {
     _progressBar->setVisible(!value);
+    _pauseButton->setVisible(!value);
 
     for (auto& player : _networkController->getPlayerList()){
         string playerTag = player->getName();
