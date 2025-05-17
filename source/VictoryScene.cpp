@@ -150,8 +150,6 @@ void VictoryScene::setActive(bool value) {
         Scene2::setActive(value);
         if (value) {
             _choice = NONE;
-            _restartButton->activate();
-            _quitButton->activate();
             _sound->playMusic("victory", true);
             _nextButton->activate();
             _pauseButton->activate();
