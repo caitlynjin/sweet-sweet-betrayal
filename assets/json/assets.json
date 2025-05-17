@@ -658,6 +658,9 @@
         "pause-button": {
             "file": "textures/buttons/pause-button.png"
         },
+        "home-button": {
+            "file": "textures/buttons/home-button.png"
+        },
         "help": {
             "file": "textures/setting/help.png"
         },

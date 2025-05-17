@@ -189,7 +189,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_giveupbutton);
 
-    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
     pauseNode->setScale(1.0f);
     _pauseButton = scene2::Button::alloc(pauseNode);
     _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
