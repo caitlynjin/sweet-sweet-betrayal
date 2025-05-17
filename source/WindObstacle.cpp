@@ -11,7 +11,7 @@ using namespace cugl::graphics;
  * @param position   The position
  */
 void WindObstacle::setPositionInit(const cugl::Vec2& position) {
-    PolygonObstacle::setPosition((position)*_drawScale);
+    PolygonObstacle::setPosition(position);
     _position = position;
     
 
@@ -206,11 +206,9 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
     setRayOrigins();
     //Intialize the 'fan' component of the windbostacle
     PolyFactory factory;
-    Poly2 rect = factory.makeRect(Vec2(0.5f,0.5f), size);
-    
-    
+    Poly2 rect = factory.makeRect(Vec2(-0.5f,-0.5f), size);
 
-    if (PolygonObstacle::init( rect, Vec2(0.5f, 0.5f))){
+    if (PolygonObstacle::init(rect)){
         setPosition(pos);
         
         setDensity(0.0f);
