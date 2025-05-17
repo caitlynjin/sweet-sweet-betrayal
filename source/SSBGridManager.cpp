@@ -130,10 +130,6 @@ void GridManager::update(float timestep) {
  * @param item          the item of the corresponding object
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
-    if (cellPos.x < 8 * CELL_SIZE) {
-        CULog("Cannot place object in the first 8 columns.");
-        return;
-    }
     if (_spriteNode) {
         
         auto image = _assets->get<Texture>(itemToAssetNameMap[item]);
@@ -322,6 +318,10 @@ std::shared_ptr<Object> GridManager::moveWorldObject(std::shared_ptr<Object> obj
  * @param item      the item type
  */
 bool GridManager::canPlace(Vec2 cellPos, Size size, Item item) {
+    if (cellPos.x < 8 * CELL_SIZE) {
+        CULog("Cannot place object in the first 8 columns.");
+        return false;
+    }
     for (int i = 0; i < size.getIWidth(); i++) {
         for (int j = 0; j < size.getIHeight(); j++) {
             // Find object in object map
