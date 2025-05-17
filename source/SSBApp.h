@@ -5,6 +5,8 @@
 #include "SSBLoadingScene.h"
 #include "StartScene.h"
 #include "SettingScene.h"
+#include "HelpScene.h"
+#include "CreditsScene.h"
 #include "MenuScene.h"
 #include "TransitionScene.h"
 #include "SSBInput.h"
@@ -30,7 +32,7 @@ using namespace cugl::physics2::distrib;
  */
 class SSBApp : public cugl::Application {
     enum Status {
-        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED, SETTING
+        LOAD, START, MENU, HOST, CLIENT, LEVEL_SELECT, GAME, LEVEL_EDITOR, VICTORY, COLOR_SELECT, WAITING_HOST, DISCONNECTED, PAUSED, SETTING, CREDITS, HELP
     };
 protected:
     /** The global sprite batch for drawing (only want one of these) */
@@ -41,6 +43,10 @@ protected:
     StartScene _startscreen;
 
     SettingScene _settingscreen;
+
+    CreditsScene _creditsscreen;
+
+    HelpScene _helpscreen;
     
     /**neworking scenes*/
     MenuScene _mainmenu;
@@ -255,6 +261,21 @@ public:
      */
     virtual void postUpdate(float dt) override;
     
+    /**
+     Resets the entire state of the application. Disposes of all scenes and the network and re-initializes them.
+     */
+    void resetApplication();
+    
+    /**
+     Resets the entire state of the level controllers. Used when a party is still connected and wants to play another game.
+     */
+    void resetLevel();
+    
+    /**
+     Disposes all scenes necessary to create a clean slate. 
+     */
+    void disposeScenes();
+    
     
     void setTransition(bool value);
     
@@ -272,6 +293,10 @@ public:
     void updateStartScene(float timestep);
 
     void updateSettingScene(float timestep);
+
+    void updateCreditsScene(float timestep);
+
+    void updateHelpScene(float timestep);
     
     /**
      * Inidividualized update method for the host scene.

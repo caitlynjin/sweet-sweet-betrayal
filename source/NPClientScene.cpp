@@ -58,7 +58,7 @@ static std::string dec2hex(const std::string dec) {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound) {
+bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController>& sound) {
     // Initialize the scene to a locked height
     if (assets == nullptr) {
            return false;
@@ -135,7 +135,10 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
             _sound->playSound("button_click");
         }
     });
-    _button0->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('0');}});
+    _button0->addListener([this](const std::string& name, bool down) {if (!down) {
+        CULog("0 Pressed");
+        appendGameID('0');
+    }});
     _button1->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('1');}});
     _button2->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('2');}});
     _button3->addListener([this](const std::string& name, bool down) {if (!down) { appendGameID('3');}});
@@ -161,10 +164,55 @@ bool ClientScene::init(const std::shared_ptr<cugl::AssetManager>& assets, std::s
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void ClientScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _active = false;
-    }
+    reset();
+    removeAllChildren();
+    _active = false;
+    
+    _assets = nullptr;
+    
+    _startgame->clearListeners();
+    _backout->clearListeners();
+    _startgame = nullptr;
+    _backout = nullptr;
+//    _player = nullptr;
+    
+    _gameid1 = nullptr;
+    _gameid2 = nullptr;
+    _gameid3 = nullptr;
+    _gameid4 = nullptr;
+    _gameid5 = nullptr;
+
+    _button0->clearListeners();
+    _button1->clearListeners();
+    _button2->clearListeners();
+    _button3->clearListeners();
+    _button4->clearListeners();
+    _button5->clearListeners();
+    _button6->clearListeners();
+    _button7->clearListeners();
+    _button8->clearListeners();
+    _button9->clearListeners();
+    _deleteButton->clearListeners();
+    
+    _button0 = nullptr;
+//    _button0->removeListener(0);
+    _button1 = nullptr;
+    _button2 = nullptr;
+    _button3 = nullptr;
+    _button4 = nullptr;
+    _button5 = nullptr;
+    _button6 = nullptr;
+    _button7 = nullptr;
+    _button8 = nullptr;
+    _button9 = nullptr;
+    _deleteButton = nullptr;
+
+    _networkController = nullptr;
+    _network = nullptr;
+    _sound = nullptr;
+    
+    Scene2::dispose();
+    
 }
 
 void ClientScene::reset() {

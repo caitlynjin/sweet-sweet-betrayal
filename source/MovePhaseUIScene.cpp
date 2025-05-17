@@ -271,6 +271,8 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
  */
 void MovePhaseUIScene::reset() {
     scoreBoardInitialized = false;
+    _didjump = false;
+    _didglide = false;
 }
 
 /**

@@ -66,8 +66,7 @@ protected:
     int const TOTAL_GEMS = 3;
     /** The current round the player is on */
     int _currRound = 1;
-    /** How many gems the player collected and won */
-    int _currGems = 0;
+
     /** Countdown active for winning or losing */
     int _countdown;
     /** Level width */
@@ -111,7 +110,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
 
     
     /** Gets called after level select scene */
@@ -121,6 +120,11 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose();
+    
+    /**
+     Disposes for purpose of re-entering a level after already completing one.
+     */
+    void disposeLevel();
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -154,6 +158,14 @@ public:
     void windUpdate(std::shared_ptr <WindObstacle> wind, float dt);
 
     void setSpriteBatch(const shared_ptr<SpriteBatch> &batch);
+    
+    void setGridManger(const shared_ptr<GridManager> gridManager){
+        _gridManager = gridManager;
+    }
+    
+    void setInput(const shared_ptr<PlatformInput> input){
+        _input = input;
+    }
 
     void render();
     

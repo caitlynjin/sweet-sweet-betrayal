@@ -106,6 +106,10 @@ cugl::Size itemToSize (Item item) {
             return cugl::Size(1, 1);
         case ART_OBJECT:
             return cugl::Size(1, 1);
+        case CRACK_1: case CRACK_2: case CRACK_3: case CRACK_4: case CRACK_5: case MOSS_1: case MOSS_2:
+            return cugl::Size(1, 2);
+        case CRACK_LARGE_1:
+            return cugl::Size(2, 2);
         case NONE:
             return cugl::Size(1, 1);
         default:

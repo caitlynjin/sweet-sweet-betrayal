@@ -75,6 +75,8 @@ void NetworkController::dispose(){
 }
 
 void NetworkController::resetNetwork(){
+    reset();
+    _network->disablePhysics();
     _network->disconnect();
     _network->dispose();
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
@@ -85,6 +87,7 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
 }
 
@@ -249,17 +252,33 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // Reset score controller
+    flushConnection();
+    _network->getPhysController()->reset();
+//    _network->disablePhysics();
+    
     _scoreController->reset();
     
     // Reset network in-game variables
     _numReady = 0;
     _numReset = 0;
+    _numColorReady = 0;
+    
+    _playerIDs.clear();
+    
     resetTreasureRandom();
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
+    _colorsSynced = false;
+    _playerColorAdded = false;
     
     _levelSelected = 0;
+    _levelSelectData = make_tuple(0, false, false);
+    
+    _tSpawnPoints.clear();
+    _usedSpawns.clear();
+    
+    _playerList.clear();
 }
 
 
@@ -290,6 +309,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
     Message message = event->getMesage();
     switch (message) {
         case Message::COLOR_READY:
+            CULog("Received color ready message");
             _numColorReady++;
             break;
         case Message::BUILD_READY:
@@ -686,6 +706,7 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
+    CULog("Num players: %d", numPlayers);
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
         
