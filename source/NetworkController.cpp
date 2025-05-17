@@ -603,7 +603,7 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
 }
 
 std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str, float angle) {
-    auto params = _windFact->serializeParams(pos, size, scale,  dir, str, angle);
+    auto params = _windFact->serializeParams(pos-size/2, size, scale,  dir, str, angle);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
 
