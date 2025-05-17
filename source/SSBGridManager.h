@@ -190,6 +190,23 @@ public:
      * @param item      the item type
      */
     bool canPlace(Vec2 cellPos, Size size, Item item);
+    
+    /**
+     * Checks whether we can place the object in the cell position.
+     *
+     * @return false if there exists an object
+     *
+     * @param cellPos    the cell position
+     * @param size          the amount of area this object takes up (including its movement)
+     * @param item      the item type
+     */
+    bool canPlaceBomb(Vec2 cellPos) {
+        if (cellPos.x < 8 * CELL_SIZE) {
+            CULog("Cannot place object in the first 8 columns.");
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Checks whether we can place an existing object in the cell position.
