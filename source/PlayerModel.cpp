@@ -120,6 +120,8 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
     _height = (nsize.height * PLAYER_VSHRINK) * 0.5;
     _drawScale = scale;
 
+    _isLocal = false;
+
     MovingPlat = nullptr;
 
     if (CapsuleObstacle::init(pos, nsize*0.5, cugl::poly2::Capsule::FULL))
@@ -156,7 +158,7 @@ bool PlayerModel::init(const Vec2 &pos, const Size &size, float scale, ColorType
         _jumpCooldown = 0;
         _glideDelay = 0.2;
         _glideTimer = 0;
-        _windvel = Vec2();
+        _windVel = Vec2();
 
         setVisible(false);
 
@@ -615,6 +617,7 @@ void PlayerModel::handleFriction() {
  */
 void PlayerModel::update(float dt)
 {
+    
     _prevPos = getPosition();
     // ANIMATION
     // TODO: Move to method updateAnimation
@@ -680,41 +683,46 @@ void PlayerModel::update(float dt)
         setLinearVelocity(Vec2(0,0));
     }
     
+
     if (!_isDead && !_immobile){
-        handlePlayerState();        
-        //Updates timers appropriately based on state
-        switch (_state) {
-        case State::GROUNDED:
-            _glideBoostTimer = 0.0f;
-            _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
-            break;
-        case State::GLIDING:
-            _bufferTimer += dt;
-            _jumpCooldown = JUMP_COOLDOWN;
-            break;
-        case State::MIDDAIR:
-            _jumpCooldown = JUMP_COOLDOWN;
-            _bufferTimer += dt;
-            _coyoteTimer += dt;
-            _glideBoostTimer += dt;
-            if (_holdingJump and _isDampEnabled) {
-                b2Vec2 vel = _body->GetLinearVelocity();
-                if (vel.y <= 0) {
-                    _enterAutoGlide = true;
-                    CULog("autogliding");
+        CULog("updated");
+        if (_isLocal) {
+            CULog("plyrupdate");
+            handlePlayerState();
+            //Updates timers appropriately based on state
+            switch (_state) {
+            case State::GROUNDED:
+                _glideBoostTimer = 0.0f;
+                _jumpCooldown = (_jumpCooldown > 0 ? _jumpCooldown - 1 : 0);
+                break;
+            case State::GLIDING:
+                _bufferTimer += dt;
+                _jumpCooldown = JUMP_COOLDOWN;
+                break;
+            case State::MIDDAIR:
+                _jumpCooldown = JUMP_COOLDOWN;
+                _bufferTimer += dt;
+                _coyoteTimer += dt;
+                _glideBoostTimer += dt;
+                if (_holdingJump and _isDampEnabled) {
+                    b2Vec2 vel = _body->GetLinearVelocity();
+                    if (vel.y <= 0) {
+                        _enterAutoGlide = true;
+                        CULog("autogliding");
+                    }
                 }
+
+                break;
+            default:
+                CULog("Unknown player state");
+                break;
             }
+            _jumpTimer -= dt;
 
-            break;
-        default:
-            CULog("Unknown player state");
-            break;
+            windUpdate(dt);
+            glideUpdate(dt);
+            applyForce();
         }
-        _jumpTimer -= dt;
-
-        windUpdate(dt);
-        glideUpdate(dt);
-        applyForce();
         CapsuleObstacle::update(dt);
         
         if (_node != nullptr)
@@ -748,6 +756,7 @@ void PlayerModel::update(float dt)
 
 void PlayerModel::handlePlayerState() {
     _jumpImpulse = false;
+    _stateJustChanged = false;
 
     switch (_state) {
     case State::GROUNDED:
@@ -756,10 +765,12 @@ void PlayerModel::handlePlayerState() {
         if (_holdingJump && _justJumped) {
             _state = State::MIDDAIR;
             _jumpImpulse = true;
+            _stateJustChanged = true;
         }
         else if (_undetectGround && !_detectedGround) {
             _coyoteTimer = 0;
             _state = State::MIDDAIR;
+            _stateJustChanged = true;
         }
 
         if ((_jumpImpulse || _bufferTimer < JUMP_BUFFER_DURATION)) {
@@ -774,9 +785,11 @@ void PlayerModel::handlePlayerState() {
         //CULog("Gliding");
         if ((_detectedGround && !_undetectGround)) {
             _state = State::GROUNDED;
+            _stateJustChanged = true;
         }
         else if (!_holdingJump) {
             _state = State::MIDDAIR;
+            _stateJustChanged = true;
         }
 
         break;
@@ -785,10 +798,12 @@ void PlayerModel::handlePlayerState() {
         //Enter gliding upon input! If we just hit the jump button in the middle of the air, also throw in a jump buffer.
          if (_detectedGround && !_undetectGround) {
             _state = State::GROUNDED;
+            _stateJustChanged = true;
         }
 
         else if (_enterAutoGlide || _justJumped) {
             _state = State::GLIDING;
+            _stateJustChanged = true;
             _justGlided = true;
             if (_justJumped) {
                 _bufferTimer = 0;
@@ -857,12 +872,19 @@ void PlayerModel::windUpdate(float dt)
         CULog("Unknown player state");
         break;
     }
-    b2Vec2 vel = _body->GetLinearVelocity();
-    vel.x += _windvel.x * mult;
-    vel.y += _windvel.y * mult;
-    _body->SetLinearVelocity(vel);
 
-    _windvel = Vec2(0, 0);
+    if (_windDist < WIND_DIST_THRESHOLD || _state == State::GLIDING) {
+        b2Vec2 vel = _body->GetLinearVelocity();
+        vel.x += _windVel.x * mult;
+        vel.y += _windVel.y * mult;
+        if (vel.y <= 0 && _windVel.y>0 && !(_state == State::GLIDING)) {
+            vel.y += 3*_windVel.y * mult;
+        }
+        
+        _body->SetLinearVelocity(vel);
+    }
+    
+    _windVel = Vec2(0, 0);
 }
 
 #pragma mark -
@@ -897,7 +919,7 @@ void PlayerModel::setFilterData() {
     
     // Set what this object collides with (everything EXCEPT other players)
 //    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_DEFAULT;
-    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER;
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
     
     // Apply the filter to all fixtures
     while (fixture != nullptr) {

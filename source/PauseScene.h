@@ -56,20 +56,10 @@ protected:
     PlatformInput _input;
     /** Reference to the background */
     std::shared_ptr<scene2::PolygonNode> _background;
-    /** Reference to the modal */
-    std::shared_ptr<scene2::PolygonNode> _modal;
-    /** Reference to the music label */
-    std::shared_ptr<scene2::PolygonNode> _musicLabel;
     /** Reference to the music slider */
-    std::shared_ptr<scene2::PolygonNode> _musicSlider;
-    /** Reference to the music knob */
-    std::shared_ptr<scene2::PolygonNode> _musicKnob;
-    /** Reference to the sfx label */
-    std::shared_ptr<scene2::PolygonNode> _sfxLabel;
+    std::shared_ptr<scene2::Slider> _musicSlider;
     /** Reference to the sfx slider */
-    std::shared_ptr<scene2::PolygonNode> _sfxSlider;
-    /** Reference to the sfx knob */
-    std::shared_ptr<scene2::PolygonNode> _sfxKnob;
+    std::shared_ptr<scene2::Slider> _sfxSlider;
     /** The menu button for disconnecting a game */
     std::shared_ptr<cugl::scene2::Button> _disconnectButton;
     /** The menu button for resuming a game */
@@ -121,7 +111,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> sound);
+    bool init(const std::shared_ptr<cugl::AssetManager>& assets, const std::shared_ptr<SoundController> &sound);
 
     /**
      * Sets whether the scene is currently active

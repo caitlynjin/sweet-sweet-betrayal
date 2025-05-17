@@ -76,6 +76,9 @@ void SSBApp::onShutdown()
     _loading.dispose();
     _gameController.dispose();
     _startscreen.dispose();
+    _settingscreen.dispose();
+    _creditsscreen.dispose();
+    _helpscreen.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _levelSelect.dispose();
@@ -171,6 +174,9 @@ void SSBApp::update(float dt)
  */
 void SSBApp::preUpdate(float dt)
 {
+    if (_network){
+        CULog("Network status: %d", static_cast<int>(_network->getStatus())); 
+    }
     // Handle transition logic
     if (_doTransition){
         if (_transition.getFadingOutDone()){
@@ -196,8 +202,6 @@ void SSBApp::preUpdate(float dt)
 
         _networkController = NetworkController::alloc(_assets);
         _network = _networkController->getNetwork();
-        _network->attachEventType<MessageEvent>();
-        _network->attachEventType<ColorEvent>();
         _sound = SoundController::alloc(_assets);
 
         populateMaps();
@@ -206,6 +210,12 @@ void SSBApp::preUpdate(float dt)
         _startscreen.setActive(true);
 
         _startscreen.setSpriteBatch(_batch);
+        _settingscreen.init(_assets, _sound);
+        _settingscreen.setSpriteBatch(_batch);
+        _creditsscreen.init(_assets, _sound);
+        _creditsscreen.setSpriteBatch(_batch);
+        _helpscreen.init(_assets, _sound);
+        _helpscreen.setSpriteBatch(_batch);
         _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets, _networkController, _sound);
@@ -242,6 +252,15 @@ void SSBApp::preUpdate(float dt)
         {
         case START:
             updateStartScene(dt);
+            break;
+        case SETTING:
+            updateSettingScene(dt);
+            break;
+        case CREDITS:
+            updateCreditsScene(dt);
+            break;
+        case HELP:
+            updateHelpScene(dt);
             break;
         case MENU:
             updateMenuScene(dt);
@@ -306,9 +325,15 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
-                        _gameController.reset();
-                        _gameController.setActive(true);
-                        _status = GAME;
+                        resetLevel();
+                        _colorselect.setInitialPlayerCount(_network->getNumPlayers());
+                        _colorselect.setActive(true);
+                        _status = COLOR_SELECT;
+                        
+                        
+//                        _gameController.reset();
+//                        _gameController.setActive(true);
+//                        _status = GAME;
                     }
                 }
             //TODO: Check for quit to main menu
@@ -316,10 +341,7 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _victory.setActive(false);
-                        _victory.reset();
-                        _startscreen.setActive(true);
-                        //TODO: resetGame() method
-                        resetScenes();
+                        resetApplication();
                         _status = START;
                     }
                 }
@@ -504,10 +526,63 @@ void SSBApp::updateStartScene(float timestep)
            _levelEditorController.setSpriteBatch(_batch);
            _status = LEVEL_EDITOR;
           _network->markReady();
-            break;
+           break;
+    case StartScene::Choice::SETTING:
+        _startscreen.setActive(false);
+        _settingscreen.setActive(true);
+        _status = SETTING;
+        break;
     case StartScene::Choice::NONE:
         // DO NOTHING
         break;
+    }
+}
+
+void SSBApp::updateSettingScene(float timestep){
+    _settingscreen.update(timestep);
+    switch (_settingscreen.getChoice()){
+        case SettingScene::Choice::EXIT:
+            _settingscreen.setActive(false);
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case SettingScene::Choice::HELP:
+            _settingscreen.setActive(false);
+            _helpscreen.setActive(true);
+            _status = HELP;
+            break;
+        case SettingScene::Choice::CREDITS:
+            _settingscreen.setActive(false);
+            _creditsscreen.setActive(true);
+            _status = CREDITS;
+            break;
+        case SettingScene::Choice::NONE:
+            break;
+    }
+}
+
+void SSBApp::updateHelpScene(float timestep) {
+    _helpscreen.update(timestep);
+    switch (_helpscreen.getChoice()){
+        case HelpScene::Choice::BACK:
+            _helpscreen.setActive(false);
+            _settingscreen.setActive(true);
+            _status = SETTING;
+        case HelpScene::Choice::NONE:
+            break;
+    }
+}
+
+void SSBApp::updateCreditsScene(float timestep){
+    _creditsscreen.update(timestep);
+    switch (_creditsscreen.getChoice()){
+        case CreditsScene::Choice::BACK:
+            _creditsscreen.setActive(false);
+            _settingscreen.setActive(true);
+            _status = SETTING;
+            break;
+        case CreditsScene::Choice::NONE:
+            break;
     }
 }
 
@@ -586,6 +661,15 @@ void SSBApp::updateLevelSelectScene(float timestep){
         setTransition(true);
         if (_transition.getFadingOutDone()){
             _gameController.setLevelNum(levelChoice);
+            
+            // Check if we are playing another game, or we are starting from very beginning
+//            if (_networkController->getPlayAgain()){
+//                _gameController.reset();
+//            }
+//            else{
+//                _gameController.finishInit();
+//                _gameController.setSpriteBatch(_batch);
+//            }
             _gameController.finishInit();
             _gameController.setSpriteBatch(_batch);
             _levelSelect.setActive(false);
@@ -659,6 +743,9 @@ void SSBApp::updateColorSelectScene(float timestep){
     _colorselect.update(timestep);
     _networkController->fixedUpdate(timestep);
     
+    
+    CULog("Number color ready: %d", _networkController->getNumColorReady());
+    CULog("Initial player count: %d", _colorselect.getInitialPlayerCount());
     if (_networkController->getNumColorReady() == _colorselect.getInitialPlayerCount()) {
         setTransition(true);
         if (_transition.getFadingOutDone()){
@@ -696,8 +783,8 @@ void SSBApp::updateColorSelectScene(float timestep){
         return;
     }
     
-    if (_colorselect._getReady()){
-        _colorselect._setReadyEnabled(false);
+    if (_colorselect.getReady()){
+        _colorselect.setReadyEnabled(false);
     }
     
     switch (_colorselect.getChoice())
@@ -806,12 +893,16 @@ void SSBApp::resetScenes(){
     _gameController.dispose();
     
     _startscreen.reset();
+    _settingscreen.reset();
+    _helpscreen.reset();
+    _creditsscreen.reset();
     _mainmenu.reset();
     _hostgame.reset();
     _joingame.reset();
     _colorselect.reset();
     _levelSelect.reset();
     _waitinghost.reset();
+    _pause.reset();
     _disconnectedscreen.reset();
     _expectedPlayers = 0;
 }
@@ -834,6 +925,15 @@ void SSBApp::draw()
         break;
     case START:
         _startscreen.render();
+        break;
+    case SETTING:
+        _settingscreen.render();
+        break;
+    case CREDITS:
+        _creditsscreen.render();
+        break;
+    case HELP:
+        _helpscreen.render();
         break;
     case MENU:
         _mainmenu.render();
@@ -861,6 +961,9 @@ void SSBApp::draw()
     case VICTORY:
         _victory.render();
         break;
+    case PAUSED:
+        _pause.render();
+        break;
     case DISCONNECTED:
         _disconnectedscreen.render();
         break;
@@ -872,10 +975,77 @@ void SSBApp::draw()
         _transition.render();
     }
 }
-std::map<std::string, std::string> Constants::jsonTypeToAsset = {};
-std::map<std::string, Item> Constants::jsonTypeToItemType = {};
-std::map<Item, std::string> Constants::itemToAssetNameMap = {};
 
 void SSBApp::populateMaps() {
     ArtAssetMapHelper::populateConstantsMaps();
+}
+
+/**
+ Resets the entire state of the application. Disposes of all scenes and the network and re-initializes them.
+ */
+void SSBApp::resetApplication(){
+    // Dispose of all necessary scenes
+    _startscreen.dispose();
+    _mainmenu.dispose();
+    _joingame.dispose();
+    _hostgame.dispose();
+    _victory.dispose();
+    
+    _levelSelect.dispose();
+    
+    _colorselect.dispose();
+    _waitinghost.dispose();
+    _disconnectedscreen.dispose();
+    
+    _gameController.dispose();
+    
+    // Clear network variables
+    _networkController->setPlayAgain(false);
+    _networkController->resetNetwork();
+    _networkController = nullptr;
+    _network = nullptr;
+    
+    _batch = nullptr;
+    _batch = SpriteBatch::alloc();
+    
+    // Re-initialize all necessary logic and scenes
+    _networkController = NetworkController::alloc(_assets);
+    _network = _networkController->getNetwork();
+    _sound = SoundController::alloc(_assets);
+
+    populateMaps();
+    _startscreen.init(_assets, _sound);
+    _startscreen.setActive(true);
+
+    _startscreen.setSpriteBatch(_batch);
+    _mainmenu.init(_assets, _sound);
+    _mainmenu.setSpriteBatch(_batch);
+    _hostgame.init(_assets, _networkController, _sound);
+    _hostgame.setSpriteBatch(_batch);
+    _levelSelect.init(_assets, _networkController, _sound);
+    _levelSelect.setSpriteBatch(_batch);
+    _joingame.init(_assets, _networkController, _sound);
+    _joingame.setSpriteBatch(_batch);
+    _victory.init(_assets, _sound, _networkController);
+    _victory.setSpriteBatch(_batch);
+    _colorselect.init(_assets, _networkController, _sound);
+    _colorselect.setSpriteBatch(_batch);
+    _waitinghost.init(_assets, _sound);
+    _waitinghost.setSpriteBatch(_batch);
+    _disconnectedscreen.init(_assets, _sound);
+    _disconnectedscreen.setSpriteBatch(_batch);
+    
+    _sound->playMusic("main_menu", true);
+}
+
+/**
+ Resets the entire state of the level controllers. Used when a party is still connected and wants to play another game.
+ */
+void SSBApp::resetLevel(){
+    _networkController->reset();
+    _colorselect.reset();
+    _levelSelect.reset();
+    
+    _networkController->setPlayAgain(true);
+    _gameController.disposeLevel();
 }

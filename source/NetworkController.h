@@ -334,9 +334,9 @@ class WindFactory : public ObstacleFactory {
             _assets = assets;
         }
 
-        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
+        std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength, float angle);
 
-        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength);
+        std::shared_ptr<std::vector<std::byte>> serializeParams(Vec2 pos, Size size, float scale, Vec2 windDirection, Vec2 windStrength, float angle);
 
         std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>> createObstacle(const std::vector<std::byte>& params) override;
     };
@@ -449,6 +449,9 @@ protected:
     
     /** The data the host sends out from level select */
     tuple<int, bool, bool> _levelSelectData;
+    
+    /** Whether the party is playing another game */
+    bool _playAgain = false;
     
     /** Variables for Platform Factory */
     std::shared_ptr<PlatformFactory> _platFact;
@@ -746,6 +749,15 @@ public:
         CULog("Set local color: %d", _color);
     }
     std::shared_ptr<ScoreController> getScoreController() const { return _scoreController; }
+    
+    
+    bool getPlayAgain(){
+        return _playAgain;
+    }
+    
+    void setPlayAgain(bool value){
+        _playAgain = value;
+    }
 
 #pragma mark -
 #pragma mark Treasure Handling
@@ -872,7 +884,7 @@ public:
      *
      * @return the thorn being created
      */
-    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str);
+    std::shared_ptr<Object> createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str, float angle);
 
     /**
      * Creates a networked bomb.

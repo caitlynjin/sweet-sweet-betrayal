@@ -76,9 +76,11 @@ using namespace Constants;
 /**Initial burst of speed when the player begins gliding or changes direction*/
 #define GLIDE_BOOST_FACTOR 1.2f
 /** Multipliers for wind speed when player is gliding and not gliding*/
-#define WIND_FACTOR 0.05f
-#define WIND_FACTOR_GLIDING 0.4f
-#define WIND_FACTOR_AIR 0.08f
+#define WIND_FACTOR 0.4f
+#define WIND_FACTOR_GLIDING 0.3f
+#define WIND_FACTOR_AIR 0.25f
+//At what distance should wind be functional for gliding vs non gliding players
+#define WIND_DIST_THRESHOLD 0.35f
 //Determines for how long we can 'halt' a jump middair, allowing the player to control how high they jump
 #define JUMP_DURATION 0.6f
 #define JUMP_STOP_DAMPING 0.2f
@@ -93,6 +95,7 @@ using namespace Constants;
 #define MORE_VELOCITY 1.75f
 /*Air friction*/
 #define AIR_DAMPING = 2.5f
+
 
 
 
@@ -113,10 +116,15 @@ private:
     std::shared_ptr<Treasure> _treasure;
 protected:
     /*Stores our current state*/
+    bool _isLocal;
+
     enum class State {
         GLIDING, GROUNDED, MIDDAIR
     };
     State _state = State::MIDDAIR;
+
+    //True if state has just changed
+    bool _stateJustChanged = false;
     //Functions to handle what inputs we get
     bool _detectedGround = false;
     bool _undetectGround = false;
@@ -162,6 +170,8 @@ protected:
     /** Whether the player hasn't died (hasn't initiated the death animation) */
     bool _canDie = true;
 
+    
+
     /** Whether is immobile */
     bool _immobile = true;
 
@@ -180,9 +190,14 @@ protected:
     float _glideBoostTimer;
     float _glideBoostDelay = 0.9f;
     float _glideBoostImpulse = 0.5f;
+
+
     /**Wind gust variables. Controls multipliers for how much it should affect the player in and out of gliding, 
     as well as how much motion is being applied at any given time*/
-    Vec2 _windvel;
+    Vec2 _windVel;
+    //Stores how far the player is away from wind at moment of gust blowing the player.
+    float _windDist;
+    
     //Handles jump damping. Jumptimer starts counting down upon jumping. During this time, release jump to dampen your vertical velocity.
     float _jumpTimer = 0.0f;
     //False if we are on PCS
@@ -515,6 +530,8 @@ public:
         _isDead = value;
     }
     
+    void setLocal() { _isLocal = true; }
+
     /**
      * Returns whether the player is dead
      */
@@ -556,6 +573,8 @@ public:
 #pragma mark Attribute Properties
     /*Gets player state. All player state actions should be resolve in update*/
     State getState() const { return _state; }
+
+    bool hasStateChanged() { return _stateJustChanged; }
     /*THE ONLY FUNCTION THAT SHOULD BE ABLE TO CHANGE PLAYER STATES*/
     void handlePlayerState();
 
@@ -585,7 +604,7 @@ public:
     /**
     Applies a certain amount of wind velocity to the player
     */
-    void addWind(Vec2 wind) { _windvel.operator+=(wind); };
+    void addWind(Vec2 wind, float dist) { _windVel.operator+=(wind); _windDist = dist; };
     //Tells us whether we should count the player as having touched the ground
     void setDetectedGround(bool value) { _detectedGround = value; }
     //Undetect ground should be used if we simply want to prevent us from entering the grounded state, ex-pass through platforms, 
@@ -593,6 +612,20 @@ public:
     void undetectGround() { _undetectGround = true; }
 
     bool isGrounded() { return (_state == State::GROUNDED); }
+    
+    /**
+     * Returns true if the dude is actively jumping.
+     *
+     * @return true if the dude is actively jumping.
+     */
+    //bool isJumping() const { return _isJumping && _jumpCooldown <= 0; }
+    
+    /**
+     * Sets whether the dude is actively jumping.
+     *
+     * @param value whether the dude is actively jumping.
+     */
+    //void setJumping(bool value) { _isJumping = value; }
 
     /*Buffers a jump input. If we become grounded before the buffer duration is over, intiatie a jump**/
 
@@ -717,6 +750,9 @@ public:
      * @param delta Number of seconds since last animation frame
      */
     void update(float dt) override;
+
+    //Local update-ran by local player
+    void localUpdate(float dt);
     
     /**
      * Applies the force to the body of this dude

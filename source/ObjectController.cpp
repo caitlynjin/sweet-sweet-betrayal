@@ -222,9 +222,10 @@ std::shared_ptr<Object> ObjectController::createSpike(std::shared_ptr<Spike> spk
  * @param pos The position of the bottom left corner of the platform in Box2D coordinates.
  * @param size The dimensions (width, height) of the platform.
  */
-std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, string jsonType, bool isLevelEditorMode)
+std::shared_ptr<Object> ObjectController::createWindObstacle(Vec2 pos, Size size, float scale, const Vec2 windDirection, const Vec2 windStrength, const float angle,
+    string jsonType, bool isLevelEditorMode)
 {
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, jsonType);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength,angle, jsonType);
     return createWindObstacle(wind, isLevelEditorMode);
 }
 
@@ -235,11 +236,22 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
     std::shared_ptr<scene2::PolygonNode> staticSprite;
     std::shared_ptr<scene2::SpriteNode> animNode;
 
-    if (true) {
-        animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
+    if (!isLevelEditorMode) {
+        auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
         wind->setFanAnimation(animNode, 4);
-        wind->setSceneNode(animNode);
-        wind->setName("wind");
+        auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 14);
+        auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 14);
+        auto animNode3 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_3), 1, 14, 14);
+        auto animNode4 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_4), 1, 14, 14);
+        std::vector<std::shared_ptr<scene2::SpriteNode>> gusts;
+
+        gusts.push_back(animNode1);
+        gusts.push_back(animNode2);
+        gusts.push_back(animNode3);
+        gusts.push_back(animNode4);
+
+        wind->setGustAnimation(gusts, 14);
+        wind->setPositionInit(wind->getPosition());
     }
     else {
         staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
@@ -247,20 +259,6 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
         wind->getSceneNode()->setVisible(true);
         wind->setName("windLevelEditor");
     }
-    
-
-    /*auto animNode1 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_1), 1, 14, 4);
-    auto animNode2 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_2), 1, 14, 4);
-    auto animNode3 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_3), 1, 14, 4);
-    auto animNode4 = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(WIND_LVL_4), 1, 14, 4);
-    std::vector<std::shared_ptr<scene2::SpriteNode>> gusts;
-
-    gusts.push_back(animNode1);
-    gusts.push_back(animNode2);
-    gusts.push_back(animNode3);
-    gusts.push_back(animNode4);
-
-    wind->setGustAnimation(gusts, 14);*/
 
     addObstacle(wind, wind->getSceneNode());
     _gameObjects->push_back(wind);
@@ -387,20 +385,29 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
         // TODO: fix this. Maybe use same system as ArtAssetHelperMaps?
         art->setAnimationDuration(1.0f);
     }
-    std::shared_ptr<scene2::SpriteNode> sprite = scene2::SpriteNode::allocWithSheet(image, rows, cols);
+    std::shared_ptr<scene2::PolygonNode> sprite = scene2::SpriteNode::allocWithTexture(image);
+    art->setPosition(art->getPosition() - art->getSize() / 2);
     art->setSceneNode(sprite);
     art->setAnimated(isAnimated);
     art->setBodyType(b2_staticBody);
     art->setDensity(BASIC_DENSITY);
+    sprite->setAnchor(0.1, 0.55);
+    sprite->setPosition(sprite->getPosition() + art->getPosition());
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);
     art->setDebugColor(DEBUG_COLOR);
     art->setItemType(Item::ART_OBJECT);
-    art->setName("artObject");
+    art->setName("parallaxObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
     _gameObjects->push_back(art);
 
     return art;
@@ -447,8 +454,17 @@ std::shared_ptr<Object> ObjectController::createArtObject(std::shared_ptr<ArtObj
     art->setName("artObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
+    // Create a filter
+    b2Filter filter;
+    filter.categoryBits = CATEGORY_ARTOBJECT;
+
+    // Set what this object collides with
+    filter.maskBits = 0xFFFF & ~CATEGORY_PLAYER & ~CATEGORY_ARTOBJECT;
+    art->setFilterData(filter);
     addObstacle(art, sprite);
-    art->setAnimation(sprite);
+    if (isAnimated) {
+        art->setAnimation(sprite);
+    }
     _gameObjects->push_back(art);
 
     return art;

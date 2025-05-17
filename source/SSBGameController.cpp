@@ -76,7 +76,7 @@ SSBGameController::SSBGameController() : Scene2(),
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound)
 {
     return init(assets, Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT), Vec2(0, DEFAULT_GRAVITY), networkController, sound);
 }
@@ -100,7 +100,7 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets, std::s
  * @return  true if the controller is initialized properly, false otherwise.
  */
 bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
-                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> sound)
+                     const Rect &rect, const Vec2 &gravity, const std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound)
 {
     if (assets == nullptr)
     {
@@ -150,6 +150,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
     
+    CULog("INPUT INITIALIZED");
+    
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
     
@@ -184,7 +186,8 @@ bool SSBGameController::finishInit(){
 
     // Initialize build phase controller
     _buildPhaseController->init(_assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
-
+    _sound->setMusicVolume(0.0f, true);
+    _sound->setSFXVolume(0.0f, true);
     //_sound->playMusic("move_phase");
 
     // Create parallax art assets
@@ -205,7 +208,8 @@ void SSBGameController::createParallaxObjects() {
     std::shared_ptr<Object> obj;
     //std::vector<int> layers = { -5, -4, -3, -2 };
     //std::vector<float> scrollRates = { 0.04f, 0.1f, 0.15f, 0.3f };
-    std::vector<std::string> jsonTypes = { "parallax0", "parallax1", "parallax2", "parallax3" };
+    std::vector<std::string> jsonTypes = { "parallax-ww-1", "parallax-ww-2", "parallax-ww-3", "parallax-ww-4", "parallax-ww-5",
+    "parallax-ww-6" };
     shared_ptr<JsonReader> jsonReader;
     jsonReader = JsonReader::allocWithAsset("json/parallax/parallax.json");
     shared_ptr<JsonValue> json = jsonReader->readJson();
@@ -220,6 +224,7 @@ void SSBGameController::createParallaxObjects() {
             objData->getFloat("scrollRate"),
             jsonTypes[itemNo]
         );
+        CULog("%f parallax X is", obj->getPosition().x);
         _parallaxObjects.push_back(obj);
     }
 }
@@ -228,6 +233,7 @@ void SSBGameController::createParallaxObjects() {
  */
 void SSBGameController::dispose()
 {
+    reset();
     _world = nullptr;
 
     if (_gridManager) {
@@ -243,6 +249,39 @@ void SSBGameController::dispose()
     if (_movePhaseController != nullptr) {
         _movePhaseController->dispose();
     }
+    Scene2::dispose();
+}
+
+/**
+ * Disposes of all resource necessary for playing a level again.
+ */
+void SSBGameController::disposeLevel(){
+    reset();
+    
+    if (_gridManager) {
+        _gridManager->getGridNode() = nullptr;
+    }
+    
+//    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    
+    // Set-up for GameController re-init
+    _world->update(FIXED_TIMESTEP_S);
+
+    // Start in building mode
+    _buildingMode = true;
+    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, _offset, _assets, _world);
+
+    // Start up the input handler
+//    _input = std::make_shared<PlatformInput>();
+//    _input->init(getBounds());
+    
+    // Set-up for MovePhaseController re-init
+    _movePhaseController->disposeLevel();
+    _movePhaseController->setGridManger(_gridManager);
+    _movePhaseController->setInput(_input);
     Scene2::dispose();
 }
 
@@ -269,12 +308,20 @@ void SSBGameController::reset()
     // Clear the world
     _world->clear();
     
-    // Reset all controllers
-    _networkController->reset();
-    _buildPhaseController->reset();
-    _movePhaseController->reset();
-        
+    // Reset all variables
+    _buildingMode = true;
+    _scoreCountdown = -1;
+    _beforeScoreBoard = 15;
+    _nextInRoundDelay = 30;
+    _nextInRoundIndex = 0;
     _hasVictory = false;
+    
+    // Reset all controllers
+//    _networkController->reset();
+    _buildPhaseController->reset();
+    _gridManager->clear();
+    
+    _movePhaseController->reset();
 }
 
 #pragma mark -
@@ -314,11 +361,14 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    //
+    
+    
     // Check for reset
     if (_networkController->getResetLevel()){
         reset();
     }
-    
+
     // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);
@@ -404,8 +454,9 @@ void SSBGameController::preUpdate(float dt)
     // Update parallax objects
     for (auto it = _parallaxObjects.begin(); it != _parallaxObjects.end(); ++it) {
         auto artObj = (dynamic_pointer_cast<ArtObject>((*it)));
-        artObj->setPositionInit(Vec2((_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
-            artObj->getPositionInit().y));
+        artObj->setPositionInit(Vec2(
+            (_initialCameraPos.x - artObj->getParallaxScrollRate() * (-_camera->getPosition().x + _initialCameraPos.x)) / 64,
+            _camera->getPosition().y / 64));
     }
 
     if (_isPaused != _buildPhaseController->getIsPaused()) {

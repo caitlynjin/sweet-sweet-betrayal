@@ -170,6 +170,22 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
         }
     });
     addChild(_glidebutton);
+    
+    std::shared_ptr<scene2::PolygonNode> giveupNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GIVEUP_BUTTON));
+    giveupNode->setScale(1.0f);
+    _giveupbutton = scene2::Button::alloc(giveupNode);
+    _giveupbutton->setAnchor(Vec2::ANCHOR_CENTER);
+    _giveupbutton->setPosition(_size.width * 0.90f, _size.height * 0.85f);
+    _giveupbutton->setVisible(false);
+    _giveupbutton->addListener([this](const std::string &name, bool down) {
+        if (down) {
+            _giveUp= true;
+        }
+        else{
+            _giveUp = false;
+        }
+    });
+    addChild(_giveupbutton);
 
     _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
     _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
@@ -255,6 +271,8 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
  */
 void MovePhaseUIScene::reset() {
     scoreBoardInitialized = false;
+    _didjump = false;
+    _didglide = false;
 }
 
 /**
@@ -298,6 +316,9 @@ void MovePhaseUIScene::disableUI(bool value) {
     if (value){
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
+        _giveupbutton->deactivate();
+        _giveupbutton->setVisible(!value);
+        _giveUpCountDown = 500;
     }
     else{
         _jumpbutton->activate();
