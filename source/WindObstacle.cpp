@@ -36,9 +36,9 @@ void WindObstacle::update(float timestep) {
         _minRayDist = min(_rayDist[it], _minRayDist);
         
     }
-    /*CULog("playerdist %f", _currentPlayerDist);
+    CULog("playerdist %f", _currentPlayerDist);
     CULog("raydist %f", _minRayDist);
-    CULog("pos %f", _position.x);*/
+    CULog("pos %f", _position.x);
 
     /*Reset all the arrays**/
     std::fill(_playerDist, _playerDist+RAYS,600);
@@ -102,7 +102,6 @@ void WindObstacle::setRayOrigins() {
     Vec2 posDiff = Vec2(OFFSET, OFFSET);
     Vec2 posAdjust = Vec2();
     //We need to offset the position if we have a different angle. seems a bit overkill?
-    CULog("angel %f", _angle);
     if (_angle <= 0) {
         diffVec = Vec2(rayDiff, 0);
         

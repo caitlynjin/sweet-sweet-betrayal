@@ -1237,7 +1237,7 @@ WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDire
     gusts.push_back(animNode4);
 
     wind->setGustAnimation(gusts, 14);
-    wind->setPositionInit(pos);
+    wind->setPositionInit(wind->getPosition());
 
     return std::make_pair(wind, wind->getSceneNode());
 }
