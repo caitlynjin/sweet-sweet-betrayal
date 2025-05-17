@@ -104,7 +104,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects);
 
     /**
      * Lays out the game geography.

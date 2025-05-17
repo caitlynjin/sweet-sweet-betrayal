@@ -556,7 +556,7 @@ public:
      *
      * @param world the world to be used for networked physics.
      */
-    void setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world);
+    void setWorld(const std::shared_ptr<cugl::physics2::distrib::NetWorld> world);
     
     /**
      * Sets the network world.

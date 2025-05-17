@@ -654,7 +654,7 @@ Vec2 NetworkController::pickRandSpawn(){
 #pragma mark -
 #pragma mark Helpers
 
-void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
+void NetworkController::setWorld(const std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
     _world = world;
     
     // Setup factories
@@ -694,10 +694,21 @@ void NetworkController::trySetFilters(){
     int numPlayers = 0;
 
     const auto& obstacles = _world->getObstacles();
+    
+//    _network->getPhysController()->
+//    const auto& obstacles = _world->getOwnedObstacles();
+//    
+//    auto ownedObstaclesMap = _world->getOwnedObstacles();
+//    std::vector<std::shared_ptr<physics2::Obstacle>> obstacles;
+//    
+//    for (const auto& [obstacle, duration] : ownedObstaclesMap) {
+//            obstacles.push_back(obstacle);
+//        }
+    
     std::vector<std::shared_ptr<PlayerModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
-        
+        CULog("Object name: %s", obstacle->getName().c_str());
         if (tagContainsPlayer(obstacle->getName())){
             numPlayers += 1;
             
@@ -713,7 +724,7 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
-    CULog("Num players: %d", numPlayers);
+    CULog("Num players: %d, network players: %d", numPlayers, _network->getNumPlayers());
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
         

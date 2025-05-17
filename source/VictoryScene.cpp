@@ -74,7 +74,13 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     
     _nextButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.back"));
     
-    _winText = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.blue-wins"));
+    _winTextBlue = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.blue-wins"));
+    _winTextRed = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.red-wins"));
+    _winTextGreen = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.green-wins"));
+    _winTextYellow = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("end.yellow-wins"));
+    
+    _winText = _winTextBlue;
+    
     _textBasePos = _winText->getPosition();
 
     _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.pause"));

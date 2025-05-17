@@ -41,7 +41,7 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** Create ObjectController that handles the creation of all objects, including platform, spike, windobstacle, moving platform...**/
 
 ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
-                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
+                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld> world,
                                    float scale,
                                    const std::shared_ptr<scene2::SceneNode> world_node,
                                    const std::shared_ptr<scene2::SceneNode> debug_node,

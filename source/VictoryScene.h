@@ -65,6 +65,10 @@ protected:
     std::shared_ptr<cugl::scene2::Button> _pauseButton;
     
     std::shared_ptr<cugl::scene2::PolygonNode> _winText;
+    std::shared_ptr<cugl::scene2::PolygonNode> _winTextBlue;
+    std::shared_ptr<cugl::scene2::PolygonNode> _winTextRed;
+    std::shared_ptr<cugl::scene2::PolygonNode> _winTextGreen;
+    std::shared_ptr<cugl::scene2::PolygonNode> _winTextYellow;
     
     /** The player start screen choice */
     Choice _choice;

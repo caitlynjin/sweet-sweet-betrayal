@@ -193,6 +193,87 @@
                     "x_offset": -0.01,
                     "y_offset": 0.38
                 }
+            },
+            "red-wins": {
+                "type": "Image",
+                "data": {
+                    "texture": "red-wins",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        423,
+                        103
+                    ],
+                    "angle": 0,
+                    "position": [
+                        425,
+                        457
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.01,
+                    "y_offset": 0.38
+                }
+            },
+            "green-wins": {
+                "type": "Image",
+                "data": {
+                    "texture": "green-wins",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        423,
+                        103
+                    ],
+                    "angle": 0,
+                    "position": [
+                        425,
+                        457
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.01,
+                    "y_offset": 0.38
+                }
+            },
+            "yellow-wins": {
+                "type": "Image",
+                "data": {
+                    "texture": "yellow-wins",
+                    "anchor": [
+                        0.5,
+                        0.5
+                    ],
+                    "size": [
+                        423,
+                        103
+                    ],
+                    "angle": 0,
+                    "position": [
+                        425,
+                        457
+                    ],
+                    "visible": true
+                },
+                "layout": {
+                    "x_anchor": "center",
+                    "y_anchor": "middle",
+                    "absolute": false,
+                    "x_offset": -0.01,
+                    "y_offset": 0.38
+                }
             }
         }
     }
