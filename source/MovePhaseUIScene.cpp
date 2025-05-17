@@ -201,28 +201,49 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _redIcon->setScale(0.05f);
     _redIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _redIcon->setVisible(false);
-    addChild(_redIcon);
 
     _blueIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(BLUE_ICON));
     _blueIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _blueIcon->setScale(0.05f);
     _blueIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _blueIcon->setVisible(false);
-    addChild(_blueIcon);
 
     _greenIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(GREEN_ICON));
     _greenIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _greenIcon->setScale(0.05f);
     _greenIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _greenIcon->setVisible(false);
-    addChild(_greenIcon);
 
     _yellowIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(YELLOW_ICON));
     _yellowIcon->setAnchor(Vec2::ANCHOR_CENTER);
     _yellowIcon->setScale(0.05f);
     _yellowIcon->setPosition(_size.width * 0.5f - (_progressBar->getWidth()/2), _size.height * 0.9f);
     _yellowIcon->setVisible(false);
-    addChild(_yellowIcon);
+
+    if (local == "playerRed"){
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_redIcon);
+    }
+    else if (local == "playerBlue"){
+        addChild(_redIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+        addChild(_blueIcon);
+    }
+    else if (local == "playerGreen"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_yellowIcon);
+        addChild(_greenIcon);
+    }
+    else if (local == "playerYellow"){
+        addChild(_redIcon);
+        addChild(_blueIcon);
+        addChild(_greenIcon);
+        addChild(_yellowIcon);
+    }
 
     _treasureIcon = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(TREASURE_ICON));
     _treasureIcon->setAnchor(Vec2::ANCHOR_CENTER);
