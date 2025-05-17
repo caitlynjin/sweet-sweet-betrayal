@@ -435,6 +435,19 @@ void LevelSelectScene::setModalVisible(bool visible){
     _modalFrame->setVisible(visible);
     _closeButton->setVisible(visible);
     _playButton->setVisible(visible);
+    
+    if (!visible){
+        _choice = Choice::NONE;
+        _sound->playSound("button_click");
+        _lvl1Name->setVisible(false);
+        _lvl2Name->setVisible(false);
+        _lvl3Name->setVisible(false);
+        _lvl1Img->setVisible(false);
+        _lvl2Img->setVisible(false);
+        _lvl3Img->setVisible(false);
+        _levelView = 0;
+        _closePressed = true;
+    }
 }
 
 void LevelSelectScene::setModalActive(bool value){
