@@ -159,7 +159,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     glideNode->setScale(0.75f);
     _glidebutton = scene2::Button::alloc(glideNode);
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
-    _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
+    _glidebutton->setPosition(_size.width * 0.88f, _size.height * 0.22f);
     _glidebutton->setVisible(false);
     _glidebutton->addListener([this](const std::string &name, bool down) {
         if (down) {
