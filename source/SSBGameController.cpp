@@ -249,15 +249,15 @@ void SSBGameController::dispose()
     Scene2::dispose();
 }
 
-//void SSBGameController::setActive(bool value){
+void SSBGameController::setElementsActive(bool value){
 //    if (isActive() != value) {
 //        Scene2::setActive(value);
-//        
-//        _active = value;
+        
+    _active = value;
 //        _buildPhaseController->getBuildPhaseScene().setActive(value);
-//        _buildPhaseController->getBuildPhaseUI().setActive(value);
+    _buildPhaseController->setActive(value);
 //    }
-//}
+}
 
 #pragma mark -
 #pragma mark Level Layout

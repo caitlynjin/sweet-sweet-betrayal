@@ -266,6 +266,25 @@ void BuildPhaseUIScene::preUpdate(float dt) {
         }
     }}
 
+void BuildPhaseUIScene::setActive(bool value) {
+    _isActive = value;
+    activateInventory(value);
+
+    if (value) {
+        _readyButton->activate();
+        _rightButton->activate();
+        _leftButton->activate();
+        _trashButton->activate();
+        _pauseButton->activate();
+    } else {
+        _readyButton->deactivate();
+        _rightButton->deactivate();
+        _leftButton->deactivate();
+        _trashButton->deactivate();
+        _pauseButton->deactivate();
+    }
+}
+
 #pragma mark -
 #pragma mark Attribute Functions
 /**
@@ -341,7 +360,7 @@ void BuildPhaseUIScene::setVisible(bool value) {
 void BuildPhaseUIScene::activateInventory(bool value) {
     for (size_t i = 0; i < _inventoryButtons.size(); i++)
     {
-        if (value) {
+        if (value && _isActive) {
             _inventoryButtons[i]->activate();
         } else {
             _inventoryButtons[i]->deactivate();

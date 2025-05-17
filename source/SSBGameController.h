@@ -277,7 +277,7 @@ public:
     void render() override;
 
     /** Sets the scene and associated scenes as active */
-//    virtual void setActive(bool value) override;
+    void setElementsActive(bool value);
     /**
      * Sets whether mode is in building or play mode.
      *

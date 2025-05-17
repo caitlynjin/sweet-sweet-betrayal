@@ -307,6 +307,8 @@ void SSBApp::preUpdate(float dt)
                     setTransition(true);
                     if (_transition.getFadingOutDone()){
                         _gameController.setActive(false);
+                        // TODO: Need to disable ready button
+                        _gameController.setElementsActive(false);
                         _pause.setActive(true);
                         _status = PAUSED;
                     }
@@ -344,6 +346,7 @@ void SSBApp::preUpdate(float dt)
             break;
         case PAUSED:
             updatePauseScene(dt);
+            _gameController.preUpdate(dt);
             break;
         case DISCONNECTED:
             updateDisconnectedScene(dt);
@@ -379,7 +382,7 @@ void SSBApp::fixedUpdate()
 {
     // Compute time to report to game scene version of fixedUpdate
     float time = getFixedStep() / 1000000.0f;
-    if (_status == GAME)
+    if (_status == GAME || _status == PAUSED)
     {
         _gameController.fixedUpdate(time);
     }
@@ -423,7 +426,7 @@ void SSBApp::postUpdate(float dt)
 {
     // Compute time to report to game scene version of postUpdate
     float time = getFixedRemainder() / 1000000.0f;
-    if (_status == GAME)
+    if (_status == GAME || _status == PAUSED)
     {
         _gameController.postUpdate(time);
     }
@@ -874,6 +877,7 @@ void SSBApp::updatePauseScene(float timestep){
                 _status = GAME;
 
                 _gameController.setIsPaused(false);
+                _gameController.setElementsActive(true);
             }
             break;
         case PauseScene::Choice::NONE:
@@ -981,6 +985,7 @@ void SSBApp::draw()
         _victory.render();
         break;
     case PAUSED:
+        _gameController.render();
         _pause.render();
         break;
     case DISCONNECTED:

@@ -120,6 +120,13 @@ public:
      */
     void setIsPaused(bool value) { _uiScene.setIsPaused(value); }
 
+    /**
+     * Sets whether the scenes are active.
+     */
+    void setActive(bool value) {
+        _uiScene.setActive(value);
+    }
+
 #pragma mark -
 #pragma mark Helpers
     /**
@@ -178,7 +185,6 @@ public:
      * @param item               The selected item being snapped to the grid
      */
     Vec2 snapToGrid(const Vec2 &gridPos, Item item);
-
 
 };
 

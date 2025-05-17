@@ -107,6 +107,8 @@ protected:
     /** Whether yellow is ready */
     bool _yellowReady = false;
 
+    bool _isActive = true;
+
     /** List of icons */
     std::vector<std::shared_ptr<cugl::scene2::PolygonNode>> _iconList;
     /** List of icons */
@@ -174,6 +176,8 @@ public:
      * @param dt    The amount of time (in seconds) since the last frame
      */
     void preUpdate(float dt);
+
+    void setActive(bool value);
 
 #pragma mark -
 #pragma mark Attribute Functions
