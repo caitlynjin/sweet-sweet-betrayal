@@ -199,6 +199,7 @@ void MovePhaseScene::populate() {
         
     ColorType playerColor = _networkController->getLocalColor();
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    
     _networkController->setLocalPlayer(_localPlayer);
 
     // This is set to false to counter race condition with collision filtering
@@ -209,6 +210,7 @@ void MovePhaseScene::populate() {
 //    _localPlayer->setEnabled(false);
 
     _localPlayer->setDebugScene(_debugnode);
+    _localPlayer->setLocal();
     _world->getOwnedObstacles().insert({ _localPlayer,0 });
     //If we are on keyboard, for debugging purposes turn off jump damping
     Mouse* mouse = Input::get<Mouse>();
@@ -233,7 +235,7 @@ void MovePhaseScene::populate() {
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }
-
+    CULog("CHUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCCCCCCCCCK");
 }
 
 

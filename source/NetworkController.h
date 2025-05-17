@@ -21,6 +21,7 @@
 #include "ScoreEvent.h"
 #include "TreasureEvent.h"
 #include "AnimationEvent.h"
+#include "AnimationStateEvent.h"
 #include "ScoreController.h"
 #include "Treasure.h"
 #include "Mushroom.h"
@@ -818,6 +819,11 @@ public:
      * This method takes a AnimationEvent and processes it.
      */
     void processAnimationEvent(const std::shared_ptr<AnimationEvent>& event);
+    
+    /**
+     * This method takes a AnimationStateEvent and processes it.
+     */
+    void processAnimationStateEvent(const std::shared_ptr<AnimationStateEvent>& event);
 
     /**
      * This method takes a MushroomBounceEvent and processes it.
