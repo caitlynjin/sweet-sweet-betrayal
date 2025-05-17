@@ -367,7 +367,7 @@ void BuildPhaseController::preUpdate(float dt) {
         _readyMessageSent = false;
     }
 
-    if (_isPaused != _uiScene.getIsPaused()) {
+    if (_isPaused == false) {
         _isPaused = _uiScene.getIsPaused();
     }
 }
