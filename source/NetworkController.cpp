@@ -140,16 +140,11 @@ void NetworkController::preUpdate(float dt){
     }
     
     _scoreController->preUpdate(dt);
-    
-    if (_treasure){
-        CULog("Treasure is stealable: %d", _treasure->isStealable());
-    }
    
     
     // Check for if a player has won
     if (_scoreController->getPlayerWinID() != -1){
         _winColorInt = static_cast<int>(_playerColorsById[_scoreController->getPlayerWinID()]);
-        CULog("Color int won: %d", _winColorInt);
     }
     
 }

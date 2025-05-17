@@ -412,6 +412,9 @@ protected:
     /** The player color */
     ColorType _color;
     
+    /** The previous color the player selected */
+    ColorType _prevColor;
+    
     int _winColorInt = -1;
     
     /** The callback function when any player picks a color */
@@ -685,6 +688,10 @@ public:
      */
     ColorType getLocalColor(){
         return _color;
+    }
+    
+    ColorType getPrevColor(){
+        return _prevColor;
     }
     
     /**
