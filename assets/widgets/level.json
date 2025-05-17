@@ -22,7 +22,7 @@
             "visible": true
         },
         "children": {
-            "map":{
+            "map": {
                 "type": "Node",
                 "format": {
                     "type": "Anchored"
@@ -424,26 +424,80 @@
                         "data": {
                             "texture": "placeholder-1",
                             "anchor": [
-                                0.5,
-                                0.5
+                                0,
+                                1
                             ],
                             "size": [
                                 383.4,
-                                251.1
+                                268.96
                             ],
                             "angle": 0,
                             "position": [
                                 168.3,
-                                246.28
+                                228.42
                             ],
                             "visible": true
                         },
                         "layout": {
-                            "x_anchor": "center",
-                            "y_anchor": "middle",
+                            "x_anchor": "left",
+                            "y_anchor": "top",
                             "absolute": false,
-                            "x_offset": -0.03,
-                            "y_offset": 0.14
+                            "x_offset": 0.22,
+                            "y_offset": -0.15
+                        }
+                    },
+                    "gorgeous-gorges": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "gorges-img",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                383.4,
+                                268.96
+                            ],
+                            "angle": 0,
+                            "position": [
+                                168.3,
+                                228.42
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.22,
+                            "y_offset": -0.15
+                        }
+                    },
+                    "wild-winds": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "winds-img",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                383.4,
+                                268.96
+                            ],
+                            "angle": 0,
+                            "position": [
+                                168.3,
+                                228.42
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0.22,
+                            "y_offset": -0.15
                         }
                     },
                     "play": {
@@ -598,6 +652,3 @@
         }
     }
 }
-
-
-

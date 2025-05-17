@@ -70,7 +70,9 @@ protected:
     
     std::shared_ptr<scene2::PolygonNode> _modalDarkener;
     std::shared_ptr<scene2::PolygonNode> _modalFrame;
-    std::shared_ptr<scene2::PolygonNode> _levelImage;
+    std::shared_ptr<scene2::PolygonNode> _lvl1Img;
+    std::shared_ptr<scene2::PolygonNode> _lvl2Img;
+    std::shared_ptr<scene2::PolygonNode> _lvl3Img;
     std::shared_ptr<scene2::PolygonNode> _lvl1Name;
     std::shared_ptr<scene2::PolygonNode> _lvl2Name;
     std::shared_ptr<scene2::PolygonNode> _lvl3Name;

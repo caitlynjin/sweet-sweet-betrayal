@@ -141,7 +141,12 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     }
     
     _modalFrame = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.modal"));
-    _levelImage = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.placeholder-1"));
+    _lvl1Img = std::dynamic_pointer_cast<scene2::PolygonNode>(
+        _assets->get<scene2::SceneNode>("level-select.modal.placeholder-1"));
+    _lvl2Img = std::dynamic_pointer_cast<scene2::PolygonNode>(
+        _assets->get<scene2::SceneNode>("level-select.modal.gorgeous-gorges"));
+    _lvl3Img = std::dynamic_pointer_cast<scene2::PolygonNode>(
+        _assets->get<scene2::SceneNode>("level-select.modal.wild-winds"));
     _lvl1Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.playground-text"));
     _lvl2Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.gorges-text"));
     _lvl3Name = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("level-select.modal.winds-text"));
@@ -149,6 +154,9 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
     _lvl1Name->setVisible(false);
     _lvl2Name->setVisible(false);
     _lvl3Name->setVisible(false);
+    _lvl1Img->setVisible(false);
+    _lvl2Img->setVisible(false);
+    _lvl3Img->setVisible(false);
     
     _closeButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.modal.exit"));
     _playButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("level-select.modal.play"));
@@ -160,6 +168,9 @@ bool LevelSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, c
             _lvl1Name->setVisible(false);
             _lvl2Name->setVisible(false);
             _lvl3Name->setVisible(false);
+            _lvl1Img->setVisible(false);
+            _lvl2Img->setVisible(false);
+            _lvl3Img->setVisible(false);
             _levelView = 0;
             _closePressed = true;
         }
@@ -227,7 +238,9 @@ void LevelSelectScene::dispose() {
    
    _modalDarkener = nullptr;
    _modalFrame = nullptr;
-   _levelImage = nullptr;
+    _lvl1Img = nullptr;
+    _lvl2Img = nullptr;
+    _lvl3Img = nullptr;
     _lvl1Name = nullptr;
     _lvl2Name = nullptr;
     _lvl3Name = nullptr;
@@ -383,22 +396,25 @@ void LevelSelectScene::setActive(bool value) {
  Shows the level modal for the appropriate level number
  */
 void LevelSelectScene::selectLevel(int levelNum){
+    _lvl1Img->setVisible(false);
+    _lvl2Img->setVisible(false);
+    _lvl3Img->setVisible(false);
     if (levelNum == 1){
-        _levelImage->setTexture(_assets->get<Texture>("placeholder-1"));
+        _lvl1Img->setVisible(true);
         _lvl2Name->setVisible(false);
         _lvl3Name->setVisible(false);
         _lvl1Name->setVisible(true);
     }
     
     if (levelNum == 2){
-        _levelImage->setTexture(_assets->get<Texture>("gorges-img"));
+        _lvl2Img->setVisible(true);
         _lvl1Name->setVisible(false);
         _lvl3Name->setVisible(false);
         _lvl2Name->setVisible(true);
     }
     
     if (levelNum == 3){
-        _levelImage->setTexture(_assets->get<Texture>("winds-img"));
+        _lvl3Img->setVisible(true);
         _lvl1Name->setVisible(false);
         _lvl2Name->setVisible(false);
         _lvl3Name->setVisible(true);
@@ -417,7 +433,6 @@ void LevelSelectScene::setModalVisible(bool visible){
     
     _modalDarkener->setVisible(visible);
     _modalFrame->setVisible(visible);
-    _levelImage->setVisible(visible);
     _closeButton->setVisible(visible);
     _playButton->setVisible(visible);
 }
