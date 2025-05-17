@@ -266,7 +266,7 @@ void MovePhaseController::preUpdate(float dt) {
         _uiScene.setGlideButtonActive();
         _uiScene.setDidJump(false);
     }
-    if (_uiScene.getGiveUpCountdown() == 0) {
+    if (_uiScene.getGiveUpCountdown() == 0 && !_movePhaseScene.getLocalPlayer()->isDead()) {
         _uiScene.setGiveUpButtonActive(true);
     } else {
         _uiScene.setGiveUpCountdown(_uiScene.getGiveUpCountdown()-1);
