@@ -53,6 +53,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<AnimationStateEvent>();
     _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
@@ -87,6 +88,7 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<AnimationStateEvent>();
     _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
 }
@@ -200,6 +202,10 @@ void NetworkController::fixedUpdate(float step){
         // Check for AnimationEvent
         if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
             processAnimationEvent(aEvent);
+        }
+        // Check for AnimationStateEvent
+        if(auto asEvent = std::dynamic_pointer_cast<AnimationStateEvent>(e)){
+            processAnimationStateEvent(asEvent);
         }
 
         // Check for LevelEvent
@@ -440,6 +446,28 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
     for (auto player : _playerList) {
         if (player->getName() == targetName) {
             player->processNetworkAnimation(anim, activate);
+        }
+    }
+}
+
+/**
+ * This method takes a AnimationStateEvent and processes it.
+ */
+void NetworkController::processAnimationStateEvent(const std::shared_ptr<AnimationStateEvent>& event) {
+    int uid        = event->getPlayerID();
+    AnimationStateType anim   = event->getAnimationState();
+    bool facing = event->getFacing();
+    int colorInt  = static_cast<int>(_playerColorsById[uid]);
+
+//    CULog("AnimationEvent → UID=%d, color=%d, anim=%d, activate=%d",
+//          uid, colorInt, static_cast<int>(anim), activate);
+
+    static const char* ColorNames[] = {"Red","Blue","Green","Yellow"};
+    std::string targetName = "player" + std::string(ColorNames[colorInt]);
+
+    for (auto player : _playerList) {
+        if (player->getName() == targetName) {
+            //TODO: set facing and animation state
         }
     }
 }
