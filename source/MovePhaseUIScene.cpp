@@ -145,6 +145,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _jumpbutton->setAnchor(Vec2::ANCHOR_CENTER);
     _jumpbutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
     _jumpbutton->setVisible(false);
+    _jumpbutton->setColor(Color4 (_jumpbutton->getColor().r, _jumpbutton->getColor().g, _jumpbutton->getColor().b, 184));
     _jumpbutton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _didjump = true;
@@ -161,6 +162,7 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     _glidebutton->setAnchor(Vec2::ANCHOR_CENTER);
     _glidebutton->setPosition(_size.width * 0.85f, _size.height * 0.25f);
     _glidebutton->setVisible(false);
+    _glidebutton->setColor(Color4 (_glidebutton->getColor().r, _glidebutton->getColor().g, _glidebutton->getColor().b, 184));
     _glidebutton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _didglide = true;
