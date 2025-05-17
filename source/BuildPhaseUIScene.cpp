@@ -138,11 +138,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _trashButton =std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.bottom.trash"));
     _trashButton->setVisible(true);
 
-    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PAUSE));
-    pauseNode->setScale(1.0f);
-    _pauseButton = scene2::Button::alloc(pauseNode);
-    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
-    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("buildmode.pause"));
     _pauseButton->activate();
     _pauseButton->addListener([this](const std::string &name, bool down) {
         if (down) {
@@ -184,7 +180,6 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _bottomFrame->setVisible(true);
 
     addChild(scene);
-    addChild(_pauseButton);
     return true;
 }
 

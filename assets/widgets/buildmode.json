@@ -1536,6 +1536,65 @@
                     "x_offset": 0.41,
                     "y_offset": 0.02
                 }
+            },
+            "pause": {
+                "type": "Button",
+                "format": {
+                    "type": "Anchored"
+                },
+                "data": {
+                    "anchor": [
+                        0,
+                        1
+                    ],
+                    "size": [
+                        128,
+                        125
+                    ],
+                    "angle": 0,
+                    "position": [
+                        52,
+                        406
+                    ],
+                    "visible": true,
+                    "upnode": "pause"
+                },
+                "children": {
+                    "pause": {
+                        "type": "Image",
+                        "data": {
+                            "texture": "pause-button",
+                            "anchor": [
+                                0,
+                                1
+                            ],
+                            "size": [
+                                128,
+                                125
+                            ],
+                            "angle": 0,
+                            "position": [
+                                0,
+                                0
+                            ],
+                            "visible": true
+                        },
+                        "layout": {
+                            "x_anchor": "left",
+                            "y_anchor": "top",
+                            "absolute": false,
+                            "x_offset": 0,
+                            "y_offset": 0
+                        }
+                    }
+                },
+                "layout": {
+                    "x_anchor": "left",
+                    "y_anchor": "top",
+                    "absolute": false,
+                    "x_offset": 0.04,
+                    "y_offset": -0.08
+                }
             }
         }
     }
