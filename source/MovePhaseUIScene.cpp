@@ -316,7 +316,7 @@ void MovePhaseUIScene::disableUI(bool value) {
         _glidebutton->deactivate();
         _giveupbutton->deactivate();
         _giveupbutton->setVisible(!value);
-        _giveUpCountDown = 500;
+        _giveUpCountDown = 2000;
     }
     else{
         _jumpbutton->activate();
