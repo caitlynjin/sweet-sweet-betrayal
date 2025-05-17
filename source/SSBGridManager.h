@@ -33,6 +33,8 @@ public:
     std::map<std::shared_ptr<Object>, std::pair<float, float>> worldObjToPosMap;
     /** Maps moveable world objects to bottom left position of objects */
     std::map<std::shared_ptr<Object>, std::pair<float, float>> objToPosMap;
+    /** Textuer of illegal background*/
+    std::shared_ptr<scene2::PolygonNode> _illegal_background;
 
 private:
     /** Reference to building mode grid */

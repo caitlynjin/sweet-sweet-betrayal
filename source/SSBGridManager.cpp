@@ -25,6 +25,11 @@ using namespace Constants;
  */
 void GridManager::initGrid(bool isLevelEditor) {
     _grid->removeAllChildren();
+    _illegal_background = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>("safezone"));
+    _illegal_background->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _illegal_background->setPosition(Vec2(0, 0));
+    _illegal_background->setScale(0.1f);
+    _grid->addChild(_illegal_background);
 
     std::shared_ptr<scene2::GridLayout> gridLayout = scene2::GridLayout::alloc();
     gridLayout->setGridSize(_columns, MAX_ROWS);
@@ -38,7 +43,11 @@ void GridManager::initGrid(bool isLevelEditor) {
             Vec2 cellPos(col * CELL_SIZE, row * CELL_SIZE);
 
             std::shared_ptr<scene2::WireNode> cellNode = scene2::WireNode::allocWithPath(Rect(cellPos, Size(CELL_SIZE, CELL_SIZE)));
-            cellNode->setColor(Color4::WHITE);
+            if (col < 8) {
+                cellNode->setColor(Color4::RED);
+            } else {
+                cellNode->setColor(Color4::WHITE);
+            }
             cellNode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
             cellNode->setPosition(cellPos);
 
@@ -125,7 +134,12 @@ void GridManager::update(float timestep) {
  * @param item          the item of the corresponding object
  */
 void GridManager::setObject(Vec2 cellPos, Item item) {
+    if (cellPos.x < 8 * CELL_SIZE) {
+        CULog("Cannot place object in the first 8 columns.");
+        return;
+    }
     if (_spriteNode) {
+        
         auto image = _assets->get<Texture>(itemToAssetNameMap[item]);
         if (image == nullptr) {
             CULog("You likely forgot to add this item to itemToAssetNameMap");
