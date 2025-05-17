@@ -220,6 +220,9 @@ public:
      * @param screenPos    The screen position
      */
     Vec2 convertScreenToBox2d(const Vec2 &screenPos);
+    
+    
+    void createLocalPlayer();
 
     /**
      * This method links a scene node to the obstacle.
