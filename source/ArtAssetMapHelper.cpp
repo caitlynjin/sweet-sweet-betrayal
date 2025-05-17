@@ -11,7 +11,8 @@ std::map<std::string, std::string> Constants::jsonTypeToAsset = {};
 std::map<std::string, Item> Constants::jsonTypeToItemType = {};
 std::map<Item, std::string> Constants::itemToAssetNameMap = {};
 std::map<std::string, std::pair<int, int>> Constants::animatedArtObjects = {
-    { "torchRight", std::make_pair<int, int>(1, 8) }
+    { "torchRight", std::make_pair<int, int>(1, 8) },
+    { "torchLeft", std::make_pair<int, int>(1, 8) }
 };
 
 std::vector<std::string> Constants::xOffsetArtObjects = {
@@ -62,6 +63,8 @@ void ArtAssetMapHelper::populateConstantsMaps()
     {std::string("tileRight"), std::string(RIGHT_TILE_TEXTURE), Item::TILE_RIGHT},
     {std::string("tileTopLeft"), std::string(TOPLEFT_TILE_TEXTURE), Item::TILE_TOPLEFT},
     {std::string("tileTopRight"), std::string(TOPRIGHT_TILE_TEXTURE), Item::TILE_TOPRIGHT},
+    {std::string("tileBottomLeft"), std::string("tile-bottomleft-corner"), Item::TILE_BOTTOMLEFT},
+    {std::string("tileBottomRight"), std::string("tile-bottomright-corner"), Item::TILE_BOTTOMRIGHT},
     {std::string("crack1"), std::string(CRACK1_TEXTURE), Item::CRACK_1},
     {std::string("crack2"), std::string(CRACK2_TEXTURE), Item::CRACK_2},
     {std::string("crack3"), std::string(CRACK3_TEXTURE), Item::CRACK_3},
@@ -89,7 +92,10 @@ void ArtAssetMapHelper::populateConstantsMaps()
         {std::string("mushroom"), std::string(MUSHROOM_TEXTURE), Item::MUSHROOM},
         {std::string("bomb"), std::string(BOMB_TEXTURE), Item::BOMB},
         {std::string("none"), std::string(EARTH_TEXTURE), Item::NONE},
-    { std::string("torchRight"), std::string("torch-right"), Item::TORCH },
+    { std::string("torchRight"), std::string("torch-right"), Item::TORCH_RIGHT },
+    { std::string("torchLeft"), std::string("torch-left"), Item::TORCH_LEFT },
+    { std::string("tileTopRightInnerCorner"), std::string("tile-topright-inner"), Item::TILE_TOPRIGHT_INNER},
+    { std::string("tileTopLeftInnerCorner"), std::string("tile-topleft-inner"), Item::TILE_TOPLEFT_INNER},
     { std::string("tileInsideFilled"), std::string("tile-inside-filled"), Item::TILE_INSIDEFILLED},
     { std::string("tileInsideLeft"), std::string("tile-inside-left"), Item::TILE_INSIDELEFT},
     { std::string("tileInsideRight"), std::string("tile-inside-right"), Item::TILE_INSIDERIGHT},
@@ -103,6 +109,17 @@ void ArtAssetMapHelper::populateConstantsMaps()
         {std::string("parallax-ww-4"), std::string("parallax-ww-4")},
         {std::string("parallax-ww-5"), std::string("parallax-ww-5")},
         {std::string("parallax-ww-6"), std::string("parallax-ww-6")},
+        {std::string("parallax-gg-1"), std::string("parallax-gg-1")},
+        {std::string("parallax-gg-2"), std::string("parallax-gg-2")},
+        {std::string("parallax-gg-3"), std::string("parallax-gg-3")},
+        {std::string("parallax-gg-4"), std::string("parallax-gg-4")},
+        {std::string("parallax-gg-5"), std::string("parallax-gg-5")},
+        {std::string("parallax-pp-1"), std::string("parallax-pp-1")},
+        {std::string("parallax-pp-2"), std::string("parallax-pp-2")},
+        {std::string("parallax-pp-3"), std::string("parallax-pp-3")},
+        {std::string("parallax-pp-4"), std::string("parallax-pp-4")},
+        {std::string("parallax-pp-5"), std::string("parallax-pp-5")},
+        {std::string("parallax-pp-6"), std::string("parallax-pp-6")},
     };
     std::vector<std::any> tempVec;
     for (auto it = vec.begin(); it != vec.end(); ++it) {

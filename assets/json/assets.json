@@ -24,6 +24,18 @@
         "tile-topright-corner": {
             "file": "textures/topright-corner.png"
         },
+        "tile-topright-inner": {
+            "file": "textures/1x1-topright-inner-corner.png"
+        },
+        "tile-bottomleft-corner": {
+            "file": "textures/bottomleft-corner.png"
+        },
+        "tile-bottomright-corner": {
+            "file": "textures/bottomright-corner.png"
+        },
+        "tile-topleft-inner": {
+            "file": "textures/1x1-topleft-inner-corner.png"
+        },
         "tile-bottom-edge": {
             "file": "textures/tile-bottom-edge.png"
         },
@@ -149,6 +161,9 @@
         },
         "torch-right": {
             "file": "textures/right-torch-spritesheet.png"
+        },
+        "torch-left": {
+            "file": "textures/left-torch-spritesheet.png"
         },
         "gliding-log-spritesheet": {
             "file": "textures/gliding-log-spritesheet.png"
@@ -290,7 +305,7 @@
             "file": "textures/yellow-death-character-spritesheet.png"
         },
         "progress-bar": {
-            "file": "textures/progress-bar.png"
+            "file": "textures/progress.png"
         },
         "red-icon": {
             "file": "textures/red.png"
@@ -423,6 +438,9 @@
         },
         "yellowglider": {
             "file": "textures/yellowglider.png"
+        },
+        "safezone": {
+            "file": "textures/safezone.png"
         },
         "button_1": {
             "file": "textures/buttons/button_1.png"
@@ -636,6 +654,39 @@
         },
         "parallax-ww-6": {
             "file": "textures/parallax/ww-6.png"
+        },
+        "parallax-gg-1": {
+            "file": "textures/parallax/gg-1.png"
+        },
+        "parallax-gg-2": {
+            "file": "textures/parallax/gg-2.png"
+        },
+        "parallax-gg-3": {
+            "file": "textures/parallax/gg-3.png"
+        },
+        "parallax-gg-4": {
+            "file": "textures/parallax/gg-4.png"
+        },
+        "parallax-gg-5": {
+            "file": "textures/parallax/gg-5.png"
+        },
+        "parallax-pp-1": {
+            "file": "textures/parallax/pp-1.png"
+        },
+        "parallax-pp-2": {
+            "file": "textures/parallax/pp-2.png"
+        },
+        "parallax-pp-3": {
+            "file": "textures/parallax/pp-3.png"
+        },
+        "parallax-pp-4": {
+            "file": "textures/parallax/pp-4.png"
+        },
+        "parallax-pp-5": {
+            "file": "textures/parallax/pp-5.png"
+        },
+        "parallax-pp-6": {
+            "file": "textures/parallax/pp-6.png"
         },
         "resume": {
             "file": "textures/buttons/resume.png"

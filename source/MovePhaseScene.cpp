@@ -160,10 +160,10 @@ void MovePhaseScene::populate() {
     string levelName;
     
     if (_levelNum == 1){
-        levelName = LEVEL_1;
+        levelName = "json/party.json";
     }
     else if (_levelNum == 2){
-        levelName = LEVEL_2;
+        levelName = "json/gorges.json";
     }
     else if (_levelNum == 3){
         levelName = LEVEL_3;
