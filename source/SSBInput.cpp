@@ -452,7 +452,7 @@ void PlatformInput::touchBeganCB(const TouchEvent& event, bool focus) {
         case Zone::MAIN:
             // Only check for double tap in Main if nothing else down
             if (_ltouch.touchids.empty() && _rtouch.touchids.empty() && _mtouch.touchids.empty()) {
-                _keyDebug = (event.timestamp.ellapsedMillis(_mtime) <= DOUBLE_CLICK);
+                _keyDebug = false;//(event.timestamp.ellapsedMillis(_mtime) <= DOUBLE_CLICK);
             }
             
             // Keep count of touches in Main zone if next to each other.

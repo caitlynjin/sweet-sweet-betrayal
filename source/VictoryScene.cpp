@@ -87,7 +87,7 @@ bool VictoryScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const
     _winTextBlue->setVisible(false);
     _winTextGreen->setVisible(false);
 
-    _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.pause"));
+//    _pauseButton = std::dynamic_pointer_cast<scene2::Button>(_assets->get<scene2::SceneNode>("end.pause"));
     
     // Program the buttons
     _nextButton->addListener([this](const std::string& name, bool down) {
@@ -117,9 +117,9 @@ void VictoryScene::dispose() {
     _background = nullptr;
     _winText = nullptr;
     _nextButton->clearListeners();
-    _pauseButton->clearListeners();
+//    _pauseButton->clearListeners();
     _nextButton = nullptr;
-    _pauseButton = nullptr;
+//    _pauseButton = nullptr;
     _assets = nullptr;
     _sound = nullptr;
     _networkController = nullptr;
@@ -152,13 +152,13 @@ void VictoryScene::setActive(bool value) {
             _choice = NONE;
             _sound->playMusic("victory", true);
             _nextButton->activate();
-            _pauseButton->activate();
+//            _pauseButton->activate();
         } else {
             _nextButton->deactivate();
-            _pauseButton->deactivate();
+//            _pauseButton->deactivate();
             // If any were pressed, reset them
             _nextButton->setDown(false);
-            _pauseButton->setDown(false);
+//            _pauseButton->setDown(false);
         }
     }
 }
