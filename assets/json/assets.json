@@ -290,7 +290,7 @@
             "file": "textures/yellow-death-character-spritesheet.png"
         },
         "progress-bar": {
-            "file": "textures/progress-bar.png"
+            "file": "textures/progress.png"
         },
         "red-icon": {
             "file": "textures/red.png"
@@ -423,6 +423,9 @@
         },
         "yellowglider": {
             "file": "textures/yellowglider.png"
+        },
+        "safezone": {
+            "file": "textures/safezone.png"
         },
         "button_1": {
             "file": "textures/buttons/button_1.png"
