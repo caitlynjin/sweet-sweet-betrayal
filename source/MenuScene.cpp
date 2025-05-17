@@ -165,6 +165,10 @@ void MenuScene::setActive(bool value) {
     if (isActive() != value) {
         Scene2::setActive(value);
         if (value) {
+            if (_sound->getCurrentTrackPlaying() != "main_menu") {
+                _sound->playMusic("main_menu", true);
+            }
+            
             _choice = NONE;
             _hostbutton->activate();
             _joinbutton->activate();

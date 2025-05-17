@@ -493,7 +493,7 @@ void MovePhaseController::setComplete(bool value)
     _complete = value;
     if (value && change)
     {
-        _sound->playMusic("win");
+        //_sound->playMusic("win");
         _uiScene.setWinVisible(true);
         _countdown = EXIT_COUNT;
     }
@@ -514,7 +514,7 @@ void MovePhaseController::setComplete(bool value)
 void MovePhaseController::setFailure(bool value) {
     if (value) {
 
-        _sound->playMusic("lose");
+        //_sound->playMusic("lose");
         _uiScene.setLoseVisible(true);
         _countdown = EXIT_COUNT;
     }

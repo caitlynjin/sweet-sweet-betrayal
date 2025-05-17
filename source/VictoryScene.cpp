@@ -119,6 +119,7 @@ void VictoryScene::setActive(bool value) {
             _choice = NONE;
             _restartButton->activate();
             _quitButton->activate();
+            _sound->playMusic("victory", true);
         } else {
             _restartButton->deactivate();
             _quitButton->deactivate();
