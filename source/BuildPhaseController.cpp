@@ -52,7 +52,7 @@ BuildPhaseController::BuildPhaseController() {}
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> sound) {
+bool BuildPhaseController::init(const std::shared_ptr<AssetManager>& assets, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<ObjectController> objectController, std::shared_ptr<NetworkController> networkController, std::shared_ptr<Camera> camera, std::shared_ptr<PlayerModel> player, std::shared_ptr<SoundController> &sound) {
     if (assets == nullptr)
     {
         return false;
@@ -97,7 +97,7 @@ void BuildPhaseController::dispose() {
 void BuildPhaseController::reset() {
     _buildPhaseScene.reset();
     randomizeItems();
-    addInvButtonListeners();
+//    addInvButtonListeners();
     _uiScene.reset();
     
     // Reset controller variables
@@ -106,6 +106,7 @@ void BuildPhaseController::reset() {
     _selectedObject = nullptr;
     _prevPos = Vec2(0, 0);
     _readyMessageSent = false;
+    _accelerationStarted = false;
 }
 
 /**
@@ -430,7 +431,6 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
-        CULog("%s", pairedItems[i].second.c_str());
     }
 
     _uiScene.setInventoryButtons(inventoryItems, assetNames);

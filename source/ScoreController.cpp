@@ -194,12 +194,12 @@ void ScoreController::initScoreboardNodes(cugl::scene2::Scene2* parent, const Ve
     };
     
     //sort with priority
-    std::sort(_playerList.begin(), _playerList.end(),
-        [&](auto const &a, auto const &b){
-            return colorPriority.at(a->getName())
-                 < colorPriority.at(b->getName());
-        }
-    );
+//    std::sort(_playerList.begin(), _playerList.end(),
+//        [&](auto const &a, auto const &b){
+//            return colorPriority.at(a->getName())
+//                 < colorPriority.at(b->getName());
+//        }
+//    );
 
     for (auto& player : _playerList) {
         std::string name = player->getName();

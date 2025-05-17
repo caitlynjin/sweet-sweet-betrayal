@@ -2,13 +2,9 @@
 #include "Object.h"
 
 #define JSON_KEY "windObstacles"
-
-
 using namespace cugl;
 using namespace cugl::graphics;
 
-
-#define OFFSET 0.1f
 /**
  * Sets the position
  *
@@ -221,7 +217,6 @@ bool WindObstacle::init(const Vec2 pos, const Size size, float scale, const Vec2
         setDensity(0.0f);
         setFriction(0.0f);
         setRestitution(0.0f);
-        setName("fan");
         setSensor(true);
         setAngle(_angle);
         
