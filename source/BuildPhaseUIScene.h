@@ -101,6 +101,8 @@ protected:
 
     string _local;
 
+    int _numPlayers = 0;
+
     /** Whether the game is paused */
     bool _isPaused = false;
     /** Whether the player is ready to proceed to movement phase */

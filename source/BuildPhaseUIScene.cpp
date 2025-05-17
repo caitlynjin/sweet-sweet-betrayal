@@ -287,7 +287,10 @@ void BuildPhaseUIScene::preUpdate(float dt) {
         }
     }
 
-    if (_networkController->getPlayerList().size() > 0 && !_playersCounted){
+    if (_networkController->getPlayerList().size() > 0 && _networkController->getPlayerList().size() != _numPlayers){
+        _numPlayers++;
+    }
+    else if (_networkController->getPlayerList().size() > 0 && _numPlayers == _networkController->getPlayerList().size() && !_playersCounted){
         _playersCounted = true;
         for (auto& player : _networkController->getPlayerList()){
             if (player->getName() != _local && player->getName() == "playerRed"){
