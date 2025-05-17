@@ -76,6 +76,9 @@ void SSBApp::onShutdown()
     _loading.dispose();
     _gameController.dispose();
     _startscreen.dispose();
+    _settingscreen.dispose();
+    _creditsscreen.dispose();
+    _helpscreen.dispose();
     _mainmenu.dispose();
     _hostgame.dispose();
     _levelSelect.dispose();
@@ -206,6 +209,12 @@ void SSBApp::preUpdate(float dt)
         _startscreen.setActive(true);
 
         _startscreen.setSpriteBatch(_batch);
+        _settingscreen.init(_assets, _sound);
+        _settingscreen.setSpriteBatch(_batch);
+        _creditsscreen.init(_assets, _sound);
+        _creditsscreen.setSpriteBatch(_batch);
+        _helpscreen.init(_assets, _sound);
+        _helpscreen.setSpriteBatch(_batch);
         _mainmenu.init(_assets, _sound);
         _mainmenu.setSpriteBatch(_batch);
         _hostgame.init(_assets, _networkController, _sound);
@@ -242,6 +251,15 @@ void SSBApp::preUpdate(float dt)
         {
         case START:
             updateStartScene(dt);
+            break;
+        case SETTING:
+            updateSettingScene(dt);
+            break;
+        case CREDITS:
+            updateCreditsScene(dt);
+            break;
+        case HELP:
+            updateHelpScene(dt);
             break;
         case MENU:
             updateMenuScene(dt);
@@ -504,10 +522,63 @@ void SSBApp::updateStartScene(float timestep)
            _levelEditorController.setSpriteBatch(_batch);
            _status = LEVEL_EDITOR;
           _network->markReady();
-            break;
+           break;
+    case StartScene::Choice::SETTING:
+        _startscreen.setActive(false);
+        _settingscreen.setActive(true);
+        _status = SETTING;
+        break;
     case StartScene::Choice::NONE:
         // DO NOTHING
         break;
+    }
+}
+
+void SSBApp::updateSettingScene(float timestep){
+    _settingscreen.update(timestep);
+    switch (_settingscreen.getChoice()){
+        case SettingScene::Choice::EXIT:
+            _settingscreen.setActive(false);
+            _startscreen.setActive(true);
+            _status = START;
+            break;
+        case SettingScene::Choice::HELP:
+            _settingscreen.setActive(false);
+            _helpscreen.setActive(true);
+            _status = HELP;
+            break;
+        case SettingScene::Choice::CREDITS:
+            _settingscreen.setActive(false);
+            _creditsscreen.setActive(true);
+            _status = CREDITS;
+            break;
+        case SettingScene::Choice::NONE:
+            break;
+    }
+}
+
+void SSBApp::updateHelpScene(float timestep) {
+    _helpscreen.update(timestep);
+    switch (_helpscreen.getChoice()){
+        case HelpScene::Choice::BACK:
+            _helpscreen.setActive(false);
+            _settingscreen.setActive(true);
+            _status = SETTING;
+        case HelpScene::Choice::NONE:
+            break;
+    }
+}
+
+void SSBApp::updateCreditsScene(float timestep){
+    _creditsscreen.update(timestep);
+    switch (_creditsscreen.getChoice()){
+        case CreditsScene::Choice::BACK:
+            _creditsscreen.setActive(false);
+            _settingscreen.setActive(true);
+            _status = SETTING;
+            break;
+        case CreditsScene::Choice::NONE:
+            break;
     }
 }
 
@@ -806,12 +877,16 @@ void SSBApp::resetScenes(){
     _gameController.dispose();
     
     _startscreen.reset();
+    _settingscreen.reset();
+    _helpscreen.reset();
+    _creditsscreen.reset();
     _mainmenu.reset();
     _hostgame.reset();
     _joingame.reset();
     _colorselect.reset();
     _levelSelect.reset();
     _waitinghost.reset();
+    _pause.reset();
     _disconnectedscreen.reset();
     _expectedPlayers = 0;
 }
@@ -834,6 +909,15 @@ void SSBApp::draw()
         break;
     case START:
         _startscreen.render();
+        break;
+    case SETTING:
+        _settingscreen.render();
+        break;
+    case CREDITS:
+        _creditsscreen.render();
+        break;
+    case HELP:
+        _helpscreen.render();
         break;
     case MENU:
         _mainmenu.render();
@@ -860,6 +944,9 @@ void SSBApp::draw()
         break;
     case VICTORY:
         _victory.render();
+        break;
+    case PAUSED:
+        _pause.render();
         break;
     case DISCONNECTED:
         _disconnectedscreen.render();
