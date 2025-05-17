@@ -159,7 +159,7 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player1.red-icon"));
     _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player2.blue-icon"));
     _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player3.green-icon"));
-    _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player1.yellow-icon"));
+    _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("buildmode.top.icons.player4.yellow-icon"));
 
     if (local == "playerRed"){
         _red = "buildmode.top.icons.player1.red-icon";
@@ -272,25 +272,26 @@ void BuildPhaseUIScene::preUpdate(float dt) {
         if (name=="playerRed") {
             _redIcon->setVisible(true);
             _redCheck->setVisible(ready);
+            CULog("red");
         }
         if (name=="playerBlue") {
             _blueIcon->setVisible(true);
             _blueCheck->setVisible(ready);
+            CULog("blue");
         }
         if (name=="playerGreen") {
             _greenIcon->setVisible(true);
             _greenCheck->setVisible(ready);
+            CULog("green");
         }
         if (name=="playerYellow") {
             _yellowIcon->setVisible(true);
             _yellowCheck->setVisible(ready);
+            CULog("yellow");
         }
     }
 
-    if (_networkController->getPlayerList().size() > 0 && _networkController->getPlayerList().size() != _numPlayers){
-        _numPlayers++;
-    }
-    else if (_networkController->getPlayerList().size() > 0 && _numPlayers == _networkController->getPlayerList().size() && !_playersCounted){
+    if (_networkController->getPlayerList().size() == _networkController->getNetwork()->getNumPlayers() && !_playersCounted){
         _playersCounted = true;
         for (auto& player : _networkController->getPlayerList()){
             if (player->getName() != _local && player->getName() == "playerRed"){
@@ -354,11 +355,18 @@ void BuildPhaseUIScene::preUpdate(float dt) {
                 _icons--;
             }
         }
+        _redIcon->dispose();
+        _blueIcon->dispose();
+        _greenIcon->dispose();
+        _yellowIcon->dispose();
         _redIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_red));
         _blueIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_blue));
         _greenIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_green));
         _yellowIcon = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>(_yellow));
-
+        _redCheck->dispose();
+        _blueCheck->dispose();
+        _greenCheck->dispose();
+        _yellowCheck->dispose();
         switch (_redPos){
             case 1:
                 _redCheck   = std::dynamic_pointer_cast<scene2::PolygonNode>(
