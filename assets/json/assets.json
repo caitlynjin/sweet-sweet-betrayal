@@ -424,6 +424,9 @@
         "yellowglider": {
             "file": "textures/yellowglider.png"
         },
+        "safezone": {
+            "file": "textures/safezone.png"
+        },
         "button_1": {
             "file": "textures/buttons/button_1.png"
         },
