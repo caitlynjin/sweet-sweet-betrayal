@@ -52,7 +52,7 @@ MovePhaseController::MovePhaseController() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound) {
+bool MovePhaseController::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound) {
     if (assets == nullptr)
     {
         return false;
@@ -92,6 +92,7 @@ bool MovePhaseController::finishInit(){
 //    }
     
 //    _movePhaseScene.init(_assets, _world, _gridManager, _networkController, &_objects);
+
     _movePhaseScene.populate();
     _camera = _movePhaseScene.getCamera();
     _objectController = _movePhaseScene.getObjectController();
@@ -126,8 +127,8 @@ void MovePhaseController::disposeLevel(){
     
     _world->clear();
     _networkController->setObjects(&_objects);
-    _networkController->setWorld(_world);
-}
+//    _networkController->setWorld(_world);
+    }
 
 #pragma mark -
 #pragma mark Gameplay Handling

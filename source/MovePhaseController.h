@@ -110,7 +110,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<PlatformInput> input, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::shared_ptr<SoundController> &sound);
 
     
     /** Gets called after level select scene */
@@ -161,6 +161,7 @@ public:
     
     void setGridManger(const shared_ptr<GridManager> gridManager){
         _gridManager = gridManager;
+        _movePhaseScene.setGridManager(gridManager);
     }
     
     void setInput(const shared_ptr<PlatformInput> input){
@@ -174,10 +175,13 @@ public:
      */
     void killPlayer();
     
-    MovePhaseScene getMovePhaseScene(){
+    MovePhaseScene& getMovePhaseScene(){
         return _movePhaseScene;
     }
     
+    void rebuildMovePhase(){
+        _movePhaseScene.rebuildLevel(&_objects);
+    }
     /**
      *  Called when player reaches the goal
      */

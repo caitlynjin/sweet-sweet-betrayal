@@ -61,6 +61,22 @@ BuildPhaseUIScene::BuildPhaseUIScene() : Scene2() {}
 void BuildPhaseUIScene::dispose() {
     if (_active)
     {
+        removeAllChildren();
+        
+        for (auto btn : _inventoryButtons) {
+            btn->clearListeners();
+            btn->dispose();
+            btn = nullptr;
+        }
+        
+        _inventoryButtons.clear();
+        
+        _readyButton->clearListeners();
+        _rightButton->clearListeners();
+        _leftButton->clearListeners();
+        _trashButton->clearListeners();
+        _pauseButton->clearListeners();
+        
         _readyButton = nullptr;
         _rightButton = nullptr;
         _leftButton = nullptr;
@@ -398,7 +414,11 @@ void BuildPhaseUIScene::activateInventory(bool value) {
  */
 void BuildPhaseUIScene::setInventoryButtons(std::vector<Item> inventoryItems, std::vector<std::string> assetNames) {
     // Reset buttons
-    for (auto btn : _inventoryButtons) { btn->dispose(); }
+    for (auto btn : _inventoryButtons) { 
+        btn->clearListeners();
+        btn->dispose();
+        btn = nullptr;
+    }
     _inventoryButtons.clear();
     auto scene = _assets->get<scene2::SceneNode>("buildmode");
     scene->setContentSize(getSize());
