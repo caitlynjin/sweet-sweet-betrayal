@@ -622,6 +622,7 @@ void SSBApp::updateHostScene(float timestep)
     {
         CULog("HANDSHAKE");
         _networkController->setIsHost(true);
+        _hostgame.setActive(true);
         _gameController.init(_assets, _networkController, _sound);
 //        _gameController.setSpriteBatch(_batch);
         _network->markReady();
