@@ -106,6 +106,7 @@ void BuildPhaseController::reset() {
     _selectedObject = nullptr;
     _prevPos = Vec2(0, 0);
     _readyMessageSent = false;
+    _accelerationStarted = false;
 }
 
 /**
@@ -253,6 +254,7 @@ void BuildPhaseController::preUpdate(float dt) {
                     _selectedObject->setPositionInit(_prevPos);
                     _gridManager->addMoveableObject(_prevPos, _selectedObject);
                     _prevPos = Vec2(0, 0);
+                    _sound->playSound("failed_placement");
                 } else {
                     // Move the existing object to new position
                     CULog("Reposition object");
@@ -280,7 +282,8 @@ void BuildPhaseController::preUpdate(float dt) {
                 // Place new object on grid
                 Vec2 gridPos = snapToGrid(_buildPhaseScene.convertScreenToBox2d(screenPos, getSystemScale()) + dragOffset, _selectedItem);
 
-                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) || _selectedItem == Item::BOMB) {
+                if (_gridManager->canPlace(gridPos, itemToGridSize(_selectedItem), _selectedItem) ||
+                    (_selectedItem == Item::BOMB && _gridManager->canPlaceBomb(gridPos))) {
                         std::shared_ptr<Object> obj = placeItem(gridPos, _selectedItem);
 
                     if (_selectedItem != BOMB) {
@@ -295,6 +298,7 @@ void BuildPhaseController::preUpdate(float dt) {
                         _uiScene.activateInventory(false);
                     }
                 } else {
+                    _sound->playSound("failed_placement");
                     CULog("Invalid position at (%f, %f), snapping object back", gridPos.x, gridPos.y);
                 }
             }
@@ -429,7 +433,6 @@ void BuildPhaseController::randomizeItems(int count) {
     for (int i = 0; i < count; ++i) {
         inventoryItems.push_back(pairedItems[i].first);
         assetNames.push_back(pairedItems[i].second);
-        CULog("%s", pairedItems[i].second.c_str());
     }
 
     _uiScene.setInventoryButtons(inventoryItems, assetNames);

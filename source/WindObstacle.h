@@ -11,6 +11,9 @@ constexpr int RAYS = 3;
 #define FAN_ANIM_CYCLE 0.8f
 #define GUST_ANIM_CYCLE 3.0f
 #define PRIORITY 0
+#define GUST_DISTANCE 0.5f
+#define OFFSET 0.1f
+#define NAME "wind"
 
 class WindObstacle : public Object {
 
@@ -44,6 +47,10 @@ private:
 
 	/** The scale between the physics world and the screen (MUST BE UNIFORM) */
 	float _drawScale;
+
+	/*The distance the nearest object/player ratrace is, as a ratio of the ray lengths.*/
+	float _minObjDist;
+	float _minPlyrDist;
 
 
 public:

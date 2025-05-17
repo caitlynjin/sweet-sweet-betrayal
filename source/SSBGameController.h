@@ -85,6 +85,9 @@ protected:
     /** Whether the game is paused */
     bool _isPaused = false;
 
+    /** the level num */
+    int _levelNum = 0;
+
     /** Countdown active for displaying scoreboard between rounds */
     int _scoreCountdown = -1;
     
@@ -119,6 +122,8 @@ public:
      * Disposes of all (non-static) resources allocated to this mode.
      */
     void dispose() override;
+    
+    void disposeLevel();
 
     /**
      * Initializes the controller contents, and starts the game
@@ -294,6 +299,7 @@ public:
     
     void setLevelNum(int level){
         _movePhaseController->setLevelNum(level);
+        _levelNum = level;
     }
     
     int getLevelNum(){

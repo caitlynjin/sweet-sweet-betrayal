@@ -150,6 +150,8 @@ bool SSBGameController::init(const std::shared_ptr<AssetManager> &assets,
     _input = std::make_shared<PlatformInput>();
     _input->init(getBounds());
     
+    CULog("INPUT INITIALIZED");
+    
     _movePhaseController = std::make_shared<MovePhaseController>();
     _movePhaseController->init(assets, _world, _input, _gridManager, _networkController, _sound);
 
@@ -184,8 +186,6 @@ bool SSBGameController::finishInit(){
 
     // Initialize build phase controller
     _buildPhaseController->init(_assets, _input, _gridManager, _objectController, _networkController, _camera, _movePhaseController->getLocalPlayer(), _sound);
-    _sound->setMusicVolume(0.0f, true);
-    _sound->setSFXVolume(0.0f, true);
     //_sound->playMusic("move_phase");
 
     // Create parallax art assets
@@ -204,10 +204,20 @@ bool SSBGameController::finishInit(){
 
 void SSBGameController::createParallaxObjects() {
     std::shared_ptr<Object> obj;
-    //std::vector<int> layers = { -5, -4, -3, -2 };
-    //std::vector<float> scrollRates = { 0.04f, 0.1f, 0.15f, 0.3f };
-    std::vector<std::string> jsonTypes = { "parallax-ww-1", "parallax-ww-2", "parallax-ww-3", "parallax-ww-4", "parallax-ww-5",
-    "parallax-ww-6" };
+    std::vector<std::string> jsonTypes;
+    if (_levelNum == 1) {
+        jsonTypes = {"parallax-pp-1", "parallax-pp-2", "parallax-pp-3", "parallax-pp-4", "parallax-pp-5",
+        "parallax-pp-6"};
+    } 
+    else if (_levelNum == 2) {
+        jsonTypes = {"parallax-gg-1", "parallax-gg-2", "parallax-gg-3", "parallax-gg-4", "parallax-gg-5"};
+    }
+    else if (_levelNum == 3) {
+        jsonTypes = {
+        "parallax-ww-1", "parallax-ww-2", "parallax-ww-3", "parallax-ww-4", "parallax-ww-5",
+            "parallax-ww-6"
+        };
+    }
     shared_ptr<JsonReader> jsonReader;
     jsonReader = JsonReader::allocWithAsset("json/parallax/parallax.json");
     shared_ptr<JsonValue> json = jsonReader->readJson();
@@ -231,6 +241,7 @@ void SSBGameController::createParallaxObjects() {
  */
 void SSBGameController::dispose()
 {
+    reset();
     _world = nullptr;
 
     if (_gridManager) {
@@ -247,6 +258,40 @@ void SSBGameController::dispose()
         _movePhaseController->dispose();
     }
     Scene2::dispose();
+}
+
+/**
+ * Disposes of all resource necessary for playing a level again.
+ */
+void SSBGameController::disposeLevel(){
+    reset();
+    
+    if (_gridManager) {
+        _gridManager->getGridNode() = nullptr;
+    }
+    
+//    _input->dispose();
+    _backgroundScene.dispose();
+    _buildPhaseController->dispose();
+    
+    // Set-up for GameController re-init
+    _world->update(FIXED_TIMESTEP_S);
+
+    // Start in building mode
+    _buildingMode = true;
+    
+    _gridManager = GridManager::alloc(false, DEFAULT_WIDTH * 2, _scale, _offset, _assets, _world);
+
+    // Start up the input handler
+//    _input = std::make_shared<PlatformInput>();
+//    _input->init(getBounds());
+    
+    // Set-up for MovePhaseController re-init
+    _movePhaseController->disposeLevel();
+    _movePhaseController->setGridManger(_gridManager);
+    _movePhaseController->setInput(_input);
+    Scene2::dispose();
+    _movePhaseController->rebuildMovePhase();
 }
 
 void SSBGameController::setElementsActive(bool value){
@@ -269,14 +314,24 @@ void SSBGameController::setElementsActive(bool value){
 void SSBGameController::reset()
 {
     // Clear the world
-    _world->clear();
+    if (_world) {
+        _world->clear();
+    }
+    
+    // Reset all variables
+    _buildingMode = true;
+    _scoreCountdown = -1;
+    _beforeScoreBoard = 15;
+    _nextInRoundDelay = 30;
+    _nextInRoundIndex = 0;
+    _hasVictory = false;
     
     // Reset all controllers
-    _networkController->reset();
+//    _networkController->reset();
     _buildPhaseController->reset();
+    _gridManager->clear();
+    
     _movePhaseController->reset();
-        
-    _hasVictory = false;
 }
 
 #pragma mark -
@@ -316,11 +371,17 @@ void SSBGameController::update(float timestep)
  */
 void SSBGameController::preUpdate(float dt)
 {
+    //
+    for (auto player : _networkController->getPlayerList()) {
+        CULog("%s is player's name", player->getName().c_str());
+        CULog("len %d", _networkController->getPlayerList().size());
+    }
+    
     // Check for reset
     if (_networkController->getResetLevel()){
         reset();
     }
-    
+
     // Overall game logic
     _networkController->preUpdate(dt);
     _input->update(dt);

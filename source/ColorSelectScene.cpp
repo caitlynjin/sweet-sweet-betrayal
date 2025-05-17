@@ -56,7 +56,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     _networkController = networkController;
     _network = networkController->getNetwork();
     _networkController->setOnColorTaken([this](ColorType newColor, int oldColor){
-        _updateColorTaken(newColor, oldColor);
+        updateColorTaken(newColor, oldColor);
     });
     
     // Acquire the scene built by the asset loader and resize it the scene
@@ -64,6 +64,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
     scene->setContentSize(dimen);
     scene->doLayout(); // Repositions the HUD
     _choice = Choice::NONE;
+
     
     _background = std::dynamic_pointer_cast<scene2::PolygonNode>(_assets->get<scene2::SceneNode>("colorselect.background"));
     if (_background) {
@@ -121,9 +122,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         if (!down) {
             _sound->playMusic("move_phase", true);
             _choice = Choice::READY;
-//            _networkController->flushConnection();
-            _networkController->setLocalColor(_myColor);
-            _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
+            _pressedReady = true;
             _isReady = true;
             _sound->playSound("button_click");
         }
@@ -132,7 +131,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         if (!down && !_taken[int(ColorType::RED)]) {
             _myColor = ColorType::RED;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
-            _updateSelectedColor(_myColor);
+            updateSelectedColor(_myColor);
             _sound->playSound("redSelect");
         }
     });
@@ -140,7 +139,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         if (!down && !_taken[int(ColorType::BLUE)]) {
             _myColor = ColorType::BLUE;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
-            _updateSelectedColor(_myColor);
+            updateSelectedColor(_myColor);
             _sound->playSound("blueSelect");
         }
     });
@@ -148,7 +147,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         if (!down && !_taken[int(ColorType::YELLOW)]) {
             _myColor = ColorType::YELLOW;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
-            _updateSelectedColor(_myColor);
+            updateSelectedColor(_myColor);
             _sound->playSound("yellowSelect");
         }
     });
@@ -156,7 +155,7 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
         if (!down && !_taken[int(ColorType::GREEN)]) {
             _myColor = ColorType::GREEN;
             _network->pushOutEvent(ColorEvent::allocColorEvent(_network->getShortUID(), _myColor, _prevTakenIndex));
-            _updateSelectedColor(_myColor);
+            updateSelectedColor(_myColor);
             _sound->playSound("greenSelect");
         }
     });
@@ -176,12 +175,44 @@ bool ColorSelectScene::init(const std::shared_ptr<cugl::AssetManager>& assets, s
  * Disposes of all (non-static) resources allocated to this mode.
  */
 void ColorSelectScene::dispose() {
-    if (_active) {
-        removeAllChildren();
-        _background = nullptr;
-        _active = false;
-        Scene2::dispose();
-    }
+    reset();
+    removeAllChildren();
+    _background = nullptr;
+    _active = false;
+    
+    _assets = nullptr;
+    _sound = nullptr;
+    _networkController = nullptr;
+    _network = nullptr;
+    _input.dispose();
+
+    _backbutton->clearListeners();
+    _readybutton->clearListeners();
+    _redbutton->clearListeners();
+    _bluebutton->clearListeners();
+    _yellowbutton->clearListeners();
+    _greenbutton->clearListeners();
+    
+    _backbutton = nullptr;
+    _readybutton = nullptr;
+    _redbutton = nullptr;
+    _bluebutton = nullptr;
+    _yellowbutton = nullptr;
+    _greenbutton = nullptr;
+    _redNormal = nullptr;
+    _redSelected = nullptr;
+    _redTaken = nullptr;
+    _blueNormal = nullptr;
+    _blueSelected = nullptr;
+    _blueTaken = nullptr;
+    _yellowNormal = nullptr;
+    _yellowSelected = nullptr;
+    _yellowTaken = nullptr;
+    _greenNormal = nullptr;
+    _greenSelected = nullptr;
+    _greenTaken = nullptr;
+    
+    Scene2::dispose();
 }
 
 /**
@@ -191,9 +222,13 @@ void ColorSelectScene::reset(){
     _choice = Choice::NONE;
     _taken = {false,false,false,false};
     _myColor = ColorType::RED;
-    _resetButtons();
+    resetButtons();
     _isReady = false;
-    _setReadyEnabled(false);
+    _pressedReady = false;
+    setReadyEnabled(false);
+    _initialPlayerCount = 0;
+    _prevTakenIndex = -1;
+    _bounceTimer = 0.0f;
 }
 
 /**
@@ -209,7 +244,7 @@ void ColorSelectScene::setActive(bool value) {
             _backbutton->activate();
             // Deactivate ready button at first because no colors have been selected yet
             _isReady = false;
-            _setReadyEnabled(false);
+            setReadyEnabled(false);
             _redbutton->activate();
             _bluebutton->activate();
             _yellowbutton->activate();
@@ -239,6 +274,16 @@ void ColorSelectScene::setActive(bool value) {
 }
 
 void ColorSelectScene::update(float dt) {
+    // Update ready logic
+    if (_pressedReady){
+        CULog("Pressed ready");
+        _networkController->setLocalColor(_myColor);
+        CULog("Sent out color ready message");
+        _network->pushOutEvent(MessageEvent::allocMessageEvent(Message::COLOR_READY));
+        _pressedReady = false;
+    }
+    
+    // Update visual effects
     _bounceTimer += dt;
     const float iconAmplitude = 5.0f;
     const float iconSpeed     = 4.0f;
@@ -262,8 +307,8 @@ void ColorSelectScene::update(float dt) {
 }
 
 /** Visually and logically disable a color button */
-void ColorSelectScene::_updateColorTaken(ColorType newColor, int oldColorInt) {
-    _clearTaken(oldColorInt);
+void ColorSelectScene::updateColorTaken(ColorType newColor, int oldColorInt) {
+    clearTaken(oldColorInt);
     _taken[(int)newColor] = true;
     switch(newColor) {
         case ColorType::RED:
@@ -294,15 +339,30 @@ void ColorSelectScene::_updateColorTaken(ColorType newColor, int oldColorInt) {
 }
 
 /** Visually select a color button */
-void ColorSelectScene::_updateSelectedColor(ColorType c) {
+void ColorSelectScene::updateSelectedColor(ColorType c) {
     if (_prevTakenIndex >= 0 && _prevTakenIndex != int(c)) {
         _taken[_prevTakenIndex] = false;
     }
     _taken[int(c)] = true;
-    _redNormal->setVisible(true); _redSelected->setVisible(false);
-    _blueNormal->  setVisible(true); _blueSelected->  setVisible(false);
-    _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
-    _greenNormal-> setVisible(true); _greenSelected-> setVisible(false);
+    
+    if (!_taken[int(ColorType::RED)]){
+        _redNormal->setVisible(true); _redSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::BLUE)]){
+        _blueNormal->setVisible(true); _blueSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::GREEN)]){
+        _greenNormal->setVisible(true); _greenSelected->setVisible(false);
+    }
+    if (!_taken[int(ColorType::YELLOW)]){
+        _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
+    }
+    
+//    _redNormal->setVisible(true); _redSelected->setVisible(false);
+//    _blueNormal->  setVisible(true); _blueSelected->  setVisible(false);
+//    _yellowNormal->setVisible(true); _yellowSelected->setVisible(false);
+//    _greenNormal-> setVisible(true); _greenSelected-> setVisible(false);
+    
     switch(c) {
         case ColorType::RED:
             _redSelected->setVisible(true);
@@ -323,11 +383,11 @@ void ColorSelectScene::_updateSelectedColor(ColorType c) {
     }
     _prevTakenIndex = int(c);
     if (!_readybutton->isActive()){
-        _setReadyEnabled(true);
+        setReadyEnabled(true);
     }
 }
 
-void ColorSelectScene::_clearTaken(int oldColorInt){
+void ColorSelectScene::clearTaken(int oldColorInt){
     if (oldColorInt >= 0){
         _taken[oldColorInt] = false;
         switch(oldColorInt) {
@@ -355,7 +415,7 @@ void ColorSelectScene::_clearTaken(int oldColorInt){
     }
 }
 
-void ColorSelectScene::_resetButtons(){
+void ColorSelectScene::resetButtons(){
     _redNormal->setVisible(true); _redSelected->setVisible(false); _redTaken->setVisible(false);
     _blueNormal->  setVisible(true); _blueSelected->  setVisible(false); _blueTaken->setVisible(false);
     _yellowNormal->setVisible(true); _yellowSelected->setVisible(false); _yellowTaken->setVisible(false);
@@ -363,7 +423,7 @@ void ColorSelectScene::_resetButtons(){
 }
 
 /** Visually change the ready button depending on the input */
-void ColorSelectScene::_setReadyEnabled(bool enable) {
+void ColorSelectScene::setReadyEnabled(bool enable) {
     if (enable){
         _readybutton->activate();
     } else{

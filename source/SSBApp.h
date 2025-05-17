@@ -261,6 +261,21 @@ public:
      */
     virtual void postUpdate(float dt) override;
     
+    /**
+     Resets the entire state of the application. Disposes of all scenes and the network and re-initializes them.
+     */
+    void resetApplication();
+    
+    /**
+     Resets the entire state of the level controllers. Used when a party is still connected and wants to play another game.
+     */
+    void resetLevel();
+    
+    /**
+     Disposes all scenes necessary to create a clean slate. 
+     */
+    void disposeScenes();
+    
     
     void setTransition(bool value);
     

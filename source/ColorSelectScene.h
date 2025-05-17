@@ -67,6 +67,7 @@ protected:
     ColorType _myColor = ColorType::RED;
     int  _prevTakenIndex = -1;
     bool _isReady;
+    bool _pressedReady = false;
     
     float _bounceTimer = 0.0f;
     cugl::Vec2 _redBasePos, _blueBasePos, _yellowBasePos, _greenBasePos;
@@ -109,17 +110,17 @@ public:
     int getInitialPlayerCount() const { return _initialPlayerCount; }
     
     /** Update the screen after a color is taken */
-    void _updateColorTaken(ColorType newColor, int oldColorInt);
+    void updateColorTaken(ColorType newColor, int oldColorInt);
     /** Update the screen after the player selects a color button */
-    void _updateSelectedColor(ColorType c);
+    void updateSelectedColor(ColorType c);
     /** Update the screen to clear the previously taken color */
-    void _clearTaken(int oldColorInt);
+    void clearTaken(int oldColorInt);
     /** Reset the buttons */
-    void _resetButtons();
+    void resetButtons();
     /** Visually change the ready button depending on the input */
-    void _setReadyEnabled(bool enable);
+    void setReadyEnabled(bool enable);
     /** Returns isReady */
-    bool _getReady(){ return _isReady; }
+    bool getReady(){ return _isReady; }
 };
 
 #endif // __COLOR_SELECT_SCENE_H__

@@ -53,6 +53,7 @@ bool NetworkController::init(const std::shared_ptr<AssetManager>& assets)
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<AnimationStateEvent>();
     _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
     _scoreController = ScoreController::alloc(_assets);
@@ -75,6 +76,8 @@ void NetworkController::dispose(){
 }
 
 void NetworkController::resetNetwork(){
+    reset();
+    _network->disablePhysics();
     _network->disconnect();
     _network->dispose();
     _network = cugl::physics2::distrib::NetEventController::alloc(_assets);
@@ -85,6 +88,8 @@ void NetworkController::resetNetwork(){
     _network->attachEventType<ScoreEvent>();
     _network->attachEventType<TreasureEvent>();
     _network->attachEventType<AnimationEvent>();
+    _network->attachEventType<AnimationStateEvent>();
+    _network->attachEventType<MushroomBounceEvent>();
     _localID = _network->getShortUID();
 }
 
@@ -137,6 +142,12 @@ void NetworkController::preUpdate(float dt){
     }
     
     _scoreController->preUpdate(dt);
+   
+    
+    // Check for if a player has won
+    if (_scoreController->getPlayerWinID() != -1){
+        _winColorInt = static_cast<int>(_playerColorsById[_scoreController->getPlayerWinID()]);
+    }
     
 }
 
@@ -198,6 +209,10 @@ void NetworkController::fixedUpdate(float step){
         if(auto aEvent = std::dynamic_pointer_cast<AnimationEvent>(e)){
             processAnimationEvent(aEvent);
         }
+        // Check for AnimationStateEvent
+        if(auto asEvent = std::dynamic_pointer_cast<AnimationStateEvent>(e)){
+            processAnimationStateEvent(asEvent);
+        }
 
         // Check for LevelEvent
         if(auto lEvent = std::dynamic_pointer_cast<LevelEvent>(e)){
@@ -249,17 +264,34 @@ void NetworkController::postUpdate(float remain){
  */
 void NetworkController::reset(){
     // Reset score controller
+    flushConnection();
+    _network->getPhysController()->reset();
+//    _network->disablePhysics();
+    
     _scoreController->reset();
     
     // Reset network in-game variables
     _numReady = 0;
     _numReset = 0;
+    _numColorReady = 0;
+    _winColorInt = -1;
+    
+    _playerIDs.clear();
+    
     resetTreasureRandom();
     _readyMessageSent = false;
     _filtersSet = false;
     _resetLevel = false;
+    _colorsSynced = false;
+    _playerColorAdded = false;
     
     _levelSelected = 0;
+    _levelSelectData = make_tuple(0, false, false);
+    
+    _tSpawnPoints.clear();
+    _usedSpawns.clear();
+    
+    _playerList.clear();
 }
 
 
@@ -290,6 +322,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
     Message message = event->getMesage();
     switch (message) {
         case Message::COLOR_READY:
+            CULog("Received color ready message");
             _numColorReady++;
             break;
         case Message::BUILD_READY:
@@ -326,7 +359,7 @@ void NetworkController::processMessageEvent(const std::shared_ptr<MessageEvent>&
             break;
         case Message::MAKE_UNSTEALABLE:
             // Make treasure unstealable
-            _treasure->setStealable(false);
+            _treasure->setAtGoal(true);
             break;
         case Message::HOST_START:
             break;
@@ -424,6 +457,26 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
     }
 }
 
+/**
+ * This method takes a AnimationStateEvent and processes it.
+ */
+void NetworkController::processAnimationStateEvent(const std::shared_ptr<AnimationStateEvent>& event) {
+    int uid        = event->getPlayerID();
+    PlayerModel::State state   = event->getAnimationState();
+    bool facing = event->getFacing();
+    int colorInt  = static_cast<int>(_playerColorsById[uid]);
+
+    static const char* ColorNames[] = {"Red","Blue","Green","Yellow"};
+    std::string targetName = "player" + std::string(ColorNames[colorInt]);
+
+    for (auto player : _playerList) {
+        if (player->getName() == targetName) {
+            
+            player->processNetworkState(state, facing);
+        }
+    }
+}
+
 void NetworkController::processMushroomBounceEvent(const std::shared_ptr<MushroomBounceEvent>& event) {
     CULog("entering here");
     Vec2 pos = event->getPosition();
@@ -464,6 +517,7 @@ void NetworkController::removeObject(std::shared_ptr<Object> object){
 /** Resets the treasure to remove possession and return to spawn location */
 void NetworkController::resetTreasure(){
     _treasure->setTaken(false);
+    _treasure->setAtGoal(false);
     _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPositionInit(_treasureSpawn);
@@ -475,6 +529,7 @@ void NetworkController::resetTreasure(){
 /** Resets the treasure to remove possession and return to random spawn location */
 void NetworkController::resetTreasureRandom(){
     _treasure->setTaken(false);
+    _treasure->setAtGoal(false);
     _treasure->setStealable(true);
     if (_isHost){
         _treasure->setPositionInit(pickRandSpawn());
@@ -627,7 +682,7 @@ Vec2 NetworkController::pickRandSpawn(){
 #pragma mark -
 #pragma mark Helpers
 
-void NetworkController::setWorld(std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
+void NetworkController::setWorld(const std::shared_ptr<cugl::physics2::distrib::NetWorld> world){
     _world = world;
     
     // Setup factories
@@ -667,10 +722,21 @@ void NetworkController::trySetFilters(){
     int numPlayers = 0;
 
     const auto& obstacles = _world->getObstacles();
+    
+//    _network->getPhysController()->
+//    const auto& obstacles = _world->getOwnedObstacles();
+//    
+//    auto ownedObstaclesMap = _world->getOwnedObstacles();
+//    std::vector<std::shared_ptr<physics2::Obstacle>> obstacles;
+//    
+//    for (const auto& [obstacle, duration] : ownedObstaclesMap) {
+//            obstacles.push_back(obstacle);
+//        }
+    
     std::vector<std::shared_ptr<PlayerModel>> playerListTemp;
     
     for (const auto& obstacle : obstacles) {
-        
+        CULog("Object name: %s", obstacle->getName().c_str());
         if (tagContainsPlayer(obstacle->getName())){
             numPlayers += 1;
             
@@ -686,6 +752,7 @@ void NetworkController::trySetFilters(){
     }
     
     // Check if we have all players in world, then set their collision filters
+    CULog("Num players: %d, network players: %d", numPlayers, _network->getNumPlayers());
     if (numPlayers == _network->getNumPlayers()){
         _playerList = playerListTemp;
         
@@ -1154,6 +1221,7 @@ std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode
 WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDirection, const Vec2 windStrength, float angle) {
     //Allocate Fan Animations
     std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos+size/2, size, scale, windDirection, windStrength, angle);
+    wind->setName("fan");
 
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
     wind->setFanAnimation(animNode, 4);

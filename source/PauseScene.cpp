@@ -99,6 +99,7 @@ bool PauseScene::init(const std::shared_ptr<cugl::AssetManager>& assets, const s
     });
     _sfxSlider->addListener([this](const std::string& name, float value){
         _sound->setSFXVolume(value / 100, true);
+        _sound->playSound("button_click");
     });
 
     _disconnectButton->addListener([this](const std::string& name, bool down) {

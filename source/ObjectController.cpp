@@ -41,7 +41,7 @@ float SPIKE_POS[] = {5.5f, 1.5f};
 /** Create ObjectController that handles the creation of all objects, including platform, spike, windobstacle, moving platform...**/
 
 ObjectController::ObjectController(const std::shared_ptr<AssetManager>& assets,
-                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world,
+                                   const std::shared_ptr<cugl::physics2::distrib::NetWorld> world,
                                    float scale,
                                    const std::shared_ptr<scene2::SceneNode> world_node,
                                    const std::shared_ptr<scene2::SceneNode> debug_node,
@@ -252,6 +252,7 @@ std::shared_ptr<Object> ObjectController::createWindObstacle(std::shared_ptr<Win
 
         wind->setGustAnimation(gusts, 14);
         wind->setPositionInit(wind->getPosition());
+        wind->setName("fan");
     }
     else {
         staticSprite = scene2::SpriteNode::allocWithTexture(_assets->get<Texture>(FAN_TEXTURE));
@@ -391,13 +392,13 @@ std::shared_ptr<Object> ObjectController::createParallaxArtObject(std::shared_pt
     art->setAnimated(isAnimated);
     art->setBodyType(b2_staticBody);
     art->setDensity(BASIC_DENSITY);
-    sprite->setAnchor(0.1, 0.55);
+    sprite->setAnchor(0.15, 0.55);
     sprite->setPosition(sprite->getPosition() + art->getPosition());
     art->setFriction(BASIC_FRICTION);
     art->setRestitution(BASIC_RESTITUTION);
     art->setDebugColor(DEBUG_COLOR);
     art->setItemType(Item::ART_OBJECT);
-    art->setName("artObject");
+    art->setName("parallaxObject");
     // Disable ArtObject collision physics
     art->setSensor(true);
     // Create a filter

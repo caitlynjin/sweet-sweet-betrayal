@@ -89,7 +89,7 @@ void MovePhaseScene::dispose() {
  *
  * @return true if the controller is initialized properly, false otherwise.
  */
-bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
+bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects) {
     if (assets == nullptr)
     {
         return false;
@@ -130,8 +130,66 @@ bool MovePhaseScene::init(const std::shared_ptr<AssetManager>& assets, const std
     addChild(_gridManager->getGridNode());
 
     _active = true;
-    populate();
+    
+//    populate();
 
+    return true;
+}
+
+void MovePhaseScene::createLocalPlayer(){
+    // HOST STARTS ON LEFT
+    Vec2 pos = DUDE_POS;
+    // CLIENT STARTS ON RIGHT
+    if (_networkController->getLocalID() == 2) {
+        pos += Vec2(0, 3);
+    }
+    if (_networkController->getLocalID() == 3) {
+        pos += Vec2(3, 0);
+    }
+    if (_networkController->getLocalID() == 4) {
+        pos += Vec2(3, 3.5);
+    }
+        
+    ColorType playerColor = _networkController->getLocalColor();
+    _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    
+    _networkController->setLocalPlayer(_localPlayer);
+    
+    _localPlayer->setDebugScene(_debugnode);
+    _localPlayer->setLocal();
+    _world->getOwnedObstacles().insert({ _localPlayer,0 });
+    //If we are on keyboard, for debugging purposes turn off jump damping
+    Mouse* mouse = Input::get<Mouse>();
+    if (mouse) {
+        _localPlayer->setJumpDamping(false);
+    }
+    if (!_networkController->getIsHost()) {
+        _network->getPhysController()->acquireObs(_localPlayer, 0);
+    }
+}
+
+
+bool MovePhaseScene::rebuildLevel(std::vector<std::shared_ptr<Object>>* objects){
+    // Create the scene graph
+    std::shared_ptr<Texture> image;
+    _worldnode = scene2::OrderedNode::allocWithOrder(scene2::OrderedNode::Order::ASCEND);
+    _worldnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _worldnode->setPosition(_offset);
+    addChild(_worldnode);
+
+    _debugnode = scene2::SceneNode::alloc();
+    _debugnode->setScale(_scale); // Debug node draws in PHYSICS coordinates
+    _debugnode->setAnchor(Vec2::ANCHOR_BOTTOM_LEFT);
+    _debugnode->setPosition(_offset);
+    addChild(_debugnode);
+
+    // Initialize object controller
+    _objectController = std::make_shared<ObjectController>(_assets, _world, _scale, _worldnode, _debugnode, objects);
+
+    addChild(_gridManager->getGridNode());
+
+    _active = true;
+    
     return true;
 }
 
@@ -159,13 +217,14 @@ void MovePhaseScene::populate() {
     string levelName;
     
     if (_levelNum == 1){
-        levelName = LEVEL_1;
+        levelName = "json/party.json";
     }
     else if (_levelNum == 2){
-        levelName = LEVEL_2;
+        levelName = "json/gorges.json";
     }
     else if (_levelNum == 3){
-        levelName = LEVEL_3;
+        levelName = "json/wind.json";
+        //
     }
     else{
         CULog("NO LEVEL SET");
@@ -187,10 +246,18 @@ void MovePhaseScene::populate() {
     Vec2 pos = DUDE_POS;
     // CLIENT STARTS ON RIGHT
     if (_networkController->getLocalID() == 2) {
+        pos += Vec2(0, 3);
+    }
+    if (_networkController->getLocalID() == 3) {
         pos += Vec2(3, 0);
     }
+    if (_networkController->getLocalID() == 4) {
+        pos += Vec2(3, 3.5);
+    }
+        
     ColorType playerColor = _networkController->getLocalColor();
     _localPlayer = _networkController->createPlayerNetworked(pos, _scale, playerColor);
+    
     _networkController->setLocalPlayer(_localPlayer);
 
     // This is set to false to counter race condition with collision filtering
@@ -198,9 +265,10 @@ void MovePhaseScene::populate() {
     // There is a race condition where players are colliding when they spawn in, causing a player to get pushed into the void
     // If I do not disable the player, collision filtering works after build phase ends, not sure why
     // TODO: Find a better solution, maybe only have players getting updated during movement phase
-//    _localPlayer->setEnabled(false);
+    _localPlayer->setEnabled(false);
 
     _localPlayer->setDebugScene(_debugnode);
+    _localPlayer->setLocal();
     _world->getOwnedObstacles().insert({ _localPlayer,0 });
     //If we are on keyboard, for debugging purposes turn off jump damping
     Mouse* mouse = Input::get<Mouse>();
@@ -214,8 +282,8 @@ void MovePhaseScene::populate() {
 #pragma mark : Treasure
     if(_networkController->getIsHost()){
         // Create Spawn Point for the treasure
-        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
+        Vec2 spawnPoint = _networkController->pickRandSpawn();
         
         _treasure = std::dynamic_pointer_cast<Treasure>(
             _networkController->createTreasureNetworked(spawnPoint, Size(1, 1), _scale, false)
@@ -225,7 +293,7 @@ void MovePhaseScene::populate() {
         _networkController->setTreasure(_treasure);
         _networkController->setTreasureSpawn(spawnPoint);
     }
-
+    CULog("CHUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCCCCCCCCCK");
 }
 
 
@@ -252,7 +320,7 @@ void MovePhaseScene::reset() {
     _camera->setPosition(_initialCameraPos);
     _camera->update();
 
-    populate();
+//    populate();
 }
 
 /**
@@ -357,8 +425,11 @@ void MovePhaseScene::linkSceneToObs(const std::shared_ptr<physics2::Obstacle>& o
     const std::shared_ptr<scene2::SceneNode>& node) {
 
     node->setPosition(obj->getPosition() * _scale);
-    _worldnode->addChild(node);
+    if (!_worldnode){
+        return;
+    }
 
+    _worldnode->addChild(node);
     // Dynamic objects need constant updating
     if (obj->getBodyType() == b2_dynamicBody) {
         scene2::SceneNode* weak = node.get(); // No need for smart pointer in callback

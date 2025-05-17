@@ -33,7 +33,7 @@ class MovePhaseScene : public scene2::Scene2 {
 protected:
     // JSON LEVEL CONSTANTS
     
-    string LEVEL_1 = "json/playground.json";
+    string LEVEL_1 = "json/party.json";
     string LEVEL_2 = "json/alpha.json";
     string LEVEL_3 = "json/playground.json";
     
@@ -104,7 +104,7 @@ public:
      *
      * @return true if the controller is initialized properly, false otherwise.
      */
-    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld>& world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects);
+    bool init(const std::shared_ptr<AssetManager>& assets, const std::shared_ptr<cugl::physics2::distrib::NetWorld> world, std::shared_ptr<GridManager> gridManager, std::shared_ptr<NetworkController> networkController, std::vector<std::shared_ptr<Object>>* objects);
 
     /**
      * Lays out the game geography.
@@ -118,6 +118,9 @@ public:
      * with your serialization loader, which would process a level file.
      */
     void populate();
+    
+    /** Rebuilding a level when a game has already been completed. */
+    bool rebuildLevel(std::vector<std::shared_ptr<Object>>* objects);
 
 #pragma mark -
 #pragma mark Gameplay Handling
@@ -146,6 +149,11 @@ public:
      * Gets the offset of the grid for the world
      */
     Vec2 getOffset() { return _offset; };
+    
+    
+    void setGridManager(std::shared_ptr<GridManager> gridManager){
+        _gridManager = gridManager;
+    };
 
     /**
      * Gets the camera for the move phase scene
@@ -212,6 +220,9 @@ public:
      * @param screenPos    The screen position
      */
     Vec2 convertScreenToBox2d(const Vec2 &screenPos);
+    
+    
+    void createLocalPlayer();
 
     /**
      * This method links a scene node to the obstacle.
