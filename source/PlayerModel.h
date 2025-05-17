@@ -504,6 +504,8 @@ public:
     void setAnimationColors(ColorType color);
     
     void processNetworkAnimation(AnimationType animation, bool activate);
+
+    void processNetworkState(State state, bool faceRight);
     
     /**
      * Called when the player obtains a treasure.
@@ -602,6 +604,9 @@ public:
      * Update the visual direction the dude is facing
      */
     void updateFacing();
+
+    //Return Just Flipped
+    bool justFlipped() { return _justFlipped; };
 
     /**
     Applies a certain amount of wind velocity to the player

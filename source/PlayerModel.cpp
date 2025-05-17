@@ -348,6 +348,25 @@ void PlayerModel::processNetworkAnimation(AnimationType animation, bool activate
     }
 }
 
+void PlayerModel::processNetworkState(State state, bool faceRight) {
+    if (_isLocal) {
+        return;
+    }
+    _state = state;
+    _faceRight = faceRight;
+    updateFacing();
+    if (state == State::GLIDING) {
+        if (!_glideSpriteNode->isVisible()) {
+            _idleSpriteNode->setVisible(false);
+            _walkSpriteNode->setVisible(false);
+            _glideSpriteNode->setVisible(true);
+            _jumpSpriteNode->setVisible(false);
+            _deathSpriteNode->setVisible(false);
+        }
+        doStrip(GLIDE_ACTION_KEY, _glideAction);
+    }
+}
+
 
 
 #pragma mark -

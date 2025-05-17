@@ -244,8 +244,18 @@ void MovePhaseController::preUpdate(float dt) {
         killPlayer();
     }
     
-    if (_movePhaseScene.getLocalPlayer()->hasStateChanged()) {
-        //if (_movePhaseScene.getLocalPlayer()->getState() == );
+    if (_movePhaseScene.getLocalPlayer()->hasStateChanged() || _movePhaseScene.getLocalPlayer()->justFlipped()) {
+        _network->pushOutEvent(
+            AnimationStateEvent::allocAnimationStateEvent(
+                _network->getShortUID(),
+                _movePhaseScene.getLocalPlayer()->getState(),
+                _movePhaseScene.getLocalPlayer()->isFacingRight()
+            )
+        );
+
+        if (_movePhaseScene.getLocalPlayer()->isFacingRight()) {
+        
+        }
     }
 
 

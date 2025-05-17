@@ -12,18 +12,9 @@
 #include <stdio.h>
 #include <cugl/cugl.h>
 #include "Message.h"
+#include "PlayerModel.h"
 using namespace cugl;
 using namespace cugl::physics2::distrib;
-
-/**
- * Animation types supported by AnimationStateEvent
- */
-enum class AnimationStateType : int {
-    GROUNDED = 0,
-    JUMP = 1,
-    GLIDE = 2
-};
-
 
 class AnimationStateEvent : public NetEvent {
     
@@ -32,7 +23,7 @@ protected:
     LWDeserializer _deserializer;
     
     int _playerID;
-    AnimationStateType _animation;
+    PlayerModel::State _state;
     bool          _facing;
     
     
@@ -47,7 +38,7 @@ public:
      */
     std::shared_ptr<NetEvent> newEvent() override;
     
-    static std::shared_ptr<AnimationStateEvent> allocAnimationStateEvent(int playerID, AnimationStateType animation, bool facing);
+    static std::shared_ptr<AnimationStateEvent> allocAnimationStateEvent(int playerID, PlayerModel::State state, bool facing);
     
     /**
      * Serialize any paramater that the event contains to a vector of bytes.
@@ -68,7 +59,7 @@ public:
     int getPlayerID() { return _playerID; }
     
     /** Gets the animation type of the event. */
-    AnimationStateType getAnimationState() const { return _animation; }
+    PlayerModel::State getAnimationState() const { return _state; }
     
     bool getFacing() const { return _facing; }
 

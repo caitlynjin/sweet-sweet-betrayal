@@ -455,19 +455,17 @@ void NetworkController::processAnimationEvent(const std::shared_ptr<AnimationEve
  */
 void NetworkController::processAnimationStateEvent(const std::shared_ptr<AnimationStateEvent>& event) {
     int uid        = event->getPlayerID();
-    AnimationStateType anim   = event->getAnimationState();
+    PlayerModel::State state   = event->getAnimationState();
     bool facing = event->getFacing();
     int colorInt  = static_cast<int>(_playerColorsById[uid]);
-
-//    CULog("AnimationEvent → UID=%d, color=%d, anim=%d, activate=%d",
-//          uid, colorInt, static_cast<int>(anim), activate);
 
     static const char* ColorNames[] = {"Red","Blue","Green","Yellow"};
     std::string targetName = "player" + std::string(ColorNames[colorInt]);
 
     for (auto player : _playerList) {
         if (player->getName() == targetName) {
-            //TODO: set facing and animation state
+            
+            player->processNetworkState(state, facing);
         }
     }
 }
