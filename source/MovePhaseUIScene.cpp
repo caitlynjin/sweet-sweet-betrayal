@@ -68,7 +68,7 @@ void MovePhaseUIScene::dispose() {
         _greenIcon = nullptr;
         _yellowIcon = nullptr;
         _treasureIcon = nullptr;
-//        _pauseButton = nullptr;
+        _pauseButton = nullptr;
 //        for (auto score : _scoreImages){
 //            score = nullptr;
 //        }
@@ -191,23 +191,23 @@ bool MovePhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, const s
     });
     addChild(_giveupbutton);
 
-//    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
-//    pauseNode->setScale(1.0f);
-//    _pauseButton = scene2::Button::alloc(pauseNode);
-//    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
-//    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-//    if (_networkController->getNetwork()->getNumPlayers() == 1) {
-//        _pauseButton->activate();
-//    } else {
-//        _pauseButton->setVisible(false);
-//    }
-//    _pauseButton->addListener([this](const std::string &name, bool down) {
-//        if (!down) {
-//            _isPaused = true;
-//            _sound->playSound("button_click");
-//        }
-//    });
-//    addChild(_pauseButton);
+    std::shared_ptr<scene2::PolygonNode> pauseNode = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(_networkController->getNetwork()->getNumPlayers() == 1 ? PAUSE : HOME));
+    pauseNode->setScale(1.0f);
+    _pauseButton = scene2::Button::alloc(pauseNode);
+    _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
+    _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->activate();
+    } else {
+        _pauseButton->setVisible(false);
+    }
+    _pauseButton->addListener([this](const std::string &name, bool down) {
+        if (!down) {
+            _isPaused = true;
+            _sound->playSound("button_click");
+        }
+    });
+    addChild(_pauseButton);
 
     _progressBar = scene2::PolygonNode::allocWithTexture(_assets->get<Texture>(PROGRESS_BAR));
     _progressBar->setAnchor(Vec2::ANCHOR_CENTER);
@@ -387,13 +387,13 @@ void MovePhaseUIScene::setActive(bool value) {
         _glidebutton->activate();
         _giveupbutton->activate();
         if (_networkController->getNetwork()->getNumPlayers() == 1) {
-//            _pauseButton->activate();
+            _pauseButton->activate();
         }
     } else {
         _jumpbutton->deactivate();
         _glidebutton->deactivate();
         _giveupbutton->deactivate();
-//        _pauseButton->deactivate();
+        _pauseButton->deactivate();
     }
 }
 

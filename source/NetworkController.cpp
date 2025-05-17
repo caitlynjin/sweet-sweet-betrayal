@@ -603,7 +603,7 @@ std::shared_ptr<Object> NetworkController::createThornNetworked(Vec2 pos, Size s
 }
 
 std::shared_ptr<Object> NetworkController::createWindNetworked(Vec2 pos, Size size, float scale, Vec2 dir, Vec2 str, float angle) {
-    auto params = _windFact->serializeParams(pos-size/2, size, scale,  dir, str, angle);
+    auto params = _windFact->serializeParams(pos, size, scale,  dir, str, angle);
     auto pair = _network->getPhysController()->addSharedObstacle(_windFactID, params);
     std::shared_ptr<WindObstacle> wind = std::dynamic_pointer_cast<WindObstacle>(pair.first);
 
@@ -1220,7 +1220,7 @@ ThornFactory::createObstacle(const std::vector<std::byte>& params) {
 std::pair<std::shared_ptr<physics2::Obstacle>, std::shared_ptr<scene2::SceneNode>>
 WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDirection, const Vec2 windStrength, float angle) {
     //Allocate Fan Animations
-    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos+size/2, size, scale, windDirection, windStrength, angle);
+    std::shared_ptr<WindObstacle> wind = WindObstacle::alloc(pos, size, scale, windDirection, windStrength, angle);
     wind->setName("fan");
 
     auto animNode = scene2::SpriteNode::allocWithSheet(_assets->get<Texture>(FAN_TEXTURE_ANIMATED), 1, 4, 4);
@@ -1237,7 +1237,7 @@ WindFactory::createObstacle(Vec2 pos, Size size,float scale, const Vec2 windDire
     gusts.push_back(animNode4);
 
     wind->setGustAnimation(gusts, 14);
-    wind->setPositionInit(wind->getPosition());
+    wind->setPositionInit(pos+size/2);
 
     return std::make_pair(wind, wind->getSceneNode());
 }
