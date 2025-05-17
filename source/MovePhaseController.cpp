@@ -227,6 +227,10 @@ void MovePhaseController::preUpdate(float dt) {
     if (_uiScene.getDidGiveUp()) {
         killPlayer();
     }
+    
+    if (_movePhaseScene.getLocalPlayer()->hasStateChanged()) {
+        //if (_movePhaseScene.getLocalPlayer()->getState() == );
+    }
 
 
     //if (_movePhaseScene.getLocalPlayer()->isJumping() && _movePhaseScene.getLocalPlayer()->isGrounded())

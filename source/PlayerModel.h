@@ -122,6 +122,9 @@ protected:
         GLIDING, GROUNDED, MIDDAIR
     };
     State _state = State::MIDDAIR;
+
+    //True if state has just changed
+    bool _stateJustChanged = false;
     //Functions to handle what inputs we get
     bool _detectedGround = false;
     bool _undetectGround = false;
@@ -570,6 +573,8 @@ public:
 #pragma mark Attribute Properties
     /*Gets player state. All player state actions should be resolve in update*/
     State getState() const { return _state; }
+
+    bool hasStateChanged() { return _stateJustChanged; }
     /*THE ONLY FUNCTION THAT SHOULD BE ABLE TO CHANGE PLAYER STATES*/
     void handlePlayerState();
 

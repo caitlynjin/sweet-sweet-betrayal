@@ -756,6 +756,7 @@ void PlayerModel::update(float dt)
 
 void PlayerModel::handlePlayerState() {
     _jumpImpulse = false;
+    _stateJustChanged = false;
 
     switch (_state) {
     case State::GROUNDED:
@@ -764,10 +765,12 @@ void PlayerModel::handlePlayerState() {
         if (_holdingJump && _justJumped) {
             _state = State::MIDDAIR;
             _jumpImpulse = true;
+            _stateJustChanged = true;
         }
         else if (_undetectGround && !_detectedGround) {
             _coyoteTimer = 0;
             _state = State::MIDDAIR;
+            _stateJustChanged = true;
         }
 
         if ((_jumpImpulse || _bufferTimer < JUMP_BUFFER_DURATION)) {
@@ -782,9 +785,11 @@ void PlayerModel::handlePlayerState() {
         //CULog("Gliding");
         if ((_detectedGround && !_undetectGround)) {
             _state = State::GROUNDED;
+            _stateJustChanged = true;
         }
         else if (!_holdingJump) {
             _state = State::MIDDAIR;
+            _stateJustChanged = true;
         }
 
         break;
@@ -793,10 +798,12 @@ void PlayerModel::handlePlayerState() {
         //Enter gliding upon input! If we just hit the jump button in the middle of the air, also throw in a jump buffer.
          if (_detectedGround && !_undetectGround) {
             _state = State::GROUNDED;
+            _stateJustChanged = true;
         }
 
         else if (_enterAutoGlide || _justJumped) {
             _state = State::GLIDING;
+            _stateJustChanged = true;
             _justGlided = true;
             if (_justJumped) {
                 _bufferTimer = 0;
