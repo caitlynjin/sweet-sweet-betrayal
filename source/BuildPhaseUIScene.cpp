@@ -159,7 +159,11 @@ bool BuildPhaseUIScene::init(const std::shared_ptr<AssetManager>& assets, std::s
     _pauseButton = scene2::Button::alloc(pauseNode);
     _pauseButton->setAnchor(Vec2::ANCHOR_CENTER);
     _pauseButton->setPosition(_size.width * 0.1f, _size.height * 0.85f);
-    _pauseButton->activate();
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->activate();
+    } else {
+        _pauseButton->setVisible(false);
+    }
     _pauseButton->addListener([this](const std::string &name, bool down) {
         if (down) {
             _isPaused = true;
@@ -334,7 +338,9 @@ void BuildPhaseUIScene::setActive(bool value) {
         _rightButton->activate();
         _leftButton->activate();
         _trashButton->activate();
-        _pauseButton->activate();
+        if (_networkController->getNetwork()->getNumPlayers() == 1) {
+            _pauseButton->activate();
+        }
     } else {
         _readyButton->deactivate();
         _rightButton->deactivate();
@@ -378,7 +384,9 @@ void BuildPhaseUIScene::setVisible(bool value) {
     _rightButton->setVisible(value);
     _readyButton->setVisible(value);
     _trashButton->setVisible(value);
-    _pauseButton->setVisible(value);
+    if (_networkController->getNetwork()->getNumPlayers() == 1) {
+        _pauseButton->setVisible(value);
+    }
     _timer->setVisible(value);
     _redIcon->setVisible(value);
     _blueIcon->setVisible(value);
